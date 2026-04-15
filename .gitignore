@@ -1,0 +1,32 @@
+# MATLAB
+*.asv
+slprj/
+*.autosave
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# ROS2 build artifacts
+build/
+install/
+log/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Output bag data / large data
+bag_data/
+*.bag
+*.db3

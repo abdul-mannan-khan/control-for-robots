@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 11: ROS2 Navigation &amp; Mobile Robot Control</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "\2713"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.1em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+        .pseudocode-block { background: #fff8dc; color: #333; padding: 20px; border-radius: 5px; margin: 15px 0; border: 3px solid #daa520; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .pseudocode-header { background: #daa520; color: white; padding: 10px 20px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-weight: bold; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; }
+        .card h4 { color: #2c3e50; margin-top: 0; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.2em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .think-pair-share { background: #fce4ec; border: 2px solid #e91e63; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box { background: #ede7f6; border: 2px solid #7c4dff; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+        .company-brief { background: #fff0f5; border-left: 5px solid #e91e63; border-radius: 10px; padding: 30px; margin-bottom: 40px; }
+        .company-brief h2 { color: #c2185b; border-bottom-color: #e91e63; }
+        .deliverable-list { list-style: none; padding-left: 0; }
+        .deliverable-list li { padding: 12px 15px; margin: 8px 0; background: white; border-radius: 5px; border-left: 4px solid #e91e63; }
+        .deliverable-list li:before { content: "\25B6"; color: #e91e63; margin-right: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<!-- ==================== HEADER ==================== -->
+<div class="header" style="background: linear-gradient(135deg, #004d40 0%, #00695c 50%, #00897b 100%);">
+    <h1>AutoNav Solutions &mdash; Navigation Engineer Technical Challenge</h1>
+    <div class="subtitle">Build Costmap, A* Planner, and Path Follower from LiDAR and Odometry Data</div>
+    <div class="meta">
+        Position: Navigation Engineer &bull; Team: Autonomous Navigation<br>
+        Pre-Interview Technical Assessment &bull; Estimated Time: 3 Hours
+    </div>
+</div>
+
+<div class="content">
+
+<!-- ============================================================ -->
+<!-- SECTION 0: COMPANY BRIEF -->
+<!-- ============================================================ -->
+<div class="company-brief">
+    <h2>Company Brief: AutoNav Solutions</h2>
+    <p><strong>Scenario:</strong> AutoNav Solutions develops autonomous mobile robot platforms for warehouse and logistics environments. Your team has collected 30 seconds of navigation sensor data from a robot operating in a structured environment, including a static map, laser scans, and wheel odometry. As part of this challenge, you will build a complete navigation pipeline from scratch.</p>
+
+    <h3>Provided Bag Data</h3>
+    <table>
+        <tr><th>Topic</th><th>Message Type</th><th>Rate</th><th>Description</th></tr>
+        <tr><td><code>/map</code></td><td>nav_msgs/OccupancyGrid</td><td>Latched</td><td>Static occupancy grid map of the environment</td></tr>
+        <tr><td><code>/odom</code></td><td>nav_msgs/Odometry</td><td>20 Hz</td><td>Wheel odometry (position, orientation, velocity)</td></tr>
+        <tr><td><code>/scan</code></td><td>sensor_msgs/LaserScan</td><td>5 Hz</td><td>2D laser range finder data</td></tr>
+    </table>
+
+    <h3>Deliverables</h3>
+    <ul class="deliverable-list">
+        <li>Costmap generation with static, obstacle, and inflation layers from the provided map and laser data</li>
+        <li>A* global path planner operating on the costmap</li>
+        <li>A path-following controller (pure pursuit or DWA) as a ROS2 node</li>
+        <li>A particle filter (AMCL-style) localisation node fusing odometry and laser scan data</li>
+        <li>A quantitative comparison of path quality, tracking error, and localisation accuracy</li>
+    </ul>
+
+    <h3>Evaluation Criteria</h3>
+    <ul>
+        <li><strong>Navigation Architecture:</strong> Proper separation of planning, control, and localisation components</li>
+        <li><strong>Algorithm Correctness:</strong> Valid A* implementation, correct costmap inflation, stable particle filter</li>
+        <li><strong>Integration:</strong> Components working together through ROS2 topics and action servers</li>
+        <li><strong>Communication:</strong> Ability to explain Nav2 architecture and compare DWA to MPC during the follow-up interview</li>
+    </ul>
+</div>
+
+<!-- ==================== SECTION 1: LEARNING OUTCOMES ==================== -->
+<div class="section objectives">
+    <h2>Skills You Will Demonstrate</h2>
+    <p>By the end of this session, you will be able to:</p>
+    <ul>
+        <li>Describe the ROS2 Nav2 architecture and explain how global planner, local controller, costmap, AMCL, and behavior tree components interact through ROS2 topics and action servers.</li>
+        <li>Configure costmap layers (static, obstacle, inflation) and explain how the inflation cost function creates soft constraints analogous to MPC barrier functions.</li>
+        <li>Analyse the Dynamic Window Approach (DWA) as an optimization-based local controller and compare its cost function to the MPC formulation studied in Week 3.</li>
+        <li>Explain how AMCL implements a particle filter for robot localization, connecting it to the controller-estimator pairing required by the NMPC / iLQR framework of Week 8.</li>
+        <li>Design and interpret behavior trees for mission-level navigation control, comparing them with finite state machines.</li>
+        <li>Integrate PID, LQR, and MPC controllers with the Nav2 navigation stack as local controller plugins.</li>
+        <li>Compare the suitability of different control approaches (PID, MPC, SMC, Backstepping, Robust, Adaptive) for various mobile robot navigation scenarios.</li>
+        <li>Configure, launch, and tune Nav2 for TurtleBot3 simulation including AMCL localization, DWA local planning, and waypoint navigation.</li>
+    </ul>
+</div>
+
+<!-- ==================== SECTION 2: SESSION ROADMAP ==================== -->
+<div class="section timeline">
+    <h2>Recommended Approach (3-Hour Session)</h2>
+
+    <div class="timeline-item">
+        <div class="timeline-time">0:00 &ndash; 0:20</div>
+        <div class="timeline-content">
+            <h4>Week 10 Exam Recall &amp; Introduction</h4>
+            <p>Review quadrotor control exam questions. Introduce mobile robot navigation as the next control application domain.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">0:20 &ndash; 0:50</div>
+        <div class="timeline-content">
+            <h4>Part 1: Nav2 Architecture Overview</h4>
+            <p>Global planner, local controller, costmaps, AMCL, behavior trees, recovery behaviors. Key ROS2 topics and message types.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">0:50 &ndash; 1:20</div>
+        <div class="timeline-content">
+            <h4>Part 2: DWA &mdash; The Local Controller as Optimization</h4>
+            <p>Deep dive into the Dynamic Window Approach. Connection to MPC. Simplified DWA implementation in ROS2.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">1:20 &ndash; 1:35</div>
+        <div class="timeline-content">
+            <h4>Break</h4>
+            <p>15-minute break.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">1:35 &ndash; 1:55</div>
+        <div class="timeline-content">
+            <h4>Part 3: AMCL &mdash; State Estimation for Control</h4>
+            <p>Particle filter localization. Connection to Week 8's controller-estimator pairing for NMPC. ROS2 AMCL configuration.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">1:55 &ndash; 2:10</div>
+        <div class="timeline-content">
+            <h4>Part 4: Costmaps as Constraints &amp; Part 5: Behavior Trees</h4>
+            <p>Costmap inflation as soft constraints. Behavior tree navigation orchestration.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">2:10 &ndash; 2:25</div>
+        <div class="timeline-content">
+            <h4>Part 6: Applying Control Theory to Navigation</h4>
+            <p>Mapping all 8 control methods from the course to mobile robot navigation scenarios.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">2:25 &ndash; 3:00</div>
+        <div class="timeline-content">
+            <h4>Hands-On Activities &amp; Lab Exercises</h4>
+            <p>Configure Nav2 for TurtleBot3. Tune DWA. Compare DWA vs MPC. Waypoint navigation with recovery.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 3: NAV2 ARCHITECTURE ==================== -->
+<div class="section">
+    <h2>Section 3: Part 1 &mdash; The ROS2 Navigation Stack (Nav2)</h2>
+
+    <p>Nav2 is the standard ROS2 navigation framework for autonomous mobile robots. It provides a complete, modular pipeline: from a goal pose, through path planning and obstacle avoidance, to velocity commands sent to the robot's motors. Every component is a ROS2 lifecycle node that can be configured, replaced, or extended via plugins.</p>
+
+    <h3>3.1 Nav2 Core Components</h3>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>Global Planner</h4>
+            <p>Computes a collision-free path from the robot's current position to the goal on the global costmap. Plugins include <strong>NavFn</strong> (Dijkstra/A*), <strong>SmacPlanner</strong> (State Lattice, Hybrid-A*), and <strong>ThetaStar</strong>. Operates on the full map at ~1 Hz.</p>
+        </div>
+        <div class="card">
+            <h4>Local Controller</h4>
+            <p>Follows the global path while avoiding local obstacles. Runs at 10&ndash;20 Hz on the local costmap. Plugins: <strong>DWA</strong> (Dynamic Window Approach), <strong>MPPI</strong> (Model Predictive Path Integral), <strong>Regulated Pure Pursuit</strong>, <strong>Rotation Shim</strong>.</p>
+        </div>
+        <div class="card">
+            <h4>Costmap 2D</h4>
+            <p>Layered 2D cost grid. <strong>Static layer</strong> from the SLAM map, <strong>obstacle layer</strong> from live sensor data (LiDAR, depth cameras), <strong>inflation layer</strong> providing safety buffers with exponential cost decay around obstacles.</p>
+        </div>
+        <div class="card">
+            <h4>AMCL Localization</h4>
+            <p>Adaptive Monte Carlo Localization &mdash; a particle filter that estimates the robot's pose on the map using laser scan data and odometry. Publishes the <code>map &rarr; odom</code> transform.</p>
+        </div>
+        <div class="card">
+            <h4>Behavior Tree Navigator</h4>
+            <p>Orchestrates the entire navigation pipeline using behavior trees (BehaviorTree.CPP). Handles sequencing of planning, control, and recovery. More flexible and maintainable than finite state machines.</p>
+        </div>
+        <div class="card">
+            <h4>Recovery Behaviors</h4>
+            <p>Activated when the robot gets stuck. <strong>Spin:</strong> rotate in place to clear local costmap. <strong>Backup:</strong> drive backwards. <strong>Wait:</strong> pause and hope dynamic obstacles move. <strong>ClearCostmap:</strong> reset costmap layers.</p>
+        </div>
+    </div>
+
+    <h3>3.2 Nav2 Architecture Diagram</h3>
+
+    <svg width="100%" style="max-width:800px" viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="fig1-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#1e3c72"/>
+            </marker>
+            <marker id="fig1-arrow-green" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#4caf50"/>
+            </marker>
+            <marker id="fig1-arrow-orange" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#ff9800"/>
+            </marker>
+            <marker id="fig1-arrow-pink" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#e91e63"/>
+            </marker>
+            <marker id="fig1-arrow-blue" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#2196f3"/>
+            </marker>
+        </defs>
+
+        <!-- Title -->
+        <text x="400" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Nav2 Architecture &mdash; Control-Focused View</text>
+
+        <!-- Goal Pose input -->
+        <rect x="30" y="50" width="130" height="40" rx="8" fill="#e91e63"/>
+        <text x="95" y="75" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Goal Pose</text>
+
+        <!-- Behavior Tree -->
+        <rect x="250" y="50" width="300" height="45" rx="8" fill="#1e3c72"/>
+        <text x="400" y="78" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Behavior Tree Navigator</text>
+
+        <!-- Arrow: Goal -> BT -->
+        <line x1="160" y1="70" x2="240" y2="70" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-pink)"/>
+        <text x="200" y="63" text-anchor="middle" font-size="9" fill="#e91e63">/navigate_to_pose</text>
+
+        <!-- BT to Global Planner -->
+        <line x1="325" y1="95" x2="325" y2="150" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+
+        <!-- BT to Local Controller -->
+        <line x1="475" y1="95" x2="475" y2="150" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+
+        <!-- BT to Recovery -->
+        <line x1="550" y1="72" x2="660" y2="72" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+
+        <!-- Global Planner -->
+        <rect x="215" y="155" width="220" height="45" rx="8" fill="#4caf50"/>
+        <text x="325" y="183" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Global Planner (A*/Dijkstra)</text>
+
+        <!-- Local Controller -->
+        <rect x="365" y="260" width="220" height="45" rx="8" fill="#ff9800"/>
+        <text x="475" y="288" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Local Controller (DWA/MPPI)</text>
+
+        <!-- Recovery Server -->
+        <rect x="620" y="50" width="160" height="45" rx="8" fill="#e91e63"/>
+        <text x="700" y="78" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Recovery Server</text>
+        <text x="700" y="110" text-anchor="middle" font-size="10" fill="#666">Spin / Backup / Wait</text>
+
+        <!-- Global Planner output: /plan -->
+        <line x1="325" y1="200" x2="325" y2="280" stroke="#4caf50" stroke-width="2"/>
+        <line x1="325" y1="280" x2="355" y2="280" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+        <text x="280" y="245" text-anchor="middle" font-size="10" fill="#4caf50">/plan (Path)</text>
+
+        <!-- Global Costmap -->
+        <rect x="30" y="155" width="155" height="40" rx="6" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+        <text x="107" y="180" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Global Costmap</text>
+
+        <!-- Arrow: Global Costmap -> Global Planner -->
+        <line x1="185" y1="175" x2="205" y2="175" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Local Costmap -->
+        <rect x="30" y="260" width="155" height="40" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+        <text x="107" y="285" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Local Costmap</text>
+
+        <!-- Arrow: Local Costmap -> Local Controller -->
+        <line x1="185" y1="280" x2="355" y2="280" stroke="#ff9800" stroke-width="2" marker-end="url(#fig1-arrow-orange)"/>
+
+        <!-- cmd_vel output -->
+        <rect x="620" y="260" width="150" height="40" rx="8" fill="#2196f3"/>
+        <text x="695" y="285" text-anchor="middle" fill="white" font-size="12" font-weight="bold">/cmd_vel (Twist)</text>
+
+        <!-- Arrow: Local Controller -> cmd_vel -->
+        <line x1="585" y1="282" x2="610" y2="282" stroke="#2196f3" stroke-width="2" marker-end="url(#fig1-arrow-blue)"/>
+
+        <!-- AMCL -->
+        <rect x="215" y="370" width="220" height="45" rx="8" fill="#667eea"/>
+        <text x="325" y="398" text-anchor="middle" fill="white" font-size="13" font-weight="bold">AMCL (Particle Filter)</text>
+
+        <!-- Map Server -->
+        <rect x="30" y="450" width="130" height="40" rx="6" fill="#f0f4ff" stroke="#667eea" stroke-width="2"/>
+        <text x="95" y="475" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Map Server</text>
+
+        <!-- /map arrow -->
+        <line x1="95" y1="450" x2="95" y2="400" stroke="#667eea" stroke-width="2"/>
+        <line x1="95" y1="400" x2="205" y2="400" stroke="#667eea" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+        <text x="145" y="393" text-anchor="middle" font-size="9" fill="#667eea">/map</text>
+
+        <!-- LaserScan -->
+        <rect x="30" y="370" width="130" height="40" rx="6" fill="#f0f4ff" stroke="#667eea" stroke-width="2"/>
+        <text x="95" y="395" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">LaserScan</text>
+
+        <!-- /scan arrow -->
+        <line x1="160" y1="390" x2="205" y2="390" stroke="#667eea" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+        <text x="183" y="383" text-anchor="middle" font-size="9" fill="#667eea">/scan</text>
+
+        <!-- AMCL output: Robot Pose -->
+        <line x1="435" y1="392" x2="530" y2="392" stroke="#667eea" stroke-width="2"/>
+        <line x1="530" y1="392" x2="530" y2="305" stroke="#667eea" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+        <text x="500" y="385" text-anchor="middle" font-size="9" fill="#667eea">Robot Pose</text>
+
+        <!-- Odometry -->
+        <rect x="500" y="370" width="130" height="40" rx="6" fill="#f0f4ff" stroke="#667eea" stroke-width="2"/>
+        <text x="565" y="395" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Odometry</text>
+
+        <!-- /odom arrow to AMCL -->
+        <line x1="500" y1="390" x2="435" y2="390" stroke="#667eea" stroke-width="1.5" marker-end="url(#fig1-arrow)"/>
+        <text x="468" y="405" text-anchor="middle" font-size="9" fill="#667eea">/odom</text>
+
+        <!-- /tf arrow from AMCL -->
+        <rect x="310" y="430" width="140" height="30" rx="5" fill="#ede7f6" stroke="#7c4dff" stroke-width="1.5"/>
+        <text x="380" y="450" text-anchor="middle" fill="#512da8" font-size="10" font-weight="bold">/tf (map&rarr;odom)</text>
+        <line x1="325" y1="415" x2="325" y2="425" stroke="#7c4dff" stroke-width="1.5" marker-end="url(#fig1-arrow)"/>
+
+        <!-- Robot box -->
+        <rect x="620" y="340" width="150" height="50" rx="8" fill="#263238"/>
+        <text x="695" y="360" text-anchor="middle" fill="#aed581" font-size="11" font-weight="bold">Differential-Drive</text>
+        <text x="695" y="378" text-anchor="middle" fill="#aed581" font-size="11" font-weight="bold">Robot (TurtleBot3)</text>
+
+        <!-- cmd_vel to robot -->
+        <line x1="695" y1="300" x2="695" y2="330" stroke="#2196f3" stroke-width="2" marker-end="url(#fig1-arrow-blue)"/>
+
+        <!-- Legend -->
+        <rect x="30" y="520" width="740" height="45" rx="5" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+        <circle cx="60" cy="542" r="8" fill="#4caf50"/><text x="75" y="547" font-size="10" fill="#333">Global Planner</text>
+        <circle cx="190" cy="542" r="8" fill="#ff9800"/><text x="205" y="547" font-size="10" fill="#333">Local Controller</text>
+        <circle cx="330" cy="542" r="8" fill="#667eea"/><text x="345" y="547" font-size="10" fill="#333">Localization</text>
+        <circle cx="450" cy="542" r="8" fill="#e91e63"/><text x="465" y="547" font-size="10" fill="#333">Recovery</text>
+        <circle cx="560" cy="542" r="8" fill="#1e3c72"/><text x="575" y="547" font-size="10" fill="#333">BT Navigator</text>
+        <circle cx="690" cy="542" r="8" fill="#2196f3"/><text x="705" y="547" font-size="10" fill="#333">Output</text>
+    </svg>
+
+    <h3>3.3 Key Nav2 ROS2 Topics</h3>
+
+    <table>
+        <tr>
+            <th>Topic</th>
+            <th>Message Type</th>
+            <th>Publisher</th>
+            <th>Purpose</th>
+        </tr>
+        <tr>
+            <td><code>/map</code></td>
+            <td><code>nav_msgs/OccupancyGrid</code></td>
+            <td>Map Server</td>
+            <td>Static occupancy grid from SLAM. Values: 0 = free, 100 = occupied, -1 = unknown.</td>
+        </tr>
+        <tr>
+            <td><code>/scan</code></td>
+            <td><code>sensor_msgs/LaserScan</code></td>
+            <td>LiDAR driver</td>
+            <td>2D laser range data. Used by AMCL for localization and obstacle layer for costmap.</td>
+        </tr>
+        <tr>
+            <td><code>/odom</code></td>
+            <td><code>nav_msgs/Odometry</code></td>
+            <td>Wheel encoders</td>
+            <td>Robot odometry (pose + twist). Frame: odom &rarr; base_link.</td>
+        </tr>
+        <tr>
+            <td><code>/cmd_vel</code></td>
+            <td><code>geometry_msgs/Twist</code></td>
+            <td>Local Controller</td>
+            <td>Velocity command: <code>linear.x</code> (m/s), <code>angular.z</code> (rad/s) for differential drive.</td>
+        </tr>
+        <tr>
+            <td><code>/global_costmap/costmap</code></td>
+            <td><code>nav_msgs/OccupancyGrid</code></td>
+            <td>Costmap 2D</td>
+            <td>Full-map costmap used by global planner. Updated at ~1 Hz.</td>
+        </tr>
+        <tr>
+            <td><code>/local_costmap/costmap</code></td>
+            <td><code>nav_msgs/OccupancyGrid</code></td>
+            <td>Costmap 2D</td>
+            <td>Rolling-window costmap centred on robot. Used by local controller at 5&ndash;20 Hz.</td>
+        </tr>
+        <tr>
+            <td><code>/plan</code></td>
+            <td><code>nav_msgs/Path</code></td>
+            <td>Global Planner</td>
+            <td>Sequence of poses from current position to goal.</td>
+        </tr>
+        <tr>
+            <td><code>/tf</code>, <code>/tf_static</code></td>
+            <td><code>tf2_msgs/TFMessage</code></td>
+            <td>Various</td>
+            <td>Transform tree: map &rarr; odom &rarr; base_link &rarr; sensors. Critical for all Nav2 components.</td>
+        </tr>
+    </table>
+
+    <div class="info">
+        <strong>Control Theory Connection:</strong> The Nav2 architecture implements a hierarchical control structure analogous to the cascaded quadrotor controller from Week 10. The behavior tree is the mission-level controller, the global planner is the trajectory generator, and the local controller is the real-time feedback loop &mdash; each operating at progressively faster rates.
+    </div>
+</div>
+
+<!-- ==================== SECTION 4: DWA ==================== -->
+<div class="section">
+    <h2>Section 4: Part 2 &mdash; DWA: The Local Controller as Optimization</h2>
+
+    <p>The Dynamic Window Approach (DWA) is one of the most widely-used local planners in mobile robotics. From a control theory perspective, <strong>DWA is essentially a simplified Model Predictive Controller with a one-step prediction horizon</strong>. Understanding this connection bridges the gap between classical control optimization (Week 3) and practical robot navigation.</p>
+
+    <h3>4.1 DWA Velocity Space</h3>
+
+    <p>A differential-drive robot is controlled by two inputs: linear velocity \(v\) and angular velocity \(\omega\). DWA operates in this 2D velocity space:</p>
+
+    <div class="math-box">
+        <p><strong>Velocity Space:</strong> \( (v, \omega) \) where \( v \in [v_{\min}, v_{\max}] \), \( \omega \in [\omega_{\min}, \omega_{\max}] \)</p>
+    </div>
+
+    <h3>4.2 Dynamic Window Constraint</h3>
+
+    <p>Not all velocities in the admissible range are physically reachable from the current state within one control interval \(\Delta t\). The <strong>dynamic window</strong> restricts the search to reachable velocities given acceleration limits:</p>
+
+    <div class="math-box">
+        <p>\[
+        V_d = \{ (v, \omega) \mid v \in [v_c - \dot{v}_{\max}\Delta t,\; v_c + \dot{v}_{\max}\Delta t], \;
+        \omega \in [\omega_c - \dot{\omega}_{\max}\Delta t,\; \omega_c + \dot{\omega}_{\max}\Delta t] \}
+        \]</p>
+        <p>where \((v_c, \omega_c)\) is the current velocity and \((\dot{v}_{\max}, \dot{\omega}_{\max})\) are the maximum accelerations.</p>
+    </div>
+
+    <p>The <strong>admissible velocities</strong> are further constrained to those that allow the robot to stop before hitting an obstacle:</p>
+
+    <div class="math-box">
+        <p>\[
+        V_a = \{ (v, \omega) \mid v \leq \sqrt{2 \cdot \text{dist}(v,\omega) \cdot \dot{v}_{\max}},\;
+        \omega \leq \sqrt{2 \cdot \text{dist}(v,\omega) \cdot \dot{\omega}_{\max}} \}
+        \]</p>
+    </div>
+
+    <h3>4.3 DWA Objective Function</h3>
+
+    <p>DWA selects the velocity pair \((v^*, \omega^*)\) that maximises a weighted objective:</p>
+
+    <div class="formula-box">
+        \[ G(v, \omega) = \alpha \cdot \text{heading}(v,\omega) + \beta \cdot \text{clearance}(v,\omega) + \gamma \cdot \text{velocity}(v,\omega) \]
+    </div>
+
+    <p>where:</p>
+    <ul>
+        <li><strong>heading(\(v, \omega\)):</strong> Measures alignment of the predicted trajectory's endpoint with the goal direction. Defined as \(180^\circ - |\theta_{\text{goal}} - \theta_{\text{endpoint}}|\), normalised to [0, 1]. Encourages the robot to face the goal.</li>
+        <li><strong>clearance(\(v, \omega\)):</strong> Minimum distance from the predicted trajectory to the nearest obstacle. Larger clearance = safer trajectory. Returns \(-\infty\) for collision trajectories (hard constraint).</li>
+        <li><strong>velocity(\(v, \omega\)):</strong> Forward speed \(v\) of the candidate, normalised to [0, 1]. Encourages faster progress toward the goal rather than overly cautious creeping.</li>
+    </ul>
+
+    <h3>4.4 Connection to MPC (Week 3)</h3>
+
+    <div class="info">
+        <strong>Key Insight:</strong> DWA can be viewed as MPC with horizon \(N = 1\), state = robot pose, control = \((v, \omega)\), cost = negative of heading + clearance + velocity, and constraints = dynamic window + collision-free. The modern Nav2 <strong>MPPI</strong> (Model Predictive Path Integral) controller IS full MPC with \(N \gg 1\).
+    </div>
+
+    <div class="formula-box">
+        <p><strong>DWA Cost (1-step optimisation):</strong></p>
+        <p>\[ \min_{v, \omega} -\bigl[\alpha \cdot h(v,\omega) + \beta \cdot c(v,\omega) + \gamma \cdot v\bigr] \quad \text{s.t.} \quad (v,\omega) \in V_d \cap V_a \]</p>
+        <br>
+        <p><strong>MPC Cost (N-step optimisation, Week 3):</strong></p>
+        <p>\[ \min_{\mathbf{u}_{0:N-1}} \sum_{k=0}^{N-1} \bigl[\mathbf{x}_k^T \mathbf{Q} \mathbf{x}_k + \mathbf{u}_k^T \mathbf{R} \mathbf{u}_k\bigr] + \mathbf{x}_N^T \mathbf{P} \mathbf{x}_N \quad \text{s.t. model, constraints} \]</p>
+    </div>
+
+    <table>
+        <tr>
+            <th>Aspect</th>
+            <th>DWA</th>
+            <th>MPC</th>
+        </tr>
+        <tr>
+            <td>Prediction Horizon</td>
+            <td>\(N = 1\) (or short trajectory)</td>
+            <td>\(N \gg 1\) (10&ndash;50 steps)</td>
+        </tr>
+        <tr>
+            <td>Decision Variables</td>
+            <td>\((v, \omega)\) &mdash; 2 scalars</td>
+            <td>\(\mathbf{u}_{0:N-1}\) &mdash; \(2N\) variables</td>
+        </tr>
+        <tr>
+            <td>Optimisation Method</td>
+            <td>Grid search over sampled velocities</td>
+            <td>QP solver or sampling (MPPI)</td>
+        </tr>
+        <tr>
+            <td>Constraint Handling</td>
+            <td>Dynamic window + collision check</td>
+            <td>Explicit inequality constraints</td>
+        </tr>
+        <tr>
+            <td>Computational Cost</td>
+            <td>Low (~1 ms)</td>
+            <td>Higher (~5&ndash;50 ms)</td>
+        </tr>
+        <tr>
+            <td>Anticipation</td>
+            <td>Myopic (reacts to immediate surroundings)</td>
+            <td>Looks ahead (anticipates obstacles, turns)</td>
+        </tr>
+    </table>
+
+    <h3>4.5 ROS2 Implementation &mdash; Simplified DWA Local Planner Node</h3>
+
+    <div class="code-block">#!/usr/bin/env python3
+"""Simplified DWA local planner node for ROS2.
+Subscribes to /odom and /plan, publishes /cmd_vel.
+Demonstrates DWA as optimization-based control."""
+
+import rclpy
+from rclpy.node import Node
+import numpy as np
+import math
+from nav_msgs.msg import Odometry, Path
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+
+class DWAControllerNode(Node):
+    def __init__(self):
+        super().__init__('dwa_controller')
+        # DWA parameters
+        self.max_v = 0.5;  self.min_v = 0.0
+        self.max_w = 1.0;  self.max_accel = 0.5;  self.max_w_accel = 1.0
+        self.v_res = 0.05;  self.w_res = 0.1
+        self.dt = 0.1;  self.predict_time = 2.0
+        self.alpha = 1.0;  self.beta = 0.8;  self.gamma = 0.5  # heading, clearance, velocity
+        self.robot_radius = 0.18
+        # State
+        self.x, self.y, self.th = 0.0, 0.0, 0.0
+        self.cur_v, self.cur_w = 0.0, 0.0
+        self.goal = None;  self.obstacles = []
+        # ROS2 interfaces
+        self.create_subscription(Odometry, '/odom', self.odom_cb, 10)
+        self.create_subscription(Path, '/plan', self.path_cb, 10)
+        self.create_subscription(LaserScan, '/scan', self.scan_cb, 10)
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.timer = self.create_timer(0.1, self.control_loop)  # 10 Hz
+        self.get_logger().info('DWA Controller started')
+
+    def odom_cb(self, msg):
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        q = msg.pose.pose.orientation
+        self.th = 2.0 * math.atan2(q.z, q.w)
+        self.cur_v = msg.twist.twist.linear.x
+        self.cur_w = msg.twist.twist.angular.z
+
+    def path_cb(self, msg):
+        if msg.poses:
+            p = msg.poses[-1].pose.position  # Use final pose as goal
+            self.goal = (p.x, p.y)
+
+    def scan_cb(self, msg):
+        obs = []
+        for i, r in enumerate(msg.ranges):
+            if msg.range_min &lt; r &lt; msg.range_max:
+                angle = msg.angle_min + i * msg.angle_increment
+                ox = self.x + r * math.cos(self.th + angle)
+                oy = self.y + r * math.sin(self.th + angle)
+                obs.append((ox, oy))
+        self.obstacles = obs
+
+    def predict_trajectory(self, v, w):
+        """Forward-simulate trajectory for predict_time seconds."""
+        x, y, th = self.x, self.y, self.th
+        traj = [(x, y)]
+        for _ in range(int(self.predict_time / self.dt)):
+            x += v * math.cos(th) * self.dt
+            y += v * math.sin(th) * self.dt
+            th += w * self.dt
+            traj.append((x, y))
+        return traj, th
+
+    def score_trajectory(self, traj, final_th):
+        """Score: alpha*heading + beta*clearance + gamma*velocity."""
+        if not self.goal:
+            return -float('inf')
+        ex, ey = traj[-1]
+        # Heading: alignment with goal
+        goal_angle = math.atan2(self.goal[1] - ey, self.goal[0] - ex)
+        heading = math.pi - abs(goal_angle - final_th)
+        heading = heading / math.pi  # normalise to [0, 1]
+        # Clearance: min distance to obstacles
+        clearance = float('inf')
+        for (px, py) in traj:
+            for (ox, oy) in self.obstacles:
+                d = math.hypot(px - ox, py - oy)
+                clearance = min(clearance, d)
+        if clearance &lt; self.robot_radius:
+            return -float('inf')  # Collision!
+        clearance = min(clearance, 3.0) / 3.0  # normalise
+        # Velocity: prefer faster
+        velocity = abs(traj[-1][0] - traj[0][0]) + abs(traj[-1][1] - traj[0][1])
+        velocity = min(velocity, 1.0)
+        return self.alpha * heading + self.beta * clearance + self.gamma * velocity
+
+    def control_loop(self):
+        if self.goal is None:
+            return
+        if math.hypot(self.x - self.goal[0], self.y - self.goal[1]) &lt; 0.2:
+            self.cmd_pub.publish(Twist());  return  # Goal reached
+        # Dynamic window
+        v_lo = max(self.min_v, self.cur_v - self.max_accel * self.dt)
+        v_hi = min(self.max_v, self.cur_v + self.max_accel * self.dt)
+        w_lo = max(-self.max_w, self.cur_w - self.max_w_accel * self.dt)
+        w_hi = min(self.max_w, self.cur_w + self.max_w_accel * self.dt)
+        # Sample and score
+        best_v, best_w, best_score = 0.0, 0.0, -float('inf')
+        v = v_lo
+        while v &lt;= v_hi:
+            w = w_lo
+            while w &lt;= w_hi:
+                traj, fth = self.predict_trajectory(v, w)
+                s = self.score_trajectory(traj, fth)
+                if s &gt; best_score:
+                    best_score, best_v, best_w = s, v, w
+                w += self.w_res
+            v += self.v_res
+        # Publish best command
+        cmd = Twist()
+        cmd.linear.x = best_v;  cmd.angular.z = best_w
+        self.cmd_pub.publish(cmd)
+
+def main(args=None):
+    rclpy.init(args=args)
+    rclpy.spin(DWAControllerNode())
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</div>
+
+    <div class="warning">
+        <strong>Tuning Guide:</strong> The weights \(\alpha, \beta, \gamma\) dramatically affect robot behavior.
+        High \(\alpha\) = aggressive goal-seeking (may clip obstacles).
+        High \(\beta\) = overly cautious (slow progress).
+        High \(\gamma\) = fast but may overshoot.
+        Start with \(\alpha = 1.0, \beta = 1.0, \gamma = 0.5\) and adjust.
+    </div>
+</div>
+
+<!-- ==================== SECTION 5: AMCL ==================== -->
+<div class="section">
+    <h2>Section 5: Part 3 &mdash; AMCL: State Estimation for Control</h2>
+
+    <h3>5.1 Connection to Nonlinear Optimization (Week 8)</h3>
+
+    <p>Week 8 developed <strong>nonlinear control optimization for robotic systems</strong>: iLQR/NMPC for trajectory optimization, and per-controller optimization of SMC / adaptive / robust / backstepping gains. Every controller in that framework assumes access to the state \(x\) &mdash; but in a real robot the state must be <em>estimated</em> from sensors. Controller-plus-estimator is the universal structure:</p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>Week 8 NMPC / iLQR</h4>
+            <ul>
+                <li><strong>Controller:</strong> NMPC via iLQR (optimal nonlinear control, local feedback policy)</li>
+                <li><strong>Estimator:</strong> matched to the dynamics &mdash; EKF/UKF if the posterior is unimodal, particle filter if multimodal</li>
+                <li><strong>State:</strong> full nonlinear state \(x\in\mathbb R^n\)</li>
+                <li><strong>Sensors:</strong> any; noise model enters the estimator design, not the controller</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Nav2 Navigation</h4>
+            <ul>
+                <li><strong>Controller:</strong> DWA / MPPI / Pure Pursuit (all are finite-horizon optimizers &mdash; DWA is a one-step discrete search; MPPI is sampling-based NMPC)</li>
+                <li><strong>Estimator:</strong> AMCL (particle filter)</li>
+                <li><strong>State:</strong> Robot pose \((x, y, \theta)\) on a map</li>
+                <li><strong>Sensors:</strong> Laser scans + odometry (non-Gaussian, multimodal posterior)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info">
+        <strong>Why not a Kalman Filter?</strong> The Kalman filter assumes Gaussian distributions and linear (or locally linear) models. In mobile robot localization, the probability distribution over poses can be <strong>multimodal</strong> (the robot could be in several places on a symmetric map). Particle filters handle arbitrary distributions, making AMCL more suitable for global localization.
+    </div>
+
+    <h3>5.2 AMCL Algorithm</h3>
+
+    <p>AMCL represents the belief over the robot's pose as a set of weighted particles:</p>
+
+    <div class="math-box">
+        <p><strong>Particle Set:</strong> \( \mathcal{X} = \{(x_i, y_i, \theta_i, w_i)\}_{i=1}^{N} \)</p>
+        <p>where each particle \(i\) has pose \((x_i, y_i, \theta_i)\) and weight \(w_i\) with \(\sum_{i=1}^{N} w_i = 1\).</p>
+    </div>
+
+    <p>The AMCL algorithm cycles through four steps:</p>
+
+    <ol>
+        <li><strong>Motion Update (Prediction):</strong> Propagate each particle using the odometry motion model with added noise:
+            \[ x_i' = x_i + \delta_{\text{trans}} \cos(\theta_i + \delta_{\text{rot1}}) + \epsilon_x \]
+            \[ y_i' = y_i + \delta_{\text{trans}} \sin(\theta_i + \delta_{\text{rot1}}) + \epsilon_y \]
+            \[ \theta_i' = \theta_i + \delta_{\text{rot1}} + \delta_{\text{rot2}} + \epsilon_\theta \]
+            where \(\epsilon\) terms are sampled from noise distributions parameterised by odometry noise coefficients \((\alpha_1, \alpha_2, \alpha_3, \alpha_4)\).
+        </li>
+        <li><strong>Measurement Update (Correction):</strong> Weight each particle by the likelihood of the observed laser scan given that particle's pose. Using the likelihood field model:
+            \[ w_i = \prod_{j \in \text{beams}} \bigl[ z_{\text{hit}} \cdot \mathcal{N}(d_j; 0, \sigma^2) + z_{\text{random}} \cdot \tfrac{1}{z_{\max}} \bigr] \]
+            where \(d_j\) is the distance from the beam endpoint to the nearest obstacle in the map.
+        </li>
+        <li><strong>Normalisation:</strong> \( w_i \leftarrow w_i / \sum_{k=1}^{N} w_k \)</li>
+        <li><strong>Resampling:</strong> When the effective particle count \(N_{\text{eff}} = 1/\sum w_i^2\) drops below a threshold, perform low-variance resampling: draw a new particle set where particles with higher weights are more likely to be selected.</li>
+    </ol>
+
+    <h3>5.3 AMCL Cycle Diagram</h3>
+
+    <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="fig2-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#667eea"/>
+            </marker>
+            <marker id="fig2-arrow-green" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#4caf50"/>
+            </marker>
+            <marker id="fig2-arrow-orange" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#ff9800"/>
+            </marker>
+        </defs>
+
+        <text x="400" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">AMCL Particle Filter Cycle</text>
+
+        <!-- Particles box -->
+        <rect x="30" y="120" width="140" height="55" rx="10" fill="#667eea"/>
+        <text x="100" y="145" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Particles</text>
+        <text x="100" y="163" text-anchor="middle" fill="white" font-size="10">{x_i, y_i, th_i, w_i}</text>
+
+        <!-- Motion Update -->
+        <rect x="230" y="60" width="160" height="55" rx="10" fill="#ff9800"/>
+        <text x="310" y="85" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Motion Update</text>
+        <text x="310" y="103" text-anchor="middle" fill="white" font-size="10">(Prediction)</text>
+
+        <!-- Measurement Update -->
+        <rect x="450" y="60" width="160" height="55" rx="10" fill="#4caf50"/>
+        <text x="530" y="85" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Measurement</text>
+        <text x="530" y="103" text-anchor="middle" fill="white" font-size="10">Update (Correction)</text>
+
+        <!-- Resampling -->
+        <rect x="450" y="200" width="160" height="55" rx="10" fill="#e91e63"/>
+        <text x="530" y="225" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Resampling</text>
+        <text x="530" y="243" text-anchor="middle" fill="white" font-size="10">(Low-variance)</text>
+
+        <!-- Arrows: Particles -> Motion Update -->
+        <line x1="170" y1="135" x2="220" y2="87" stroke="#667eea" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+
+        <!-- Arrow: Motion Update -> Measurement Update -->
+        <line x1="390" y1="87" x2="440" y2="87" stroke="#ff9800" stroke-width="2" marker-end="url(#fig2-arrow-orange)"/>
+
+        <!-- Arrow: Measurement Update -> Resampling -->
+        <line x1="530" y1="115" x2="530" y2="190" stroke="#4caf50" stroke-width="2" marker-end="url(#fig2-arrow-green)"/>
+
+        <!-- Arrow: Resampling -> Particles (going left and down) -->
+        <line x1="450" y1="227" x2="170" y2="165" stroke="#e91e63" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+
+        <!-- Side input: Odometry -> Motion Update -->
+        <rect x="230" y="170" width="120" height="35" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+        <text x="290" y="192" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Odometry</text>
+        <line x1="290" y1="170" x2="290" y2="115" stroke="#ff9800" stroke-width="1.5" marker-end="url(#fig2-arrow-orange)"/>
+
+        <!-- Side input: LaserScan + Map -> Measurement Update -->
+        <rect x="650" y="55" width="130" height="35" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.5"/>
+        <text x="715" y="77" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">LaserScan + Map</text>
+        <line x1="650" y1="72" x2="610" y2="80" stroke="#4caf50" stroke-width="1.5" marker-end="url(#fig2-arrow-green)"/>
+
+        <!-- Output: Estimated Pose -->
+        <rect x="650" y="125" width="130" height="35" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+        <text x="715" y="148" text-anchor="middle" fill="#1e3c72" font-size="11" font-weight="bold">Estimated Pose</text>
+        <line x1="610" y1="100" x2="650" y2="135" stroke="#2196f3" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+
+        <!-- Labels on arrows -->
+        <text x="400" y="305" text-anchor="middle" font-size="11" fill="#666" font-style="italic">Cycle repeats at each odometry/scan update (~10&ndash;30 Hz)</text>
+    </svg>
+
+    <h3>5.4 ROS2 AMCL Configuration</h3>
+
+    <div class="code-block"># Launch AMCL for TurtleBot3 localization
+ros2 launch nav2_bringup localization_launch.py \
+    map:=/path/to/map.yaml \
+    params_file:=/path/to/nav2_params.yaml</div>
+
+    <p>Key AMCL parameters in <code>nav2_params.yaml</code>:</p>
+
+    <div class="pseudocode-block"><div class="pseudocode-header">AMCL Parameters (nav2_params.yaml)</div>amcl:
+  ros__parameters:
+    min_particles: 500          # Minimum particle count
+    max_particles: 2000         # Maximum particle count (adaptive)
+    update_min_d: 0.25          # Min translation (m) before update
+    update_min_a: 0.2           # Min rotation (rad) before update
+    laser_model_type: "likelihood_field"
+    laser_max_range: 12.0
+    laser_min_range: 0.1
+    odom_model_type: "diff-corrected"
+    # Odometry noise parameters (alpha1-alpha4)
+    robot_model_type: "differential"
+    alpha1: 0.2                 # Rotation noise from rotation
+    alpha2: 0.2                 # Rotation noise from translation
+    alpha3: 0.2                 # Translation noise from translation
+    alpha4: 0.2                 # Translation noise from rotation
+    # Likelihood field parameters
+    z_hit: 0.95
+    z_rand: 0.05
+    sigma_hit: 0.2
+    # Recovery
+    recovery_alpha_slow: 0.001  # Slow average weight decay
+    recovery_alpha_fast: 0.1    # Fast average weight decay</div>
+</div>
+
+<!-- ==================== SECTION 6: COSTMAPS ==================== -->
+<div class="section">
+    <h2>Section 6: Part 4 &mdash; Costmap: Constraints for Control</h2>
+
+    <p>In control theory, constraints define the safe operating region. In Nav2, <strong>costmaps</strong> serve exactly this purpose: they encode where the robot can and cannot go, with graduated costs creating soft boundaries.</p>
+
+    <h3>6.1 Costmaps as Control Constraints</h3>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>Global Costmap &harr; Terminal Constraint</h4>
+            <p>The global costmap constrains the global planner, analogous to the <strong>terminal constraint</strong> in MPC that ensures the planned trajectory ends in a safe set. It covers the entire known map and updates slowly (~1 Hz).</p>
+        </div>
+        <div class="card">
+            <h4>Local Costmap &harr; Stage Constraints</h4>
+            <p>The local costmap constrains the DWA/MPPI local controller, analogous to <strong>stage constraints</strong> in MPC \((\mathbf{x}_k \in \mathcal{X}, \mathbf{u}_k \in \mathcal{U})\) that enforce safety at each time step. Rolling window, updated at 5&ndash;20 Hz.</p>
+        </div>
+        <div class="card">
+            <h4>Inflation Layer &harr; Soft Constraints</h4>
+            <p>The inflation layer creates graduated costs around obstacles, analogous to <strong>barrier functions</strong> or <strong>soft constraints</strong> with penalty terms. The robot is not forbidden from approaching obstacles but incurs increasing cost.</p>
+        </div>
+    </div>
+
+    <h3>6.2 Costmap Layers</h3>
+
+    <ol>
+        <li><strong>Static Layer:</strong> Loaded from the SLAM-generated map. Contains walls, permanent furniture, and other fixed obstacles. Values: 0 (free), 100 (occupied), -1 (unknown).</li>
+        <li><strong>Obstacle Layer:</strong> Populated from live sensor data (LiDAR, depth cameras). Detects dynamic obstacles not in the static map &mdash; people, other robots, moved furniture. Marks cells as lethal (254) based on sensor readings.</li>
+        <li><strong>Inflation Layer:</strong> Expands obstacles by the robot's inscribed radius and adds exponentially-decaying cost beyond that. This is the critical safety layer.</li>
+    </ol>
+
+    <h3>6.3 Inflation Cost Function</h3>
+
+    <div class="formula-box">
+        \[
+        c(d) = \begin{cases}
+            254 \;\text{(LETHAL)} & \text{if } d < r_{\text{inscribed}} \\[6pt]
+            A \cdot e^{-\beta \,(d - r_{\text{inscribed}})} & \text{if } r_{\text{inscribed}} \leq d \leq r_{\text{inflation}} \\[6pt]
+            0 \;\text{(FREE)} & \text{if } d > r_{\text{inflation}}
+        \end{cases}
+        \]
+    </div>
+
+    <p>where:</p>
+    <ul>
+        <li>\(d\) = distance from the cell to the nearest obstacle</li>
+        <li>\(r_{\text{inscribed}}\) = inscribed radius of the robot footprint (if the robot centre is closer than this, collision is guaranteed)</li>
+        <li>\(r_{\text{inflation}}\) = outer inflation radius (beyond this, cost is zero)</li>
+        <li>\(A = 253\) (INSCRIBED cost value, just below LETHAL)</li>
+        <li>\(\beta\) = cost scaling factor controlling how quickly cost decays with distance</li>
+    </ul>
+
+    <h3>6.4 Nav2 Costmap Configuration</h3>
+
+    <div class="pseudocode-block"><div class="pseudocode-header">Costmap YAML Configuration (nav2_params.yaml)</div>global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      resolution: 0.05                  # 5cm per cell
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transitioned_to_active: true
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+          raytrace_max_range: 3.0
+          obstacle_max_range: 2.5
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0        # beta in the formula
+        inflation_radius: 0.55          # r_inflation in meters
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      rolling_window: true
+      width: 3                          # 3m x 3m window
+      height: 3
+      resolution: 0.05
+      plugins: ["obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.55</div>
+</div>
+
+<!-- ==================== SECTION 7: BEHAVIOR TREES ==================== -->
+<div class="section">
+    <h2>Section 7: Part 5 &mdash; Behavior Trees for Mission Control</h2>
+
+    <h3>7.1 Why Behavior Trees?</h3>
+
+    <p>Behavior Trees (BTs) are an alternative to Finite State Machines (FSMs) for orchestrating complex robot behaviors. Nav2 uses the <strong>BehaviorTree.CPP</strong> library.</p>
+
+    <table>
+        <tr>
+            <th>Aspect</th>
+            <th>Finite State Machine</th>
+            <th>Behavior Tree</th>
+        </tr>
+        <tr>
+            <td>Structure</td>
+            <td>States + transitions (graph)</td>
+            <td>Tree of nodes (hierarchical)</td>
+        </tr>
+        <tr>
+            <td>Scalability</td>
+            <td>Exponential transitions as states grow</td>
+            <td>Modular subtrees, easy to extend</td>
+        </tr>
+        <tr>
+            <td>Reactivity</td>
+            <td>Must explicitly handle every transition</td>
+            <td>Built-in: tick propagation handles preemption</td>
+        </tr>
+        <tr>
+            <td>Reusability</td>
+            <td>Low (states are context-dependent)</td>
+            <td>High (subtrees are self-contained)</td>
+        </tr>
+        <tr>
+            <td>Debugging</td>
+            <td>Hard with many states</td>
+            <td>Visual tools (Groot) show live tree state</td>
+        </tr>
+    </table>
+
+    <h3>7.2 BT Node Types</h3>
+
+    <ul>
+        <li><strong>Sequence (&rarr;):</strong> Execute children left-to-right. Returns SUCCESS if all succeed, FAILURE if any fails, RUNNING if a child is still executing.</li>
+        <li><strong>Fallback (?):</strong> Try children left-to-right until one succeeds. Returns SUCCESS on first success, FAILURE if all fail. Used for recovery.</li>
+        <li><strong>Action:</strong> Leaf node that performs work (e.g., ComputePath, FollowPath, Spin, Backup).</li>
+        <li><strong>Condition:</strong> Leaf node that checks state (e.g., IsGoalReached, IsBatteryLow). Returns SUCCESS or FAILURE.</li>
+        <li><strong>Decorator:</strong> Modifies a child's behavior (e.g., Inverter, Retry, Timeout).</li>
+    </ul>
+
+    <h3>7.3 Navigation Behavior Tree Diagram</h3>
+
+    <svg width="100%" style="max-width:800px" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="fig3-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L20,5 L0,10 Z" fill="#1e3c72"/>
+            </marker>
+        </defs>
+
+        <text x="400" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Nav2 Default Navigation Behavior Tree</text>
+
+        <!-- Root: PipelineSequence -->
+        <rect x="310" y="45" width="180" height="40" rx="8" fill="#1e3c72"/>
+        <text x="400" y="70" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Root: Fallback (?)</text>
+
+        <!-- Left branch: Sequence (Navigate) -->
+        <line x1="355" y1="85" x2="220" y2="130" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="120" y="135" width="200" height="40" rx="8" fill="#667eea"/>
+        <text x="220" y="160" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Sequence (&rarr;) Navigate</text>
+
+        <!-- Right branch: Sequence (Recovery) -->
+        <line x1="445" y1="85" x2="580" y2="130" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="480" y="135" width="200" height="40" rx="8" fill="#e91e63"/>
+        <text x="580" y="160" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Sequence (&rarr;) Recovery</text>
+
+        <!-- Navigate children -->
+        <!-- Goal Received? -->
+        <line x1="155" y1="175" x2="90" y2="215" stroke="#667eea" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="20" y="220" width="140" height="40" rx="6" fill="#2196f3"/>
+        <text x="90" y="245" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Goal Received?</text>
+        <text x="90" y="275" text-anchor="middle" font-size="9" fill="#666">[Condition]</text>
+
+        <!-- Compute Path -->
+        <line x1="220" y1="175" x2="220" y2="215" stroke="#667eea" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="155" y="220" width="130" height="40" rx="6" fill="#4caf50"/>
+        <text x="220" y="245" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Compute Path</text>
+        <text x="220" y="275" text-anchor="middle" font-size="9" fill="#666">[Action: A*]</text>
+
+        <!-- Follow Path -->
+        <line x1="285" y1="175" x2="350" y2="215" stroke="#667eea" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="290" y="220" width="120" height="40" rx="6" fill="#4caf50"/>
+        <text x="350" y="245" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Follow Path</text>
+        <text x="350" y="275" text-anchor="middle" font-size="9" fill="#666">[Action: DWA]</text>
+
+        <!-- Recovery children -->
+        <!-- Spin -->
+        <line x1="530" y1="175" x2="490" y2="310" stroke="#e91e63" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="430" y="315" width="120" height="40" rx="6" fill="#ff9800"/>
+        <text x="490" y="340" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Spin</text>
+        <text x="490" y="370" text-anchor="middle" font-size="9" fill="#666">[Action: Rotate 360]</text>
+
+        <!-- Backup -->
+        <line x1="580" y1="175" x2="580" y2="310" stroke="#e91e63" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="555" y="315" width="120" height="40" rx="6" fill="#ff9800"/>
+        <text x="615" y="340" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Backup</text>
+        <text x="615" y="370" text-anchor="middle" font-size="9" fill="#666">[Action: Reverse 0.3m]</text>
+
+        <!-- Wait -->
+        <line x1="630" y1="175" x2="720" y2="310" stroke="#e91e63" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <rect x="680" y="315" width="120" height="40" rx="6" fill="#ff9800"/>
+        <text x="740" y="340" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Wait</text>
+        <text x="740" y="370" text-anchor="middle" font-size="9" fill="#666">[Action: Pause 5s]</text>
+
+        <!-- Legend -->
+        <text x="400" y="410" text-anchor="middle" font-size="10" fill="#666" font-style="italic">Fallback: tries Navigate first; on failure, runs Recovery sequence (Spin &rarr; Backup &rarr; Wait), then retries Navigate.</text>
+    </svg>
+
+    <h3>7.4 Nav2 BT XML Configuration</h3>
+
+    <div class="pseudocode-block"><div class="pseudocode-header">Default Nav2 Behavior Tree XML (navigate_to_pose_w_replanning.xml)</div>&lt;root main_tree_to_execute="MainTree"&gt;
+  &lt;BehaviorTree ID="MainTree"&gt;
+    &lt;RecoveryNode number_of_retries="6" name="NavigateRecovery"&gt;
+      &lt;PipelineSequence name="NavigateWithReplanning"&gt;
+        &lt;RateController hz="1.0"&gt;
+          &lt;ComputePathToPose goal="{goal}" path="{path}"
+                             planner_id="GridBased"/&gt;
+        &lt;/RateController&gt;
+        &lt;FollowPath path="{path}" controller_id="FollowPath"/&gt;
+      &lt;/PipelineSequence&gt;
+      &lt;SequenceStar name="RecoveryActions"&gt;
+        &lt;ClearEntireCostmap name="ClearLocalCostmap"
+                            service_name="/local_costmap/clear"/&gt;
+        &lt;ClearEntireCostmap name="ClearGlobalCostmap"
+                            service_name="/global_costmap/clear"/&gt;
+        &lt;Spin spin_dist="1.57"/&gt;
+        &lt;Wait wait_duration="5"/&gt;
+        &lt;BackUp backup_dist="0.3" backup_speed="0.05"/&gt;
+      &lt;/SequenceStar&gt;
+    &lt;/RecoveryNode&gt;
+  &lt;/BehaviorTree&gt;
+&lt;/root&gt;</div>
+</div>
+
+<!-- ==================== SECTION 8: CONTROL THEORY MAPPING ==================== -->
+<div class="section">
+    <h2>Section 8: Part 6 &mdash; Applying Control Theory to Navigation</h2>
+
+    <p>Throughout Weeks 1&ndash;8, you studied eight control methods in the context of general dynamical systems. Here we show how <strong>every one of them</strong> maps directly to a mobile robot navigation scenario.</p>
+
+    <table>
+        <tr>
+            <th>Controller</th>
+            <th>Navigation Role</th>
+            <th>Example Scenario</th>
+        </tr>
+        <tr>
+            <td><strong>PID</strong></td>
+            <td>Pure pursuit path follower</td>
+            <td>Basic line following</td>
+        </tr>
+        <tr>
+            <td><strong>Computed Torque</strong></td>
+            <td>Model-based path tracking</td>
+            <td>Known-dynamics mobile robot</td>
+        </tr>
+        <tr>
+            <td><strong>MPC</strong></td>
+            <td>MPPI local planner</td>
+            <td>Nav2 MPPI controller plugin</td>
+        </tr>
+        <tr>
+            <td><strong>Adaptive</strong></td>
+            <td>Terrain-adaptive navigation</td>
+            <td>Unknown friction, slopes</td>
+        </tr>
+        <tr>
+            <td><strong>Robust (H-infinity)</strong></td>
+            <td>All-weather navigation</td>
+            <td>Rain, snow, uneven ground</td>
+        </tr>
+        <tr>
+            <td><strong>Backstepping</strong></td>
+            <td>Nonholonomic path tracking</td>
+            <td>Parking, tight turns</td>
+        </tr>
+        <tr>
+            <td><strong>SMC</strong></td>
+            <td>Rough terrain tracking</td>
+            <td>Off-road, disturbance-heavy</td>
+        </tr>
+        <tr>
+            <td><strong>LQR</strong></td>
+            <td>Highway/corridor following</td>
+            <td>Straight, smooth paths</td>
+        </tr>
+    </table>
+
+    <h3>Detailed Mapping</h3>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>PID &rarr; Pure Pursuit Path Follower</h4>
+            <p>The simplest approach: a PID controller on the cross-track error (distance from the path) and heading error. The proportional term steers toward the path, the integral corrects for systematic drift, and the derivative damps oscillations. Used in Nav2's Regulated Pure Pursuit plugin where the lookahead distance acts as an effective proportional gain.</p>
+        </div>
+        <div class="card">
+            <h4>Computed Torque &rarr; Model-Based Tracking</h4>
+            <p>When the robot's kinematic or dynamic model is well-known (mass, inertia, wheel-ground friction), computed torque control cancels the nonlinear dynamics and applies a linear outer loop. For a differential-drive robot, this means compensating for the nonholonomic constraint \(\dot{x}\sin\theta - \dot{y}\cos\theta = 0\) directly in the control law.</p>
+        </div>
+        <div class="card">
+            <h4>MPC &rarr; MPPI Local Planner</h4>
+            <p>Nav2's MPPI (Model Predictive Path Integral) controller is a direct implementation of MPC using sampling-based optimization. It rolls out thousands of trajectories over a prediction horizon \(N\), evaluates a cost function (path following + obstacle avoidance + smoothness), and selects the optimal control sequence. This is the most capable Nav2 controller for complex environments.</p>
+        </div>
+        <div class="card">
+            <h4>Adaptive &rarr; Terrain-Adaptive Navigation</h4>
+            <p>When a robot moves from smooth tile to carpet to gravel, the effective friction and slip change unpredictably. An adaptive controller estimates these parameters online and adjusts the velocity/steering gains accordingly. This prevents the robot from overshooting on low-friction surfaces or responding sluggishly on high-friction ones.</p>
+        </div>
+        <div class="card">
+            <h4>Robust (H-infinity) &rarr; All-Weather Navigation</h4>
+            <p>Robust control guarantees performance despite bounded uncertainties. For navigation, this means maintaining path-tracking accuracy despite sensor noise (rain degrading LiDAR), actuator uncertainty (wheel slip on wet surfaces), and model uncertainty (payload changes). The controller is designed for the worst-case disturbance scenario.</p>
+        </div>
+        <div class="card">
+            <h4>Backstepping &rarr; Nonholonomic Path Tracking</h4>
+            <p>Backstepping is particularly well-suited for nonholonomic systems like differential-drive robots, which cannot move sideways. The controller recursively stabilises the system by first stabilising the orientation error, then using that as a "virtual input" to stabilise the position error. Ideal for parking manoeuvres and tight turns where the nonholonomic constraint is most limiting.</p>
+        </div>
+        <div class="card">
+            <h4>SMC &rarr; Rough Terrain Tracking</h4>
+            <p>Sliding Mode Control provides robustness against unmatched disturbances through a discontinuous control law that forces the system onto a sliding surface. For mobile robots on rough terrain, SMC rejects disturbances from bumps, rocks, and uneven ground that would destabilise smoother controllers. The chattering issue can be mitigated with boundary layers.</p>
+        </div>
+        <div class="card">
+            <h4>LQR &rarr; Highway/Corridor Following</h4>
+            <p>LQR provides optimal control for linear systems (or linearised around a reference). In long, straight corridors or highways, the robot dynamics can be well-approximated as linear, and LQR provides the minimum-energy deviation from the centre-line. Often used as the local stabiliser within a larger nonlinear controller.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 9: LAB EXERCISES ==================== -->
+<div class="section">
+    <h2>Section 9: Part 7 &mdash; ROS2 Lab Exercises</h2>
+
+    <p>This week's practical work aligns with the ROS2 Robotics Course <strong>Week 5: Navigation Stack (Nav2)</strong>. The exercises are available in the course repository under <code>src/ros2_robotics_course/week_05/</code>.</p>
+
+    <h3>9.1 Python Lab Exercises (Algorithmic Foundations)</h3>
+    <p>Located in <code>week_05/lab_exercises/</code>. These standalone Python scripts implement the core algorithms underlying Nav2 without requiring a running ROS2 system.</p>
+
+    <table>
+        <tr>
+            <th>Task</th>
+            <th>File</th>
+            <th>Description</th>
+            <th>Control Connection</th>
+        </tr>
+        <tr>
+            <td><strong>Task 1</strong></td>
+            <td><code>task1_costmap.py</code></td>
+            <td>Costmap generation with static, obstacle, and inflation layers. Implement <code>create_static_layer()</code>, <code>create_obstacle_layer()</code>, <code>inflate_costmap()</code>, and <code>combine_layers()</code>.</td>
+            <td>Constraint encoding for MPC/DWA</td>
+        </tr>
+        <tr>
+            <td><strong>Task 2</strong></td>
+            <td><code>task2_astar.py</code></td>
+            <td>A* pathfinding on an 8-connected grid. Implement <code>heuristic()</code>, <code>get_neighbors()</code>, <code>astar()</code>, and <code>smooth_path()</code>.</td>
+            <td>Global trajectory generation</td>
+        </tr>
+        <tr>
+            <td><strong>Task 3</strong></td>
+            <td><code>task3_dwa.py</code></td>
+            <td>Dynamic Window Approach local planner. Implement <code>compute_dynamic_window()</code>, <code>predict_trajectory()</code>, <code>score_trajectory()</code>, and <code>dwa_control()</code>.</td>
+            <td>Optimization-based control (mini-MPC)</td>
+        </tr>
+        <tr>
+            <td><strong>Task 4</strong></td>
+            <td><code>task4_particle_filter.py</code></td>
+            <td>AMCL-style particle filter localization. Implement <code>initialize_particles()</code>, <code>motion_update()</code>, <code>sensor_update()</code>, <code>resample()</code>, and <code>estimate_pose()</code>.</td>
+            <td>State estimation for control (cf. Kalman filter)</td>
+        </tr>
+        <tr>
+            <td><strong>Task 5</strong></td>
+            <td><code>task5_behavior_tree.py</code></td>
+            <td>Behavior tree framework. Implement <code>Sequence</code>, <code>Fallback</code>, <code>NavigateToPose</code>, <code>IsPathBlocked</code>, <code>RecoveryBehavior</code>, and <code>build_nav_bt()</code>.</td>
+            <td>Mission-level control orchestration</td>
+        </tr>
+        <tr>
+            <td><strong>Task 6</strong></td>
+            <td><code>task6_waypoint_navigation.py</code></td>
+            <td>Waypoint follower using A* for global planning and DWA for local control. Implement <code>WaypointFollower</code>, <code>plan_to_waypoint()</code>, <code>follow_path()</code>.</td>
+            <td>Hierarchical planning + control</td>
+        </tr>
+        <tr>
+            <td><strong>Task 7</strong></td>
+            <td><code>task7_full_navigation.py</code></td>
+            <td>Full integrated navigation combining all components: costmap, A*, DWA, particle filter, and behavior tree in a single pipeline.</td>
+            <td>Complete navigation control system</td>
+        </tr>
+    </table>
+
+    <h3>9.2 ROS2 Applied Exercises (Node-Based)</h3>
+    <p>Located in <code>week_05/w05_exercises/</code>. These implement the navigation components as proper ROS2 nodes using topics, services, and message types.</p>
+
+    <table>
+        <tr>
+            <th>Exercise</th>
+            <th>File</th>
+            <th>Subscribes</th>
+            <th>Publishes</th>
+            <th>Key Function</th>
+        </tr>
+        <tr>
+            <td><strong>Exercise 1: Costmap Generator</strong></td>
+            <td><code>exercise1_node.py</code></td>
+            <td><code>/map</code> (OccupancyGrid)</td>
+            <td><code>/costmap</code> (OccupancyGrid)</td>
+            <td><code>inflate()</code> &mdash; Inflate obstacles using exponential decay: <code>cost = 100 * exp(-scale * dist)</code></td>
+        </tr>
+        <tr>
+            <td><strong>Exercise 2: A* Path Planner</strong></td>
+            <td><code>exercise2_node.py</code></td>
+            <td><code>/costmap</code> (OccupancyGrid)</td>
+            <td><code>/planned_path</code> (Path)</td>
+            <td><code>astar()</code> &mdash; A* search with priority queue, Euclidean heuristic, 8-connected grid</td>
+        </tr>
+        <tr>
+            <td><strong>Exercise 3: Path Follower (Pure Pursuit)</strong></td>
+            <td><code>exercise3_node.py</code></td>
+            <td><code>/planned_path</code>, <code>/odom</code></td>
+            <td><code>/cmd_vel</code> (Twist)</td>
+            <td><code>pure_pursuit()</code> &mdash; Curvature: \(\kappa = 2 y_{\text{local}} / L^2\), then \(\omega = \kappa \cdot v\)</td>
+        </tr>
+    </table>
+
+    <div class="code-block"># Running the ROS2 exercises
+# Terminal 1: Play synthetic navigation bag data
+ros2 bag play week_05/w05_exercises/bag_data/synthetic_nav2/
+
+# Terminal 2: Run the costmap generator
+ros2 run week_05 exercise1_node --ros-args \
+    --params-file week_05/w05_exercises/config/params.yaml
+
+# Terminal 3: Run the path planner
+ros2 run week_05 exercise2_node --ros-args \
+    --params-file week_05/w05_exercises/config/params.yaml
+
+# Terminal 4: Run the path follower
+ros2 run week_05 exercise3_node --ros-args \
+    --params-file week_05/w05_exercises/config/params.yaml</div>
+</div>
+
+<!-- ==================== SECTION 10: HANDS-ON ACTIVITIES ==================== -->
+<div class="section activity">
+    <h2>Section 10: Hands-On Activities</h2>
+
+    <h3>Activity 1: Configure Nav2 for TurtleBot3 Navigation</h3>
+    <p><strong>Objective:</strong> Set up the full Nav2 stack for TurtleBot3 in Gazebo and navigate through a maze environment.</p>
+    <ol>
+        <li><strong>Launch the simulation:</strong>
+            <div class="code-block"># Terminal 1: Launch TurtleBot3 in Gazebo maze world
+export TURTLEBOT3_MODEL=waffle
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+
+# Terminal 2: Launch Nav2 with default parameters
+ros2 launch nav2_bringup navigation_launch.py \
+    params_file:=nav2_params.yaml
+
+# Terminal 3: Launch RViz2 with Nav2 config
+ros2 launch nav2_bringup rviz_launch.py</div>
+        </li>
+        <li><strong>Configure AMCL:</strong> Set initial pose using the "2D Pose Estimate" tool in RViz. Observe the particle cloud converging as the robot moves.</li>
+        <li><strong>Set navigation goals:</strong> Use the "2D Goal Pose" tool to send goals. Watch the global path (green) and the local controller following it.</li>
+        <li><strong>Tune DWA parameters:</strong> Experiment with the following parameters and observe behavior changes:
+            <ul>
+                <li>Increase <code>max_vel_x</code> from 0.26 to 0.5 &mdash; does the robot navigate faster? Does it cut corners?</li>
+                <li>Increase <code>PathAlign.scale</code> (the \(\alpha\) heading weight) &mdash; does the robot follow the global path more closely?</li>
+                <li>Increase <code>GoalDist.scale</code> &mdash; does the robot approach the goal more aggressively?</li>
+                <li>Increase <code>ObstacleFootprint.scale</code> (the \(\beta\) clearance weight) &mdash; does the robot maintain more distance from walls?</li>
+            </ul>
+        </li>
+        <li><strong>Record observations:</strong> For three different parameter sets, record: (a) time to goal, (b) minimum obstacle distance, (c) path smoothness.</li>
+    </ol>
+</div>
+
+<div class="section activity">
+    <h3>Activity 2: Compare DWA vs MPC for Navigation</h3>
+    <p><strong>Objective:</strong> Replace the default DWA controller with your MPC controller from Week 9 and compare performance across three scenarios.</p>
+    <ol>
+        <li><strong>Set up MPC controller plugin:</strong> Adapt your Week 9 MPC node to accept <code>/plan</code> (global path) and publish <code>/cmd_vel</code>. Use the differential-drive kinematic model:
+            \[ \dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \omega \]
+        </li>
+        <li><strong>Test Scenario A &mdash; Narrow Corridor:</strong> Navigate through a passage 0.8m wide. DWA should be cautious (high clearance weight). MPC should plan ahead through the corridor more smoothly.</li>
+        <li><strong>Test Scenario B &mdash; Open Space:</strong> Navigate across a large open area. Both controllers should perform similarly, but MPC may be more energy-efficient due to optimal control effort.</li>
+        <li><strong>Test Scenario C &mdash; Dynamic Obstacles:</strong> Add moving obstacles (other TurtleBots). DWA reacts quickly due to low computation. MPC anticipates obstacle motion if the prediction model includes it.</li>
+        <li><strong>Record and compare:</strong>
+            <div class="code-block"># Record rosbag during each run
+ros2 bag record /cmd_vel /odom /plan /local_costmap/costmap -o dwa_corridor
+ros2 bag record /cmd_vel /odom /plan /local_costmap/costmap -o mpc_corridor
+
+# Plot trajectories for comparison
+python3 plot_comparison.py dwa_corridor mpc_corridor</div>
+        </li>
+        <li><strong>Analysis table:</strong> Fill in for each scenario:
+            <table>
+                <tr><th>Metric</th><th>DWA (Corridor)</th><th>MPC (Corridor)</th><th>DWA (Open)</th><th>MPC (Open)</th><th>DWA (Dynamic)</th><th>MPC (Dynamic)</th></tr>
+                <tr><td>Completion Time (s)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Min Obstacle Dist (m)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Path Length (m)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Avg |cmd_vel| (m/s)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Computation Time (ms)</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </table>
+        </li>
+    </ol>
+</div>
+
+<div class="section activity">
+    <h3>Activity 3: Waypoint Navigation with Recovery Behaviors</h3>
+    <p><strong>Objective:</strong> Implement waypoint navigation using the Nav2 action server, visit 5 waypoints in order, and add recovery behavior when stuck.</p>
+    <ol>
+        <li><strong>Define waypoints:</strong> Choose 5 waypoints that require navigating through different parts of the environment (corridors, open areas, near obstacles).</li>
+        <li><strong>Write the waypoint navigation client:</strong>
+            <div class="code-block">#!/usr/bin/env python3
+"""Waypoint navigation client using Nav2 action server."""
+import rclpy
+from rclpy.node import Node
+from rclpy.action import ActionClient
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
+import time
+
+class WaypointNavigator(Node):
+    def __init__(self):
+        super().__init__('waypoint_navigator')
+        self.nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self.waypoints = [
+            (1.0, 0.5, 0.0),   # (x, y, yaw) in map frame
+            (2.0, 1.5, 1.57),
+            (1.5, 3.0, 3.14),
+            (0.0, 2.0, -1.57),
+            (0.5, 0.5, 0.0),
+        ]
+        self.current_wp = 0
+        self.max_retries = 3
+        self.nav_client.wait_for_server()
+        self.get_logger().info('Nav2 server ready. Starting mission.')
+        self.navigate_to_next()
+
+    def create_goal(self, x, y, yaw):
+        goal = NavigateToPose.Goal()
+        goal.pose = PoseStamped()
+        goal.pose.header.frame_id = 'map'
+        goal.pose.header.stamp = self.get_clock().now().to_msg()
+        goal.pose.pose.position.x = x
+        goal.pose.pose.position.y = y
+        goal.pose.pose.orientation.z = __import__('math').sin(yaw / 2)
+        goal.pose.pose.orientation.w = __import__('math').cos(yaw / 2)
+        return goal
+
+    def navigate_to_next(self):
+        if self.current_wp >= len(self.waypoints):
+            self.get_logger().info('All waypoints reached! Mission complete.')
+            return
+        x, y, yaw = self.waypoints[self.current_wp]
+        self.get_logger().info(f'Navigating to WP{self.current_wp}: ({x}, {y})')
+        goal = self.create_goal(x, y, yaw)
+        future = self.nav_client.send_goal_async(goal)
+        future.add_done_callback(self.goal_response_cb)
+
+    def goal_response_cb(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().warn('Goal rejected!')
+            return
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self.result_cb)
+
+    def result_cb(self, future):
+        result = future.result()
+        self.get_logger().info(f'WP{self.current_wp} result: {result.status}')
+        self.current_wp += 1
+        self.navigate_to_next()
+
+def main():
+    rclpy.init()
+    rclpy.spin(WaypointNavigator())
+    rclpy.shutdown()</div>
+        </li>
+        <li><strong>Add recovery logic:</strong> If a waypoint fails (timeout after 60s or rejection), retry up to 3 times. If still failing, skip and move to the next waypoint. Log all failures.</li>
+        <li><strong>Measure:</strong> Total completion time, number of waypoints reached, number of recoveries triggered.</li>
+        <li><strong>Compare:</strong> Run with recovery behaviors enabled vs. disabled. How much does recovery improve the success rate?</li>
+    </ol>
+</div>
+
+<!-- ==================== QUICK QUIZ ==================== -->
+<div class="quiz-box">
+    <h4>Quick Quiz &mdash; Navigation and Mobile Robot Control</h4>
+
+    <p><strong>Q1:</strong> In the DWA objective function \(G(v,\omega) = \alpha \cdot \text{heading} + \beta \cdot \text{clearance} + \gamma \cdot \text{velocity}\), what happens if you set \(\beta = 0\) (zero clearance weight)?</p>
+    <div class="derivation-box">
+        <h4>Answer</h4>
+        <p>The controller completely ignores obstacle proximity. It will select velocities that best align with the goal and maximise speed, regardless of nearby obstacles. This will almost certainly result in collisions. The clearance term is the primary safety mechanism in DWA &mdash; without it, the controller has no incentive to avoid obstacles.</p>
+    </div>
+
+    <p><strong>Q2:</strong> Why does Nav2 use a particle filter (AMCL) rather than an Extended Kalman Filter (EKF) for localization on a known map?</p>
+    <div class="derivation-box">
+        <h4>Answer</h4>
+        <p>The EKF assumes the posterior distribution is unimodal Gaussian, which fails for global localization on a map with symmetry (e.g., a long corridor looks the same from many positions). The particle filter represents the full multimodal distribution, allowing the robot to maintain multiple hypotheses about its location until sensor evidence disambiguates them. Additionally, the laser scan likelihood function is highly nonlinear and non-Gaussian, which the particle filter handles naturally.</p>
+    </div>
+
+    <p><strong>Q3:</strong> How is the Nav2 behavior tree architecture analogous to the cascaded control architecture of a quadrotor?</p>
+    <div class="derivation-box">
+        <h4>Answer</h4>
+        <p>Both implement hierarchical control with different levels operating at different rates. In the quadrotor: mission planner &rarr; position controller &rarr; attitude controller &rarr; rate controller &rarr; motors. In Nav2: behavior tree (mission) &rarr; global planner (path) &rarr; local controller (trajectory) &rarr; cmd_vel (motors). Each level abstracts the complexity below it and operates at a progressively faster rate. Recovery behaviors in Nav2 are analogous to the attitude controller's ability to stabilise even when the position controller fails.</p>
+    </div>
+
+    <p><strong>Q4:</strong> The inflation layer uses \(c(d) = A \cdot e^{-\beta(d - r_{\text{inscribed}})}\). If you double the cost_scaling_factor \(\beta\), what happens to the robot's navigation behavior?</p>
+    <div class="derivation-box">
+        <h4>Answer</h4>
+        <p>Doubling \(\beta\) makes the exponential decay steeper, meaning the cost drops to zero much faster with distance from obstacles. The effective "buffer zone" around obstacles becomes narrower. The robot will navigate closer to walls and obstacles because the cost penalty for proximity is confined to a smaller region. This is useful in tight spaces but increases collision risk. Conversely, halving \(\beta\) creates wider buffer zones and more cautious navigation.</p>
+    </div>
+
+    <p><strong>Q5:</strong> You need to navigate a mobile robot through a cluttered warehouse with moving forklifts. Which Nav2 local controller plugin would you choose: DWA, Regulated Pure Pursuit, or MPPI? Justify your choice.</p>
+    <div class="derivation-box">
+        <h4>Answer</h4>
+        <p><strong>MPPI</strong> is the best choice for this scenario. Reasoning: (1) Moving forklifts create a highly dynamic environment requiring the controller to anticipate obstacle motion, which MPPI can do through its prediction horizon \(N \gg 1\). (2) The cluttered warehouse has many narrow passages requiring lookahead to avoid dead-ends, which DWA's single-step horizon cannot provide. (3) MPPI's sampling-based approach naturally handles the nonlinear constraints of obstacle avoidance without requiring linearisation. (4) Regulated Pure Pursuit is designed for path following, not obstacle avoidance &mdash; it relies entirely on the global planner to route around obstacles, which cannot react to dynamic forklifts. The computational cost of MPPI (~5&ndash;20 ms) is acceptable for a warehouse robot operating at ~10 Hz.</p>
+    </div>
+</div>
+
+<!-- ==================== SUMMARY ==================== -->
+<div class="section">
+    <h2>Summary &mdash; Key Takeaways</h2>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>Nav2 Architecture</h4>
+            <p>Nav2 implements hierarchical navigation control: behavior tree (mission) &rarr; global planner (A*/Dijkstra) &rarr; local controller (DWA/MPPI) &rarr; cmd_vel. Each component is a lifecycle node with plugin-based extensibility.</p>
+        </div>
+        <div class="card">
+            <h4>DWA = Simplified MPC</h4>
+            <p>The Dynamic Window Approach is fundamentally a 1-step MPC: sample velocities in a dynamic window, forward-simulate, score trajectories with \(\alpha \cdot h + \beta \cdot c + \gamma \cdot v\), and select the best. Nav2's MPPI extends this to full N-step MPC.</p>
+        </div>
+        <div class="card">
+            <h4>AMCL = State Estimator</h4>
+            <p>Just as Week 8's NMPC/iLQR framework assumes a matched state estimator, Nav2 pairs its controller with AMCL (particle filter). Both solve the same fundamental problem: you cannot control what you cannot observe. AMCL handles the multimodal, nonlinear nature of map-based localization &mdash; exactly where a Kalman filter fails.</p>
+        </div>
+        <div class="card">
+            <h4>Costmaps = Constraints</h4>
+            <p>Costmap layers encode navigation constraints: static (walls), obstacle (dynamic), inflation (safety buffer). The inflation layer's exponential decay is analogous to MPC soft constraints or barrier functions.</p>
+        </div>
+        <div class="card">
+            <h4>Behavior Trees = Mission Control</h4>
+            <p>BTs orchestrate planning, control, and recovery in a modular, extensible tree structure. More scalable than FSMs. The Nav2 default BT implements navigate-with-replanning and multi-stage recovery.</p>
+        </div>
+        <div class="card">
+            <h4>All Controllers Apply</h4>
+            <p>Every control method from Weeks 1&ndash;8 maps to a navigation role: PID (path following), MPC (MPPI planner), LQR (corridor tracking), Adaptive (terrain changes), Robust (weather), SMC (rough terrain), Backstepping (nonholonomic constraints).</p>
+        </div>
+    </div>
+
+    <div class="info">
+        <strong>Next Week (Week 12):</strong> Course synthesis and final integration. We will combine everything from Weeks 1&ndash;11: control theory foundations (MATLAB), ROS2 control nodes, quadrotor control, and mobile robot navigation into a comprehensive final project and course review.
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- RUNNING THE ROS2 DEMO -->
+<!-- ============================================================ -->
+<div class="section activity">
+    <h2>Running the ROS2 Demo</h2>
+
+    <h3>Build and Source</h3>
+    <div class="code-block">cd ~/auto_control_ws
+colcon build --packages-select week_05_nav2
+source install/setup.bash</div>
+
+    <h3>Launch the Demo</h3>
+    <div class="code-block">ros2 launch week_05_nav2 demo.launch.py</div>
+    <p>This command replays the recorded bag data at 2x speed, starts three solution nodes (costmap builder, A* planner, path follower), and opens RViz2 with a preconfigured layout.</p>
+
+    <h3>ROS2 Topics</h3>
+    <table>
+        <tr><th>Topic</th><th>Type</th><th>Source</th><th>Description</th></tr>
+        <tr><td><code>/map</code></td><td>nav_msgs/OccupancyGrid</td><td>Bag</td><td>Static occupancy grid (latched)</td></tr>
+        <tr><td><code>/odom</code></td><td>nav_msgs/Odometry</td><td>Bag</td><td>Wheel odometry at 20 Hz</td></tr>
+        <tr><td><code>/scan</code></td><td>sensor_msgs/LaserScan</td><td>Bag</td><td>Laser scan data at 5 Hz</td></tr>
+        <tr><td><code>/cmd_vel</code></td><td>geometry_msgs/Twist</td><td>Nodes</td><td>Path follower velocity commands</td></tr>
+        <tr><td><code>/plan</code></td><td>nav_msgs/Path</td><td>Nodes</td><td>A* planned global path</td></tr>
+    </table>
+
+    <h3>Expected RViz2 Output</h3>
+    <p>RViz2 will display the occupancy grid map, the robot's odometry path, laser scan points, the planned A* path (green line), and the robot following the path. You should see the costmap with inflated obstacles, the global path avoiding obstacles, and the robot tracking the path with the local controller.</p>
+
+    <h3>Troubleshooting</h3>
+    <div class="warning">
+        <ul>
+            <li><strong>RViz2 crashes on launch:</strong> The launch file filters <code>snap</code> paths from <code>LD_LIBRARY_PATH</code> automatically. If RViz2 still crashes, try: <code>export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | grep -v snap | tr '\n' ':')</code></li>
+            <li><strong>No data visible:</strong> Ensure the bag file exists at <code>w05_exercises/bag_data/synthetic_nav2/</code>. Re-run <code>colcon build</code> if needed.</li>
+            <li><strong>Map not showing:</strong> The <code>/map</code> topic is published once (latched). If RViz2 opened before the bag started, restart the demo.</li>
+            <li><strong>QoS mismatch warnings:</strong> The bag uses default QoS. If your subscriber uses <code>BEST_EFFORT</code>, switch to <code>RELIABLE</code> or use <code>--qos-profile-overrides-path</code>.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- APPENDIX: REVIEW MATERIAL -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Appendix: Review Material &mdash; Quadrotor Control</h2>
+    <p>Before we move to mobile robot navigation, let us revisit the key concepts from Week 10 on quadrotor control with two exam-style questions.</p>
+
+    <div class="exam-question">
+        <h4>Question 1 (25 marks)</h4>
+        <p><strong>Draw and explain the cascaded control architecture for a quadrotor</strong> (position &rarr; attitude &rarr; rate &rarr; motors). Why is cascaded control preferred over a single monolithic controller? What are the typical loop rates for each cascade level?</p>
+    </div>
+
+    <div class="derivation-box">
+        <h4>Model Answer &mdash; Q1</h4>
+        <p><strong>Cascaded Architecture (5 marks for diagram, 10 marks for explanation, 10 marks for justification and rates):</strong></p>
+        <p>The quadrotor cascaded controller consists of four nested loops:</p>
+        <ol>
+            <li><strong>Position Loop (Outer, ~50 Hz):</strong> Compares desired position \((x_d, y_d, z_d)\) with measured position from GPS/mocap. Outputs desired roll, pitch, and thrust commands. Typically a PID or LQR controller.</li>
+            <li><strong>Attitude Loop (~250 Hz):</strong> Compares desired roll/pitch/yaw \((\phi_d, \theta_d, \psi_d)\) with IMU-measured Euler angles. Outputs desired angular rates \((p_d, q_d, r_d)\). Usually PID or quaternion-based control.</li>
+            <li><strong>Rate Loop (Inner, ~500&ndash;1000 Hz):</strong> Compares desired angular rates with gyroscope measurements. Outputs torque commands \((\tau_x, \tau_y, \tau_z)\). Fast PID controller critical for stability.</li>
+            <li><strong>Motor Mixing (~1000 Hz):</strong> Converts thrust + torques into individual motor PWM signals using the allocation matrix \(\mathbf{M}\).</li>
+        </ol>
+        <p><strong>Why cascaded over monolithic:</strong></p>
+        <ul>
+            <li><strong>Timescale separation:</strong> Inner loops (rates) are much faster than outer loops (position), allowing each to be tuned independently.</li>
+            <li><strong>Modularity:</strong> Each loop can be designed, tested, and debugged independently. Replacing the position controller does not affect the rate controller.</li>
+            <li><strong>Stability:</strong> Inner loops stabilise fast dynamics first, making the plant appear simpler to outer loops. A monolithic controller would need to handle the full 12-state nonlinear system simultaneously.</li>
+            <li><strong>Robustness:</strong> If the outer loop has modelling errors, the fast inner loops still maintain attitude stability, preventing catastrophic failure.</li>
+        </ul>
+    </div>
+
+    <div class="exam-question">
+        <h4>Question 2 (25 marks)</h4>
+        <p><strong>You tested PID, LQR, and MPC on a quadrotor flying a square trajectory with 3 m/s wind disturbance.</strong> Rank the controllers by (a) tracking accuracy, (b) disturbance rejection, (c) energy efficiency. Justify your ranking with reference to each controller's design principles.</p>
+    </div>
+
+    <div class="derivation-box">
+        <h4>Model Answer &mdash; Q2</h4>
+        <p><strong>(a) Tracking Accuracy (8 marks):</strong></p>
+        <p>Ranking (best to worst): <strong>MPC &gt; LQR &gt; PID</strong></p>
+        <ul>
+            <li><strong>MPC:</strong> Best tracking because it uses a predictive model to anticipate the sharp corners of the square trajectory. It pre-compensates for turns by adjusting controls before the turn point. Typical RMS error: 0.05&ndash;0.15 m.</li>
+            <li><strong>LQR:</strong> Good tracking on straight segments (optimal for linear regulation), but overshoots at corners because it has no preview of the upcoming trajectory change. Typical RMS error: 0.10&ndash;0.25 m.</li>
+            <li><strong>PID:</strong> Reactive only; must wait for an error to develop before correcting. Largest overshoot at corners and steady-state oscillations if poorly tuned. Typical RMS error: 0.15&ndash;0.40 m.</li>
+        </ul>
+        <p><strong>(b) Disturbance Rejection (8 marks):</strong></p>
+        <p>Ranking: <strong>MPC &gt; LQR &gt; PID</strong></p>
+        <ul>
+            <li><strong>MPC:</strong> Can include wind disturbance model or estimate it online. Constraint handling prevents saturation during gusts. Recovers fastest from wind disturbances.</li>
+            <li><strong>LQR:</strong> Optimal gains provide good disturbance attenuation for the linearised model. However, 3 m/s wind may push the system outside the linear regime, degrading performance.</li>
+            <li><strong>PID:</strong> Integral term eventually rejects constant wind, but transient response is poorest. Integral windup risk during sustained gusts if not properly bounded.</li>
+        </ul>
+        <p><strong>(c) Energy Efficiency (9 marks):</strong></p>
+        <p>Ranking: <strong>MPC &gt; LQR &gt; PID</strong></p>
+        <ul>
+            <li><strong>MPC:</strong> Explicitly minimises control effort \(\sum u^T R u\) in the cost function while respecting actuator constraints. Smoothest motor commands, least wasted energy.</li>
+            <li><strong>LQR:</strong> Minimises \(\int (x^T Q x + u^T R u)\, dt\) for the linear system. Near-optimal energy usage on straight segments, but suboptimal at corners where the linearisation breaks down.</li>
+            <li><strong>PID:</strong> No explicit energy minimisation. Aggressive proportional and derivative terms cause high-frequency motor commands, wasting energy through rapid thrust changes.</li>
+        </ul>
+    </div>
+</div>
+
+</div><!-- end content -->
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer" style="background: linear-gradient(135deg, #004d40 0%, #00695c 100%);">
+    <p><strong>AutoNav Solutions</strong> &mdash; Navigation Engineer Technical Challenge</p>
+    <p>Pre-Interview Assessment &bull; Autonomous Navigation Team</p>
+    <p style="margin-top: 10px; opacity: 0.7;">Confidential &mdash; Do not distribute without authorization</p>
+</div>
+
+</div><!-- end container -->
+</body>
+</html>

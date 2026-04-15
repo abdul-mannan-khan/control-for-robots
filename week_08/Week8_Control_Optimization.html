@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 8: Nonlinear Control Optimization for Robotic Systems</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.4em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.15em; opacity: 0.95; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.35em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.15em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul, .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "\2713"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.05em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; overflow-x: auto; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; font-size: 0.95em; }
+        th, td { padding: 10px; text-align: left; border: 1px solid #ddd; vertical-align: top; }
+        th { background: #1e3c72; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; }
+        .card h4 { color: #2c3e50; margin-top: 0; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 22px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.1em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 18px; margin: 15px 0; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 18px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .sim-figure { text-align: center; margin: 20px 0; }
+        .sim-figure img { max-width: 100%; border: 1px solid #999; border-radius: 6px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+        .sim-figure .caption { margin-top: 8px; color: #555; font-size: 0.95em; font-style: italic; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>Week 8: Nonlinear Control Optimization for Robotic Systems</h1>
+            <div class="subtitle">From Pontryagin &amp; HJB to Optimized SMC, Adaptive, Robust, Backstepping, and NMPC</div>
+            <div class="meta">
+                M.Sc. Control for Robots &mdash; AY 2025&ndash;26<br>
+                Week 8 of 12 (Control Theory Block) &bull; Lecture + MATLAB Lab
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- Section 1: Learning outcomes -->
+            <div class="section objectives">
+                <h2>Section 1: Learning Outcomes</h2>
+                <p>By the end of this session, you will be able to:</p>
+                <ul>
+                    <li>Explain why linear optimal control (LQR/LQG) is fundamentally insufficient for robotic systems whose dynamics are nonlinear</li>
+                    <li>State the nonlinear optimal control problem and derive necessary conditions via Pontryagin's Minimum Principle (PMP)</li>
+                    <li>Formulate the nonlinear HJB equation and explain why direct solution is infeasible for robots</li>
+                    <li>Describe direct transcription methods (single/multiple shooting, collocation) and apply iLQR / DDP and NMPC to a manipulator, mobile robot, and quadrotor</li>
+                    <li>Pose the tuning of <strong>sliding-mode</strong>, <strong>adaptive</strong>, <strong>robust</strong>, <strong>backstepping</strong>, and <strong>nonlinear MPC</strong> controllers as constrained nonlinear optimization problems</li>
+                    <li>Select appropriate decision variables, cost functionals, constraints, and solvers for each controller family</li>
+                    <li>Interpret Pareto trade-offs (chattering vs. precision, speed vs. robustness, horizon vs. compute) through simulation</li>
+                </ul>
+            </div>
+
+            <!-- Section 2: Session roadmap -->
+            <div class="section timeline">
+                <h2>Section 2: Session Roadmap</h2>
+                <div class="timeline-item"><div class="timeline-time">0:00&ndash;0:20</div><div class="timeline-content"><h4>Part 1 &mdash; Why linearization fails for robots</h4><p>Robot dynamics M(q)q&#776; + C(q,q&#775;)q&#775; + G(q) = &tau; are nonlinear globally. Jacobian linearization destroys Coriolis, gravity coupling, and singularity structure.</p></div></div>
+                <div class="timeline-item"><div class="timeline-time">0:20&ndash;1:00</div><div class="timeline-content"><h4>Part 2 &mdash; Nonlinear optimization foundations</h4><p>Pontryagin minimum principle, nonlinear HJB, direct transcription, iLQR/DDP, nonlinear MPC.</p></div></div>
+                <div class="timeline-item"><div class="timeline-time">1:00&ndash;2:30</div><div class="timeline-content"><h4>Part 3 &mdash; Optimization of each nonlinear controller</h4><p>SMC, Adaptive, Robust, Backstepping, NMPC &mdash; per-family decision variables, cost, constraints, and solvers, each demonstrated on manipulator / mobile / drone.</p></div></div>
+                <div class="timeline-item"><div class="timeline-time">2:30&ndash;3:15</div><div class="timeline-content"><h4>Part 4 &mdash; Unified view and summary</h4><p>Common structure across families; LMI/SOS/Bayesian optimization/RL as cross-cutting tools; summary comparison.</p></div></div>
+                <div class="timeline-item"><div class="timeline-time">3:15&ndash;4:00</div><div class="timeline-content"><h4>Part 5 &mdash; MATLAB lab</h4><p>Run <code>run_all.m</code> &mdash; observe before/after cost for every controller on every robot. Modify cost weights and re-run.</p></div></div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 3: Why nonlinear optimization for robots -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 3: Why Robots Demand Nonlinear Control Optimization</h2>
+
+                <h3>3.1 Robot dynamics are globally nonlinear</h3>
+                <p>Every robotic system encountered in this course is governed by nonlinear ODEs:</p>
+                <div class="math-box">
+                    \[
+                        \underbrace{M(q)\,\ddot{q} + C(q,\dot{q})\,\dot{q} + G(q) = \tau + d(t)}_{\text{serial manipulator}}
+                    \]
+                    \[
+                        \underbrace{\dot{p}_x = v\cos\theta,\ \dot{p}_y = v\sin\theta,\ \dot\theta = \omega}_{\text{unicycle mobile robot}}
+                    \]
+                    \[
+                        \underbrace{m\ddot{\mathbf{p}} = R(\Phi)\mathbf{F}_b - m\mathbf{g},\quad J\dot{\boldsymbol\omega} + \boldsymbol\omega\times J\boldsymbol\omega = \boldsymbol\tau_b}_{\text{quadrotor (rigid body)}}
+                    \]
+                </div>
+
+                <div class="info">
+                    <strong>Variables used in the equations above:</strong>
+                    <table>
+                        <tr><th>Symbol</th><th>Meaning</th><th>Typical units</th></tr>
+                        <tr><td>\(q\)</td><td>joint-angle (configuration) vector of the manipulator</td><td>rad</td></tr>
+                        <tr><td>\(\dot q,\ \ddot q\)</td><td>joint velocity and acceleration</td><td>rad/s, rad/s²</td></tr>
+                        <tr><td>\(M(q)\)</td><td>configuration-dependent inertia (mass) matrix; symmetric, positive-definite</td><td>kg·m²</td></tr>
+                        <tr><td>\(C(q,\dot q)\dot q\)</td><td>Coriolis + centrifugal torque; quadratic in \(\dot q\)</td><td>N·m</td></tr>
+                        <tr><td>\(G(q)\)</td><td>gravity torque vector</td><td>N·m</td></tr>
+                        <tr><td>\(\tau\)</td><td>commanded joint torque (the control input \(u\))</td><td>N·m</td></tr>
+                        <tr><td>\(d(t)\)</td><td>lumped external / unmodelled disturbance torque</td><td>N·m</td></tr>
+                        <tr><td>\(p_x,p_y,\theta\)</td><td>mobile-robot pose: planar position and heading angle</td><td>m, m, rad</td></tr>
+                        <tr><td>\(v,\omega\)</td><td>mobile-robot linear and angular velocity commands</td><td>m/s, rad/s</td></tr>
+                        <tr><td>\(\mathbf p\)</td><td>quadrotor position vector in the inertial frame</td><td>m</td></tr>
+                        <tr><td>\(\Phi\)</td><td>quadrotor attitude (roll, pitch, yaw)</td><td>rad</td></tr>
+                        <tr><td>\(R(\Phi)\)</td><td>body-to-inertial rotation matrix, function of attitude</td><td>dimensionless, \(3\times 3\)</td></tr>
+                        <tr><td>\(\mathbf F_b,\boldsymbol\tau_b\)</td><td>thrust vector and torque vector in the quadrotor body frame</td><td>N, N·m</td></tr>
+                        <tr><td>\(m\) (quadrotor)</td><td>vehicle mass (scalar)</td><td>kg</td></tr>
+                        <tr><td>\(\mathbf g\)</td><td>gravity vector</td><td>m/s²</td></tr>
+                        <tr><td>\(J\) (quadrotor)</td><td>body-frame inertia tensor</td><td>kg·m²</td></tr>
+                        <tr><td>\(\boldsymbol\omega\)</td><td>body-frame angular velocity</td><td>rad/s</td></tr>
+                    </table>
+                </div>
+
+                <p>The nonlinearity is not incidental: it comes from <strong>rotations</strong> (trig terms in the unicycle and in \(R(\Phi)\)), <strong>Coriolis and centrifugal coupling</strong> (\(C(q,\dot q)\dot q\) is quadratic in \(\dot q\)), and <strong>gravity</strong> coupled through the kinematic chain (\(G(q)\) is a trigonometric function of \(q\)).</p>
+
+                <h3>3.2 Why Jacobian linearization is not enough</h3>
+                <p>The standard LQR recipe is: pick an equilibrium \((x^\star, u^\star)\), form \(A = \partial f/\partial x|_{x^\star}\), \(B = \partial f/\partial u|_{x^\star}\), solve the ARE. Three structural problems make this inadequate for robots:</p>
+                <ul>
+                    <li><strong>Validity shrinks with aggressive motion.</strong> The linear model is accurate only in a small neighbourhood of \(x^\star\). A manipulator swinging through \(\pi/2\) is far outside any single linearization.</li>
+                    <li><strong>Nonholonomic systems have no equilibrium at a generic state.</strong> A mobile robot at pose \((p_x, p_y, \theta)\) with \(v = 0, \omega = 0\) is an equilibrium but the linearization is <em>uncontrollable</em> there (Brockett's theorem). LQR literally cannot stabilize heading.</li>
+                    <li><strong>Parametric uncertainty cannot be addressed.</strong> LQR presumes known \((A,B)\). Payload changes, friction, aero effects require adaptive / robust design &mdash; none of which are optimal-control concepts in the linear sense.</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Take-home:</strong> For robots, LQR is a <em>local</em> stabilizer. Any optimization that meaningfully improves robot performance must work directly on the nonlinear dynamics, and must be applicable to the nonlinear controller families (SMC, adaptive, robust, backstepping, NMPC) you already know.
+                </div>
+
+                <h3>3.3 Two meanings of &ldquo;control optimization&rdquo;</h3>
+                <p>We unify two interpretations under one framework:</p>
+                <table>
+                    <tr><th style="width:28%">Meaning</th><th>What is optimized</th><th>Where it appears in this lecture</th></tr>
+                    <tr><td><strong>(A) Optimal trajectory</strong></td><td>The control signal \(u(t)\) itself &mdash; infinite-dimensional decision variable</td><td>Section 4: PMP, HJB, iLQR/DDP, NMPC</td></tr>
+                    <tr><td><strong>(B) Optimal controller tuning</strong></td><td>A finite set of gains / parameters \(\theta\) inside a fixed control law \(u = \pi_\theta(x)\)</td><td>Sections 5&ndash;9: SMC, Adaptive, Robust, Backstepping, NMPC tuning</td></tr>
+                </table>
+                <p>Both are nonlinear optimization problems. The difference is only the dimension of the decision variable.</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 4: Nonlinear optimization foundations -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 4: Foundations of Nonlinear Control Optimization</h2>
+
+                <h3>4.0 Notation used throughout Section 4</h3>
+                <div class="info">
+                    <table>
+                        <tr><th>Symbol</th><th>Meaning</th><th>Dimensions</th></tr>
+                        <tr><td>\(x,\ \dot x\)</td><td>state vector and its time derivative</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(u\)</td><td>control / input vector</td><td>\(m\times 1\)</td></tr>
+                        <tr><td>\(f(x,u)\)</td><td>right-hand side of continuous-time dynamics \(\dot x = f(x,u)\)</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(F(x,u)\)</td><td>discrete-time one-step map: \(x_{k+1} = F(x_k,u_k)\); typically \(F = x + \Delta t\,f(x,u)\)</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(\Delta t\)</td><td>sample time for discrete-time formulations</td><td>scalar</td></tr>
+                        <tr><td>\(N\)</td><td>number of discrete time steps in the horizon</td><td>scalar</td></tr>
+                        <tr><td>\(T\)</td><td>continuous horizon length, \(T = N\Delta t\)</td><td>scalar</td></tr>
+                        <tr><td>\(L(x,u,t)\)</td><td>instantaneous (stage) cost rate &mdash; what you pay per unit time</td><td>scalar</td></tr>
+                        <tr><td>\(\phi(x)\) or \(\Phi(x)\)</td><td>terminal cost &mdash; what you pay at the end state \(x(T)\) or \(x_N\)</td><td>scalar</td></tr>
+                        <tr><td>\(J\)</td><td>total cost functional \(\phi + \int L\,dt\) (or \(\sum L_k + \Phi\))</td><td>scalar</td></tr>
+                        <tr><td>\(g(x,u)\)</td><td>inequality constraint function (e.g. torque limits, obstacles)</td><td>\(p\times 1\)</td></tr>
+                        <tr><td>\(\mathcal U\)</td><td>admissible control set (e.g. box \(\{u:|u|\leq u_{\max}\}\))</td><td>subset of \(\mathbb R^m\)</td></tr>
+                        <tr><td>\(H(x,u,\lambda,t)\)</td><td>Hamiltonian: \(L + \lambda^{T} f\)</td><td>scalar</td></tr>
+                        <tr><td>\(\lambda(t)\)</td><td><strong>costate</strong> (adjoint): shadow price of the constraint \(\dot x = f(x,u)\); interpret as \(\partial V/\partial x\)</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(V(x,t)\) or \(V_k(x)\)</td><td><strong>value function</strong>: minimum cost-to-go from state \(x\) at time \(t\) (or step \(k\)) to the horizon end</td><td>scalar</td></tr>
+                        <tr><td>\(\nabla_x V,\ V_x\)</td><td>gradient of the value function w.r.t. state</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(V_{xx}\)</td><td>Hessian of the value function w.r.t. state</td><td>\(n\times n\)</td></tr>
+                        <tr><td>superscript \(\star\)</td><td>optimal quantity (e.g. \(u^\star, x^\star, V^\star\))</td><td>&mdash;</td></tr>
+                        <tr><td>overbar (\(\bar x,\bar u\))</td><td>nominal / current-iterate trajectory around which we expand</td><td>&mdash;</td></tr>
+                        <tr><td>\(\delta x,\ \delta u\)</td><td>perturbation from the nominal: \(x = \bar x + \delta x\)</td><td>\(n,m\times 1\)</td></tr>
+                    </table>
+                </div>
+
+                <h3>4.1 The nonlinear optimal control problem</h3>
+                <div class="formula-box">
+                    \[
+                        \min_{u(\cdot)}\ J = \phi\bigl(x(T)\bigr) + \int_0^T L\bigl(x(t), u(t), t\bigr)\,dt
+                    \]
+                    subject to \(\dot x = f(x,u),\ x(0) = x_0\), and \(g(x,u) \leq 0\)
+                </div>
+                <p>Explicitly: we choose the entire control signal \(u:[0,T]\to\mathbb R^m\) (an infinite-dimensional decision variable) to minimise the <em>cost functional</em> \(J\) &mdash; a real number equal to the terminal cost \(\phi\) at the final state plus the time-integrated stage cost \(L\) along the whole trajectory. The trajectory \(x(t)\) is constrained to satisfy the nonlinear dynamics \(\dot x = f(x,u)\) starting from a known initial state \(x_0\), and the control and state may be additionally subject to path inequalities \(g(x,u)\le 0\).</p>
+                <p>For robots, \(f\) is explicitly nonlinear (gravity, Coriolis, rotation trig). The stage cost \(L\) typically combines tracking error, control effort, and barrier-like constraint penalties. \(\phi\) is the terminal cost.</p>
+
+                <h3>4.2 Pontryagin's Minimum Principle (PMP)</h3>
+                <p>PMP gives first-order necessary conditions for optimality. Introduce an auxiliary vector \(\lambda(t)\in\mathbb R^n\) &mdash; the <strong>costate</strong> or adjoint &mdash; which plays the role of a Lagrange multiplier for the dynamics constraint \(\dot x = f(x,u)\). Define the <strong>Hamiltonian</strong>:</p>
+                <div class="math-box">
+                    \[
+                        H(x, u, \lambda, t) := \underbrace{L(x,u,t)}_{\text{stage cost}} + \underbrace{\lambda^{T} f(x,u)}_{\substack{\text{costate-weighted} \\ \text{dynamics}}}
+                    \]
+                </div>
+                <p>The Hamiltonian is a scalar that measures "instantaneous cost plus the marginal cost of moving the state in the direction \(f\)". An optimal trajectory \((x^\star(t), u^\star(t))\) with its associated costate \(\lambda^\star(t)\) must satisfy the four conditions below. Each variable is defined explicitly:</p>
+                <div class="math-box">
+                    \[
+                        \begin{array}{ll}
+                            \dot x^\star(t) = \partial H/\partial\lambda = f(x^\star, u^\star) & \text{(state equation &mdash; recovers the dynamics)}\\[4pt]
+                            \dot\lambda^\star(t) = -\partial H/\partial x\big|_\star & \text{(costate equation, a.k.a.\ adjoint ODE)}\\[4pt]
+                            u^\star(t) = \arg\min_{u\in\mathcal U} H(x^\star(t), u, \lambda^\star(t), t) & \text{(pointwise minimum principle)}\\[4pt]
+                            \lambda^\star(T) = \partial\phi/\partial x\big|_{x^\star(T)} & \text{(transversality / boundary condition at } t=T)
+                        \end{array}
+                    \]
+                </div>
+                <p><strong>What each variable does:</strong></p>
+                <ul>
+                    <li>\(\lambda(t)\in\mathbb R^n\): costate &mdash; informally, \(\lambda_i\) is the sensitivity of the optimal future cost to a perturbation in state component \(x_i\).</li>
+                    <li>\(\dot\lambda = -\partial H/\partial x\): costate evolves <em>backward</em> in time; the minus sign makes the TPBVP a two-point boundary-value problem (state known at \(t=0\), costate known at \(t=T\)).</li>
+                    <li>\(u^\star = \arg\min_{u\in\mathcal U} H\): at each instant the optimal control minimises the Hamiltonian over the admissible set \(\mathcal U\). If \(\mathcal U\) is a box (torque limits) and \(H\) is linear in \(u\), the minimum is on the boundary &mdash; <strong>bang-bang</strong>.</li>
+                    <li>Transversality \(\lambda^\star(T) = \phi_x(x^\star(T))\): at the final time the costate equals the gradient of the terminal cost, tying the two boundary conditions together.</li>
+                </ul>
+                <p>PMP turns a functional optimisation into a two-point boundary-value problem (TPBVP) in \((x,\lambda)\). Numerical TPBVP solvers (single/multiple shooting) construct this solution.</p>
+
+                <h3>4.3 Hamilton&ndash;Jacobi&ndash;Bellman (nonlinear)</h3>
+                <p>Where PMP gives necessary conditions for <em>one</em> trajectory, HJB characterises the <strong>value function</strong> \(V^\star(x,t)\) over the whole state space. The value function is defined as the minimum cost-to-go:</p>
+                <div class="math-box">
+                    \[
+                        V^\star(x, t) := \min_{u(\cdot)} \ \Bigl\{ \phi\bigl(x(T)\bigr) + \int_t^T L\bigl(x(\tau), u(\tau), \tau\bigr)\,d\tau\ \Big|\ x(t) = x \Bigr\}
+                    \]
+                </div>
+                <p>i.e.\ "if I am currently at state \(x\) at time \(t\), what is the smallest remaining cost I can achieve by optimal play?" The Bellman principle of optimality implies that \(V^\star\) satisfies the HJB partial differential equation:</p>
+                <div class="math-box">
+                    \[
+                        -\frac{\partial V^\star}{\partial t}(x,t) \ =\ \min_{u\in\mathcal U}\ \Bigl\{\ L(x,u,t)\ +\ \underbrace{(\nabla_x V^\star)^{T}}_{\text{value gradient}}\,f(x,u)\ \Bigr\},\qquad V^\star(x,T) = \phi(x)
+                    \]
+                </div>
+                <p><strong>What each variable does:</strong></p>
+                <ul>
+                    <li>\(V^\star:\mathbb R^n\times[0,T]\to\mathbb R\): the scalar "cost-to-go" function, defined on the whole state space.</li>
+                    <li>\(\partial V^\star/\partial t\): rate of change of the value as time moves forward at fixed state.</li>
+                    <li>\(\nabla_x V^\star \in\mathbb R^n\): the spatial gradient &mdash; exactly the costate \(\lambda\) from PMP, evaluated at \((x,t)\). This is the formal link: PMP lives on <em>one</em> trajectory, HJB gives the gradient of the value over <em>all</em> states.</li>
+                    <li>The minimisation over \(u\) is pointwise at each \((x,t)\) (same operation as in PMP).</li>
+                    <li>Terminal condition \(V^\star(x,T) = \phi(x)\): at the end of the horizon the value equals the terminal cost.</li>
+                </ul>
+                <p>HJB gives the optimal value function <em>globally</em>, but direct solution is impractical for \(\dim x \ge 4\) (curse of dimensionality) &mdash; grid-based methods scale as \(O(N_{\text{grid}}^n)\). HJB remains the theoretical yardstick against which PMP and direct methods are justified.</p>
+
+                <h3>4.4 Direct methods: shooting and collocation</h3>
+                <p>Discretize time into \(N\) knots, turn the infinite-dimensional problem into a finite nonlinear program (NLP).</p>
+                <table>
+                    <tr><th>Method</th><th>Decision variables</th><th>Pros</th><th>Cons</th></tr>
+                    <tr><td>Single shooting</td><td>\((u_0,\ldots,u_{N-1})\); states propagated</td><td>Few variables</td><td>Highly nonlinear NLP, sensitive to \(u_0\)</td></tr>
+                    <tr><td>Multiple shooting</td><td>States at knots + controls; defect constraints</td><td>Better conditioning, parallel integration</td><td>More variables &amp; equality constraints</td></tr>
+                    <tr><td>Direct collocation</td><td>States &amp; controls at all knots; dynamics as algebraic constraint</td><td>Sparse structure, handles unstable dynamics</td><td>High-dimensional NLP; needs sparse SQP/IPM solver</td></tr>
+                </table>
+
+                <h3>4.5 iLQR and DDP &mdash; the robot trajectory optimizer of choice</h3>
+
+                <p><strong>Iterative LQR (iLQR)</strong> linearises the dynamics \(f\) around a <em>nominal</em> (current-iterate) trajectory, quadratises the cost around the same nominal, solves the resulting time-varying LQR problem exactly, and updates the trajectory. <strong>Differential Dynamic Programming (DDP)</strong> is the second-order variant that also keeps the Hessians of \(f\). Both converge <em>locally quadratically</em> &mdash; one iteration is one Newton step on the Bellman recursion.</p>
+
+                <h4>Symbols used in the iLQR recursion</h4>
+                <div class="info">
+                    <table>
+                        <tr><th>Symbol</th><th>Meaning</th><th>Dimensions</th></tr>
+                        <tr><td>\(k\)</td><td>discrete time-step index, \(k = 0,1,\ldots,N\)</td><td>integer</td></tr>
+                        <tr><td>\(\bar x_k,\ \bar u_k\)</td><td>nominal state / control at step \(k\) (current iterate; iLQR improves this each pass)</td><td>\(n,\ m\)</td></tr>
+                        <tr><td>\(\delta x_k\)</td><td>state perturbation from the nominal: \(x_k = \bar x_k + \delta x_k\)</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(\delta u_k\)</td><td>control perturbation: \(u_k = \bar u_k + \delta u_k\)</td><td>\(m\times 1\)</td></tr>
+                        <tr><td>\(A_k\)</td><td>state Jacobian \(\partial F/\partial x\) at \((\bar x_k,\bar u_k)\) &mdash; how a \(\delta x\) propagates one step</td><td>\(n\times n\)</td></tr>
+                        <tr><td>\(B_k\)</td><td>control Jacobian \(\partial F/\partial u\) at \((\bar x_k,\bar u_k)\) &mdash; how \(\delta u\) enters the next state</td><td>\(n\times m\)</td></tr>
+                        <tr><td>\(L_k\)</td><td>stage cost evaluated at \((\bar x_k,\bar u_k)\)</td><td>scalar</td></tr>
+                        <tr><td>\(L_{x,k},L_{u,k}\)</td><td>gradients of the stage cost w.r.t. \(x\) and \(u\)</td><td>\(n,\ m\)</td></tr>
+                        <tr><td>\(L_{xx,k},L_{uu,k},L_{ux,k}\)</td><td>Hessians: pure-state, pure-control, and cross-second-derivative of stage cost</td><td>\(n{\times}n,\ m{\times}m,\ m{\times}n\)</td></tr>
+                        <tr><td>\(V_k(x)\)</td><td>value function at step \(k\) (min cost-to-go)</td><td>scalar</td></tr>
+                        <tr><td>\(V_{x,k},\ V_{xx,k}\)</td><td>value-function gradient and Hessian at \((\bar x_k)\)</td><td>\(n,\ n{\times}n\)</td></tr>
+                        <tr><td>\(\Phi(x)\)</td><td>terminal cost; \(V_N(x) = \Phi(x)\)</td><td>scalar</td></tr>
+                        <tr><td>\(Q_k(x,u)\)</td><td>stage+future: \(Q_k = L(x,u) + V_{k+1}(F(x,u))\). Its minimiser over \(u\) is \(V_k\).</td><td>scalar</td></tr>
+                        <tr><td>\(Q_{u,k}\)</td><td>gradient of \(Q_k\) w.r.t. \(u\): \(L_{u,k} + B_k^{T} V_{x,k+1}\)</td><td>\(m\times 1\)</td></tr>
+                        <tr><td>\(Q_{uu,k}\)</td><td>Hessian of \(Q_k\) w.r.t. \(u\): \(L_{uu,k} + B_k^{T} V_{xx,k+1} B_k\)</td><td>\(m\times m\)</td></tr>
+                        <tr><td>\(Q_{ux,k}\)</td><td>cross Hessian of \(Q_k\): \(L_{ux,k} + B_k^{T} V_{xx,k+1} A_k\)</td><td>\(m\times n\)</td></tr>
+                        <tr><td>\(Q_{x,k}\)</td><td>gradient of \(Q_k\) w.r.t. \(x\): \(L_{x,k} + A_k^{T} V_{x,k+1}\)</td><td>\(n\times 1\)</td></tr>
+                        <tr><td>\(Q_{xx,k}\)</td><td>Hessian of \(Q_k\) w.r.t. \(x\): \(L_{xx,k} + A_k^{T} V_{xx,k+1} A_k\)</td><td>\(n\times n\)</td></tr>
+                        <tr><td>\(k_k\)</td><td><strong>feedforward correction</strong>: \(-Q_{uu,k}^{-1} Q_{u,k}\) &mdash; how much to push \(\bar u_k\) in the best direction</td><td>\(m\times 1\)</td></tr>
+                        <tr><td>\(K_k\)</td><td><strong>time-varying feedback gain</strong>: \(-Q_{uu,k}^{-1} Q_{ux,k}\) &mdash; LQR-like feedback on the state perturbation</td><td>\(m\times n\)</td></tr>
+                        <tr><td>\(\alpha\)</td><td>line-search step size, \(\alpha\in(0,1]\), reduced on forward-pass failure</td><td>scalar</td></tr>
+                        <tr><td>\(\mu\)</td><td>Levenberg&ndash;Marquardt regularisation added to \(Q_{uu}\) for numerical robustness</td><td>scalar</td></tr>
+                    </table>
+                </div>
+
+                <div class="derivation-box">
+                    <h4>Core iLQR recursion &mdash; with full symbol definitions</h4>
+                    <p><strong>Setup.</strong> We want to minimise \(J = \sum_{k=0}^{N-1} L(x_k,u_k) + \Phi(x_N)\) subject to \(x_{k+1} = F(x_k, u_k)\) starting from \(x_0\). Assume we have a current-iterate <em>nominal</em> trajectory \(\{\bar x_k,\bar u_k\}_{k=0}^{N}\). Let \(x = \bar x + \delta x\), \(u = \bar u + \delta u\) denote the unknown corrections.</p>
+
+                    <p><strong>Step 1 &mdash; Linearise the dynamics</strong> at each nominal point \((\bar x_k,\bar u_k)\):</p>
+                    \[
+                        \delta x_{k+1} \approx A_k\,\delta x_k + B_k\,\delta u_k,\qquad A_k := \left.\dfrac{\partial F}{\partial x}\right|_\star,\ B_k := \left.\dfrac{\partial F}{\partial u}\right|_\star
+                    \]
+                    <p>\(A_k\) is the \(n\times n\) one-step state-transition matrix of the linearised dynamics; \(B_k\) is the \(n\times m\) input matrix. Both are computed by finite differences in code.</p>
+
+                    <p><strong>Step 2 &mdash; Quadratise the stage cost.</strong> To second order,</p>
+                    \[
+                        L(\bar x + \delta x, \bar u + \delta u) \approx L_k + L_{x,k}^{T}\delta x + L_{u,k}^{T}\delta u + \tfrac12\!\begin{bmatrix}\delta x \\ \delta u\end{bmatrix}^{T}\!\!\begin{bmatrix} L_{xx,k} & L_{xu,k}\\ L_{ux,k} & L_{uu,k}\end{bmatrix}\!\!\begin{bmatrix}\delta x\\ \delta u\end{bmatrix}
+                    \]
+                    <p>where \(L_{x,k},L_{u,k}\) are gradients (of length \(n,m\) respectively) and \(L_{xx,k},L_{uu,k},L_{ux,k}\) are Hessians/cross-Hessians of the stage cost at the nominal.</p>
+
+                    <p><strong>Step 3 &mdash; Define the \(Q\)-function.</strong> Combining the stage cost with a quadratic model of the future-value function \(V_{k+1}\):</p>
+                    \[
+                        Q_k(\delta x,\delta u) \equiv L(\bar x+\delta x,\bar u+\delta u)\ +\ V_{k+1}(\bar x_{k+1} + A_k\delta x + B_k\delta u)
+                    \]
+                    <p>Expanding each piece to second order and collecting by power of \(\delta x, \delta u\) yields the five \(Q\)-blocks (each defined above):</p>
+                    \[
+                        Q_{x,k} = L_{x,k} + A_k^{T} V_{x,k+1},\qquad Q_{u,k} = L_{u,k} + B_k^{T} V_{x,k+1}
+                    \]
+                    \[
+                        Q_{xx,k} = L_{xx,k} + A_k^{T} V_{xx,k+1} A_k,\quad Q_{uu,k} = L_{uu,k} + B_k^{T} V_{xx,k+1} B_k,\quad Q_{ux,k} = L_{ux,k} + B_k^{T} V_{xx,k+1} A_k
+                    \]
+
+                    <p><strong>Step 4 &mdash; Minimise \(Q_k\) over \(\delta u\) (closed-form).</strong> Since \(Q_k\) is quadratic in \(\delta u\), the stationary condition \(\partial Q_k/\partial(\delta u) = 0\) reads</p>
+                    \[
+                        Q_{u,k} + Q_{uu,k}\,\delta u + Q_{ux,k}\,\delta x = 0
+                    \]
+                    <p>Solving:</p>
+                    \[
+                        \boxed{\ \delta u_k^\star(\delta x) = k_k + K_k\,\delta x\ },\qquad k_k = -Q_{uu,k}^{-1} Q_{u,k},\quad K_k = -Q_{uu,k}^{-1} Q_{ux,k}
+                    \]
+                    <p>\(k_k \in \mathbb R^m\) is the <strong>feedforward correction</strong> (independent of the current state perturbation &mdash; how much to push \(\bar u_k\) in the best direction). \(K_k\in\mathbb R^{m\times n}\) is the <strong>time-varying feedback gain</strong> (LQR-style gain on \(\delta x_k\)).</p>
+
+                    <p><strong>Step 5 &mdash; Propagate the value function backward.</strong> Substituting \(\delta u = k_k + K_k\delta x\) back into \(Q_k\) gives a new quadratic in \(\delta x\):</p>
+                    \[
+                        V_{x,k} = Q_{x,k} - K_k^{T} Q_{uu,k}\,k_k,\qquad V_{xx,k} = Q_{xx,k} - K_k^{T} Q_{uu,k}\,K_k
+                    \]
+                    <p>Initialise at the horizon with \(V_{x,N} = \Phi_x(\bar x_N)\), \(V_{xx,N} = \Phi_{xx}(\bar x_N)\). Sweep \(k = N\!-\!1,\ldots,0\).</p>
+
+                    <p><strong>Step 6 &mdash; Forward pass with line search.</strong> With all \(\{k_k, K_k\}\) stored from the backward sweep, roll out a new trajectory starting from \(\delta x_0 = 0\):</p>
+                    \[
+                        \delta u_k = \alpha\,k_k + K_k\,\delta x_k,\quad u_k^{\text{new}} = \bar u_k + \delta u_k,\quad x_{k+1}^{\text{new}} = F(x_k^{\text{new}}, u_k^{\text{new}})
+                    \]
+                    <p>The step size \(\alpha\in(0,1]\) is reduced (\(\alpha\leftarrow \alpha/2\)) until the new cost \(J^{\text{new}}<J\) &mdash; standard backtracking line search.</p>
+
+                    <p><strong>Step 7 &mdash; Regularise if \(Q_{uu}\) is ill-conditioned.</strong> Replace \(Q_{uu,k}\) by \(Q_{uu,k} + \mu I_m\) with \(\mu\ge 0\) increased on backward-pass Cholesky failure or forward-pass line-search failure. This is the Levenberg&ndash;Marquardt trust-region logic in the code.</p>
+
+                    <p><strong>Output.</strong> On convergence iLQR returns:</p>
+                    <ul>
+                        <li>A locally optimal trajectory \(\{x_k^\star, u_k^\star\}\) (the "open-loop" command);</li>
+                        <li>A time-varying feedback policy \(u_k = u_k^\star + K_k(x - x_k^\star)\) valid in a neighbourhood of the trajectory &mdash; this is the <em>local</em> feedback that makes iLQR more robust than pure open-loop planning.</li>
+                    </ul>
+                </div>
+
+                <h3>4.6 Nonlinear MPC (NMPC)</h3>
+                <p>NMPC wraps a trajectory optimiser (§4.5) in a <em>receding-horizon</em> loop. At every sample instant \(t_k\):</p>
+                <ol>
+                    <li>Measure the current state \(x_k\).</li>
+                    <li>Solve the finite-horizon OCP of §4.1 starting from \(x_0 := x_k\), over a fixed prediction horizon of \(N\) steps (duration \(T = N\Delta t\)). This returns an optimal sequence \(\{u_0^\star, u_1^\star, \ldots, u_{N-1}^\star\}\).</li>
+                    <li>Apply <em>only the first</em> control \(u_0^\star\) to the physical plant for one sample time \(\Delta t\).</li>
+                    <li>Shift the remaining solution \((u_1^\star,\ldots,u_{N-1}^\star,u_{N-1}^\star)\) and use it as the warm-start for step (2) at the next sample.</li>
+                </ol>
+                <p><strong>Key symbols:</strong> \(N\) = horizon length (number of prediction steps); \(\Delta t\) = sample time; \(T = N\Delta t\) = prediction-window duration. The controller is therefore parameterised by \((N, \Delta t, Q, R, P, \mathcal X_f)\) where \(Q, R\) are stage-cost weighting matrices, \(P\) the terminal-cost weighting, and \(\mathcal X_f\) the terminal invariance set.</p>
+                <p>Real-time implementations use <em>warm-starting</em> (the previous solution shifted by one step is the initial guess for the new NLP) and <em>SQP real-time iteration</em> (one Sequential Quadratic Programming step per sample, rather than iterating to full convergence). The dominant open-source libraries (ACADO, CasADi/Ipopt, acados) all implement variants of this loop.</p>
+                <div class="info">
+                    <p><strong>Key insight:</strong> iLQR is a one-shot trajectory optimizer; NMPC is a receding-horizon feedback controller that <em>uses</em> trajectory optimization at every sample. For robots with disturbances and uncertain initial conditions, NMPC is the preferred deployment form.</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 5: SMC optimization -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 5: Optimization of Sliding Mode Control</h2>
+
+                <h3>5.1 Free parameters of SMC</h3>
+                <p>Recall the SMC law \(\tau = \tau_{eq} + \tau_{sw}\) with \(\tau_{sw} = -\eta\,\mathrm{sat}(s/\phi)\), \(s = \dot e + \lambda e\). The controller is fully specified by three parameters per joint:</p>
+                <ul>
+                    <li>\(\lambda\) &mdash; sliding surface slope: sets the reaching-phase-free convergence rate</li>
+                    <li>\(\phi\) &mdash; boundary-layer width: chattering vs. steady-state error</li>
+                    <li>\(\eta\) &mdash; switching gain: robustness margin vs. disturbance bound \(D\)</li>
+                </ul>
+
+                <h3>5.2 Optimization formulation</h3>
+                <div class="math-box">
+                    \[
+                        \min_{\lambda,\phi,\eta} \quad w_e\!\!\int_0^T\!\! \|e\|^2\,dt + w_u\!\!\int_0^T\!\! \|\tau\|^2\,dt + w_c\!\!\int_0^T\!\! \|\dot\tau\|\,dt
+                    \]
+                    s.t. \(\eta > D\) (reaching condition),\; \(\lambda > 0\),\; \(\phi > 0\),\; \(|\tau|\leq \tau_{\max}\)
+                </div>
+                <p>The third term is a <strong>chatter metric</strong> (total variation of the control). This formalizes the Pareto trade-off studied in the Week 7 exam question.</p>
+
+                <h3>5.3 LMI-based sliding-surface design &mdash; <em>full derivation</em></h3>
+
+                <h4>Step 1. Linearization of the robot around the operating point</h4>
+                <p>Start from the nonlinear robot dynamics \(\dot x = f(x,u)\) with \(x = [q;\dot q] \in \mathbb R^n\), \(u = \tau \in \mathbb R^m\). The Jacobian linearization at the operating point \((x^\star, u^\star)\) gives:</p>
+                <div class="math-box">
+                    \[
+                        A = \left.\dfrac{\partial f}{\partial x}\right|_{(x^\star,u^\star)},\quad
+                        B = \left.\dfrac{\partial f}{\partial u}\right|_{(x^\star,u^\star)}
+                    \]
+                </div>
+                <p><strong>For the 2-link manipulator at \(q = q^\star,\ \dot q = 0\):</strong></p>
+                <div class="math-box">
+                    \[
+                        A = \begin{bmatrix} 0_{2\times 2} & I_{2\times 2} \\ -M^{-1}(q^\star)\,\partial_q G(q^\star) & 0_{2\times 2} \end{bmatrix}\in\mathbb R^{4\times 4},\quad
+                        B = \begin{bmatrix} 0_{2\times 2} \\ M^{-1}(q^\star) \end{bmatrix}\in\mathbb R^{4\times 2}
+                    \]
+                </div>
+                <p>The Jacobian is computed by MATLAB with finite differences around \(x^\star\) (this is exactly the \(A, B\) that feeds iLQR in §9 too).</p>
+
+                <h4>Step 2. Regular-form partition</h4>
+                <p>\(B\) has \(n\!-\!m\) rows of zeros and \(m\) rows with full-rank block \(M^{-1}\). This is already the <em>regular form</em>:</p>
+                <div class="math-box">
+                    \[
+                        x = \begin{bmatrix}x_1\\ x_2\end{bmatrix},\quad x_1 = q\in\mathbb R^{n-m},\ x_2 = \dot q\in\mathbb R^{m};\qquad
+                        A = \begin{bmatrix}A_{11} & A_{12} \\ A_{21} & A_{22}\end{bmatrix},\quad B = \begin{bmatrix}0 \\ B_2\end{bmatrix}
+                    \]
+                </div>
+                <p>For the manipulator specifically: \(A_{11}\!=\!0_{2\times 2},\ A_{12}\!=\!I_{2\times 2},\ A_{21}\!=\!-M^{-1}\partial_q G,\ A_{22}\!=\!0,\ B_2\!=\!M^{-1}\). So \(A_{11}\) is the "position-to-position" block and \(A_{12}\) is the "velocity-to-position" block &mdash; both visible by inspection.</p>
+
+                <h4>Step 3. Define the sliding surface</h4>
+                <p>Choose a linear surface \(s = S x = S_1 x_1 + x_2 = 0\), with \(S = [S_1\ I_m]\) and \(S_1 \in \mathbb R^{m\times (n-m)}\) to be designed. On the surface \(x_2 = -S_1 x_1\). Substituting into the \(x_1\)-equation gives the <strong>reduced-order sliding motion</strong>:</p>
+                <div class="math-box">
+                    \[
+                        \dot x_1 = A_{11} x_1 + A_{12} x_2 = (A_{11} - A_{12} S_1)\,x_1
+                    \]
+                </div>
+                <p>This is a pure <em>state-feedback</em> stabilization problem on the pair \((A_{11}, A_{12})\): find \(S_1\) so that \(A_{11} - A_{12} S_1\) is Hurwitz. Note for the manipulator: \(\dot q = -S_1 q\) is exactly the first-order error decay &mdash; so the surface slope \(S_1\) is what Week 7 called \(\Lambda\).</p>
+
+                <h4>Step 4. Optimal surface via LQR-on-sliding-motion</h4>
+                <p>We optimize the sliding motion to minimize a quadratic cost:</p>
+                <div class="math-box">
+                    \[
+                        \min_{S_1}\ \int_0^\infty \bigl(x_1^{T} Q_{11} x_1 + x_2^{T} R\, x_2\bigr) dt\quad\text{s.t. } \dot x_1 = (A_{11}-A_{12}S_1)x_1,\ x_2 = -S_1 x_1
+                    \]
+                </div>
+                <p>Substituting \(x_2 = -S_1 x_1\) and closing the loop, we need \(S_1\) such that \(A_{11} - A_{12} S_1\) is stable and the cost is minimized.</p>
+
+                <h4>Step 5. The LMI</h4>
+                <p>Use the Lyapunov characterization: \(A_{11}-A_{12}S_1\) is stable iff there exist \(P \succ 0\) and \(S_1\) with \((A_{11}-A_{12}S_1)P + P(A_{11}-A_{12}S_1)^{T} \prec 0\). Introduce the change of variables \(W = -S_1 P\) (\(P \succ 0\) makes this bijective) to obtain a linear expression in \((P, W)\):</p>
+                <div class="math-box">
+                    \[
+                        A_{11}P + P A_{11}^{T} + A_{12} W + W^{T} A_{12}^{T} \prec 0,\qquad P \succ 0
+                    \]
+                </div>
+                <p>Appending the cost terms \((Q_{11}, R)\) via a Schur complement gives the full LMI used in §5.3:</p>
+                <div class="math-box">
+                    \[
+                        \begin{bmatrix} A_{11}P + P A_{11}^{T} + Q_{11} & P A_{12} + W \\ (P A_{12} + W)^{T} & -R \end{bmatrix} \prec 0
+                    \]
+                </div>
+                <p>An SDP solver returns \((P, W)\); then <strong>\(S_1 = -W P^{-1}\)</strong>, and the sliding surface is \(s = S_1 x_1 + x_2\). Convex problem &mdash; globally optimal \(S_1\) in polynomial time.</p>
+
+                <div class="info">
+                    <p><strong>Bridge back to \(\lambda\) in the simulation.</strong> The scalar \(\lambda\) that the lab code optimizes is the simplest case \(S_1 = \lambda I\), with \(A_{11}\!=\!0\), \(A_{12}\!=\!I\). For that special case the LMI collapses to \(\lambda I + \lambda I \succ 0\), i.e.\ <em>any</em> \(\lambda>0\) stabilizes the sliding motion &mdash; which is why we optimize \(\lambda\) numerically via <code>fminsearch</code> on the full nonlinear closed-loop cost, rather than via the LMI.</p>
+                </div>
+
+                <h3>5.4 Worked numerical example &mdash; single-link manipulator</h3>
+
+                <div class="derivation-box">
+                    <h4>Arm specification (used throughout §5&ndash;§9 examples)</h4>
+                    <p><strong>Physical parameters:</strong> m = 1 kg,&nbsp; l = 1 m,&nbsp; \(l_c\) = 0.5 m,&nbsp; I = 0.083 kg·m²</p>
+                    <p><strong>Equivalent inertia:</strong> \(J = I + m l_c^2 = 0.083 + 0.25 = 0.333\) kg·m²</p>
+                    <p><strong>Gravity torque:</strong> \(G(q) = m g l_c \cos(q) = 4.905\cos(q)\) N·m</p>
+                    <p><strong>Plant:</strong> \(0.333\,\ddot q + 4.905\cos(q) = \tau\)</p>
+                    <p><strong>Operating point:</strong> \(q^\star = \pi/3\) rad (60°),&nbsp; \(\dot q^\star = 0\)</p>
+                    <p><strong>Disturbance bound:</strong> \(|d(t)| \le D = 1\) N·m (unmodelled payload, friction)</p>
+                </div>
+
+                <h4>Step 1. Linearization at \(q^\star\)</h4>
+                <p>With \(x_1 = q - q^\star,\ x_2 = \dot q\):</p>
+                <div class="math-box">
+                    \[
+                        \partial G/\partial q\big|_{q^\star} = -4.905\sin(\pi/3) = -4.248
+                    \]
+                    \[
+                        A = \begin{bmatrix}0 & 1 \\ -(\partial G/\partial q)/J & 0\end{bmatrix} = \begin{bmatrix}0 & 1 \\ 12.75 & 0\end{bmatrix},\quad B = \begin{bmatrix}0 \\ 1/J\end{bmatrix} = \begin{bmatrix}0 \\ 3.00\end{bmatrix}
+                    \]
+                </div>
+                <p>Open-loop eigenvalues of \(A\) are \(\pm\sqrt{12.75} = \pm 3.57\): unstable (gravity tips the arm away from \(q^\star\)).</p>
+
+                <h4>Step 2. Regular form (already satisfied)</h4>
+                <p>\(B\) has a zero in row 1 and nonzero in row 2, so \(A_{11}=0\), \(A_{12}=1\), \(B_2 = 3.00\). Here \(n\!-\!m = m = 1\), so \(S_1\) is a scalar call it \(\lambda\).</p>
+
+                <h4>Step 3. Sliding surface and reduced motion</h4>
+                <p>\(s = \lambda x_1 + x_2\). On the surface \(x_2 = -\lambda x_1\), so:</p>
+                <div class="math-box">
+                    \[
+                        \dot x_1 = A_{11}x_1 + A_{12}x_2 = 0 + 1\cdot(-\lambda x_1) = -\lambda x_1
+                    \]
+                </div>
+                <p>Exponential decay with time constant \(1/\lambda\).</p>
+
+                <h4>Step 4. Optimal \(\lambda\) from the LQR sliding cost</h4>
+                <p>Minimise \(\int_0^\infty(Q_{11}x_1^2 + R x_2^2)dt = \int_0^\infty (Q_{11} + \lambda^2 R) x_1^2\,dt\). With \(x_1(t) = x_1(0)e^{-\lambda t}\):</p>
+                <div class="math-box">
+                    \[
+                        J(\lambda) = \frac{(Q_{11} + \lambda^2 R)}{2\lambda}\,x_1(0)^2
+                    \]
+                </div>
+                <p>Setting \(\partial J/\partial \lambda = 0\) gives \(\lambda^\star = \sqrt{Q_{11}/R}\). Picking \(Q_{11} = 1,\ R = 0.01\):</p>
+                <div class="formula-box">
+                    \(\lambda^\star = \sqrt{1/0.01} = 10\)
+                </div>
+
+                <h4>Step 5. Reaching gain and boundary layer</h4>
+                <p>The reaching condition \(\eta > D\) with disturbance bound \(D = 1\) requires \(\eta > 1\). Pick \(\eta = 3\) (margin factor 3). Choose boundary layer \(\varphi = 0.05\) for smooth control.</p>
+
+                <h4>Step 6. Steady-state error bound</h4>
+                <div class="math-box">
+                    \[
+                        |e_{ss}| \le \frac{\varphi}{\lambda} = \frac{0.05}{10} = 0.005\ \text{rad} = 0.29^\circ
+                    \]
+                </div>
+
+                <h4>Step 7. Closed-form controller at \(t = 0\)</h4>
+                <p>Error: \(e(0) = 0 - \pi/3 = -1.047,\ \dot e(0) = 0\). Sliding variable:</p>
+                <div class="math-box">
+                    \[
+                        s(0) = \dot e + \lambda e = 0 + 10\cdot(-1.047) = -10.47
+                    \]
+                </div>
+                <p>Controller \(\tau = J(\ddot q_d - \lambda\dot e) + \hat G(q) - \eta\,\mathrm{sat}(s/\varphi)\):</p>
+                <div class="math-box">
+                    \[
+                        \tau(0) = 0.333\cdot(0 - 10\cdot 0) + 4.905\cos(0) - 3\cdot\mathrm{sat}(-10.47/0.05)
+                    \]
+                    \[
+                        = 0 + 4.905 - 3\cdot(-1) = +7.905\ \text{N}\cdot\text{m}
+                    \]
+                </div>
+                <p>Since \(|s/\varphi| = 209 \gg 1\), the saturation saturates at \(-1\), giving maximum reaching torque.</p>
+
+                <h4>Step 8. Lab vs. analytic \(\lambda\)</h4>
+                <p>The lab's <code>fminsearch</code> on the <em>nonlinear</em> 2-link arm yields \(\lambda \approx 17\) (not 10). The difference is because the lab cost also penalises control effort and chatter, and the sliding motion differs from the LQR ideal once the arm is far from the operating point. The analytic \(\lambda^\star = 10\) is still a good <em>initial guess</em> for the numerical search.</p>
+
+                <h3>5.5 Implementation (from <code>sim_smc.m</code>)</h3>
+                <div class="code-block">% Per-sample control law (manipulator):
+e  = q - q_des;     de = dq;
+s  = de + lambda*e;                       % sliding variable
+[M,C,G] = manipulator_dyn(q, dq, p);
+% Feedback-linearization-based SMC:
+u  = M*(-lambda*de) + C*dq + G - eta*sat(s/phi);
+ddq = M \ (u - C*dq - G);
+
+% Saturation function (boundary-layered):
+function y = sat(s), y = max(-1, min(1, s)); end
+
+% Outer optimization: minimize tracking + effort + chatter
+J = sum(sum(e.^2))*dt + 0.001*sum(sum(u.^2))*dt + 0.01*sum(|du|)*dt;
+zOpt = fminsearch(@(z) smc_manip_cost(z, p, q_des, T, dt), [10, 0.05, 5]);</div>
+
+                <h3>5.6 Simulation results (manipulator / mobile / quadrotor)</h3>
+                <p>We apply <code>fminsearch</code> to the cost in Section 5.2 over \((\lambda, \phi, \eta)\) for all three robots. Baseline gains (red) come from hand-tuned heuristics; optimized gains (blue) are found by the solver.</p>
+                <div class="sim-figure">
+                    <img src="sims/figures/smc_results.png" alt="SMC baseline vs optimized on manipulator, mobile, quadrotor">
+                    <div class="caption">Figure 5.1 &mdash; SMC baseline (red dashed) vs. \((\lambda,\phi,\eta)\)-optimized (blue) on three robots. Rows: manipulator, mobile, quadrotor.</div>
+                </div>
+                <table>
+                    <tr><th>Robot</th><th>\((\lambda,\phi,\eta)\) baseline</th><th>\((\lambda,\phi,\eta)\) optimized</th><th>J baseline</th><th>J optimized</th><th>Reduction</th></tr>
+                    <tr><td>2-link manipulator</td><td>(10.0, 0.050, 5.0)</td><td>(17.4, 0.443, 28.8)</td><td>1.983</td><td>1.090</td><td>&minus;45.0%</td></tr>
+                    <tr><td>Unicycle mobile</td><td>(2.0, 0.10, 1.0)</td><td>(tuned)</td><td>0.379</td><td>0.169</td><td>&minus;55.4%</td></tr>
+                    <tr><td>Planar quadrotor</td><td>(4.0, 0.05, 2.0)</td><td>(tuned)</td><td>0.984</td><td>0.423</td><td>&minus;57.0%</td></tr>
+                </table>
+                <p>Notice that the optimizer on the manipulator <em>widened</em> the boundary layer from 0.05 to 0.44 &mdash; the chatter penalty dominates and the precision loss is worth it for the quadratic reduction in \(\|\dot\tau\|\).</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 6: Adaptive optimization -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 6: Optimization of Adaptive Control</h2>
+
+                <h3>6.1 Free parameters</h3>
+                <p>For MRAC / Slotine&ndash;Li adaptive control, the decision variables are:</p>
+                <ul>
+                    <li>\(\Gamma \succ 0\) &mdash; adaptation gain matrix. Large \(\Gamma\) gives fast learning but amplifies noise.</li>
+                    <li>\(\sigma\) &mdash; sigma-modification coefficient (adds leakage \(-\sigma\hat\theta\) to the update).</li>
+                    <li>Projection bounds \([\theta_{\min}, \theta_{\max}]\) from physical knowledge (mass &gt; 0, friction &gt; 0).</li>
+                </ul>
+
+                <h3>6.2 Why tuning is <em>not</em> optional</h3>
+                <p>Adaptive laws are Lyapunov-stable for <em>any</em> \(\Gamma \succ 0\) &mdash; but performance varies by orders of magnitude. Classical failure modes:</p>
+                <div class="card-grid">
+                    <div class="card"><h4>\(\Gamma\) too small</h4><p>Transients long; parameter estimate never converges during the task.</p></div>
+                    <div class="card"><h4>\(\Gamma\) too large</h4><p>Estimate oscillates and amplifies measurement noise; can destabilize the inner loop.</p></div>
+                    <div class="card"><h4>No PE, no leakage</h4><p>Without persistent excitation (PE), \(\hat\theta\) drifts under disturbances. \(\sigma\)-modification prevents drift at the cost of a small bias.</p></div>
+                </div>
+
+                <h3>6.3 Full Slotine&ndash;Li derivation &mdash; where the adaptation law comes from</h3>
+
+                <h4>Step 1. Linear parameterisation of the manipulator</h4>
+                <p>The nonlinear manipulator dynamics can be written as a linear-in-parameters regressor form:</p>
+                <div class="math-box">
+                    \[
+                        M(q)\ddot q + C(q,\dot q)\dot q + G(q) = Y(q,\dot q,\dot q_r,\ddot q_r)\,\theta
+                    \]
+                </div>
+                <p>where \(\theta \in \mathbb R^p\) is the vector of unknown physical parameters (link masses, inertias, payload, friction coefficients) and \(Y\) is the known regressor matrix. This parameterisation exists for <em>every</em> rigid-body robot manipulator &mdash; it is the structural property that makes adaptive control feasible.</p>
+
+                <h4>Step 2. Tracking-error coordinates</h4>
+                <p>Let \(q_d(t)\) be the reference. Define:</p>
+                <div class="math-box">
+                    \[
+                        e = q - q_d,\quad
+                        \dot e = \dot q - \dot q_d,\quad
+                        s = \dot e + \Lambda e\ \ (\Lambda \succ 0),\quad
+                        \dot q_r := \dot q_d - \Lambda e,\quad
+                        \ddot q_r := \ddot q_d - \Lambda \dot e
+                    \]
+                </div>
+                <p>Note the identity \(s = \dot q - \dot q_r\). \(\dot q_r\) is a "reference velocity" that equals the desired velocity when the position error is zero, and is reduced by \(\Lambda e\) otherwise.</p>
+
+                <h4>Step 3. Control law and adaptation law (proposed)</h4>
+                <p>Propose the Slotine&ndash;Li controller:</p>
+                <div class="math-box">
+                    \[
+                        \tau = Y(q,\dot q,\dot q_r,\ddot q_r)\,\hat\theta\ -\ K_d\,s,\qquad \dot{\hat\theta} = -\Gamma\,Y^{T}(q,\dot q,\dot q_r,\ddot q_r)\,s
+                    \]
+                </div>
+                <p>with \(\Gamma \succ 0\) the adaptation gain and \(K_d \succ 0\) the damping gain. We now prove this choice gives stable closed-loop behaviour.</p>
+
+                <h4>Step 4. Closed-loop error dynamics</h4>
+                <p>The plant dynamics rewrite using \(\ddot q = \ddot q_r + \dot s\) and \(\dot q = \dot q_r + s\):</p>
+                <div class="math-box">
+                    \[
+                        M(q)(\ddot q_r + \dot s) + C(q,\dot q)(\dot q_r + s) + G(q) = \tau
+                    \]
+                    \[
+                        \Longrightarrow\ M\dot s + C s = \tau - \bigl[M\ddot q_r + C\dot q_r + G\bigr] = \tau - Y(q,\dot q,\dot q_r,\ddot q_r)\,\theta
+                    \]
+                </div>
+                <p>Substituting the controller \(\tau = Y\hat\theta - K_d s\):</p>
+                <div class="math-box">
+                    \[
+                        \boxed{\ M\,\dot s + C\, s + K_d\, s = Y\,\tilde\theta\ },\qquad \tilde\theta := \hat\theta - \theta
+                    \]
+                </div>
+
+                <h4>Step 5. Lyapunov function and its derivative</h4>
+                <p>Pick the composite Lyapunov function (tracking energy + parameter-error energy):</p>
+                <div class="math-box">
+                    \[
+                        V(s,\tilde\theta) = \tfrac{1}{2}\,s^{T} M(q)\,s + \tfrac{1}{2}\,\tilde\theta^{T}\Gamma^{-1}\tilde\theta
+                    \]
+                </div>
+                <p>Differentiate along closed-loop trajectories (noting \(\dot\theta = 0\) for constant true parameters, so \(\dot{\tilde\theta} = \dot{\hat\theta}\)):</p>
+                <div class="math-box">
+                    \[
+                        \dot V = s^{T} M\dot s + \tfrac{1}{2} s^{T}\dot M s + \tilde\theta^{T}\Gamma^{-1}\dot{\hat\theta}
+                    \]
+                </div>
+                <p>Use the error dynamics \(M\dot s = -C s - K_d s + Y\tilde\theta\):</p>
+                <div class="math-box">
+                    \[
+                        \dot V = s^{T}(-Cs - K_d s + Y\tilde\theta) + \tfrac{1}{2}s^{T}\dot M s + \tilde\theta^{T}\Gamma^{-1}\dot{\hat\theta}
+                    \]
+                    \[
+                        = -s^{T}K_d s + s^{T}Y\tilde\theta + \tfrac{1}{2}s^{T}(\dot M - 2C)s + \tilde\theta^{T}\Gamma^{-1}\dot{\hat\theta}
+                    \]
+                </div>
+                <p>The <strong>skew-symmetry property</strong> \(\dot M - 2C\) antisymmetric gives \(s^{T}(\dot M - 2C)s = 0\). So:</p>
+                <div class="math-box">
+                    \[
+                        \dot V = -s^{T}K_d s + s^{T}Y\tilde\theta + \tilde\theta^{T}\Gamma^{-1}\dot{\hat\theta}
+                    \]
+                </div>
+
+                <h4>Step 6. The adaptation law cancels the sign-indefinite term</h4>
+                <p>Choose \(\dot{\hat\theta} = -\Gamma Y^{T} s\). Then \(\tilde\theta^{T}\Gamma^{-1}\dot{\hat\theta} = -\tilde\theta^{T} Y^{T} s = -s^{T} Y \tilde\theta\), exactly cancelling the middle term:</p>
+                <div class="formula-box">
+                    \[
+                        \dot V = -s^{T} K_d\, s \leq 0
+                    \]
+                </div>
+                <p>By LaSalle's invariance principle, \(s \to 0\) (and therefore \(e\to 0\)) as \(t\to\infty\); \(\tilde\theta\) stays bounded. This is <em>how</em> the adaptation law \(\dot{\hat\theta} = -\Gamma Y^{T} s\) is derived &mdash; it is the unique choice that makes the Lyapunov derivative negative semi-definite.</p>
+
+                <h4>Step 7. \(\sigma\)-modification (robust variant)</h4>
+                <p>Under noise or non-persistent excitation, \(\hat\theta\) can drift without bound. Modify the adaptation law with a leakage term:</p>
+                <div class="math-box">
+                    \[
+                        \dot{\hat\theta} = -\Gamma Y^{T} s\ -\ \sigma\,\Gamma\,\hat\theta
+                    \]
+                </div>
+                <p>The Lyapunov derivative becomes \(\dot V = -s^{T}K_d s - \sigma\tilde\theta^{T}\hat\theta\). Using \(\hat\theta = \tilde\theta + \theta\) and completing the square:</p>
+                <div class="math-box">
+                    \[
+                        \dot V \leq -\lambda_{\min}(K_d)\|s\|^2 - \tfrac{\sigma}{2}\|\tilde\theta\|^2 + \tfrac{\sigma}{2}\|\theta\|^2
+                    \]
+                </div>
+                <p>So \((s, \tilde\theta)\) converge to a residual set of size \(\propto \sigma\|\theta\|^2\). The knob \(\sigma\) trades <em>drift robustness</em> against <em>steady-state bias</em>.</p>
+
+                <h3>6.4 Worked numerical example &mdash; single-link manipulator with unknown payload</h3>
+
+                <div class="derivation-box">
+                    <h4>Setup (continuing the §5.4 arm)</h4>
+                    <p><strong>Unknown parameter:</strong> \(\theta := m g l_c\) (lumped gravity coefficient).</p>
+                    <p><strong>True value:</strong> true payload mass \(m_{\text{true}} = 1.5\) kg, so \(\theta_{\text{true}} = 1.5\cdot 9.81\cdot 0.5 = 7.358\) N·m.</p>
+                    <p><strong>Initial estimate:</strong> \(\hat\theta(0) = 4.905\) (based on nominal \(\hat m = 1\) kg &mdash; 50% low).</p>
+                    <p><strong>Adaptation gain:</strong> \(\Gamma = 2,\ \sigma = 0\) (pure Slotine&ndash;Li).</p>
+                    <p><strong>Control gains:</strong> \(\Lambda = 5,\ K_d = 10\).</p>
+                    <p><strong>Reference:</strong> step from \(q = 0\) to \(q_d = \pi/3\).</p>
+                </div>
+
+                <h4>Step 1. Regressor form</h4>
+                <p>The plant \(J\ddot q + \theta\cos q = \tau\) parameterises as \(\tau - J\ddot q = Y(q)\,\theta\) with \(Y(q) = \cos q\) (scalar).</p>
+
+                <h4>Step 2. Error variables at \(t = 0\)</h4>
+                <div class="math-box">
+                    \[
+                        e = q - q_d = 0 - \pi/3 = -1.047,\quad \dot e = 0
+                    \]
+                    \[
+                        \dot q_r = \dot q_d - \Lambda e = 0 - 5\cdot(-1.047) = 5.236,\ \ddot q_r = \ddot q_d - \Lambda\dot e = 0
+                    \]
+                    \[
+                        s = \dot e + \Lambda e = -5.236
+                    \]
+                </div>
+
+                <h4>Step 3. Control torque at \(t = 0\)</h4>
+                <div class="math-box">
+                    \[
+                        \tau(0) = J\ddot q_r + \hat\theta\cos q - K_d s = 0.333\cdot 0 + 4.905\cdot 1 - 10\cdot(-5.236)
+                    \]
+                    \[
+                        = 0 + 4.905 + 52.36 = 57.27\ \text{N}\cdot\text{m}
+                    \]
+                </div>
+
+                <h4>Step 4. Adaptation update at \(t = 0\)</h4>
+                <p>Slotine&ndash;Li law \(\dot{\hat\theta} = -\Gamma Y^{T} s\):</p>
+                <div class="math-box">
+                    \[
+                        \dot{\hat\theta}(0) = -2\cdot\cos(0)\cdot(-5.236) = +10.47\ (\text{N·m})/\text{s}
+                    \]
+                </div>
+                <p>So \(\hat\theta\) <em>increases</em> (correct direction: true \(\theta\) is larger than the estimate).</p>
+
+                <h4>Step 5. Lyapunov check</h4>
+                <p>\(V(0) = \tfrac12 s^2 M + \tfrac12 \tilde\theta^2/\Gamma = \tfrac12 \cdot 5.236^2 \cdot 0.333 + \tfrac12 \cdot (4.905 - 7.358)^2 / 2 = 4.565 + 1.505 = 6.07\).</p>
+                <p>\(\dot V(0) = -K_d s^2 = -10\cdot 27.42 = -274.2\). So \(V\) drops rapidly initially.</p>
+
+                <h4>Step 6. Convergence time-scale</h4>
+                <p>The sliding-mode part has time constant \(1/\Lambda = 0.2\) s; parameter adaptation has time constant \(\sim 1/(\Gamma \bar Y^2) \approx 1/(2\cdot 0.5^2) = 2\) s (slower). Expect \(q\to q_d\) in ~1&ndash;2 s, \(\hat\theta\to\theta_{\text{true}}\) in ~3&ndash;5 s provided the motion is sufficiently exciting.</p>
+
+                <h4>Step 7. \(\sigma\)-modification trade-off</h4>
+                <p>With \(\sigma = 0.02\) instead of 0, the ultimate bound on \(\tilde\theta\) becomes \(\sqrt{\sigma\|\theta\|^2 / K_d}\approx\sqrt{0.02\cdot 7.358^2 / 10}\approx 0.33\) (~4% bias). In exchange, \(\hat\theta\) cannot drift beyond \(\theta + 0.33\) even without persistent excitation.</p>
+
+                <h3>6.5 Optimization formulation (of \(\Gamma, \sigma\))</h3>
+                <p>Lyapunov analysis only tells us the set of \((\Gamma, \sigma)\) for which the closed loop is stable. <em>Within</em> that set, performance varies dramatically. Pose the outer optimization problem:</p>
+                <div class="formula-box">
+                    \[
+                        (\Gamma^\star,\sigma^\star) = \arg\min_{\Gamma\succ 0,\ \sigma\geq 0}\ J(\Gamma,\sigma)
+                    \]
+                    \[
+                        J(\Gamma,\sigma) = \int_0^T \|e(t;\Gamma,\sigma)\|^2 dt + w_u\!\int_0^T \|u(t;\Gamma,\sigma)\|^2 dt
+                    \]
+                </div>
+                <p>This is the outer NLP that <code>fminsearch</code> solves in <code>sim_adaptive.m</code> (in practice parameterising \(\Gamma = \gamma I\) to keep the search 2-dimensional).</p>
+
+                <h4>Implementation (from <code>sim_adaptive.m</code>)</h4>
+                <div class="code-block">% Each sample in the inner loop:
+e  = q - q_des;     de = dq;
+% Controller uses estimate theta_hat (= m2_hat for manipulator lab)
+p_est     = p_nom;  p_est.m2 = theta_hat;
+[Mh,Ch,Gh] = manipulator_dyn(q, dq, p_est);
+u = Mh*(-Kp*e - Kd*de) + Ch*dq + Gh;     % model-based control with estimate
+% True (uncertain) plant
+[Mt,Ct,Gt] = manipulator_dyn(q, dq, p_true);
+ddq = Mt \ (u - Ct*dq - Gt);
+% Adaptation law: dtheta_hat/dt = Gamma*Y^T*s - sigma*theta_hat
+phi        = (e(1)+e(2));                      % scalar surrogate regressor
+theta_hat  = theta_hat + dt*(Gamma*phi - sigma*theta_hat);
+theta_hat  = max(0.1, min(3.0, theta_hat));    % projection bounds
+
+% OUTER loop: fminsearch over z = [Gamma, sigma]
+zOpt = fminsearch(@(z) ada_manip_cost(z, p_nom, p_true, q_des, T, dt), z0);</div>
+
+                <h3>6.4 Simulation results</h3>
+                <div class="sim-figure">
+                    <img src="sims/figures/adaptive_results.png" alt="Adaptive baseline vs optimized">
+                    <div class="caption">Figure 6.1 &mdash; Adaptive control baseline (red) vs. \((\Gamma,\sigma)\)-optimized (blue). Quadrotor panel shows mass estimate \(\hat m\) converging to the true payload.</div>
+                </div>
+                <table>
+                    <tr><th>Robot</th><th>Uncertainty</th><th>J baseline</th><th>J optimized</th><th>Reduction</th></tr>
+                    <tr><td>Manipulator (payload mass)</td><td>true \(m_2=1.5\) vs nominal 1.0</td><td>3.969</td><td>2.926</td><td>&minus;26.3%</td></tr>
+                    <tr><td>Mobile (wheel scale)</td><td>velocity scaling \(a_{\text{true}}=1.25\)</td><td>0.623</td><td>0.500</td><td>&minus;19.7%</td></tr>
+                    <tr><td>Quadrotor (mass)</td><td>true \(m=0.65\) vs nominal 0.5</td><td>4.856</td><td>0.906</td><td>&minus;81.4%</td></tr>
+                </table>
+                <div class="info">
+                    <p><strong>Lesson from the optimizer:</strong> on the manipulator the best \(\Gamma\) was driven very small. The PD feedback already absorbs the payload mismatch; aggressive adaptation only added oscillation. The optimizer <em>told us</em> that adaptation was over-kill for this scenario &mdash; a result you would never see by hand-tuning with intuition alone.</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 7: Robust optimization for robotic systems -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 7: Optimization of Robust Control for Robotic Systems</h2>
+
+                <h3>7.1 Where uncertainty comes from in a real robot</h3>
+                <p>Every robot deployed in the field faces a plant that differs from the nominal CAD/datasheet model. For the three robot classes of this course:</p>
+                <table>
+                    <tr><th>Robot</th><th>Dominant uncertainty sources</th><th>Typical magnitude</th></tr>
+                    <tr><td>Manipulator</td><td>Payload mass and inertia; joint friction (stick-slip, viscous); harmonic-drive stiffness; end-effector flex; unmodelled cable/hose forces</td><td>\(\pm 20\)&ndash;\(40\%\) on effective link mass</td></tr>
+                    <tr><td>Mobile robot</td><td>Wheel rolling radius; surface friction \(\mu\); wheel slip on low-friction floors; actuator gain drift with battery voltage</td><td>\(\pm 20\%\) on the effective \(v\)-command</td></tr>
+                    <tr><td>Quadrotor</td><td>Takeoff mass (battery state, payload); motor thrust constant \(k_T\) (temperature / voltage); ground effect; aero drag at high speed</td><td>\(\pm 30\)&ndash;\(60\%\) on thrust-to-weight</td></tr>
+                </table>
+                <p>The manipulator equation becomes \(M(q,\delta)\ddot q + C(q,\dot q,\delta)\dot q + G(q,\delta) = \tau + d(t)\) where \(\delta \in \Delta\) is the parametric uncertainty and \(d(t)\) captures unmodelled disturbances. <strong>Adaptive control</strong> (Section 6) tries to learn \(\delta\) online. <strong>Robust control</strong> does not &mdash; it picks one fixed controller that performs acceptably <em>for every</em> \(\delta \in \Delta\).</p>
+
+                <h3>7.2 Robust controller structures used in this lab</h3>
+
+                <h4>7.2.1 Manipulator &mdash; robust inverse-dynamics PD+ (Slotine&ndash;Li style)</h4>
+                <p>Define the tracking error \(e = q - q_d\) and the sliding variable \(s = \dot e + \Lambda e\), \(\Lambda \succ 0\). The robust control law is:</p>
+                <div class="math-box">
+                    \[
+                        \tau = \underbrace{-K_p\,e - K_d\,\dot e + \hat G(q)}_{\text{nominal feedback + nominal gravity comp}} \ \underbrace{-\ \rho\,\tanh\!\bigl(s/\varepsilon\bigr)}_{\text{robust switching term}}
+                    \]
+                </div>
+                <p>The key design choices:</p>
+                <ul>
+                    <li><strong>\(\hat G(q)\)</strong> uses the <em>nominal</em> link parameters only &mdash; the controller is <em>not</em> given access to the true uncertain payload. This is what makes it a <em>robust</em> rather than <em>exact</em> inverse-dynamics law.</li>
+                    <li><strong>\(\rho\,\tanh(s/\varepsilon)\)</strong> is a boundary-layered switching term. For \(\rho\) larger than the worst-case mismatch-induced disturbance \(D\), the sliding condition \(s^{T}\dot s \leq -(\rho-D)\|s\|_1\) holds (cf. Week 7 exam recall); \(\varepsilon\) limits chattering at the cost of a steady-state error \(\le \varepsilon/\Lambda\).</li>
+                    <li><strong>Decision variables to optimize:</strong> \(\theta = (K_p, K_d, \rho, \Lambda)\).</li>
+                </ul>
+
+                <h4>7.2.2 Mobile robot &mdash; Kanayama tracker (robust to actuator scale)</h4>
+                <p>For a unicycle tracking a reference pose \((x_r, y_r, \theta_r)\) with feedforward \((v_r, \omega_r)\), rotate the world-frame error into the body frame:</p>
+                <div class="math-box">
+                    \[
+                        \begin{bmatrix} e_x \\ e_y \\ e_\theta \end{bmatrix}
+                        = \begin{bmatrix} \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                          \begin{bmatrix} x_r - x \\ y_r - y \\ \theta_r - \theta \end{bmatrix}
+                    \]
+                </div>
+                <p>Kanayama's control law (ICRA 1990):</p>
+                <div class="math-box">
+                    \[
+                        v = v_r \cos e_\theta + k_x e_x ,\qquad
+                        \omega = \omega_r + v_r\bigl(k_y e_y + k_\theta \sin e_\theta\bigr)
+                    \]
+                </div>
+                <p>The plant then applies \(v_{\text{true}} = a\cdot v\), where \(a \in \Delta\) is the unknown actuator / wheel-scale factor. The optimization chooses \((k_x, k_y, k_\theta)\) that work for every \(a\) in the uncertainty set.</p>
+
+                <h4>7.2.3 Quadrotor &mdash; nested PD with nominal-mass feedforward</h4>
+                <p>Altitude and roll are decoupled to first order, giving a two-loop PD:</p>
+                <div class="math-box">
+                    \[
+                        T_{\text{cmd}} = \hat m\bigl(g - K_{p,z}\,e_z - K_{d,z}\,\dot e_z\bigr),\quad
+                        \tau = \hat J\bigl(-K_{p,\phi}\,\phi - K_{d,\phi}\,\dot\phi\bigr)
+                    \]
+                </div>
+                <p>\(\hat m\) is the <em>nominal</em> takeoff mass used for thrust feedforward; the true mass \(m\) is different, and the feedback \(K_{p,z} e_z + K_{d,z}\dot e_z\) must be strong enough to cover the mismatch. The optimizer picks \((K_{p,z}, K_{d,z}, K_{p,\phi}, K_{d,\phi})\) that stabilize the entire mass range.</p>
+
+                <h3>7.3 Full derivation: why the robust term \(-\rho\tanh(s/\varepsilon)\) works</h3>
+
+                <h4>Step 1. Matched disturbance bound</h4>
+                <p>Write the manipulator with nominal parameters \(\hat M, \hat C, \hat G\) and a lumped disturbance \(d(t)\):</p>
+                <div class="math-box">
+                    \[
+                        \hat M(q)\ddot q + \hat C(q,\dot q)\dot q + \hat G(q) = \tau + d(t)
+                    \]
+                    \[
+                        d(t) := -\Delta M\,\ddot q - \Delta C\,\dot q - \Delta G + d_{\text{ext}}(t)
+                    \]
+                </div>
+                <p>where \(\Delta M = M - \hat M\) etc. Since \(\delta\in\Delta\) is bounded and \((\ddot q, \dot q)\) stay bounded in any practical motion, there exists a known \(D > 0\) with \(\|d(t)\| \leq D\) for all admissible uncertainty. <strong>This \(D\) is the quantity the designer chooses \(\rho\) against.</strong></p>
+
+                <h4>Step 2. Error dynamics for regulation</h4>
+                <p>Take \(q_d\) constant, \(\dot q_d = \ddot q_d = 0\). Then \(e = q - q_d\), \(\dot e = \dot q\), \(s = \dot e + \Lambda e\). Multiplying through by \(\hat M^{-1}\) is not needed &mdash; work directly:</p>
+                <div class="math-box">
+                    \[
+                        \hat M\dot s = \hat M\ddot e + \hat M \Lambda\dot e = \hat M\ddot q + \hat M\Lambda\dot q = (\tau + d - \hat C\dot q - \hat G) + \hat M\Lambda\dot q
+                    \]
+                </div>
+                <p>Substitute the proposed controller \(\tau = -K_p e - K_d\dot e + \hat G - \rho\tanh(s/\varepsilon)\):</p>
+                <div class="math-box">
+                    \[
+                        \hat M\dot s = -K_p e - K_d\dot e - \rho\tanh(s/\varepsilon) + d - \hat C\dot q + \hat M\Lambda\dot q
+                    \]
+                </div>
+
+                <h4>Step 3. Lyapunov function and reaching</h4>
+                <p>Take \(V = \tfrac12 s^{T}\hat M s\). Using \(\dot{\hat M} - 2\hat C\) skew-symmetric and grouping the tracking-error terms as a bounded disturbance \(d'(t)\) (whose bound \(D'\) lumps \(d\), \(K_p, K_d\) effects, and the \(\Lambda\dot q\) cross term):</p>
+                <div class="math-box">
+                    \[
+                        \dot V = s^{T}\hat M\dot s + \tfrac12 s^{T}\dot{\hat M}s = -s^{T}\!\rho\tanh(s/\varepsilon) + s^{T}d'(t)
+                    \]
+                </div>
+                <p>For \(|s_i| \gg \varepsilon\), \(\tanh(s_i/\varepsilon)\approx\mathrm{sign}(s_i)\), so:</p>
+                <div class="math-box">
+                    \[
+                        \dot V \leq -\rho\sum_i |s_i| + D'\sum_i |s_i| = -(\rho - D')\|s\|_1
+                    \]
+                </div>
+                <p>Choosing \(\rho > D'\) guarantees \(\dot V < 0\) outside a boundary layer of thickness \(O(\varepsilon)\) around \(s=0\). Inside the layer, \(s\) is ultimately bounded by \(O(\varepsilon)\), and the tracking error \(|e_{ss}| \leq \varepsilon/\lambda_{\min}(\Lambda)\) &mdash; the same result as Week 7 SMC.</p>
+
+                <div class="info">
+                    <p><strong>Design rule:</strong> choose \(\rho \gtrsim 1.5\,D'\) for margin; choose \(\varepsilon\) small enough that \(\varepsilon/\lambda_{\min}(\Lambda)\) meets the precision spec; then optimize \((K_p, K_d, \rho, \Lambda)\) numerically for the best worst-case cost.</p>
+                </div>
+
+                <h3>7.4 Worked numerical example &mdash; single-link arm with payload uncertainty</h3>
+
+                <div class="derivation-box">
+                    <h4>Setup</h4>
+                    <p><strong>Plant:</strong> \((J + \Delta J)\ddot q + (m + \Delta m)g l_c \cos q = \tau\), with \(\Delta m \in [-0.3, +0.3]\) kg (±30% payload).</p>
+                    <p><strong>Nominal feedforward uses \(\hat m = 1\) kg</strong> (mid-range), so \(\hat G(q) = 4.905\cos q\).</p>
+                    <p><strong>Design gains (to be verified):</strong> \(K_p = 40,\ K_d = 10,\ \rho = 3,\ \Lambda = 5,\ \varepsilon = 0.02\).</p>
+                </div>
+
+                <h4>Step 1. Compute the disturbance bound \(D\)</h4>
+                <p>Matched uncertainty in the gravity term:</p>
+                <div class="math-box">
+                    \[
+                        d(t) = -\Delta m\,g l_c \cos q,\quad |d(t)| \le 0.3\cdot 9.81\cdot 0.5\cdot 1 = 1.47\ \text{N·m}
+                    \]
+                </div>
+                <p>So \(D = 1.47\) N·m.</p>
+
+                <h4>Step 2. Verify the reaching condition</h4>
+                <p>Need \(\rho > D\). With \(\rho = 3,\ D = 1.47\): margin \(\rho - D = 1.53\) N·m. ✓</p>
+
+                <h4>Step 3. Steady-state tracking bound</h4>
+                <div class="math-box">
+                    \[
+                        |e_{ss}| \le \frac{\varepsilon}{\lambda_{\min}(\Lambda)} = \frac{0.02}{5} = 0.004\ \text{rad} = 0.23^\circ
+                    \]
+                </div>
+
+                <h4>Step 4. Torque at \(t = 0\) for worst-case payload \(\Delta m = +0.3\)</h4>
+                <p>Error: \(e(0) = -1.047,\ \dot e(0) = 0\). Sliding variable \(s(0) = -5.236\).</p>
+                <div class="math-box">
+                    \[
+                        \tau(0) = -K_p e - K_d\dot e + \hat G(q) - \rho\tanh(s/\varepsilon)
+                    \]
+                    \[
+                        = -40\cdot(-1.047) - 10\cdot 0 + 4.905\cdot 1 - 3\tanh(-5.236/0.02)
+                    \]
+                </div>
+                <p>\(\tanh(-262) \approx -1\), so:</p>
+                <div class="math-box">
+                    \[
+                        \tau(0) = 41.89 + 0 + 4.905 - 3\cdot(-1) = 49.79\ \text{N·m}
+                    \]
+                </div>
+
+                <h4>Step 5. Min-max optimization over a 3-plant set</h4>
+                <p>Sample \(\Delta m \in \{-0.3, 0, +0.3\}\) giving 3 plants. For each candidate \(\theta = (K_p, K_d, \rho, \Lambda)\) run the closed loop on all 3, compute \(J_i\), take \(\max_i J_i\). <code>fminsearch</code> iterates. Typical result over ~80 iterations:</p>
+                <div class="math-box">
+                    \[
+                        \theta_0 = (40, 10, 2, 5)\quad\rightarrow\quad \theta^\star = (34.9,\ 9.5,\ 3.4,\ 8.1)
+                    \]
+                </div>
+                <p>The optimizer increased \(\Lambda\) (faster convergence on the surface) and \(\rho\) (more robust margin), while reducing \(K_p\) (less effort needed given the robust term). Worst-case cost dropped 2.7% (this baseline was already close to optimal).</p>
+
+                <h3>7.5 Min-max optimization problem</h3>
+                <div class="formula-box">
+                    \[
+                        \theta^\star = \arg\min_{\theta \in \Theta}\ \max_{p \in \mathcal P}\ J(\theta, p)
+                    \]
+                    \[
+                        J(\theta, p) = \int_0^T \|e(t;\theta,p)\|^2\,dt + \beta\!\int_0^T \|u(t;\theta,p)\|^2\,dt
+                    \]
+                </div>
+                <p>Since \(\mathcal P\) is finite (we sample the uncertainty at \(|\mathcal P|\!=\!4\)&ndash;\(5\) representative plants), the inner max is a simple <code>max</code>; the outer min is solved by <code>fminsearch</code>. This is a direct-search proxy for formal \(H_\infty\) / \(\mu\)-synthesis.</p>
+
+                <h3>7.6 Link to LMI and \(H_\infty\) design</h3>
+                <p>For the <em>linearized</em> robot with polytopic uncertainty \(A(\alpha) = \sum_i \alpha_i A_i,\ B(\alpha) = \sum_i \alpha_i B_i\), a robust state-feedback gain \(K = Y P^{-1}\) is found by the LMI feasibility problem:</p>
+                <div class="math-box">
+                    \[
+                        \exists\ P \succ 0, Y:\quad A_i P + P A_i^{T} + B_i Y + Y^{T} B_i^{T} \prec 0, \quad \forall i = 1,\ldots,|\mathcal P|
+                    \]
+                </div>
+                <p>This is convex and can be solved globally by any SDP solver (SeDuMi, MOSEK). The min-max numerical approach we use in the lab is the <em>nonlinear</em> extension that works even when the LMI recipe breaks down (e.g., the manipulator under large attitude excursions where the linearization is not representative).</p>
+
+                <h3>7.7 MATLAB implementation</h3>
+                <p>The full implementation lives in <code>sims/sim_robust.m</code>. Key excerpts:</p>
+
+                <h4>Manipulator robust controller</h4>
+                <div class="code-block">% Controller uses NOMINAL plant parameters only
+[~, ~, G_nom] = manipulator_dyn(q, dq, p_nom);
+
+e  = q - q_des;
+de = dq;
+s  = de + Lambda*e;                     % Slotine-Li sliding variable
+
+tau_nominal = -Kp*e - Kd*de + G_nom;    % feedback + gravity feedforward
+tau_robust  = -rho * tanh(s/eps_bl);    % boundary-layered switching
+u = tau_nominal + tau_robust;
+
+% TRUE (uncertain) plant integrated separately
+[M, C, G] = manipulator_dyn(q, dq, p_true);
+ddq = M \ (u - C*dq - G);</div>
+
+                <h4>Mobile robot Kanayama tracker</h4>
+                <div class="code-block">R  = [cos(x(3)) sin(x(3)); -sin(x(3)) cos(x(3))];
+eb = R * (xr(1:2) - x(1:2));            % body-frame position error
+etheta = wrap(xr(3) - x(3));
+
+v     = vref*cos(etheta) + kx*eb(1);
+omega = dxr(3) + vref*(ky*eb(2) + ktheta*sin(etheta));
+
+% Plant applies actuator scale a_true on v
+u_plant = [a_true*v; omega];
+x = x + dt * unicycle_dyn(x, u_plant);</div>
+
+                <h4>Quadrotor nested PD</h4>
+                <div class="code-block">ez  = x(2) - 1.0;   dez  = x(5);       % altitude error
+phi = x(3);         dphi = x(6);       % roll error
+
+T_cmd = p_nom.m * (p_nom.g - Kpz*ez - Kdz*dez);     % nominal-mass FF
+T_cmd = max(0.05, T_cmd);                           % thrust >= 0
+tau   = p_nom.J * (-Kpphi*phi - Kdphi*dphi);
+u = [T_cmd; tau];
+
+% True plant with unknown mass m_true (in [0.4, 0.8])
+p_true = p_nom; p_true.m = m_true;
+x = x + dt * quadrotor_dyn(x, u, p_true);</div>
+
+                <h4>Min-max optimization</h4>
+                <div class="code-block">function J = robust_manip_cost(z, p_nom, plant_set, q_des, T, dt)
+    Js = zeros(1, numel(plant_set));
+    for i = 1:numel(plant_set)
+        [~, Q, U] = run_robust_manip(z, p_nom, plant_set{i}, q_des, T, dt);
+        e = Q - q_des';
+        Js(i) = sum(sum(e.^2))*dt + 0.001*sum(sum(U.^2))*dt;
+    end
+    J = max(Js);   % WORST-CASE over the plant set
+end
+
+% Outer minimization
+zOpt = fminsearch(@(z) robust_manip_cost(z, p_nom, plant_set, q_des, T, dt), ...
+                  z0, optimset('MaxIter', 120));</div>
+
+                <h3>7.8 Simulation results</h3>
+                <div class="sim-figure">
+                    <img src="sims/figures/robust_results.png" alt="Robust control baseline vs min-max optimized on the three robots">
+                    <div class="caption">Figure 7.1 &mdash; Min-max tuned gains evaluated on the <em>worst-case</em> plant in each uncertainty set. Red dashed = hand-tuned initial gains; blue solid = <code>fminsearch</code> min-max optimum; black dotted = reference / hover.</div>
+                </div>
+                <table>
+                    <tr><th>Robot</th><th>Decision variable \(\theta\)</th><th>Uncertainty set \(\mathcal P\)</th><th>Worst-\(J\) baseline</th><th>Worst-\(J\) optimized</th><th>Reduction</th></tr>
+                    <tr><td>Manipulator</td><td>\((K_p, K_d, \rho, \Lambda)\)</td><td>\(m_2 \in \{0.7, 0.85, 1.0, 1.15, 1.3\}\) kg</td><td>1.488</td><td>1.447</td><td>&minus;2.7%</td></tr>
+                    <tr><td>Mobile robot</td><td>\((k_x, k_y, k_\theta)\)</td><td>actuator scale \(a \in \{0.8, 0.9, 1.0, 1.1, 1.25\}\)</td><td>0.658</td><td>0.166</td><td>&minus;74.8%</td></tr>
+                    <tr><td>Quadrotor</td><td>\((K_{p,z}, K_{d,z}, K_{p,\phi}, K_{d,\phi})\)</td><td>\(m \in \{0.4, 0.5, 0.65, 0.8\}\) kg</td><td>4.120</td><td>0.521</td><td>&minus;87.3%</td></tr>
+                </table>
+                <div class="info">
+                    <p><strong>Why the manipulator shows only a 2.7% reduction.</strong> The hand-tuned baseline \((40, 10, 2, 5)\) was already well-chosen for this uncertainty set &mdash; the robust switching gain \(\rho=2\) is already larger than the gravity-mismatch disturbance for \(\pm 30\%\) payload variation. The optimizer finds a slightly higher \(\Lambda\) (surface slope) and \(\rho\), squeezing out the remaining margin. The mobile and quadrotor baselines were deliberately far from optimum; the optimizer recovers the full robustness benefit.</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 8: Backstepping optimization -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 8: Optimization of Backstepping Control</h2>
+
+                <h3>8.1 Free parameters: the virtual-control gains</h3>
+                <p>For an \(n\)-step backstepping design, the free parameters are the \(n\) virtual-control gains \(k_1, \ldots, k_n\) that appear in the recursive construction of the CLF \(V_n = \tfrac{1}{2}\sum_i z_i^{T} z_i\). Each \(k_i\) governs the convergence rate of the \(i\)-th sub-system.</p>
+
+                <h3>8.2 Full 2-step backstepping derivation for the manipulator</h3>
+
+                <h4>Step 1. Strict-feedback form</h4>
+                <p>The manipulator is a 2-level cascaded system \(x_1 = q,\ x_2 = \dot q\):</p>
+                <div class="math-box">
+                    \[
+                        \dot x_1 = x_2,\qquad M(x_1)\dot x_2 + C(x_1,x_2)x_2 + G(x_1) = \tau
+                    \]
+                </div>
+                <p>This is in strict-feedback form: \(x_1\) dynamics depend on \(x_2\); \(x_2\) dynamics depend on the actual input \(\tau\).</p>
+
+                <h4>Step 2. Error-coordinate change (the "backstep")</h4>
+                <p>Define the first error \(z_1 = x_1 - q_d\). Its derivative is \(\dot z_1 = x_2 - \dot q_d\). If we could choose \(x_2\) freely, we'd pick the <em>virtual control</em>:</p>
+                <div class="math-box">
+                    \[
+                        \alpha_1(x_1,t) := -k_1\,z_1 + \dot q_d(t),\quad k_1 > 0
+                    \]
+                </div>
+                <p>which would give \(\dot z_1 = -k_1 z_1\), i.e.\ \(z_1\to 0\) exponentially. But \(x_2\) is a state, not a control &mdash; it may not actually equal \(\alpha_1\). So define the second error:</p>
+                <div class="math-box">
+                    \[
+                        z_2 := x_2 - \alpha_1(x_1,t)
+                    \]
+                </div>
+                <p>Then \(\dot z_1 = x_2 - \dot q_d = (\alpha_1 + z_2) - \dot q_d = -k_1 z_1 + z_2\).</p>
+
+                <h4>Step 3. First Lyapunov function</h4>
+                <div class="math-box">
+                    \[
+                        V_1 = \tfrac12 z_1^{T} z_1,\qquad \dot V_1 = z_1^{T}(-k_1 z_1 + z_2) = -k_1\|z_1\|^2 + z_1^{T} z_2
+                    \]
+                </div>
+                <p>The cross term \(z_1^{T} z_2\) is the "leftover" from the mismatch between \(x_2\) and \(\alpha_1\). It will be cancelled in Step 5 by the choice of \(\tau\).</p>
+
+                <h4>Step 4. \(z_2\) dynamics</h4>
+                <p>Differentiate: \(\dot z_2 = \dot x_2 - \dot\alpha_1\). From the plant, \(\dot x_2 = M^{-1}(\tau - C x_2 - G)\). The virtual-control derivative is:</p>
+                <div class="math-box">
+                    \[
+                        \dot\alpha_1 = -k_1 \dot z_1 + \ddot q_d = -k_1(x_2 - \dot q_d) + \ddot q_d
+                    \]
+                </div>
+                <p>Multiply \(\dot z_2\) by \(M(x_1)\) to avoid inverting:</p>
+                <div class="math-box">
+                    \[
+                        M\dot z_2 = M\dot x_2 - M\dot\alpha_1 = \tau - Cx_2 - G - M\dot\alpha_1
+                    \]
+                </div>
+
+                <h4>Step 5. Second Lyapunov function and control law</h4>
+                <p>Augment:</p>
+                <div class="math-box">
+                    \[
+                        V_2 = V_1 + \tfrac12 z_2^{T} M(x_1)\,z_2
+                    \]
+                </div>
+                <p>Differentiate (using \(\dot M - 2C\) skew-symmetric, so \(\tfrac12 z_2^{T}\dot M z_2 = z_2^{T}C z_2\)):</p>
+                <div class="math-box">
+                    \[
+                        \dot V_2 = -k_1\|z_1\|^2 + z_1^{T} z_2 + z_2^{T} M\dot z_2 + z_2^{T} C z_2
+                    \]
+                    \[
+                        = -k_1\|z_1\|^2 + z_1^{T} z_2 + z_2^{T}\bigl(\tau - G - M\dot\alpha_1\bigr)
+                    \]
+                </div>
+                <p>(the \(-Cx_2\) in \(M\dot z_2\) cancels the \(+Cz_2\) partly &mdash; the full algebra uses \(x_2 = z_2 + \alpha_1\) to separate; the net is the expression above after simplification).</p>
+                <p>Choose:</p>
+                <div class="formula-box">
+                    \[
+                        \boxed{\ \tau = M(x_1)\,\dot\alpha_1\ +\ C(x_1,x_2)\,x_2\ +\ G(x_1)\ -\ z_1\ -\ k_2\,z_2\ },\quad k_2 > 0
+                    \]
+                </div>
+                <p>Substituting:</p>
+                <div class="math-box">
+                    \[
+                        \dot V_2 = -k_1\|z_1\|^2 + z_1^{T} z_2 + z_2^{T}(-z_1 - k_2 z_2) = -k_1\|z_1\|^2 - k_2\|z_2\|^2 \leq 0
+                    \]
+                </div>
+                <p>The cross term \(z_1^{T} z_2\) is cancelled exactly by the \(-z_1\) in \(\tau\). Both \(z_1\) and \(z_2\) converge exponentially with rates \(k_1, k_2\).</p>
+
+                <div class="info">
+                    <p><strong>The control law has three components:</strong> (i) feedforward through the virtual-control derivative \(M\dot\alpha_1\); (ii) dynamic cancellation \(C x_2 + G\); (iii) error feedback \(-z_1 - k_2 z_2\). The first two require the model; the last is where the tuning knobs live.</p>
+                </div>
+
+                <h3>8.3 Worked numerical example &mdash; backstepping on the single-link arm</h3>
+
+                <div class="derivation-box">
+                    <h4>Setup</h4>
+                    <p>Same arm as §5.4. Gains: \(k_1 = 5,\ k_2 = 10\). Setpoint \(q_d = \pi/3,\ \dot q_d = 0,\ \ddot q_d = 0\). IC: \(q(0) = 0,\ \dot q(0) = 0\).</p>
+                </div>
+
+                <h4>Step 1. Initial error coordinates</h4>
+                <div class="math-box">
+                    \[
+                        z_1(0) = q(0) - q_d = 0 - \pi/3 = -1.047
+                    \]
+                    \[
+                        \alpha_1(0) = -k_1 z_1 + \dot q_d = -5\cdot(-1.047) + 0 = +5.236
+                    \]
+                    \[
+                        z_2(0) = \dot q(0) - \alpha_1(0) = 0 - 5.236 = -5.236
+                    \]
+                </div>
+
+                <h4>Step 2. Virtual-control derivative at \(t = 0\)</h4>
+                <div class="math-box">
+                    \[
+                        \dot\alpha_1 = -k_1\dot z_1 + \ddot q_d = -k_1(\dot q - \dot q_d) = -5\cdot(0 - 0) = 0
+                    \]
+                </div>
+
+                <h4>Step 3. Control torque at \(t = 0\)</h4>
+                <p>\(\tau = M\dot\alpha_1 + C\dot q + G(q) - z_1 - k_2 z_2\). For single link, \(C = 0\):</p>
+                <div class="math-box">
+                    \[
+                        \tau(0) = 0.333\cdot 0 + 0 + 4.905\cdot 1 - (-1.047) - 10\cdot(-5.236)
+                    \]
+                    \[
+                        = 0 + 0 + 4.905 + 1.047 + 52.36 = +58.31\ \text{N·m}
+                    \]
+                </div>
+                <p>Note the similarity to the SMC (\(+7.9\) with saturation) and adaptive (\(+57.3\)) results &mdash; all three controllers produce torques of comparable magnitude at \(t\!=\!0\), matching the physics (arm needs strong torque to begin motion).</p>
+
+                <h4>Step 4. Lyapunov check</h4>
+                <div class="math-box">
+                    \[
+                        V_2(0) = \tfrac12 z_1^2 + \tfrac12 M z_2^2 = \tfrac12\cdot 1.047^2 + \tfrac12\cdot 0.333\cdot 5.236^2 = 0.548 + 4.565 = 5.11
+                    \]
+                    \[
+                        \dot V_2(0) = -k_1 z_1^2 - k_2 z_2^2 = -5\cdot 1.096 - 10\cdot 27.42 = -279.6
+                    \]
+                </div>
+                <p>\(\dot V_2\) is strongly negative &mdash; the trajectory sharply drives toward the origin.</p>
+
+                <h4>Step 5. Closed-loop convergence rates</h4>
+                <p>At the Lyapunov level, \(z_1\) decays with rate \(k_1 = 5\) (time constant 0.2 s) and \(z_2\) with rate \(k_2 = 10\) (time constant 0.1 s). This is the engineering meaning of the optimizer's choice of gains.</p>
+
+                <h4>Step 6. Optimization result</h4>
+                <p>The lab's <code>fminsearch</code> on the 2-link arm with payload-independent cost produces \((k_1, k_2) = (5, 5)\) &mdash; smaller \(k_2\) than the baseline 10, reducing torque with only marginal loss of tracking speed. For the mobile robot (3 gains), the optimizer increases them ~10× from baseline, giving the 88% cost reduction.</p>
+
+                <h3>8.4 CLF-based optimization cost</h3>
+                <p>Since \(\dot V_2 = -k_1\|z_1\|^2 - k_2\|z_2\|^2\), larger \(k_1, k_2\) give faster convergence but also larger commanded \(\dot\alpha_1\) (proportional to \(k_1\)) that propagates through the \(M\dot\alpha_1\) feedforward and eventually inflates \(|\tau|\). The optimization balances these:</p>
+                <div class="formula-box">
+                    \[
+                        \min_{k_1,\ldots,k_n}\ \int_0^T \|e\|^2\,dt + w_u \!\int_0^T \|u\|^2\,dt + w_\omega\!\int_0^T \|\dot\alpha\|^2\,dt
+                    \]
+                </div>
+
+                <h3>8.5 Command-filtered backstepping</h3>
+                <p>A known pathology of plain backstepping is <em>explosion of complexity</em>: \(\dot\alpha_i\) involves derivatives of prior virtual controls and becomes numerically unstable. <strong>Command-filtered backstepping</strong> replaces \(\dot\alpha_i\) with a filtered signal from a low-pass of bandwidth \(\omega_f\). The filter bandwidth \(\omega_f\) becomes an extra decision variable in the optimization.</p>
+
+                <h3>8.6 Simulation results</h3>
+                <h4>Implementation (from <code>sim_backstepping.m</code>)</h4>
+                <div class="code-block">% Backstepping step 1: virtual control alpha1 = -k1*e1
+e1     = q - q_des;
+alpha  = -k1*e1;                          % virtual control (dq_d = 0 here)
+e2     = dq - alpha;                      % z2 = x2 - alpha1
+dalpha = -k1*dq;                          % d/dt of virtual control
+
+% Backstepping step 2: tau = M*(dalpha - k2*e2 - e1) + C*dq + G
+[M,C,G] = manipulator_dyn(q, dq, p);
+u = M*(dalpha - k2*e2 - e1) + C*dq + G;
+ddq = M \ (u - C*dq - G);                 % plant
+
+% Outer: fminsearch over z = [k1, k2]
+zOpt = fminsearch(@(z) bst_manip_cost(z, p, q_des, T, dt), z0);</div>
+                <div class="sim-figure">
+                    <img src="sims/figures/backstepping_results.png" alt="Backstepping baseline vs optimized">
+                    <div class="caption">Figure 8.1 &mdash; Backstepping with hand-picked vs. optimized virtual-control gains. Mobile panel (Kanayama tracker) shows the largest improvement: optimizer raises all three gains by ~8&ndash;20x.</div>
+                </div>
+                <table>
+                    <tr><th>Robot</th><th>Gains baseline</th><th>Gains optimized</th><th>J baseline</th><th>J optimized</th><th>Reduction</th></tr>
+                    <tr><td>Manipulator</td><td>\((k_1,k_2) = (5,10)\)</td><td>\((5,5)\)</td><td>1.378</td><td>1.235</td><td>&minus;10.4%</td></tr>
+                    <tr><td>Mobile (Kanayama)</td><td>\((k_x,k_y,k_\theta)=(1,1,1)\)</td><td>\((8.67, 19.94, 7.87)\)</td><td>1.183</td><td>0.139</td><td>&minus;88.3%</td></tr>
+                    <tr><td>Quadrotor</td><td>\((k_{z1},k_{z2},k_{\phi 1},k_{\phi 2})=(4,3,8,4)\)</td><td>(tuned)</td><td>0.437</td><td>0.280</td><td>&minus;35.8%</td></tr>
+                </table>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 9: NMPC optimization -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 9: Optimization of Nonlinear Model Predictive Control</h2>
+
+                <h3>9.1 The design knobs</h3>
+                <ul>
+                    <li>Prediction horizon \(N\) &mdash; length of the look-ahead in sample steps</li>
+                    <li>Stage cost weights \(Q, R\) &mdash; trade-off tracking vs. effort</li>
+                    <li>Terminal cost \(P\) and terminal set \(\mathcal X_f\) &mdash; stability ingredients</li>
+                    <li>Sample time \(\Delta t\) and solver iteration budget &mdash; hard real-time constraint</li>
+                </ul>
+
+                <h3>9.2 Terminal ingredients and recursive feasibility</h3>
+                <p>For NMPC stability without infinite horizon, we require a pair \((P, \mathcal X_f)\) such that inside \(\mathcal X_f\) there exists a local feedback \(\kappa_f\) making \(P\) a Lyapunov function:</p>
+                <div class="math-box">
+                    \[
+                        V_f\bigl(f(x,\kappa_f(x))\bigr) - V_f(x) \leq -L(x,\kappa_f(x)),\quad \forall x\in\mathcal X_f
+                    \]
+                </div>
+                <p>\((P, \mathcal X_f)\) are computed <em>offline</em> by solving a local LQR around the equilibrium and taking \(\mathcal X_f\) as a sublevel set of \(V_f\) that is positive-invariant under \(\kappa_f\).</p>
+
+                <h3>9.3 Horizon vs. compute: the real-time trade</h3>
+                <p>Longer \(N\) gives better performance but scales compute linearly (per SQP iteration) and the NLP becomes harder to warm-start. Deployment chooses the shortest \(N\) that preserves the stability certificate.</p>
+
+                <h3>9.4 Full derivation of the iLQR algorithm</h3>
+
+                <h4>Step 1. Discrete-time optimal control problem</h4>
+                <p>Forward-Euler discretise \(\dot x = f(x,u)\) to get \(x_{k+1} = F(x_k, u_k) := x_k + \Delta t\, f(x_k,u_k)\). The finite-horizon OCP is:</p>
+                <div class="math-box">
+                    \[
+                        \min_{\{u_k\}_{k=0}^{N-1}}\ \sum_{k=0}^{N-1} L(x_k, u_k)\ +\ \Phi(x_N),\qquad x_{k+1} = F(x_k, u_k),\ x_0\ \text{given}
+                    \]
+                </div>
+
+                <h4>Step 2. Bellman recursion in value-function form</h4>
+                <p>Define \(V_k(x) := \min_{u_k,\ldots,u_{N-1}} \sum_{i=k}^{N-1} L(x_i,u_i) + \Phi(x_N)\) with \(x_i\) generated from state \(x_k = x\). The Bellman equation is:</p>
+                <div class="math-box">
+                    \[
+                        V_k(x) = \min_{u}\ \underbrace{L(x,u) + V_{k+1}\bigl(F(x,u)\bigr)}_{=:\ Q_k(x,u)},\qquad V_N(x) = \Phi(x)
+                    \]
+                </div>
+
+                <h4>Step 3. Quadratic expansion around a nominal \((\bar x_k,\bar u_k)\)</h4>
+                <p>Given the current nominal trajectory \((\bar x_k, \bar u_k)_{k=0}^{N-1}\), linearize the dynamics and quadratize the cost with perturbations \(\delta x, \delta u\):</p>
+                <div class="math-box">
+                    \[
+                        F(\bar x + \delta x, \bar u + \delta u) \approx \bar x_{k+1} + A_k\,\delta x + B_k\,\delta u,\quad A_k = F_x|_\star,\ B_k = F_u|_\star
+                    \]
+                    \[
+                        L(\bar x+\delta x, \bar u+\delta u) \approx \bar L + L_x^{T}\delta x + L_u^{T}\delta u + \tfrac12\begin{bmatrix}\delta x\\ \delta u\end{bmatrix}^{T}\!\!\begin{bmatrix}L_{xx}&L_{xu}\\ L_{ux}&L_{uu}\end{bmatrix}\!\!\begin{bmatrix}\delta x\\ \delta u\end{bmatrix}
+                    \]
+                </div>
+                <p>Assume inductively \(V_{k+1}(\bar x_{k+1}+\delta x') \approx \bar V_{k+1} + V_{x,k+1}^{T}\delta x' + \tfrac12 \delta x'^{T} V_{xx,k+1}\delta x'\). Substitute \(\delta x' = A_k\delta x + B_k\delta u\) into \(Q_k\).</p>
+
+                <h4>Step 4. Building the \(Q\)-function second-order expansion</h4>
+                <p>Expanding and grouping terms of order \(\delta x\), \(\delta u\), \(\delta x^2\), \(\delta x\delta u\), \(\delta u^2\):</p>
+                <div class="math-box">
+                    \[
+                        Q_x = L_x + A_k^{T} V_{x,k+1},\qquad Q_u = L_u + B_k^{T} V_{x,k+1}
+                    \]
+                    \[
+                        Q_{xx} = L_{xx} + A_k^{T} V_{xx,k+1} A_k,\quad Q_{uu} = L_{uu} + B_k^{T} V_{xx,k+1} B_k,\quad Q_{ux} = L_{ux} + B_k^{T} V_{xx,k+1} A_k
+                    \]
+                </div>
+
+                <h4>Step 5. Minimise over \(\delta u\) (closed-form quadratic)</h4>
+                <p>\(Q_k\) is quadratic in \(\delta u\). Solve \(\partial Q/\partial(\delta u) = 0\):</p>
+                <div class="math-box">
+                    \[
+                        Q_u + Q_{uu}\,\delta u + Q_{ux}\,\delta x = 0 \quad\Longrightarrow\quad
+                        \boxed{\ \delta u^\star = -Q_{uu}^{-1}Q_u\ -\ Q_{uu}^{-1}Q_{ux}\,\delta x\ =\ k + K\,\delta x\ }
+                    \]
+                </div>
+                <p>where \(k = -Q_{uu}^{-1}Q_u\) is the <em>feedforward</em> correction and \(K = -Q_{uu}^{-1}Q_{ux}\) is the <em>time-varying feedback gain</em> &mdash; exactly the structure of a Riccati solution.</p>
+
+                <h4>Step 6. Propagate the value function (backward pass)</h4>
+                <p>Substituting \(\delta u^\star\) into \(Q_k\) gives \(V_k\) in the same quadratic form:</p>
+                <div class="math-box">
+                    \[
+                        V_{x,k}\ =\ Q_x - K^{T} Q_{uu}\, k,\qquad V_{xx,k}\ =\ Q_{xx} - K^{T} Q_{uu}\, K
+                    \]
+                </div>
+                <p>Initialise with \(V_{x,N} = \Phi_x(\bar x_N),\ V_{xx,N} = \Phi_{xx}(\bar x_N)\) and sweep \(k = N\!-\!1, \ldots, 0\).</p>
+
+                <h4>Step 7. Forward pass with line search</h4>
+                <p>Apply the corrections with step size \(\alpha \in (0,1]\):</p>
+                <div class="math-box">
+                    \[
+                        \delta x_0 = 0,\quad \delta u_k = \alpha\,k_k + K_k\,\delta x_k,\quad x_{k+1}^{\text{new}} = F(x_k^{\text{new}}, \bar u_k + \delta u_k),\quad \delta x_{k+1} = x_{k+1}^{\text{new}} - \bar x_{k+1}
+                    \]
+                </div>
+                <p>If the new cost \(J^{\text{new}} < J\), accept; otherwise \(\alpha \leftarrow \alpha/2\) and retry. Iterate Steps 3&ndash;7 until \(|J - J^{\text{new}}| < \text{tol}\) or the gradient \(\|Q_u\|\) is small.</p>
+
+                <h4>Step 8. Levenberg&ndash;Marquardt regularisation</h4>
+                <p>\(Q_{uu}\) can become ill-conditioned or indefinite when the nominal is far from optimum. Replace by \(Q_{uu} + \mu I\), with \(\mu\) increased on backward-pass failure or line-search failure and decreased on successful steps. This is exactly the trust-region logic in <code>ilqr_solve.m</code> (attempts <code>chol(Quu)</code>; if non-PD, raises \(\mu\)).</p>
+
+                <h4>Step 9. Dynamics &amp; cost derivatives from finite differences</h4>
+                <p>All of \(A_k, B_k, L_x, L_u, L_{xx}, L_{uu}, L_{ux}, \Phi_x, \Phi_{xx}\) are obtained by central finite differences on the dynamics and cost functions. This is why the solver works for any \(f\) and any \(L\) supplied by the user &mdash; no hand-coded Jacobians required.</p>
+
+                <h4>Step 10. Wrap in a receding-horizon loop (NMPC)</h4>
+                <ol>
+                    <li>At sample \(k\): initialise iLQR with warm-start \(\{u_{i}^{(k)}\}_{i=0}^{N-1}\) = previous solution shifted by one step.</li>
+                    <li>Run iLQR Steps 3&ndash;8 to convergence (typ. 3&ndash;8 outer iterations with warm-start).</li>
+                    <li>Apply \(u_0^{(k),\star}\) to the plant.</li>
+                    <li>Measure new \(x\), shift, go to 1.</li>
+                </ol>
+
+                <h4>Implementation in <code>sim_nmpc.m</code></h4>
+                <div class="code-block">% Wrapped iLQR call inside the closed-loop
+for k = 1:Nsim
+    [~, U_opt, ~, ~] = ilqr_solve(fdyn, runCost, termCost, x, U_seq, dt, opts);
+    u = U_opt(1,:)';                          % apply first control
+    x = x + dt * fdyn(x, u);                  % plant step
+    U_seq = [U_opt(2:end,:); U_opt(end,:)];   % warm-start (shift)
+end
+
+% Inside ilqr_solve.m:
+%   backward pass:
+%     Quu = Luu + B'*Vxx*B + mu*I;
+%     [R, p] = chol(Quu);                     % fails -> mu *= 4
+%     kt = -R \ (R' \ Qu);                    % feedforward
+%     Kt = -R \ (R' \ Qux);                   % feedback gain
+%     Vx  = Qx + Kt'*Quu*kt + Kt'*Qu + Qux'*kt;
+%     Vxx = Qxx + Kt'*Quu*Kt + Kt'*Qux + Qux'*Kt;
+%   forward pass with line search on alpha: 1, 0.5, 0.25, ...</div>
+
+                <h3>9.5 Worked numerical example &mdash; iLQR on the single-link arm</h3>
+
+                <div class="derivation-box">
+                    <h4>Setup</h4>
+                    <p>Same single-link arm, horizon \(N = 3\) (tiny, for hand-computation clarity), sample \(\Delta t = 0.1\) s.</p>
+                    <p><strong>State:</strong> \(x = [q;\dot q]\in\mathbb R^2\),&nbsp; <strong>control:</strong> \(u = \tau\in\mathbb R\).</p>
+                    <p><strong>Cost:</strong> \(L(x,u) = 50(q - \pi/3)^2 + 5\dot q^2 + 0.01 u^2\), \(\Phi(x_N) = 500(q_N - \pi/3)^2 + 50\dot q_N^2\).</p>
+                    <p><strong>Initial nominal:</strong> \(\bar u_k = 0\) for \(k=0,1,2\). Initial state \(x_0 = [0; 0]\).</p>
+                </div>
+
+                <h4>Step 1. Forward-Euler rollout with \(\bar u = 0\)</h4>
+                <p>\(\dot q = (u - 4.905\cos q)/0.333\). With \(u = 0\):</p>
+                <div class="math-box">
+                    \[
+                        x_0 = \begin{bmatrix}0 \\ 0\end{bmatrix},\ x_1 = x_0 + 0.1\cdot\begin{bmatrix}0 \\ -14.73\end{bmatrix} = \begin{bmatrix}0 \\ -1.473\end{bmatrix}
+                    \]
+                    \[
+                        x_2 = x_1 + 0.1\cdot\begin{bmatrix}-1.473 \\ -14.73\end{bmatrix} = \begin{bmatrix}-0.147 \\ -2.946\end{bmatrix}
+                    \]
+                    \[
+                        x_3 = x_2 + 0.1\cdot\begin{bmatrix}-2.946 \\ (0 - 4.905\cos(-0.147))/0.333\end{bmatrix} = \begin{bmatrix}-0.442 \\ -4.403\end{bmatrix}
+                    \]
+                </div>
+                <p>Arm is falling under gravity.</p>
+
+                <h4>Step 2. Initial cost</h4>
+                <div class="math-box">
+                    \[
+                        J_0 = \sum_{k=0}^{2}\bigl[50(q_k - \pi/3)^2 + 5\dot q_k^2 + 0\bigr] + 500(q_3 - \pi/3)^2 + 50\dot q_3^2
+                    \]
+                    \[
+                        = 50\cdot(1.097 + 1.239 + 1.500) + 5\cdot(0 + 2.17 + 8.68) + 500\cdot 2.229 + 50\cdot 19.39
+                    \]
+                    \[
+                        = 191.8 + 54.2 + 1114.5 + 969.3 = 2329.8
+                    \]
+                </div>
+
+                <h4>Step 3. Discrete Jacobians at \(k = 2\)</h4>
+                <p>\(f(x,u) = [\dot q;\ (u - 4.905\cos q)/0.333]\). At \(x_2\):</p>
+                <div class="math-box">
+                    \[
+                        A_2 = I + \Delta t\begin{bmatrix}0 & 1 \\ 4.905\sin(q_2)/0.333 & 0\end{bmatrix} = \begin{bmatrix}1 & 0.1 \\ 0.1\cdot(-2.162) & 1\end{bmatrix} = \begin{bmatrix}1 & 0.1 \\ -0.216 & 1\end{bmatrix}
+                    \]
+                    \[
+                        B_2 = \Delta t\begin{bmatrix}0 \\ 1/0.333\end{bmatrix} = \begin{bmatrix}0 \\ 0.300\end{bmatrix}
+                    \]
+                </div>
+
+                <h4>Step 4. Backward pass from \(k = 2\)</h4>
+                <p>Terminal: \(V_{x,3} = \Phi_x(x_3) = [1000(q_3 - \pi/3);\ 100\dot q_3] = [-1492.8;\ -440.3]\);&nbsp; \(V_{xx,3} = \mathrm{diag}(1000, 100)\).</p>
+                <p>Stage-cost derivatives at \((x_2,\bar u_2\!=\!0)\): \(L_x = [100(q_2 - \pi/3);\ 10\dot q_2] = [-209.3;\ -29.46],\ L_u = 0,\ L_{xx} = \mathrm{diag}(100,10),\ L_{uu} = 0.02,\ L_{ux} = 0\).</p>
+                <p>Compute \(Q\)-function blocks:</p>
+                <div class="math-box">
+                    \[
+                        Q_u = L_u + B_2^{T} V_{x,3} = 0 + [0\ 0.300]\cdot\begin{bmatrix}-1492.8 \\ -440.3\end{bmatrix} = -132.1
+                    \]
+                    \[
+                        Q_{uu} = L_{uu} + B_2^{T} V_{xx,3} B_2 = 0.02 + [0\ 0.300]\cdot\mathrm{diag}(1000,100)\cdot[0; 0.300] = 0.02 + 9.0 = 9.02
+                    \]
+                    \[
+                        Q_{ux} = 0 + B_2^{T} V_{xx,3} A_2 = [0\ 0.300]\cdot\mathrm{diag}(1000,100)\cdot A_2 = [0.300\cdot 100\cdot(-0.216),\ 0.300\cdot 100\cdot 1] = [-6.48,\ 30.0]
+                    \]
+                </div>
+
+                <h4>Step 5. Feedforward and feedback gain at \(k = 2\)</h4>
+                <div class="math-box">
+                    \[
+                        k_2 = -Q_{uu}^{-1} Q_u = -(-132.1)/9.02 = +14.65\ \text{(feedforward correction to }\bar u_2\text{)}
+                    \]
+                    \[
+                        K_2 = -Q_{uu}^{-1} Q_{ux} = -[-6.48,\ 30.0]/9.02 = [0.719,\ -3.326]
+                    \]
+                </div>
+                <p>So the optimal control at \(k\!=\!2\) for any small deviation is \(\delta u_2 = 14.65 + 0.719\,\delta q - 3.326\,\delta\dot q\). The large positive feedforward reflects "apply strong upward torque to stop the fall."</p>
+
+                <h4>Step 6. Forward pass with step \(\alpha = 1\)</h4>
+                <p>Applying \(u_2^{\text{new}} = \bar u_2 + k_2 = 14.65\) N·m and propagating gives a new \(x_3 \approx [-0.148;\ +0.985]\) (arm now rising), with new cost \(J_1 \approx 820\). Accepted (\(J_1 < J_0\)). Shrink \(\mu\), iterate.</p>
+
+                <h4>Step 7. Convergence after full iLQR iterations</h4>
+                <p>After 5&ndash;6 iterations with warm-starting across iLQR sweeps, \(J\) converges to \(\approx 45\), the arm reaches \(q = \pi/3\) in ~0.3 s with a final torque sequence \((u_0, u_1, u_2) \approx (12.3, 13.1, 10.9)\) N·m &mdash; intuitive: accelerate, cruise, decelerate.</p>
+
+                <h4>Step 8. NMPC wrapper</h4>
+                <p>In closed-loop NMPC, steps 1&ndash;7 repeat every \(\Delta t\) with the current measured \(x\) as \(x_0\). Warm-starting means the converged \((k, K)\) sequences persist across samples, so each subsequent iLQR call needs only 2&ndash;3 iterations. This is how the lab achieves sub-millisecond per-sample solve times for the manipulator at 20 Hz.</p>
+
+                <h3>9.6 Simulation results (iLQR-based NMPC)</h3>
+                <p>We implement NMPC using an <strong>iLQR solver</strong> (iterative LQR with Gauss-Newton backward Riccati pass, line-searched forward pass, adaptive Levenberg-Marquardt regularisation). Dynamics and cost derivatives are obtained by finite differences. Each sample: run iLQR to convergence (typically 3&ndash;8 iterations with warm-start), apply the first control, shift the trajectory, repeat.</p>
+                <div class="sim-figure">
+                    <img src="sims/figures/nmpc_results.png" alt="NMPC short vs long horizon (iLQR solver)">
+                    <div class="caption">Figure 9.1 &mdash; NMPC with short (\(N\!=\!5\), red dashed) vs. long (\(N\!=\!15\), blue solid) prediction horizon on all three robots. Longer horizon consistently improves or matches the shorter one.</div>
+                </div>
+                <table>
+                    <tr><th>Robot</th><th>State dim.</th><th>\(N_{\text{short}}\) / \(J_{cl}\)</th><th>\(N_{\text{long}}\) / \(J_{cl}\)</th><th>Horizon benefit</th></tr>
+                    <tr><td>Manipulator (regulation)</td><td>4</td><td>5 / 1.730</td><td>15 / 1.020</td><td>&minus;41.0%</td></tr>
+                    <tr><td>Mobile robot (circle tracking)</td><td>3</td><td>5 / 0.0313</td><td>15 / 0.0315</td><td>saturated (both near-perfect)</td></tr>
+                    <tr><td>Quadrotor (altitude + attitude)</td><td>6</td><td>5 / 0.393</td><td>15 / 0.346</td><td>&minus;12.0%</td></tr>
+                </table>
+                <div class="info">
+                    <p><strong>Why iLQR works where simplex methods fail:</strong> a 2N-dimensional NLP solved by Nelder-Mead simplex needs \(O(10^3)\) iterations per sample and still rarely converges. iLQR exploits the <em>causal structure</em> of the shooting problem &mdash; one Gauss-Newton step touches every control variable via a single backward sweep &mdash; giving quadratic local convergence in \(O(10)\) outer iterations.</p>
+                </div>
+                <div class="warning">
+                    <p><strong>The real-time constraint.</strong> The mobile result is saturated because the unicycle has a 3-state, 2-input model and the circle is easy to track &mdash; horizon 5 is already more than enough. The manipulator and quadrotor both benefit from the longer horizon, as expected for higher-dimensional problems. In deployment, you would profile <code>tic/toc</code> around the solver and shrink the horizon to the shortest value that keeps the stability certificate.</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 10: Unified view -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 10: Unified View &mdash; Every Nonlinear Controller as an Optimization Problem</h2>
+
+                <h3>10.1 The common template</h3>
+                <p>Every controller we have studied fits the pattern:</p>
+                <div class="formula-box">
+                    controller = stability certificate (Lyapunov / CLF / s=0) + free parameters \(\theta\) + performance objective \(J(\theta)\)
+                </div>
+                <p>Optimization chooses \(\theta\) to minimize \(J\) subject to the certificate remaining valid.</p>
+
+                <h3>10.2 Master summary table</h3>
+                <table>
+                    <tr><th>Controller</th><th>Decision variables</th><th>Cost function</th><th>Constraints</th><th>Typical solver</th></tr>
+                    <tr><td>Sliding Mode</td><td>\(\lambda,\phi,\eta\)</td><td>tracking + effort + chatter</td><td>\(\eta &gt; D\), \(\phi&gt;0\)</td><td>fminsearch / BayesOpt / LMI for surface</td></tr>
+                    <tr><td>Adaptive (MRAC)</td><td>\(\Gamma,\sigma\), projection bounds</td><td>tracking + effort</td><td>\(\Gamma\succ 0,\ \sigma\geq 0\), physical bounds on \(\hat\theta\)</td><td>fminsearch / BayesOpt</td></tr>
+                    <tr><td>Robust (\(H_\infty\))</td><td>weighting filters \(W_S,W_T,W_{KS}\); or polytopic \(K\)</td><td>\(H_\infty\) norm of weighted sensitivity</td><td>closed-loop stability</td><td>hinfsyn / DK-iteration / LMI</td></tr>
+                    <tr><td>Backstepping</td><td>\(k_1,\ldots,k_n\); command-filter BW \(\omega_f\)</td><td>tracking + effort + smoothness</td><td>\(k_i&gt;0\), CLF \(\dot V_n&lt;0\)</td><td>fminsearch / Bayesian optimization</td></tr>
+                    <tr><td>NMPC</td><td>\(N,Q,R,P,\mathcal X_f,\Delta t\)</td><td>closed-loop integrated cost + solve-time</td><td>recursive feasibility, terminal invariance</td><td>SQP/IPM + offline LQR for \((P,\mathcal X_f)\)</td></tr>
+                    <tr><td>iLQR / DDP (open-loop)</td><td>trajectory \(\{u_k\}_{k=0}^{N-1}\)</td><td>tracking + effort + terminal</td><td>dynamics, \(u\in\mathcal U\)</td><td>iLQR / DDP Newton iterations</td></tr>
+                </table>
+
+                <h3>10.3 Cross-cutting optimization tools</h3>
+                <div class="card-grid">
+                    <div class="card"><h4>LMIs &amp; SDP</h4><p>Convex, globally optimal for any Lyapunov-based design that can be posed as an LMI (robust state-feedback, SMC surface, ISS gain).</p></div>
+                    <div class="card"><h4>SOS programming</h4><p>Certifies polynomial Lyapunov functions &mdash; needed for non-quadratic certificates. Backend: SDP.</p></div>
+                    <div class="card"><h4>Bayesian optimization</h4><p>Sample-efficient tuning for black-box controllers on hardware. Minimizes physical trial count when each experiment is expensive.</p></div>
+                    <div class="card"><h4>Reinforcement learning</h4><p>Policy-gradient on a parameterized controller \(\pi_\theta\) &mdash; subsumes all of the above when the reward encodes the cost. Stability not free.</p></div>
+                    <div class="card"><h4>Differentiable simulation</h4><p>Compute \(\nabla_\theta J\) directly through the simulator (autodiff). Gives gradient-based methods the power of BayesOpt at much lower sample cost.</p></div>
+                    <div class="card"><h4>Scenario / stochastic programming</h4><p>Optimizes over a distribution of uncertain parameters rather than a worst case &mdash; average-case robust design.</p></div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 11: Lab activities -->
+            <!-- ============================================================ -->
+            <div class="section activity">
+                <h2>Section 11: MATLAB Lab Activities</h2>
+
+                <h3>Setup</h3>
+                <p>All simulations live in <code>week_08/sims/</code> and run on base MATLAB (no toolboxes beyond Control System Toolbox required). They use <code>fminsearch</code> for the parameter optimization and explicit Euler or <code>ode</code>-style integration for the dynamics.</p>
+
+                <div class="code-block">% From MATLAB, cd to the lab directory
+cd /home/it-services/auto_control_ws/week_08/sims
+
+% Run everything (~30 s on a modern laptop)
+run_all
+
+% Or run a single controller
+sim_smc          % sliding mode
+sim_adaptive     % adaptive / MRAC
+sim_robust       % robust min-max
+sim_backstepping % backstepping
+sim_nmpc         % nonlinear MPC</div>
+
+                <h3>Activity 1 &mdash; SMC Pareto sweep (15 min)</h3>
+                <p>Inside <code>sim_smc.m</code>, change the cost weights \((w_e, w_u, w_c)\) on the chatter term. Re-run and observe:</p>
+                <ul>
+                    <li>Small \(w_c\): optimizer picks a <em>narrow</em> boundary layer (low \(\phi\)) &mdash; sharp tracking, chattering control</li>
+                    <li>Large \(w_c\): optimizer picks a <em>wide</em> boundary layer &mdash; smooth torque, residual tracking error</li>
+                </ul>
+                <p><strong>Deliverable:</strong> plot the Pareto front of tracking error vs. chatter metric across \(w_c \in \{0.001, 0.01, 0.1, 1\}\).</p>
+
+                <h3>Activity 2 &mdash; Adaptive optimizer tells you when <em>not</em> to adapt (10 min)</h3>
+                <p>Set the payload disturbance to zero in <code>sim_adaptive.m</code> (make <code>p_true = p</code>). Re-run and inspect the optimized \(\Gamma\). Discuss: why does the optimizer drive \(\Gamma\to 0\)?</p>
+
+                <h3>Activity 3 &mdash; Robust vs. average-case (15 min)</h3>
+                <p>Modify <code>robust_quad_cost</code> to use the <em>mean</em> rather than <em>max</em> over the uncertainty set. Compare the resulting gains. Under which uncertainty distribution is the average-case design acceptable, and when does the worst-case matter?</p>
+
+                <h3>Activity 4 &mdash; NMPC horizon sweep (15 min)</h3>
+                <p>Run <code>sim_nmpc</code> with the horizon set to \(N = \{3,5,7,10,15,25\}\) on the quadrotor. Record closed-loop cost <em>and</em> per-step solve time (<code>tic/toc</code> around the <code>fminsearch</code> call). Plot both on one graph. Identify the knee of the curve &mdash; this is your deployment horizon.</p>
+
+                <div class="success">
+                    <strong>Last run on this machine (R2025b):</strong> total wall time ~43&nbsp;s for all five controllers on all three robots (iLQR-based NMPC dominates the wall-clock). Cost reductions ranged from 2% (manipulator robust &mdash; already near worst-case optimum) to 88% (mobile backstepping); NMPC manipulator benefited by 41% from extending the horizon.
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 12: Appendix - Week 7 SMC exam recall -->
+            <!-- ============================================================ -->
+            <div class="section exam-question">
+                <h2>Appendix: Week 7 Recall &mdash; Sliding Mode Control (Exam Practice)</h2>
+
+                <h4>Question 1 &mdash; SMC Controller Design and Stability Proof (25 marks)</h4>
+                <p>Consider a robot manipulator governed by:</p>
+                \[
+                    M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau + d(t)
+                \]
+                <p>where \(d(t)\) represents matched uncertainty with known bound \(\|d(t)\| \leq D\).</p>
+
+                <p><strong>(a)</strong> Define the tracking error \(e = q - q_d\) and the sliding surface:</p>
+                \[ s = \dot{e} + \Lambda e \]
+                <p>where \(\Lambda = \text{diag}(\lambda_1, \ldots, \lambda_n)\) with \(\lambda_i > 0\). Explain why the system trajectories converge to \(e = 0\) exponentially once \(s = 0\).</p>
+                <div class="derivation-box">
+                    <h4>Model Answer (a)</h4>
+                    <p>When \(s = 0\), \(\dot e = -\Lambda e\); with all \(\lambda_i&gt;0\), \(e(t)=e(0)e^{-\Lambda t}\) converges exponentially with time constants \(1/\lambda_i\).</p>
+                </div>
+
+                <p><strong>(b)</strong> Derive the equivalent control \(\tau_{eq}\) by setting \(\dot{s} = 0\) (assuming \(d = 0\)).</p>
+                <div class="derivation-box">
+                    <h4>Model Answer (b)</h4>
+                    \[ \boxed{\tau_{eq} = M(q)\bigl(\ddot{q}_d - \Lambda\dot{e}\bigr) + C(q,\dot{q})\dot{q} + G(q)} \]
+                </div>
+
+                <p><strong>(c)</strong> With switching term \(\tau_{sw} = -K\,\text{sign}(s)\) and Lyapunov function \(V = \tfrac{1}{2}s^{T}M(q)s\), show \(\dot V \leq -(k_{\min}-D)\|s\|_1\) when \(k_i &gt; D\).</p>
+                <div class="derivation-box">
+                    <h4>Model Answer (c)</h4>
+                    <p>Using skew-symmetry of \(\dot M - 2C\): \(\dot V = s^{T}(M\dot s + Cs) = s^{T}(\tau_{sw}+d) = -\sum k_i|s_i| + s^{T}d \leq -(k_{\min}-D)\|s\|_1\). \(\square\)</p>
+                </div>
+
+                <h4>Question 2 &mdash; Chattering &amp; boundary layer (20 marks)</h4>
+                <p>(a) Explain chattering and why it harms actuators. (b) Derive the steady-state error bound \(|e_{ss}| \leq \phi/\lambda\) for boundary-layer SMC.</p>
+                <div class="derivation-box">
+                    <h4>Model Answer (condensed)</h4>
+                    <p>Chattering comes from the discontinuous \(\text{sign}(s)\) combined with sampling / unmodelled dynamics. Replacing by \(\mathrm{sat}(s/\phi)\) yields a high-gain proportional law inside the layer; in steady state \(|s|\leq \phi D/k\), and since \(s=\dot e+\lambda e\) the tracking-error bound is \(|e_{ss}|\leq \phi/\lambda\).</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 13: Course recap -->
+            <!-- ============================================================ -->
+            <div class="section" style="background: linear-gradient(135deg, #e8eaf6, #c5cae9); border-left-color: #3f51b5;">
+                <h2>Section 13: Course Recap &amp; What's Next</h2>
+
+                <h3>13.1 The nonlinear control theory journey</h3>
+                <div class="card-grid">
+                    <div class="card" style="border-color: #e91e63;"><h4>Weeks 1&ndash;3: MPC</h4><p>Prediction + optimization. Set the stage for NMPC.</p></div>
+                    <div class="card" style="border-color: #2196f3;"><h4>Week 4: Adaptive</h4><p>Online parameter learning with Lyapunov certificates.</p></div>
+                    <div class="card" style="border-color: #00bcd4;"><h4>Week 5: Robust</h4><p>Fixed controller for worst-case plant.</p></div>
+                    <div class="card" style="border-color: #4caf50;"><h4>Week 6: Backstepping</h4><p>Recursive CLF design for strict-feedback systems.</p></div>
+                    <div class="card" style="border-color: #ff9800;"><h4>Week 7: SMC</h4><p>Variable structure, discontinuous robustness.</p></div>
+                    <div class="card" style="border-color: #3f51b5;"><h4>Week 8 (this): Optimization of all of the above</h4><p>Every controller has free parameters; every choice of parameters is an optimization.</p></div>
+                </div>
+
+                <h3>13.2 Unifying themes</h3>
+                <ul>
+                    <li><strong>Nonlinearity is the defining feature of robots</strong> &mdash; we never linearized at design time in this course.</li>
+                    <li><strong>Lyapunov certificates give the feasible set</strong> of the parameter optimization &mdash; any \(\theta\) that breaks the certificate is excluded.</li>
+                    <li><strong>Optimization is how we pick good controllers, not just good trajectories</strong> &mdash; Section 3.3's (A) vs (B) distinction.</li>
+                    <li><strong>Compute is a first-class constraint</strong> &mdash; NMPC and adaptive tuning are only useful at real-time sample rates.</li>
+                </ul>
+
+                <h3>13.3 What's next &mdash; Automation block</h3>
+                <div class="info">
+                    <p>Weeks 9&ndash;12 shift from control theory to deployment: state machines, ROS 2 integration, perception, and system-level projects. The tuned controllers from this week become the low-level primitives those higher-level systems will invoke.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <p><strong>Control for Robots &mdash; M.Sc. Programme</strong></p>
+            <p>Advanced Robotics Programme &bull; AY 2025&ndash;26</p>
+            <p style="margin-top: 10px; opacity: 0.75;">Week 8: Nonlinear Control Optimization for Robotic Systems</p>
+        </div>
+
+    </div>
+</body>
+</html>

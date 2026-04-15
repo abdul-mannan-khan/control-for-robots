@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 12: Controller Comparison, Industry Applications &amp; System Integration</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "\2713"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.1em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+        .pseudocode-block { background: #fff8dc; color: #333; padding: 20px; border-radius: 5px; margin: 15px 0; border: 3px solid #daa520; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .pseudocode-header { background: #daa520; color: white; padding: 10px 20px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-weight: bold; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; }
+        .card h4 { color: #2c3e50; margin-top: 0; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.2em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .think-pair-share { background: #fce4ec; border: 2px solid #e91e63; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box { background: #ede7f6; border: 2px solid #7c4dff; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+        .company-brief { background: #fff0f5; border-left: 5px solid #e91e63; border-radius: 10px; padding: 30px; margin-bottom: 40px; }
+        .company-brief h2 { color: #c2185b; border-bottom-color: #e91e63; }
+        .deliverable-list { list-style: none; padding-left: 0; }
+        .deliverable-list li { padding: 12px 15px; margin: 8px 0; background: white; border-radius: 5px; border-left: 4px solid #e91e63; }
+        .deliverable-list li:before { content: "\25B6"; color: #e91e63; margin-right: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- HEADER                                                        -->
+<!-- ============================================================ -->
+<div class="header" style="background: linear-gradient(135deg, #311b92 0%, #4527a0 50%, #5e35b1 100%);">
+    <h1>Autonomous Systems Corp &mdash; Senior Autonomy Engineer Technical Challenge</h1>
+    <div class="subtitle">Full Sensor Fusion, Mission Planning, and System Monitoring</div>
+    <div class="meta">
+        Position: Senior Autonomy Engineer &bull; Team: Full-Stack Autonomy<br>
+        Pre-Interview Technical Assessment &bull; Estimated Time: 3 Hours
+    </div>
+</div>
+
+<div class="content">
+
+<!-- ============================================================ -->
+<!-- SECTION 0: COMPANY BRIEF -->
+<!-- ============================================================ -->
+<div class="company-brief">
+    <h2>Company Brief: Autonomous Systems Corp</h2>
+    <p><strong>Scenario:</strong> Autonomous Systems Corp is building a full-stack autonomous drone platform for search-and-rescue missions. Your team has collected 30 seconds of multi-sensor data from a test flight including GPS, IMU, odometry, camera images, and LiDAR point clouds. As the senior engineer candidate, you will design and implement the complete autonomy pipeline &mdash; from sensor fusion to mission execution.</p>
+
+    <h3>Provided Bag Data</h3>
+    <table>
+        <tr><th>Topic</th><th>Message Type</th><th>Rate</th><th>Description</th></tr>
+        <tr><td><code>/gps</code></td><td>sensor_msgs/NavSatFix</td><td>1 Hz</td><td>GPS position fixes</td></tr>
+        <tr><td><code>/imu</code></td><td>sensor_msgs/Imu</td><td>200 Hz</td><td>Inertial measurement unit data</td></tr>
+        <tr><td><code>/odom</code></td><td>nav_msgs/Odometry</td><td>50 Hz</td><td>Visual-inertial odometry</td></tr>
+        <tr><td><code>/camera/image</code></td><td>sensor_msgs/Image</td><td>10 Hz</td><td>Forward-facing camera images</td></tr>
+        <tr><td><code>/lidar_points</code></td><td>sensor_msgs/PointCloud2</td><td>10 Hz</td><td>3D LiDAR point cloud</td></tr>
+    </table>
+
+    <h3>Deliverables</h3>
+    <ul class="deliverable-list">
+        <li>EKF-based sensor fusion node combining IMU, GPS, and odometry into a unified state estimate</li>
+        <li>A global mission planner (A* or RRT) that generates waypoints from a high-level mission specification</li>
+        <li>A trajectory tracking controller (LQR or MPC) that follows planned paths with obstacle avoidance</li>
+        <li>A system health monitor that detects sensor failures and triggers failsafe behaviours</li>
+        <li>A multi-mission evaluation demonstrating the full pipeline across multiple scenarios</li>
+    </ul>
+
+    <h3>Evaluation Criteria</h3>
+    <ul>
+        <li><strong>System Architecture:</strong> Clean separation of perception, estimation, planning, and control subsystems</li>
+        <li><strong>Sensor Fusion:</strong> Correct EKF implementation handling multi-rate sensors and sensor dropout</li>
+        <li><strong>Controller Selection:</strong> Justified choice of control strategy with quantitative trade-off analysis</li>
+        <li><strong>Robustness:</strong> Graceful degradation under sensor failure, wind disturbance, and model uncertainty</li>
+        <li><strong>Communication:</strong> Ability to present system design at a whiteboard and defend architectural decisions</li>
+    </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: LEARNING OUTCOMES                                  -->
+<!-- ============================================================ -->
+<div class="section objectives">
+    <h2>Skills You Will Demonstrate</h2>
+    <p>By the end of this capstone session, you will be able to:</p>
+    <ul>
+        <li>Compare and contrast all seven control methods (CTC, MPC, Adaptive, Robust/H-infinity, Backstepping, SMC, NL Optimization) across quantitative performance metrics</li>
+        <li>Evaluate controller trade-offs in terms of tracking accuracy, robustness, computational cost, and implementation complexity</li>
+        <li>Select the most appropriate control strategy for a given robotic application based on system requirements and constraints</li>
+        <li>Map each control method to real-world industry use cases and identify which companies deploy them</li>
+        <li>Understand how each controller integrates within a ROS 2 architecture and the full autonomy pipeline (perception, estimation, planning, control, actuation)</li>
+        <li>Apply structured decision-making frameworks (flowcharts, comparison matrices) to controller selection problems in interviews and practice</li>
+        <li>Critically assess the gap between theoretical guarantees and practical implementation challenges for each method</li>
+        <li>Formulate hybrid and cascaded control architectures that combine multiple methods for superior real-world performance</li>
+    </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: SESSION ROADMAP                                    -->
+<!-- ============================================================ -->
+<div class="section timeline">
+    <h2>Recommended Approach (3-Hour Capstone)</h2>
+
+    <div class="timeline-item">
+        <div class="timeline-time">0:00 &ndash; 0:20</div>
+        <div class="timeline-content">
+            <h4>Week 11 Recall &mdash; Navigation Control Exam Practice</h4>
+            <p>Review DWA vs MPC, AMCL state estimation, and parallels to the Kalman filter in LQG.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">0:20 &ndash; 1:00</div>
+        <div class="timeline-content">
+            <h4>Part 1 &mdash; Comprehensive Controller Comparison</h4>
+            <p>Seven controllers at a glance. Performance metrics. Head-to-head comparison table. Decision flowchart. System-specific comparisons for manipulator, mobile robot, and quadrotor.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">1:00 &ndash; 1:10</div>
+        <div class="timeline-content">
+            <h4>Break</h4>
+            <p>10-minute break.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">1:10 &ndash; 2:00</div>
+        <div class="timeline-content">
+            <h4>Part 2 &mdash; Industry Applications &amp; Case Studies</h4>
+            <p>Comprehensive real-world deployments across 10 industry sectors: automotive, aerospace, industrial robotics, warehouse, legged robots, medical, marine, space, energy, and consumer. Industry-controller matrix.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">2:00 &ndash; 2:10</div>
+        <div class="timeline-content">
+            <h4>Break</h4>
+            <p>10-minute break.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">2:10 &ndash; 2:40</div>
+        <div class="timeline-content">
+            <h4>Part 3 &mdash; ROS 2 System Integration &amp; Interview Preparation</h4>
+            <p>Full autonomy pipeline. ROS 2 course alignment. Building your interview demo portfolio. ROS 2 capstone lab reference.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">2:40 &ndash; 2:55</div>
+        <div class="timeline-content">
+            <h4>Hands-On Activities &amp; Quiz</h4>
+            <p>Controller selection challenge. Industry research project. Grand demo preparation. Final exam prep quiz.</p>
+        </div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-time">2:55 &ndash; 3:00</div>
+        <div class="timeline-content">
+            <h4>Course Wrap-Up &amp; Final Remarks</h4>
+            <p>12-week summary. What to study next. Career advice. End of course.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: PART 1 - COMPREHENSIVE CONTROLLER COMPARISON       -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Section 3: Part 1 &mdash; Comprehensive Controller Comparison</h2>
+    <p>In this capstone lecture, we step back from individual controller design and take a <strong>holistic view</strong> of all seven control methods studied across Weeks 1&ndash;8. The goal is to understand not just <em>how</em> each controller works, but <em>when</em> and <em>why</em> to choose one over another. This is the skill that separates a textbook reader from a practising control engineer.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3.1: THE SEVEN CONTROLLERS AT A GLANCE                        -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>3.1: The Seven Controllers at a Glance</h2>
+    <p>Each card below summarises a controller's core idea, key equation, strengths, weaknesses, and ideal use case.</p>
+
+    <div class="card-grid">
+        <div class="card" style="border-top: 4px solid #1e3c72;">
+            <h4 style="color: #1e3c72;">1. Computed Torque Control (CTC) &mdash; Week 1</h4>
+            <p><em>Feedback linearisation via exact model cancellation</em></p>
+            <div class="math-box">
+                \[\tau = M(q)\bigl(\ddot{q}_d + K_d \dot{e} + K_p e\bigr) + C(q,\dot{q})\dot{q} + G(q)\]
+            </div>
+            <p><strong>Strengths:</strong> Exact linearisation yields decoupled error dynamics; straightforward PD tuning after cancellation; excellent tracking when model is accurate.</p>
+            <p><strong>Weaknesses:</strong> Requires highly accurate dynamic model; no inherent robustness to parameter uncertainty.</p>
+            <p><strong>Ideal use:</strong> Well-calibrated industrial manipulators with known payloads (e.g., FANUC, KUKA in structured cells).</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #667eea;">
+            <h4 style="color: #667eea;">2. Model Predictive Control (MPC) &mdash; Week 3</h4>
+            <p><em>Receding-horizon optimisation with constraint satisfaction</em></p>
+            <div class="math-box">
+                \[\min_{u_{0:N-1}} \sum_{k=0}^{N-1}\bigl( x_k^T Q\, x_k + u_k^T R\, u_k \bigr) + x_N^T P_f\, x_N \quad \text{s.t. } x \in \mathcal{X},\; u \in \mathcal{U}\]
+            </div>
+            <p><strong>Strengths:</strong> Systematic constraint handling; preview/anticipation of future reference; flexible multi-objective cost.</p>
+            <p><strong>Weaknesses:</strong> High computational cost (online optimisation); performance degrades with model inaccuracy.</p>
+            <p><strong>Ideal use:</strong> Autonomous vehicles, constrained navigation, any system where actuator/state limits are critical.</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #4caf50;">
+            <h4 style="color: #4caf50;">3. Adaptive Control &mdash; Week 4</h4>
+            <p><em>Online parameter estimation with concurrent control</em></p>
+            <div class="math-box">
+                \[\tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\,\hat{\theta}, \qquad \dot{\hat{\theta}} = -\Gamma Y^T s\]
+            </div>
+            <p><strong>Strengths:</strong> Handles unknown/slowly varying parameters; Lyapunov convergence guarantees; no prior system ID needed.</p>
+            <p><strong>Weaknesses:</strong> Requires regressor form (linearity in parameters); poor transient; needs persistent excitation.</p>
+            <p><strong>Ideal use:</strong> Manipulators with changing payloads, robots in unstructured environments.</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #ff9800;">
+            <h4 style="color: #ff9800;">4. Robust Control (H-infinity) &mdash; Week 5</h4>
+            <p><em>Worst-case performance optimisation over uncertainty sets</em></p>
+            <div class="math-box">
+                \[\min_K \;\|T_{zw}(s)\|_\infty = \min_K \;\sup_\omega \bar{\sigma}\bigl(T_{zw}(j\omega)\bigr) < \gamma\]
+            </div>
+            <p><strong>Strengths:</strong> Guaranteed performance despite bounded uncertainty; systematic LMI/Riccati framework; excellent for structured perturbations.</p>
+            <p><strong>Weaknesses:</strong> Conservative (worst-case optimisation); complex design requiring frequency-domain expertise.</p>
+            <p><strong>Ideal use:</strong> Safety-critical systems (aerospace, surgical robots) requiring guaranteed stability margins.</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #e91e63;">
+            <h4 style="color: #e91e63;">5. Backstepping Control &mdash; Week 6</h4>
+            <p><em>Recursive Lyapunov-based design for strict-feedback systems</em></p>
+            <div class="math-box">
+                \[V_i = V_{i-1} + \tfrac{1}{2}z_i^2, \qquad z_i = x_i - \alpha_{i-1}(x_1,\ldots,x_{i-1})\]
+            </div>
+            <p><strong>Strengths:</strong> Constructive Lyapunov guarantees global asymptotic stability; natural for cascaded structures; smooth control law.</p>
+            <p><strong>Weaknesses:</strong> Restricted to strict-feedback form; "explosion of terms" in higher-order systems.</p>
+            <p><strong>Ideal use:</strong> Underactuated systems (quadrotors, marine vessels), VTOL transition control.</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #2196f3;">
+            <h4 style="color: #2196f3;">6. Sliding Mode Control (SMC) &mdash; Week 7</h4>
+            <p><em>Variable-structure control with discontinuous switching</em></p>
+            <div class="math-box">
+                \[\tau = \tau_{eq} - K\,\text{sign}(s), \qquad s = \dot{e} + \Lambda e\]
+            </div>
+            <p><strong>Strengths:</strong> Invariant to matched disturbances; finite-time convergence to sliding surface; simple structure.</p>
+            <p><strong>Weaknesses:</strong> Chattering from discontinuous control; only handles matched uncertainties.</p>
+            <p><strong>Ideal use:</strong> Systems with significant matched disturbances: outdoor drones in wind, CNC machining.</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #9c27b0;">
+            <h4 style="color: #9c27b0;">7. Nonlinear Control Optimization &mdash; Week 8</h4>
+            <p><em>Pontryagin / iLQR / NMPC on the nonlinear plant; also optimization of the gains of Controllers 1&ndash;6</em></p>
+            <div class="math-box">
+                \[\min_{u(\cdot)}\ J = \Phi(x(T)) + \int_0^T L(x,u,t)\,dt \quad\text{s.t. } \dot x = f(x,u)\]
+            </div>
+            <p><strong>Strengths:</strong> Operates on the nonlinear model directly (no linearisation); iLQR gives a local feedback policy in addition to the open-loop plan; provides a unified framework to <em>optimize</em> the parameters of every other controller (SMC \(\lambda,\phi,\eta\); adaptive \(\Gamma,\sigma\); robust \(K_p,K_d,\rho,\Lambda\); backstepping \(k_1,\ldots,k_n\)).</p>
+            <p><strong>Weaknesses:</strong> Iterative; local (not global) optimum; needs derivatives (finite difference or autodiff); real-time requires warm-starting and fast SQP / iLQR back-ends.</p>
+            <p><strong>Ideal use:</strong> Trajectory optimization for manipulators / drones (iLQR / DDP), receding-horizon tracking (NMPC), and offline tuning of any controller from 1&ndash;6 via min-max or Bayesian search.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3.2: PERFORMANCE METRICS                                      -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>3.2: Performance Metrics for Controller Comparison</h2>
+    <p>To compare controllers rigorously, we define nine metrics. Each is rated on a 1&ndash;5 scale in the comparison table that follows.</p>
+
+    <table>
+        <tr><th style="width:25%;">Metric</th><th>Definition</th><th style="width:20%;">Measured By</th></tr>
+        <tr><td><strong>Tracking Accuracy</strong></td><td>How closely the output follows the reference trajectory in the nominal (no uncertainty) case.</td><td>RMSE, \(\|e\|_\infty\)</td></tr>
+        <tr><td><strong>Parametric Robustness</strong></td><td>Ability to maintain stability and performance when physical parameters deviate &plusmn;30% from nominal.</td><td>Stability margin, \(M_s\)</td></tr>
+        <tr><td><strong>Disturbance Rejection</strong></td><td>Speed and effectiveness of recovering from external disturbances (wind, payload, terrain).</td><td>Recovery time, peak deviation</td></tr>
+        <tr><td><strong>Computational Cost</strong></td><td>Real-time computation per control cycle. Critical for embedded systems.</td><td>FLOPS, wall-clock time</td></tr>
+        <tr><td><strong>Tuning Complexity</strong></td><td>Number of design parameters, sensitivity to choices, expertise required.</td><td>Parameter count, sensitivity</td></tr>
+        <tr><td><strong>Constraint Handling</strong></td><td>Ability to explicitly enforce hard constraints on states and inputs.</td><td>Constraint violation rate</td></tr>
+        <tr><td><strong>Model Dependency</strong></td><td>How sensitive performance is to model accuracy. High = poor model means poor performance.</td><td>Degradation under mismatch</td></tr>
+        <tr><td><strong>Control Smoothness</strong></td><td>Continuity of the control signal. Discontinuous signals cause actuator wear.</td><td>\(\|\dot{u}\|_2\), total variation</td></tr>
+        <tr><td><strong>Stability Guarantees</strong></td><td>Rigour of theoretical stability proof (Lyapunov, global/local, under uncertainty).</td><td>Type: asymptotic, ISS, etc.</td></tr>
+    </table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3.3: HEAD-TO-HEAD COMPARISON TABLE                            -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>3.3: Head-to-Head Comparison Table</h2>
+    <p>The <strong>centerpiece</strong> of this comparison. Each controller is rated 1&ndash;5 stars across all nine metrics. Higher is better except for Computational Cost and Model Dependency (where higher means more expensive/dependent).</p>
+
+    <div class="info">
+        <strong>Reading the stars:</strong> &#9733; = poor/low, &#9733;&#9733;&#9733; = moderate, &#9733;&#9733;&#9733;&#9733;&#9733; = excellent/high. For Computational Cost and Model Dependency, &#9733; = cheap/independent (good) and &#9733;&#9733;&#9733;&#9733;&#9733; = expensive/dependent (challenging).
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table style="font-size: 0.88em;">
+        <tr>
+            <th>Metric</th>
+            <th style="background:#1e3c72;">CTC</th>
+            <th style="background:#4a5fa8;">MPC</th>
+            <th style="background:#2e7d32;">Adaptive</th>
+            <th style="background:#e65100;">H-inf</th>
+            <th style="background:#ad1457;">Backstep</th>
+            <th style="background:#1565c0;">SMC</th>
+            <th style="background:#6a1b9a;">NL Optimization</th>
+        </tr>
+        <tr><td><strong>Tracking Accuracy</strong></td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+        <tr><td><strong>Parametric Robustness</strong></td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+        <tr><td><strong>Disturbance Rejection</strong></td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+        <tr><td><strong>Computational Cost</strong><br><small>(&#9733;=cheap)</small></td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9734;&#9734;&#9734;&#9734;</td></tr>
+        <tr><td><strong>Tuning Complexity</strong><br><small>(&#9733;=easy)</small></td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+        <tr><td><strong>Constraint Handling</strong></td><td>&#9733;&#9734;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9734;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td></tr>
+        <tr><td><strong>Model Dependency</strong><br><small>(&#9733;=independent)</small></td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+        <tr><td><strong>Control Smoothness</strong></td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9734;&#9734;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+        <tr><td><strong>Stability Guarantees</strong></td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+    </table>
+    </div>
+
+    <div class="info">
+        <strong>Key observations:</strong>
+        <ul>
+            <li><strong>No controller dominates all metrics.</strong> This is the "No Free Lunch" principle of control theory.</li>
+            <li><strong>CTC</strong> achieves top tracking accuracy but pays the price of extreme model dependency and zero constraint handling.</li>
+            <li><strong>MPC</strong> is the only method with native constraint handling but demands the most computational resources.</li>
+            <li><strong>SMC</strong> is unmatched for disturbance rejection but produces the roughest control signals (chattering).</li>
+            <li><strong>Nonlinear Optimization (iLQR / NMPC)</strong> has the highest online computational cost of the seven methods, but uniquely works directly on the nonlinear plant and provides a unified framework to re-tune any other controller's gains.</li>
+            <li><strong>Adaptive</strong> and <strong>SMC</strong> are the most robust, while <strong>H-infinity</strong> provides the strongest formal robustness <em>guarantees</em>.</li>
+            <li><strong>Backstepping</strong> provides elegant stability proofs for nonlinear cascaded systems but is hard to scale.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3.4: CONTROLLER SELECTION DECISION FLOWCHART (SVG)            -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>3.4: Controller Selection Decision Flowchart</h2>
+    <p>The following decision tree guides practitioners through a structured selection process. Start at the top and follow the branches based on your system's characteristics.</p>
+
+    <div style="text-align: center; margin: 20px 0;">
+    <svg width="100%" style="max-width:800px" viewBox="0 0 800 620" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Tahoma, Geneva, Verdana, sans-serif">
+        <defs>
+            <marker id="fig1-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#333"/>
+            </marker>
+            <marker id="fig1-arrow-green" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#4caf50"/>
+            </marker>
+            <marker id="fig1-arrow-red" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#e91e63"/>
+            </marker>
+        </defs>
+
+        <!-- START -->
+        <rect x="320" y="10" width="160" height="40" rx="20" ry="20" fill="#1e3c72"/>
+        <text x="400" y="35" text-anchor="middle" fill="white" font-size="14" font-weight="bold">START</text>
+
+        <!-- Q1: Accurate model? -->
+        <polygon points="400,75 475,110 400,145 325,110" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+        <text x="400" y="107" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Accurate</text>
+        <text x="400" y="121" text-anchor="middle" fill="white" font-size="11" font-weight="bold">model?</text>
+        <line x1="400" y1="50" x2="400" y2="75" stroke="#333" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+
+        <!-- NO branch from Q1 -->
+        <text x="310" y="105" text-anchor="end" fill="#e91e63" font-size="12" font-weight="bold">No</text>
+
+        <!-- Q2: Parameters unknown? -->
+        <polygon points="180,170 255,205 180,240 105,205" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+        <text x="180" y="202" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Parameters</text>
+        <text x="180" y="215" text-anchor="middle" fill="white" font-size="10" font-weight="bold">unknown?</text>
+        <line x1="325" y1="110" x2="255" y2="110" stroke="#e91e63" stroke-width="2"/>
+        <line x1="255" y1="110" x2="255" y2="205" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-red)"/>
+
+        <!-- Q2 YES -> Adaptive -->
+        <text x="92" y="198" text-anchor="end" fill="#4caf50" font-size="12" font-weight="bold">Yes</text>
+        <rect x="10" y="260" width="140" height="40" rx="20" ry="20" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+        <text x="80" y="284" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Adaptive Control</text>
+        <line x1="105" y1="205" x2="80" y2="205" stroke="#4caf50" stroke-width="2"/>
+        <line x1="80" y1="205" x2="80" y2="260" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Q2 NO -> Q3: Matched disturbances? -->
+        <text x="180" y="255" text-anchor="middle" fill="#e91e63" font-size="12" font-weight="bold">No</text>
+        <polygon points="180,300 255,335 180,370 105,335" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+        <text x="180" y="332" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Matched</text>
+        <text x="180" y="345" text-anchor="middle" fill="white" font-size="10" font-weight="bold">disturbances?</text>
+        <line x1="180" y1="240" x2="180" y2="300" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-red)"/>
+
+        <!-- Q3 YES -> SMC -->
+        <text x="92" y="328" text-anchor="end" fill="#4caf50" font-size="12" font-weight="bold">Yes</text>
+        <rect x="10" y="390" width="140" height="40" rx="20" ry="20" fill="#2196f3" stroke="#1565c0" stroke-width="2"/>
+        <text x="80" y="414" text-anchor="middle" fill="white" font-size="12" font-weight="bold">SMC</text>
+        <line x1="105" y1="335" x2="80" y2="335" stroke="#4caf50" stroke-width="2"/>
+        <line x1="80" y1="335" x2="80" y2="390" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Q3 NO -> Robust -->
+        <text x="180" y="385" text-anchor="middle" fill="#e91e63" font-size="12" font-weight="bold">No</text>
+        <rect x="110" y="420" width="140" height="40" rx="20" ry="20" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+        <text x="180" y="444" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Robust H-infinity</text>
+        <line x1="180" y1="370" x2="180" y2="420" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-red)"/>
+
+        <!-- YES branch from Q1 -->
+        <text x="490" y="105" text-anchor="start" fill="#4caf50" font-size="12" font-weight="bold">Yes</text>
+
+        <!-- Q4: Hard constraints? -->
+        <polygon points="600,170 675,205 600,240 525,205" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+        <text x="600" y="202" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Hard</text>
+        <text x="600" y="215" text-anchor="middle" fill="white" font-size="10" font-weight="bold">constraints?</text>
+        <line x1="475" y1="110" x2="525" y2="110" stroke="#4caf50" stroke-width="2"/>
+        <line x1="525" y1="110" x2="525" y2="205" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Q4 YES -> MPC -->
+        <text x="690" y="198" text-anchor="start" fill="#4caf50" font-size="12" font-weight="bold">Yes</text>
+        <rect x="700" y="185" width="90" height="40" rx="20" ry="20" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+        <text x="745" y="209" text-anchor="middle" fill="white" font-size="12" font-weight="bold">MPC</text>
+        <line x1="675" y1="205" x2="700" y2="205" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Q4 NO -> Q5: Strict-feedback? -->
+        <text x="600" y="255" text-anchor="middle" fill="#e91e63" font-size="12" font-weight="bold">No</text>
+        <polygon points="600,290 675,325 600,360 525,325" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+        <text x="600" y="319" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Strict-feedback</text>
+        <text x="600" y="332" text-anchor="middle" fill="white" font-size="10" font-weight="bold">form?</text>
+        <line x1="600" y1="240" x2="600" y2="290" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-red)"/>
+
+        <!-- Q5 YES -> Backstepping -->
+        <text x="690" y="318" text-anchor="start" fill="#4caf50" font-size="12" font-weight="bold">Yes</text>
+        <rect x="700" y="305" width="90" height="40" rx="20" ry="20" fill="#e91e63" stroke="#ad1457" stroke-width="2"/>
+        <text x="745" y="329" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Backstepping</text>
+        <line x1="675" y1="325" x2="700" y2="325" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Q5 NO -> Q6: Linear? -->
+        <text x="600" y="375" text-anchor="middle" fill="#e91e63" font-size="12" font-weight="bold">No</text>
+        <polygon points="600,400 675,435 600,470 525,435" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+        <text x="600" y="429" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Linear or</text>
+        <text x="600" y="442" text-anchor="middle" fill="white" font-size="10" font-weight="bold">linearisable?</text>
+        <line x1="600" y1="360" x2="600" y2="400" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-red)"/>
+
+        <!-- Q6 YES -> NL Optimization -->
+        <text x="690" y="428" text-anchor="start" fill="#4caf50" font-size="12" font-weight="bold">Yes</text>
+        <rect x="700" y="415" width="90" height="40" rx="20" ry="20" fill="#9c27b0" stroke="#6a1b9a" stroke-width="2"/>
+        <text x="745" y="439" text-anchor="middle" fill="white" font-size="12" font-weight="bold">NL Optimization</text>
+        <line x1="675" y1="435" x2="700" y2="435" stroke="#4caf50" stroke-width="2" marker-end="url(#fig1-arrow-green)"/>
+
+        <!-- Q6 NO -> CTC -->
+        <text x="600" y="485" text-anchor="middle" fill="#e91e63" font-size="12" font-weight="bold">No</text>
+        <rect x="530" y="510" width="140" height="40" rx="20" ry="20" fill="#1e3c72" stroke="#0d2240" stroke-width="2"/>
+        <text x="600" y="534" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Computed Torque</text>
+        <line x1="600" y1="470" x2="600" y2="510" stroke="#e91e63" stroke-width="2" marker-end="url(#fig1-arrow-red)"/>
+
+        <!-- Legend -->
+        <rect x="10" y="530" width="250" height="80" rx="8" ry="8" fill="#f8f9fa" stroke="#ccc" stroke-width="1"/>
+        <text x="20" y="550" fill="#333" font-size="12" font-weight="bold">Legend</text>
+        <line x1="20" y1="565" x2="50" y2="565" stroke="#4caf50" stroke-width="2"/>
+        <text x="55" y="569" fill="#333" font-size="11">Yes branch</text>
+        <line x1="130" y1="565" x2="160" y2="565" stroke="#e91e63" stroke-width="2"/>
+        <text x="165" y="569" fill="#333" font-size="11">No branch</text>
+        <polygon points="45,585 60,592 45,599 30,592" fill="#667eea" stroke="#1e3c72" stroke-width="1"/>
+        <text x="65" y="596" fill="#333" font-size="11">Decision</text>
+        <rect x="130" y="583" width="40" height="16" rx="8" ry="8" fill="#4caf50" stroke="#2e7d32" stroke-width="1"/>
+        <text x="175" y="596" fill="#333" font-size="11">Result</text>
+    </svg>
+    </div>
+
+    <div class="warning">
+        <strong>Important caveat:</strong> This flowchart provides a starting point, not a definitive answer. In practice, controller selection involves trade-offs that cannot be captured in a binary decision tree. Always consider hybrid approaches, computational budgets, team expertise, and regulatory requirements.
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3.5: COMPARISON BY ROBOT SYSTEM                               -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>3.5: Comparison by Robot System</h2>
+    <p>The abstract ratings come alive when grounded in specific robotic platforms. Here we compare all seven controllers on the three systems studied throughout this course.</p>
+
+    <h3>3.5.1: 2-DOF Planar Manipulator</h3>
+    <p>Dynamics: \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\). Key challenges: coupling, configuration-dependent inertia, payload uncertainty.</p>
+    <table>
+        <tr><th>Controller</th><th>RMSE (nominal)</th><th>RMSE (+50% payload)</th><th>Computation</th><th>Constraint</th></tr>
+        <tr><td><strong>CTC</strong></td><td>0.001 rad</td><td>0.08 rad</td><td>0.05 ms</td><td>No enforcement</td></tr>
+        <tr><td><strong>MPC</strong></td><td>0.005 rad</td><td>0.03 rad</td><td>2.5 ms</td><td>Enforced</td></tr>
+        <tr><td><strong>Adaptive</strong></td><td>0.01 rad</td><td>0.005 rad (adapted)</td><td>0.1 ms</td><td>Possible</td></tr>
+        <tr><td><strong>H-inf</strong></td><td>0.02 rad</td><td>0.025 rad</td><td>0.05 ms</td><td>Possible</td></tr>
+        <tr><td><strong>Backstepping</strong></td><td>0.003 rad</td><td>0.015 rad</td><td>0.08 ms</td><td>Possible</td></tr>
+        <tr><td><strong>SMC</strong></td><td>0.005 rad</td><td>0.008 rad</td><td>0.04 ms</td><td>Possible</td></tr>
+        <tr><td><strong>NL Optimization</strong></td><td>0.01 rad</td><td>0.05 rad</td><td>0.02 ms</td><td>Possible</td></tr>
+    </table>
+    <div class="info">
+        <strong>Discussion:</strong> CTC delivers 0.001 rad nominal but degrades 80x under payload change. Adaptive converges to 0.005 rad even under 50% payload uncertainty &mdash; best for variable payloads. MPC is the only method guaranteeing zero constraint violations. LQR is fastest (0.02 ms) but limited to near-equilibrium.
+    </div>
+
+    <h3>3.5.2: Differential-Drive Mobile Robot</h3>
+    <p>Kinematics: \(\dot{x}=v\cos\theta,\;\dot{y}=v\sin\theta,\;\dot{\theta}=\omega\). Key challenges: nonholonomic constraints, obstacle avoidance, velocity limits.</p>
+    <table>
+        <tr><th>Controller</th><th>Trajectory RMSE</th><th>Cross-track</th><th>Obstacle Handling</th><th>Computation</th></tr>
+        <tr><td><strong>CTC</strong></td><td>0.02 m</td><td>0.015 m</td><td>Separate planner</td><td>0.03 ms</td></tr>
+        <tr><td><strong>MPC</strong></td><td>0.01 m</td><td>0.008 m</td><td>Integrated</td><td>5.0 ms</td></tr>
+        <tr><td><strong>Adaptive</strong></td><td>0.01 m (adapted)</td><td>0.02 m</td><td>None</td><td>0.08 ms</td></tr>
+        <tr><td><strong>H-inf</strong></td><td>0.04 m</td><td>0.03 m</td><td>None</td><td>0.05 ms</td></tr>
+        <tr><td><strong>Backstepping</strong></td><td>0.015 m</td><td>0.01 m</td><td>None</td><td>0.06 ms</td></tr>
+        <tr><td><strong>SMC</strong></td><td>0.02 m</td><td>0.015 m</td><td>None</td><td>0.03 ms</td></tr>
+        <tr><td><strong>NL Optimization</strong></td><td>0.03 m</td><td>0.02 m</td><td>None</td><td>0.02 ms</td></tr>
+    </table>
+    <div class="info">
+        <strong>Discussion:</strong> MPC dominates constrained navigation &mdash; the only method integrating obstacle avoidance directly. Backstepping is naturally suited to the nonholonomic strict-feedback structure. Adaptive excels when terrain changes (indoor to outdoor).
+    </div>
+
+    <h3>3.5.3: Quadrotor Drone</h3>
+    <p>6-DOF dynamics, 4 inputs (underactuated). Key challenges: underactuation, coupled translational-rotational dynamics, wind disturbances, high-rate attitude control.</p>
+    <table>
+        <tr><th>Controller</th><th>Hover RMS</th><th>Traj. RMSE</th><th>Wind (5 m/s gust)</th><th>Computation</th></tr>
+        <tr><td><strong>CTC</strong></td><td>0.005 m</td><td>0.03 m</td><td>0.15 m dev.</td><td>0.1 ms</td></tr>
+        <tr><td><strong>MPC</strong></td><td>0.008 m</td><td>0.02 m</td><td>0.06 m dev.</td><td>8.0 ms</td></tr>
+        <tr><td><strong>Adaptive</strong></td><td>0.01 m</td><td>0.04 m</td><td>0.08 m dev.</td><td>0.15 ms</td></tr>
+        <tr><td><strong>H-inf</strong></td><td>0.015 m</td><td>0.05 m</td><td>0.07 m dev.</td><td>0.1 ms</td></tr>
+        <tr><td><strong>Backstepping</strong></td><td>0.006 m</td><td>0.025 m</td><td>0.09 m dev.</td><td>0.12 ms</td></tr>
+        <tr><td><strong>SMC</strong></td><td>0.01 m</td><td>0.03 m</td><td>0.04 m dev.</td><td>0.08 ms</td></tr>
+        <tr><td><strong>NL Optimization</strong></td><td>0.004 m</td><td>0.06 m</td><td>0.12 m dev.</td><td>0.03 ms</td></tr>
+    </table>
+    <div class="info">
+        <strong>Discussion:</strong> LQR achieves best hover stability (0.004 m) with minimal computation &mdash; the industry standard for inner attitude loops. MPC achieves best trajectory tracking (0.02 m) for aggressive manoeuvres. SMC produces smallest wind deviation (0.04 m) thanks to invariance property. LQR extends flight time by 10&ndash;15% via energy-optimal control.
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3.6: WHEN TO USE WHICH CONTROLLER                             -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>3.6: When to Use Which Controller &mdash; Practitioner's Decision Guide</h2>
+
+    <div class="info" style="border-width: 3px; padding: 25px;">
+        <h3 style="color: #17a2b8; margin-top: 0;">Practical Decision Guide</h3>
+        <p><strong>Start with the simplest method that meets your requirements.</strong> A PID or LQR that a technician can tune is often preferable to an MPC that requires a PhD to debug.</p>
+        <ul>
+            <li><strong>Accurate model + trajectory tracking:</strong> Begin with <em>Computed Torque Control</em>. Use it as your benchmark.</li>
+            <li><strong>Hard constraints must never be violated:</strong> <em>MPC</em> is not a luxury &mdash; it is a necessity.</li>
+            <li><strong>Unknown or time-varying parameters:</strong> <em>Adaptive Control</em> is designed for exactly this scenario.</li>
+            <li><strong>Significant matched disturbances:</strong> <em>Sliding Mode Control</em> provides mathematically guaranteed rejection.</li>
+            <li><strong>Formal robustness certificates for safety-critical systems:</strong> <em>Robust H-infinity</em> provides the strongest guarantees.</li>
+            <li><strong>Cascaded strict-feedback nonlinear dynamics:</strong> <em>Backstepping</em> gives constructive Lyapunov stability at each step.</li>
+            <li><strong>Aggressive motion requiring prediction over a nonlinear horizon (trajectory-level):</strong> <em>Nonlinear Optimization (iLQR/NMPC)</em> &mdash; operates directly on the nonlinear model, provides a time-varying feedback policy alongside the open-loop plan.</li>
+            <li><strong>In practice, the best controllers are hybrids.</strong> DJI uses cascaded PID with LQR. Boston Dynamics uses CTC + MPC. Tesla uses MPC + LQR. The methods are <em>components</em> of an architecture.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: INDUSTRY APPLICATIONS                              -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Section 4: Part 2 &mdash; Industry Applications &amp; Real-World Case Studies</h2>
+    <p>The professor specifically requested <strong>"plenty of examples."</strong> This section maps our seven controllers to 10 industry sectors with 80+ specific real-world deployments. This is the knowledge that wins interviews.</p>
+</div>
+
+<!-- 4.1 AUTOMOTIVE -->
+<div class="section">
+    <h2>4.1: Automotive &amp; Self-Driving Vehicles</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Tesla Autopilot / FSD</h4>
+            <p><strong>MPC</strong> for trajectory planning: convex optimisation generates smooth lane-change trajectories respecting speed, acceleration, and lane-boundary constraints. <strong>LQR</strong> for lateral control: linearised bicycle model with optimal steering gains. Neural network perception feeds into a classical MPC-LQR control stack.</p>
+        </div>
+        <div class="card">
+            <h4>Waymo (Google)</h4>
+            <p><strong>MPC</strong> for trajectory planning with safety constraints encoded as hard inequalities. <strong>LQR</strong> for longitudinal/lateral low-level tracking. Sensor fusion via <strong>EKF</strong> (the observer in LQG). Published research highlights convex MPC solving at 10 Hz on custom compute.</p>
+        </div>
+        <div class="card">
+            <h4>BMW / Mercedes Active Suspension</h4>
+            <p><strong>H-infinity robust control</strong> for active suspension: road surface is an unmeasured disturbance with bounded energy. The controller minimises the \(\mathcal{H}_\infty\) norm of the transfer function from road input to passenger acceleration, guaranteeing ride comfort over all road profiles within the uncertainty set.</p>
+        </div>
+        <div class="card">
+            <h4>Toyota Adaptive Cruise Control</h4>
+            <p><strong>MPC</strong> with safety constraints: minimum following distance (2-second rule), speed limits, and comfort bounds on acceleration/jerk. The prediction horizon anticipates traffic flow changes, enabling smoother braking than reactive PID.</p>
+        </div>
+        <div class="card">
+            <h4>Formula 1 Energy Recovery (ERS/KERS)</h4>
+            <p><strong>MPC</strong> for energy management: optimises the deployment and harvesting of electrical energy over a lap, subject to battery constraints and FIA regulations. Traction control uses <strong>SMC</strong> for rapid wheel-slip regulation under extreme torque.</p>
+        </div>
+        <div class="card">
+            <h4>Tesla / Rivian AWD Torque Vectoring</h4>
+            <p><strong>LQR</strong> for torque distribution across 4 independent motors: minimises a cost function balancing yaw tracking error against total energy consumption. The linearised vehicle model around the current operating point makes LQR ideal for this real-time application.</p>
+        </div>
+        <div class="card">
+            <h4>Bosch Electronic Stability Program (ESP)</h4>
+            <p><strong>Sliding Mode Control</strong> for electronic stability: the SMC switching function drives the vehicle's yaw rate to the desired value despite unknown road friction (matched disturbance). Super-twisting SMC variant avoids brake chattering.</p>
+        </div>
+        <div class="card">
+            <h4>Autonomous Trucks (TuSimple, Aurora)</h4>
+            <p><strong>MPC</strong> for lane keeping with longer prediction horizons (trucks have larger inertia and stopping distances). Constraints include lane boundaries, speed limits, and vehicle dynamics limits. <strong>Adaptive</strong> elements compensate for varying cargo mass.</p>
+        </div>
+        <div class="card">
+            <h4>Electric Power Steering (EPS)</h4>
+            <p><strong>LQR-based</strong> torque assist: the controller minimises a cost that balances steering effort (driver comfort) against road-feel feedback. Gain-scheduled across vehicle speed for optimal performance at parking vs highway speeds.</p>
+        </div>
+        <div class="card">
+            <h4>Autonomous Parking (Bosch, Valeo)</h4>
+            <p><strong>MPC</strong> with nonholonomic constraints: the car's kinematic model (Ackermann steering) has turning radius limits that MPC naturally encodes. The finite horizon plans the entire parking manoeuvre as a constrained trajectory optimisation.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.2 AEROSPACE -->
+<div class="section">
+    <h2>4.2: Aerospace &amp; UAVs</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>DJI Consumer Drones (Mavic, Mini)</h4>
+            <p><strong>Cascaded PID</strong> &mdash; the industry standard: inner attitude-rate loop at 500 Hz, attitude loop at 250 Hz, position loop at 50 Hz. Simple, robust, and tunable by firmware engineers. PID accounts for >90% of commercial drone controllers.</p>
+        </div>
+        <div class="card">
+            <h4>Skydio Autonomous Drones</h4>
+            <p><strong>MPC</strong> for real-time obstacle avoidance and aggressive manoeuvres. The onboard NVIDIA Jetson solves convex MPC at 50 Hz with obstacle constraints from visual SLAM. Published at RSS/ICRA showing MPC-based trajectory planning through forests.</p>
+        </div>
+        <div class="card">
+            <h4>Boeing 787 Autopilot</h4>
+            <p><strong>LQR-based</strong> autopilot for cruise flight with gain scheduling across flight envelope (altitude, speed, weight). <strong>Robust control</strong> for flutter suppression: \(\mathcal{H}_\infty\) methods ensure aeroelastic stability across all structural modes.</p>
+        </div>
+        <div class="card">
+            <h4>Airbus A380 Fly-by-Wire</h4>
+            <p><strong>H-infinity</strong> robust control for flight control laws: the A380 uses \(\mu\)-synthesis (structured singular value) to guarantee stability over the full flight envelope despite parametric uncertainty in aerodynamic coefficients. Certified by EASA to DO-178C standards.</p>
+        </div>
+        <div class="card">
+            <h4>NASA Ingenuity Mars Helicopter</h4>
+            <p><strong>LQR + Kalman filter</strong> (LQG) for flight in Mars' thin atmosphere (1% of Earth's density). The Kalman filter fuses IMU data with a laser altimeter and downward-facing camera for state estimation. LQR provides optimal hover control with minimal computational footprint on the Snapdragon 801 processor.</p>
+        </div>
+        <div class="card">
+            <h4>SpaceX Falcon 9 Landing</h4>
+            <p><strong>Convex MPC</strong> (powered descent guidance): fuel-optimal trajectory computed via successive convexification. The controller plans the landing trajectory in real time, subject to thrust magnitude/direction constraints, glide-slope constraints, and the "landing on a moving barge" constraint set. Published in AIAA/AAS conferences.</p>
+        </div>
+        <div class="card">
+            <h4>Zipline Medical Delivery Drones</h4>
+            <p><strong>Adaptive control</strong> for varying payload mass: blood products and vaccines have different weights (0.5&ndash;2.5 kg), and the controller adapts online during each delivery flight. Fixed-wing transition uses <strong>backstepping</strong> for the cascaded aerodynamic model.</p>
+        </div>
+        <div class="card">
+            <h4>Military UAVs (MQ-9 Reaper)</h4>
+            <p><strong>SMC</strong> for robustness to wind gusts and battle damage (partial wing loss changes aerodynamic model dramatically). The invariance property ensures the aircraft remains controllable as long as remaining control surfaces provide sufficient authority.</p>
+        </div>
+        <div class="card">
+            <h4>Wing (Alphabet) Delivery</h4>
+            <p><strong>Backstepping</strong> for VTOL-to-cruise transition: the cascaded dynamics (hover attitude &rarr; wing-borne flight) are naturally in strict-feedback form. Backstepping provides smooth transition control with global stability guarantees.</p>
+        </div>
+        <div class="card">
+            <h4>Joby Aviation eVTOL</h4>
+            <p><strong>MPC</strong> for urban air mobility: constrained trajectory optimisation considering no-fly zones, noise abatement corridors, and battery energy management. The eVTOL's tilt-rotor transition is managed by gain-scheduled LQR.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.3 INDUSTRIAL -->
+<div class="section">
+    <h2>4.3: Industrial Robotics &amp; Manufacturing</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>FANUC (Pick-and-Place)</h4>
+            <p><strong>Computed Torque Control</strong>: FANUC's proprietary servo system uses inverse dynamics cancellation with PD error feedback. Cycle times under 0.5 seconds with sub-millimetre repeatability. The well-known, fixed payload makes CTC ideal.</p>
+        </div>
+        <div class="card">
+            <h4>ABB IRB (Palletising)</h4>
+            <p><strong>Adaptive control</strong> for variable-payload palletising: boxes from 0.5 kg to 30 kg require different inertial compensation. ABB's TrueMove technology uses feedforward model adaptation for consistent path accuracy regardless of payload.</p>
+        </div>
+        <div class="card">
+            <h4>KUKA iiwa (Human Collaboration)</h4>
+            <p><strong>Impedance / Computed Torque</strong> for safe human-robot interaction: joint torque sensors enable compliant behaviour (virtual spring-damper). CTC provides the nominal trajectory tracking while impedance control modulates stiffness on contact.</p>
+        </div>
+        <div class="card">
+            <h4>Yaskawa Motoman (Arc Welding)</h4>
+            <p><strong>SMC</strong> for disturbance rejection during arc welding: cutting forces, arc blow, and spatter create matched disturbances that SMC's switching term rejects. Super-twisting variant keeps the weld bead smooth.</p>
+        </div>
+        <div class="card">
+            <h4>Universal Robots UR5/UR10</h4>
+            <p><strong>Adaptive control</strong> for flexible manufacturing: UR cobots are deployed in SMEs where payloads change frequently. The controller adapts to new end-effectors without manual re-calibration, reducing setup time from hours to minutes.</p>
+        </div>
+        <div class="card">
+            <h4>Siemens SINUMERIK CNC</h4>
+            <p><strong>Adaptive control</strong> for tool wear compensation: as cutting tools wear, cutting forces increase. The adaptive controller adjusts feed rate and spindle speed to maintain surface quality, extending tool life by 15&ndash;30%.</p>
+        </div>
+        <div class="card">
+            <h4>Engel Injection Moulding</h4>
+            <p><strong>MPC</strong> for temperature and pressure profile optimisation: the multi-zone heating system requires coordinated control with constraints on maximum temperature gradients and cycle time. MPC's preview capability optimises the entire injection cycle.</p>
+        </div>
+        <div class="card">
+            <h4>Semiconductor Wafer Handling</h4>
+            <p><strong>LQR</strong> for vibration-free motion: wafer transport requires sub-micrometre positioning accuracy with zero residual vibration. LQR minimises a cost penalising both position error and jerk (vibration-inducing acceleration changes).</p>
+        </div>
+        <div class="card">
+            <h4>Laser Cutting Systems</h4>
+            <p><strong>SMC</strong> for contour following: the cutting head must follow complex 2D/3D contours despite varying material thickness and thermal distortion. SMC's invariance property ensures cutting accuracy within &plusmn;0.05 mm.</p>
+        </div>
+        <div class="card">
+            <h4>3D Printing / Additive Manufacturing</h4>
+            <p><strong>Robust control</strong> for layer consistency: extrusion rate, nozzle temperature, and build-plate adhesion vary layer to layer. Robust controllers maintain dimensional accuracy despite these slowly varying parametric uncertainties.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.4 WAREHOUSE -->
+<div class="section">
+    <h2>4.4: Warehouse &amp; Logistics Robotics</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Amazon Robotics (Kiva / Proteus)</h4>
+            <p><strong>MPC</strong> for fleet coordination: each robot solves a local MPC that respects velocity constraints, keepout zones, and priority rules for intersection crossing. Low-level drive control uses <strong>PID</strong> for wheel velocity regulation.</p>
+        </div>
+        <div class="card">
+            <h4>Locus Robotics</h4>
+            <p><strong>MPC-based</strong> local planner for warehouse navigation: replaces DWA with a constrained MPC that handles narrow aisles and dynamic obstacles (human workers). Published benchmarks show 30% fewer near-misses vs DWA.</p>
+        </div>
+        <div class="card">
+            <h4>Fetch Robotics</h4>
+            <p><strong>LQR</strong> for the mobile base (smooth, energy-efficient motion) combined with <strong>PID</strong> for the manipulator arm. The separation of control strategies reflects the different dynamics (wheeled base vs articulated arm).</p>
+        </div>
+        <div class="card">
+            <h4>Ocado (Grocery Fulfilment)</h4>
+            <p><strong>MPC</strong> for multi-robot deconfliction on the grid: hundreds of robots navigate a grid simultaneously. MPC plans collision-free paths with time-slot constraints at grid intersections. Centralised planning with decentralised execution.</p>
+        </div>
+        <div class="card">
+            <h4>Magazino TORU</h4>
+            <p><strong>Adaptive grasping</strong> for items of varying mass and shape: the gripper controller adapts grip force online based on tactile sensor feedback, preventing damage to fragile items while securely holding heavy ones.</p>
+        </div>
+        <div class="card">
+            <h4>AGVs (Dematic, KION)</h4>
+            <p><strong>PID + feedforward</strong> for line-following: magnetic tape or painted line guidance with PID lateral correction. Feedforward from the known path curvature anticipates steering adjustments. Simple, reliable, maintainable by warehouse technicians.</p>
+        </div>
+        <div class="card">
+            <h4>Autonomous Forklifts (Seegrid)</h4>
+            <p><strong>Robust control</strong> for heavy-load handling: when carrying 2000+ kg pallets, the vehicle dynamics change dramatically. Robust H-infinity methods ensure stability across the full load range without re-tuning.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.5 LEGGED -->
+<div class="section">
+    <h2>4.5: Legged Robotics</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Boston Dynamics Spot</h4>
+            <p><strong>Convex MPC</strong> for whole-body locomotion: the single rigid body model is linearised around the current state, and a QP is solved at 30 Hz to compute ground reaction forces for all four feet. Published by MIT in "Mini Cheetah" and adapted by BD.</p>
+        </div>
+        <div class="card">
+            <h4>Boston Dynamics Atlas</h4>
+            <p><strong>MPC + whole-body control</strong> for parkour and dynamic manoeuvres: hierarchical architecture with MPC at the planning level (contact schedule, CoM trajectory) and operational-space CTC at the joint level (tracking desired contact forces and body motion).</p>
+        </div>
+        <div class="card">
+            <h4>ANYbotics ANYmal</h4>
+            <p><strong>MPC</strong> with zero-moment-point (ZMP) constraints for industrial inspection on uneven terrain. Combines convex MPC for gait generation with <strong>robust control</strong> for disturbance rejection on slippery surfaces.</p>
+        </div>
+        <div class="card">
+            <h4>Agility Robotics Digit</h4>
+            <p><strong>LQR</strong> for walking stabilisation (linearised around the nominal gait) combined with <strong>MPC</strong> for step planning and footstep optimisation. The bipedal structure requires careful management of the zero-moment point.</p>
+        </div>
+        <div class="card">
+            <h4>MIT Mini Cheetah</h4>
+            <p><strong>Convex MPC</strong> for trot, bound, and pronk gaits: the seminal paper (Di Carlo et al., 2018) demonstrated that a single convex MPC formulation can generate multiple gaits simply by changing the contact schedule. Solved in <3 ms on an Intel i7.</p>
+        </div>
+        <div class="card">
+            <h4>Unitree Go2</h4>
+            <p><strong>Cascaded PID + MPC</strong> for consumer quadruped locomotion: reinforcement learning generates the gait policy, which is tracked by a low-level PID/MPC controller. Combines learning-based planning with model-based control for reliability.</p>
+        </div>
+        <div class="card">
+            <h4>Passive Dynamic Walkers</h4>
+            <p><strong>LQR</strong> for energy-efficient gait stabilisation: the natural dynamics of the walker are nearly periodic, and LQR about the limit cycle provides minimal-energy perturbation correction. Demonstrates that optimal control can exploit natural dynamics.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.6 MEDICAL -->
+<div class="section">
+    <h2>4.6: Medical &amp; Surgical Robotics</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Intuitive Surgical da Vinci</h4>
+            <p><strong>Robust control</strong> for teleoperation with communication delay: the master-slave architecture must remain stable despite variable network latency (0.1&ndash;0.5 s). Passivity-based robust control ensures coupled stability. Force scaling uses impedance control for delicate tissue manipulation.</p>
+        </div>
+        <div class="card">
+            <h4>Stryker Mako (Orthopaedic)</h4>
+            <p><strong>Adaptive control</strong> for bone cutting: bone density and hardness vary between patients and anatomical locations. The controller adapts cutting force and feed rate online based on force/torque sensor feedback, preventing thermal necrosis.</p>
+        </div>
+        <div class="card">
+            <h4>Medtronic Hugo RAS</h4>
+            <p><strong>Force-limited computed torque</strong>: CTC provides precise trajectory tracking for the instrument tip, with a force limiter that reduces torque commands when contact forces exceed safety thresholds. Certified for surgical use under IEC 62304.</p>
+        </div>
+        <div class="card">
+            <h4>Rehabilitation Exoskeletons (Ekso, ReWalk)</h4>
+            <p><strong>Adaptive impedance control</strong>: the exoskeleton adapts its assistance level based on the patient's effort (measured via EMG or interaction force). As the patient recovers, the controller reduces assistance &mdash; "assist-as-needed" paradigm uses adaptive gain scheduling.</p>
+        </div>
+        <div class="card">
+            <h4>CyberKnife (Accuray)</h4>
+            <p><strong>LQR</strong> for positioning the linear accelerator + <strong>SMC</strong> for tumour tracking during respiratory motion. The tumour moves ~15 mm with breathing; SMC's finite-time convergence ensures the radiation beam tracks within 0.5 mm despite the quasi-periodic disturbance.</p>
+        </div>
+        <div class="card">
+            <h4>Surgical Needle Insertion</h4>
+            <p><strong>Backstepping</strong> for nonlinear tissue interaction: needle insertion through layered tissue (skin, fat, muscle) involves highly nonlinear force-displacement characteristics. Backstepping handles the cascaded structure (needle position &rarr; tip force &rarr; tissue deformation).</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.7 MARINE -->
+<div class="section">
+    <h2>4.7: Marine &amp; Underwater Robotics</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Saab Seaeye ROVs</h4>
+            <p><strong>SMC</strong> for deep-sea current rejection: ocean currents are large, persistent, matched disturbances. SMC provides guaranteed station-keeping despite currents up to 3 knots. The "sliding" property is particularly valuable when current measurements are unavailable.</p>
+        </div>
+        <div class="card">
+            <h4>Kongsberg AUVs</h4>
+            <p><strong>LQR</strong> for heading and depth control during survey missions: the linearised hydrodynamic model supports optimal LQR design. The quadratic cost naturally balances heading accuracy against thruster energy, extending mission duration.</p>
+        </div>
+        <div class="card">
+            <h4>Rolls-Royce Dynamic Positioning</h4>
+            <p><strong>MPC</strong> for station-keeping of drilling vessels: the vessel must maintain position within &plusmn;2 m despite wind, waves, and current. MPC coordinates 6+ thrusters with constraints on thrust rate, power allocation, and forbidden thrust sectors (near the drilling riser).</p>
+        </div>
+        <div class="card">
+            <h4>Sea Machines Autonomous Surface Vessels</h4>
+            <p><strong>Robust control</strong> for wave disturbance rejection: sea states create broadband disturbances that cannot be modelled exactly. H-infinity methods provide worst-case performance guarantees across sea states 1&ndash;6.</p>
+        </div>
+        <div class="card">
+            <h4>Torpedo Guidance Systems</h4>
+            <p><strong>SMC</strong> for terminal guidance: ocean currents and target manoeuvres are treated as matched disturbances. The sliding mode ensures the guidance error reaches zero in finite time, critical for interception accuracy.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.8 SPACE -->
+<div class="section">
+    <h2>4.8: Space &amp; Satellite Systems</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Hubble Space Telescope</h4>
+            <p><strong>LQR</strong> for 0.007 arcsecond pointing accuracy: reaction wheels provide fine attitude control, with LQR optimising the trade-off between pointing error and wheel momentum accumulation. The well-modelled, linear dynamics make LQR the ideal choice.</p>
+        </div>
+        <div class="card">
+            <h4>ISS Canadarm2</h4>
+            <p><strong>Computed Torque Control</strong> in microgravity: the absence of gravity simplifies the dynamics (\(G(q)=0\)), making CTC highly effective. The known payload (ISS modules, astronauts) allows accurate model-based control for delicate berthing operations.</p>
+        </div>
+        <div class="card">
+            <h4>James Webb Space Telescope</h4>
+            <p><strong>LQR fine guidance</strong>: the Fine Guidance Sensor (FGS) provides star positions to the attitude controller, which uses LQR to achieve milli-arcsecond pointing stability. The extremely low disturbance environment (L2 Lagrange point) makes LQR optimal.</p>
+        </div>
+        <div class="card">
+            <h4>Satellite Attitude Control (Reaction Wheels)</h4>
+            <p><strong>NMPC / iLQR</strong> is the standard for planning complex pointing manoeuvres. <strong>SMC</strong> for fault-tolerant mode: when a reaction wheel fails, the control authority changes and SMC's robustness to matched uncertainty provides graceful degradation.</p>
+        </div>
+        <div class="card">
+            <h4>SpaceX Starship Re-entry</h4>
+            <p><strong>MPC</strong> for re-entry guidance: the "belly-flop" manoeuvre requires trajectory optimisation with aerodynamic heating constraints, structural load limits, and landing accuracy. <strong>Adaptive</strong> elements handle the aerodynamic uncertainty during hypersonic flight.</p>
+        </div>
+        <div class="card">
+            <h4>Mars Rovers (Curiosity, Perseverance)</h4>
+            <p><strong>Robust control</strong> for unknown terrain: wheel-terrain interaction models are highly uncertain on Mars. <strong>Adaptive control</strong> compensates for wheel degradation over the multi-year mission (Curiosity's wheels show significant wear after 10+ years).</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.9 ENERGY -->
+<div class="section">
+    <h2>4.9: Energy &amp; Process Control</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Oil Refineries (Honeywell, Emerson)</h4>
+            <p><strong>MPC</strong> dominates: over 90% of advanced process control installations in oil/gas use MPC (Dynamic Matrix Control, RMPCT). Multi-variable, constrained optimisation of temperature, pressure, and flow across 10&ndash;100 process variables simultaneously.</p>
+        </div>
+        <div class="card">
+            <h4>Wind Turbine Pitch Control</h4>
+            <p><strong>Adaptive + Robust</strong>: wind speed and direction change continuously (unknown parameters), while turbulent gusts create disturbances. Adaptive control adjusts the pitch gain schedule, while robust inner loops maintain structural integrity under extreme gusts.</p>
+        </div>
+        <div class="card">
+            <h4>Nuclear Reactor Control</h4>
+            <p><strong>Robust control</strong> with large safety margins: nuclear safety regulations require proven stability margins under all credible uncertainty scenarios. H-infinity methods provide the formal certificates required by nuclear regulators (NRC, ONR).</p>
+        </div>
+        <div class="card">
+            <h4>Smart Grid Frequency Regulation</h4>
+            <p><strong>MPC</strong> for demand-response: coordinates battery storage, flexible loads, and generators to maintain grid frequency at 50/60 Hz. The prediction horizon captures the slow dynamics of thermal generators and the fast response of batteries.</p>
+        </div>
+        <div class="card">
+            <h4>Google DeepMind Data Centre HVAC</h4>
+            <p><strong>MPC</strong> (model-based reinforcement learning): reduced cooling energy by 40% by optimising chiller setpoints, fan speeds, and damper positions subject to thermal constraints. The "model" is learned from historical data, making this a data-driven MPC.</p>
+        </div>
+        <div class="card">
+            <h4>Solar Panel Dual-Axis Tracking</h4>
+            <p><strong>LQR</strong> for smooth, energy-efficient sun tracking: the cost function penalises both tracking error (reduced solar yield) and motor energy (parasitic losses). The gentle, predictable solar motion makes linearised LQR sufficient.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.10 CONSUMER -->
+<div class="section">
+    <h2>4.10: Consumer &amp; Emerging Applications</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Segway / Ninebot</h4>
+            <p><strong>LQR</strong> for inverted pendulum stabilisation: the classic application of LQR. The linearised model around the upright equilibrium is accurate for small angles, and LQR provides optimal state feedback for balancing with minimum rider discomfort.</p>
+        </div>
+        <div class="card">
+            <h4>iRobot Roomba</h4>
+            <p><strong>PID + behaviour-based</strong> control: simple PID for wheel velocity, combined with reactive behaviours (wall-following, bump-and-turn). The low cost target and simple dynamics make sophisticated control unnecessary.</p>
+        </div>
+        <div class="card">
+            <h4>DJI Agras (Agricultural Drones)</h4>
+            <p><strong>Adaptive control</strong> for spray payload variation: as the pesticide tank empties during a spraying run, the drone mass decreases by up to 40%. Adaptive control maintains stable flight without requiring the pilot to re-trim manually.</p>
+        </div>
+        <div class="card">
+            <h4>DJI Ronin Camera Gimbals</h4>
+            <p><strong>Cascaded PID</strong> for 3-axis stabilisation: inner motor-current loop, middle rate loop, outer angle loop. The high control rate (8 kHz motor, 2 kHz rate) on STM32 microcontrollers provides sub-0.01 degree stabilisation.</p>
+        </div>
+        <div class="card">
+            <h4>Starship Technologies (Delivery Robots)</h4>
+            <p><strong>MPC</strong> for urban sidewalk navigation: constrained path planning through pedestrian traffic with speed limits, curb avoidance, and crossing detection. The prediction horizon anticipates pedestrian trajectories for social-awareness.</p>
+        </div>
+        <div class="card">
+            <h4>Autonomous Lawnmowers (Husqvarna)</h4>
+            <p><strong>PID + MPC</strong> for coverage path planning: PID for low-level wheel control, MPC for optimising the mowing pattern subject to boundary constraints and obstacle avoidance. GPS-RTK provides centimetre-level positioning.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4.11 INDUSTRY-CONTROLLER MATRIX -->
+<div class="section">
+    <h2>4.11: Industry-Controller Matrix</h2>
+    <p>This comprehensive table maps 16 industry sectors to all 7 controllers. <strong>P</strong> = Primary method, <strong>S</strong> = Secondary/supporting, <strong>E</strong> = Emerging use, <strong>&mdash;</strong> = Not typically used.</p>
+
+    <div style="overflow-x: auto;">
+    <table style="font-size: 0.82em;">
+        <tr>
+            <th>Industry Sector</th>
+            <th style="background:#1e3c72;">CTC</th>
+            <th style="background:#4a5fa8;">MPC</th>
+            <th style="background:#2e7d32;">Adaptive</th>
+            <th style="background:#e65100;">H-inf</th>
+            <th style="background:#ad1457;">Backstep</th>
+            <th style="background:#1565c0;">SMC</th>
+            <th style="background:#6a1b9a;">NL Optimization</th>
+        </tr>
+        <tr><td><strong>Autonomous Vehicles</strong></td><td>&mdash;</td><td><strong>P</strong></td><td>S</td><td>S</td><td>&mdash;</td><td>S</td><td><strong>P</strong></td></tr>
+        <tr><td><strong>Consumer Drones</strong></td><td>S</td><td>E</td><td>S</td><td>&mdash;</td><td>S</td><td>E</td><td><strong>P</strong></td></tr>
+        <tr><td><strong>Autonomous Drones (Skydio)</strong></td><td>&mdash;</td><td><strong>P</strong></td><td>S</td><td>&mdash;</td><td>S</td><td>S</td><td>S</td></tr>
+        <tr><td><strong>Commercial Aviation</strong></td><td>&mdash;</td><td>E</td><td>E</td><td><strong>P</strong></td><td>&mdash;</td><td>&mdash;</td><td><strong>P</strong></td></tr>
+        <tr><td><strong>Space / Satellites</strong></td><td>S</td><td>E</td><td>S</td><td>S</td><td>&mdash;</td><td>S</td><td><strong>P</strong></td></tr>
+        <tr><td><strong>Industrial Manipulators</strong></td><td><strong>P</strong></td><td>S</td><td><strong>P</strong></td><td>S</td><td>&mdash;</td><td>S</td><td>S</td></tr>
+        <tr><td><strong>CNC / Machining</strong></td><td>S</td><td>E</td><td><strong>P</strong></td><td>S</td><td>&mdash;</td><td><strong>P</strong></td><td>S</td></tr>
+        <tr><td><strong>Warehouse / Logistics</strong></td><td>&mdash;</td><td><strong>P</strong></td><td>S</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>S</td></tr>
+        <tr><td><strong>Legged Robots</strong></td><td>S</td><td><strong>P</strong></td><td>E</td><td>&mdash;</td><td>E</td><td>E</td><td>S</td></tr>
+        <tr><td><strong>Surgical Robotics</strong></td><td>S</td><td>E</td><td><strong>P</strong></td><td><strong>P</strong></td><td>S</td><td>S</td><td>S</td></tr>
+        <tr><td><strong>Rehabilitation</strong></td><td>&mdash;</td><td>E</td><td><strong>P</strong></td><td>S</td><td>&mdash;</td><td>&mdash;</td><td>S</td></tr>
+        <tr><td><strong>Marine / Underwater</strong></td><td>&mdash;</td><td><strong>P</strong></td><td>S</td><td>S</td><td>S</td><td><strong>P</strong></td><td>S</td></tr>
+        <tr><td><strong>Process Control (Oil/Gas)</strong></td><td>&mdash;</td><td><strong>P</strong></td><td>S</td><td>S</td><td>&mdash;</td><td>&mdash;</td><td>S</td></tr>
+        <tr><td><strong>Power / Energy</strong></td><td>&mdash;</td><td><strong>P</strong></td><td><strong>P</strong></td><td><strong>P</strong></td><td>&mdash;</td><td>&mdash;</td><td>S</td></tr>
+        <tr><td><strong>Consumer Electronics</strong></td><td>&mdash;</td><td>E</td><td>S</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td><strong>P</strong></td></tr>
+        <tr><td><strong>Agricultural Robots</strong></td><td>&mdash;</td><td>S</td><td><strong>P</strong></td><td>&mdash;</td><td>&mdash;</td><td>S</td><td>S</td></tr>
+    </table>
+    </div>
+
+    <div class="info">
+        <strong>Key insight:</strong> MPC appears as Primary in 8 of 16 sectors &mdash; it is the most broadly applicable advanced controller. Nonlinear Control Optimization (iLQR / NMPC) is Primary or Secondary where the plant is strongly nonlinear and a model is available. Adaptive control dominates where parameters change (manufacturing, medical, agriculture). H-infinity leads in safety-critical domains (aviation, nuclear, surgical).
+    </div>
+</div>
+
+<!-- 4.12 CONTROLLER POPULARITY SVG -->
+<div class="section">
+    <h2>4.12: Controller Popularity by Domain</h2>
+    <p>The following chart shows each controller's prevalence across the 16 industry sectors analysed above (counting Primary + Secondary roles).</p>
+
+    <div style="text-align: center; margin: 20px 0;">
+    <svg width="100%" style="max-width:800px" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Tahoma, Geneva, Verdana, sans-serif">
+        <defs>
+            <marker id="fig2-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#333"/>
+            </marker>
+        </defs>
+
+        <!-- Title -->
+        <text x="400" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Controller Usage Across 16 Industry Sectors</text>
+        <text x="400" y="50" text-anchor="middle" font-size="12" fill="#666">(Primary + Secondary roles counted)</text>
+
+        <!-- Y axis -->
+        <line x1="120" y1="70" x2="120" y2="360" stroke="#333" stroke-width="2"/>
+        <text x="20" y="220" text-anchor="middle" font-size="12" fill="#333" transform="rotate(-90,20,220)">Number of Sectors</text>
+
+        <!-- Y axis labels -->
+        <text x="110" y="360" text-anchor="end" font-size="11" fill="#666">0</text>
+        <text x="110" y="302" text-anchor="end" font-size="11" fill="#666">4</text>
+        <text x="110" y="244" text-anchor="end" font-size="11" fill="#666">8</text>
+        <text x="110" y="186" text-anchor="end" font-size="11" fill="#666">12</text>
+        <text x="110" y="128" text-anchor="end" font-size="11" fill="#666">16</text>
+        <line x1="118" y1="302" x2="750" y2="302" stroke="#eee" stroke-width="1"/>
+        <line x1="118" y1="244" x2="750" y2="244" stroke="#eee" stroke-width="1"/>
+        <line x1="118" y1="186" x2="750" y2="186" stroke="#eee" stroke-width="1"/>
+        <line x1="118" y1="128" x2="750" y2="128" stroke="#eee" stroke-width="1"/>
+
+        <!-- X axis -->
+        <line x1="120" y1="360" x2="750" y2="360" stroke="#333" stroke-width="2"/>
+
+        <!-- Bars: height = count * (232/16) = count * 14.5 -->
+        <!-- CTC: P=2 S=4 = 6 sectors => h=87 -->
+        <rect x="145" y="273" width="60" height="87" rx="4" fill="#1e3c72"/>
+        <text x="175" y="265" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e3c72">6</text>
+        <text x="175" y="385" text-anchor="middle" font-size="10" fill="#333">CTC</text>
+
+        <!-- MPC: P=8 S=3 = 11 => h=159.5 -->
+        <rect x="230" y="200" width="60" height="160" rx="4" fill="#667eea"/>
+        <text x="260" y="192" text-anchor="middle" font-size="12" font-weight="bold" fill="#667eea">11</text>
+        <text x="260" y="385" text-anchor="middle" font-size="10" fill="#333">MPC</text>
+
+        <!-- Adaptive: P=5 S=7 = 12 => h=174 -->
+        <rect x="315" y="186" width="60" height="174" rx="4" fill="#4caf50"/>
+        <text x="345" y="178" text-anchor="middle" font-size="12" font-weight="bold" fill="#4caf50">12</text>
+        <text x="345" y="385" text-anchor="middle" font-size="10" fill="#333">Adaptive</text>
+
+        <!-- H-inf: P=4 S=6 = 10 => h=145 -->
+        <rect x="400" y="215" width="60" height="145" rx="4" fill="#ff9800"/>
+        <text x="430" y="207" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff9800">10</text>
+        <text x="430" y="385" text-anchor="middle" font-size="10" fill="#333">H-inf</text>
+
+        <!-- Backstepping: P=0 S=4 = 4 => h=58 -->
+        <rect x="485" y="302" width="60" height="58" rx="4" fill="#e91e63"/>
+        <text x="515" y="294" text-anchor="middle" font-size="12" font-weight="bold" fill="#e91e63">4</text>
+        <text x="515" y="385" text-anchor="middle" font-size="10" fill="#333">Backstep</text>
+
+        <!-- SMC: P=3 S=5 = 8 => h=116 -->
+        <rect x="570" y="244" width="60" height="116" rx="4" fill="#2196f3"/>
+        <text x="600" y="236" text-anchor="middle" font-size="12" font-weight="bold" fill="#2196f3">8</text>
+        <text x="600" y="385" text-anchor="middle" font-size="10" fill="#333">SMC</text>
+
+        <!-- NL Optimization: P=5 S=10 = 15 => h=217.5 -->
+        <rect x="655" y="142" width="60" height="218" rx="4" fill="#9c27b0"/>
+        <text x="685" y="134" text-anchor="middle" font-size="12" font-weight="bold" fill="#9c27b0">15</text>
+        <text x="685" y="385" text-anchor="middle" font-size="10" fill="#333">NL Optimization</text>
+
+        <!-- Legend -->
+        <rect x="140" y="400" width="600" height="15" rx="3" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+        <text x="440" y="412" text-anchor="middle" font-size="10" fill="#666">NL Optimization: most broadly used (15/16) | MPC: most "Primary" roles (8/16) | Backstepping: most specialised (4/16)</text>
+    </svg>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: ROS2 SYSTEM INTEGRATION                            -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Section 5: Part 3 &mdash; ROS 2 System Integration</h2>
+    <p>Your controller is never a standalone module in production. It receives references from a planner and state estimates from a filter. This section connects control theory to the full autonomy pipeline.</p>
+</div>
+
+<!-- 5.1 FULL PIPELINE SVG -->
+<div class="section">
+    <h2>5.1: Full Autonomous System Architecture</h2>
+    <p>The complete pipeline: Perception &rarr; State Estimation &rarr; Planning &rarr; <strong>CONTROL</strong> &rarr; Actuation. Your controller sits at the heart of this chain.</p>
+
+    <div style="text-align: center; margin: 20px 0;">
+    <svg width="100%" style="max-width:800px" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Tahoma, Geneva, Verdana, sans-serif">
+        <defs>
+            <marker id="fig3-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#1e3c72"/>
+            </marker>
+            <linearGradient id="fig3-perc" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#e91e63"/><stop offset="100%" style="stop-color:#c2185b"/></linearGradient>
+            <linearGradient id="fig3-est" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#9c27b0"/><stop offset="100%" style="stop-color:#7b1fa2"/></linearGradient>
+            <linearGradient id="fig3-plan" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#2196f3"/><stop offset="100%" style="stop-color:#1565c0"/></linearGradient>
+            <linearGradient id="fig3-ctrl" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#4caf50"/><stop offset="100%" style="stop-color:#2e7d32"/></linearGradient>
+            <linearGradient id="fig3-act" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#ff9800"/><stop offset="100%" style="stop-color:#e65100"/></linearGradient>
+        </defs>
+
+        <!-- Title -->
+        <text x="400" y="25" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3c72">Full Autonomy Pipeline</text>
+
+        <!-- Box 1: Perception -->
+        <rect x="20" y="50" width="140" height="120" rx="10" fill="url(#fig3-perc)"/>
+        <text x="90" y="75" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Perception</text>
+        <text x="90" y="95" text-anchor="middle" fill="white" font-size="9">LiDAR (ROS2 W1)</text>
+        <text x="90" y="110" text-anchor="middle" fill="white" font-size="9">Camera (ROS2 W10)</text>
+        <text x="90" y="125" text-anchor="middle" fill="white" font-size="9">IMU, GPS, Encoders</text>
+        <text x="90" y="155" text-anchor="middle" fill="white" font-size="8">Obstacle detection</text>
+
+        <!-- Arrow 1->2 -->
+        <line x1="160" y1="110" x2="180" y2="110" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+
+        <!-- Box 2: State Estimation -->
+        <rect x="180" y="50" width="140" height="120" rx="10" fill="url(#fig3-est)"/>
+        <text x="250" y="75" text-anchor="middle" fill="white" font-size="12" font-weight="bold">State Estimation</text>
+        <text x="250" y="95" text-anchor="middle" fill="white" font-size="9">EKF/UKF (ROS2 W2)</text>
+        <text x="250" y="110" text-anchor="middle" fill="white" font-size="9">SLAM (ROS2 W4)</text>
+        <text x="250" y="125" text-anchor="middle" fill="white" font-size="9">AMCL Localisation</text>
+        <text x="250" y="155" text-anchor="middle" fill="white" font-size="8">Kalman filter (LQG)</text>
+
+        <!-- Arrow 2->3 -->
+        <line x1="320" y1="110" x2="340" y2="110" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+
+        <!-- Box 3: Planning -->
+        <rect x="340" y="50" width="140" height="120" rx="10" fill="url(#fig3-plan)"/>
+        <text x="410" y="75" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Planning</text>
+        <text x="410" y="95" text-anchor="middle" fill="white" font-size="9">A*/RRT* (ROS2 W8)</text>
+        <text x="410" y="110" text-anchor="middle" fill="white" font-size="9">EGO-Planner (W9)</text>
+        <text x="410" y="125" text-anchor="middle" fill="white" font-size="9">Nav2 (ROS2 W5)</text>
+        <text x="410" y="155" text-anchor="middle" fill="white" font-size="8">Trajectory generation</text>
+
+        <!-- Arrow 3->4 -->
+        <line x1="480" y1="110" x2="500" y2="110" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+
+        <!-- Box 4: CONTROL (highlighted) -->
+        <rect x="500" y="45" width="140" height="130" rx="10" fill="url(#fig3-ctrl)" stroke="#1e3c72" stroke-width="3"/>
+        <text x="570" y="72" text-anchor="middle" fill="white" font-size="14" font-weight="bold">CONTROL</text>
+        <text x="570" y="92" text-anchor="middle" fill="white" font-size="9">CTC, MPC, Adaptive</text>
+        <text x="570" y="107" text-anchor="middle" fill="white" font-size="9">H-inf, Backstep, SMC</text>
+        <text x="570" y="122" text-anchor="middle" fill="white" font-size="9">NL Optimization (W1-W8)</text>
+        <text x="570" y="140" text-anchor="middle" fill="white" font-size="9">ROS2 W11: Nodes</text>
+        <text x="570" y="160" text-anchor="middle" fill="white" font-size="8">THIS COURSE</text>
+
+        <!-- Arrow 4->5 -->
+        <line x1="640" y1="110" x2="660" y2="110" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+
+        <!-- Box 5: Actuation -->
+        <rect x="660" y="50" width="120" height="120" rx="10" fill="url(#fig3-act)"/>
+        <text x="720" y="75" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Actuation</text>
+        <text x="720" y="95" text-anchor="middle" fill="white" font-size="9">PX4 (ROS2 W7)</text>
+        <text x="720" y="110" text-anchor="middle" fill="white" font-size="9">Motor drivers</text>
+        <text x="720" y="125" text-anchor="middle" fill="white" font-size="9">ros2_control</text>
+        <text x="720" y="155" text-anchor="middle" fill="white" font-size="8">Hardware interface</text>
+
+        <!-- Feedback arrow (bottom) -->
+        <line x1="720" y1="170" x2="720" y2="230" stroke="#1e3c72" stroke-width="2"/>
+        <line x1="720" y1="230" x2="90" y2="230" stroke="#1e3c72" stroke-width="2"/>
+        <line x1="90" y1="230" x2="90" y2="170" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig3-arrow)"/>
+        <text x="400" y="250" text-anchor="middle" font-size="11" fill="#1e3c72" font-weight="bold">Sensor Feedback Loop</text>
+
+        <!-- Integration label -->
+        <rect x="200" y="280" width="400" height="40" rx="8" fill="#f8f9fa" stroke="#1e3c72" stroke-width="2"/>
+        <text x="400" y="300" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e3c72">ROS 2 Week 12: System Integration Capstone</text>
+        <text x="400" y="314" text-anchor="middle" font-size="10" fill="#666">Connects ALL modules into a complete autonomous mission</text>
+    </svg>
+    </div>
+</div>
+
+<!-- 5.2 ALIGNMENT TABLE -->
+<div class="section">
+    <h2>5.2: ROS 2 Course &harr; Control Course Alignment Map</h2>
+
+    <h3>Tier 1 &mdash; Direct Alignment (Must-Do)</h3>
+    <table>
+        <tr><th>ROS 2 Week</th><th>ROS 2 Topic</th><th>Control Weeks</th><th>Why They Align</th></tr>
+        <tr style="background:#e8f5e9;"><td><strong>Week 11</strong></td><td>Control Systems: PID to MPC</td><td>W1, W3, W8</td><td>1:1 implementation of PID, LQR, LQG, MPC as ROS 2 controller nodes. Exercise 1: PID node publishing <code>/cmd_vel</code>; Exercise 3: MPC trajectory tracker.</td></tr>
+        <tr style="background:#e8f5e9;"><td><strong>Week 6</strong></td><td>Quadrotor Dynamics &amp; Attitude</td><td>W1&ndash;W8</td><td>Implements the quadrotor plant model. All 7 controllers are applied to this platform throughout the control course.</td></tr>
+    </table>
+
+    <h3>Tier 2 &mdash; Strong Complementary</h3>
+    <table>
+        <tr><th>ROS 2 Week</th><th>ROS 2 Topic</th><th>Control Weeks</th><th>Why They Complement</th></tr>
+        <tr><td><strong>Week 2</strong></td><td>Sensor Fusion &amp; EKF</td><td>W8 (LQG)</td><td>The Kalman filter is the observer half of LQG. ROS 2 Week 2 fuses IMU + GPS + encoders using the same framework.</td></tr>
+        <tr><td><strong>Week 5</strong></td><td>Navigation Stack (Nav2)</td><td>W3 (MPC)</td><td>DWA local planner is conceptually MPC with sampled action space. Costmap integration shows real constraint handling.</td></tr>
+        <tr><td><strong>Week 9</strong></td><td>EGO-Planner &amp; Traj. Optim.</td><td>W3, W8</td><td>B-spline trajectory optimisation generates references that MPC and LQR controllers track.</td></tr>
+        <tr><td><strong>Week 7</strong></td><td>PX4/ArduPilot Integration</td><td>W1&ndash;W8</td><td>PX4 SITL provides a realistic flight controller testbed. Offboard mode lets your controller run as the outer loop.</td></tr>
+    </table>
+
+    <h3>Tier 3 &mdash; Supporting Context</h3>
+    <table>
+        <tr><th>ROS 2 Week</th><th>ROS 2 Topic</th><th>How It Supports Control</th></tr>
+        <tr><td><strong>Week 1</strong></td><td>LiDAR Point Cloud</td><td>Provides obstacle data for MPC constraints.</td></tr>
+        <tr><td><strong>Week 3</strong></td><td>ROS 2 Fundamentals</td><td>Prerequisite: nodes, topics, services, QoS profiles.</td></tr>
+        <tr><td><strong>Week 4</strong></td><td>2D SLAM</td><td>State estimation for controllers. Without localisation, no controller functions.</td></tr>
+        <tr><td><strong>Week 8</strong></td><td>3D Path Planning</td><td>Generates reference trajectories \(x_{\text{ref}}(t)\) for controllers to track.</td></tr>
+        <tr><td><strong>Week 10</strong></td><td>Computer Vision</td><td>Enables visual servoing and image-based control.</td></tr>
+        <tr><td><strong>Week 12</strong></td><td>System Integration Capstone</td><td>Full pipeline: all modules connected into an autonomous mission.</td></tr>
+    </table>
+
+    <div class="info">
+        <strong>Study Strategy:</strong> Complete <strong>Tier 1</strong> (ROS 2 Weeks 6 and 11) first. Then pick Tier 2 weeks based on your target sector (Weeks 2+5 for ground robots, Weeks 7+9 for drones). Tier 3 rounds out your portfolio.
+    </div>
+</div>
+
+<!-- 5.3 INTERVIEW DEMO PORTFOLIO -->
+<div class="section">
+    <h2>5.3: Building Your Interview Demo Portfolio</h2>
+    <p>Different sectors weight different skills. These company-specific cards guide your demo preparation.</p>
+
+    <div class="card-grid">
+        <div class="card" style="border-color: #ff9800; border-width: 3px;">
+            <h4 style="color: #ff9800;">Amazon Robotics: MPC + Nav2</h4>
+            <p><strong>Demo:</strong> MPC-based mobile robot navigation with obstacle avoidance. Combine Nav2 (ROS 2 W5) with MPC (Control W3). Multi-robot coordination with 3+ TurtleBot3s.</p>
+            <p><strong>Key skills:</strong> MPC convex formulation, Python (production quality), ROS 2 Nav2 integration, Docker, system design at scale.</p>
+        </div>
+        <div class="card" style="border-color: #2196f3; border-width: 3px;">
+            <h4 style="color: #2196f3;">DJI / Skydio: 7 Controllers on Quadrotor + PX4</h4>
+            <p><strong>Demo:</strong> All seven controllers on the quadrotor testbench (ROS 2 W6 + Control W1&ndash;8). Aggressive figure-8 tracking, wind rejection, PX4 SITL integration.</p>
+            <p><strong>Key skills:</strong> Cascaded PID, MPC trajectory optimisation, C++ (real-time), embedded systems, MAVLink.</p>
+        </div>
+        <div class="card" style="border-color: #4caf50; border-width: 3px;">
+            <h4 style="color: #4caf50;">Boston Dynamics: MPC Whole-Body Control</h4>
+            <p><strong>Demo:</strong> Real-time MPC on multi-DOF system with contact constraints. Convex MPC solving at 200+ Hz. Comparison: MPC vs LQR vs CTC.</p>
+            <p><strong>Key skills:</strong> MPC (convex, whole-body), LQR (Riccati), OSQP/ECOS solvers, C++ Eigen, real-time computing. Be ready for whiteboard Riccati derivation.</p>
+        </div>
+        <div class="card" style="border-color: #e91e63; border-width: 3px;">
+            <h4 style="color: #e91e63;">Tesla / Waymo: MPC + EKF + Planning</h4>
+            <p><strong>Demo:</strong> MPC trajectory planning with lane constraints. EKF sensor fusion (IMU + GPS + encoders). Planning-to-control pipeline for simulated highway driving.</p>
+            <p><strong>Key skills:</strong> Nonlinear MPC (IPOPT, acados), LQR (lateral baseline), sensor fusion (EKF/UKF), C++, end-to-end thinking.</p>
+        </div>
+        <div class="card" style="border-color: #9c27b0; border-width: 3px;">
+            <h4 style="color: #9c27b0;">Intuitive Surgical: Robust + Adaptive</h4>
+            <p><strong>Demo:</strong> Robust + adaptive control for manipulator under parameter uncertainty and external forces. Adaptive convergence with 50% mass uncertainty. Force-limited impedance control.</p>
+            <p><strong>Key skills:</strong> Robust H-infinity (guaranteed bounds), adaptive (Lyapunov proofs), impedance control, C++ real-time, IEC 62304 awareness.</p>
+        </div>
+    </div>
+
+    <div class="formula-box">
+        <strong>The Career Equation:</strong><br><br>
+        Control Theory (rigorous mathematical foundations) + ROS 2 Implementation (working code on robots) = Interview-Ready Portfolio
+    </div>
+</div>
+
+<!-- 5.4 ROS2 CAPSTONE REFERENCE -->
+<div class="section">
+    <h2>5.4: Reference to ROS 2 Capstone (src/ros2_robotics_course/week_12)</h2>
+    <p>The companion ROS 2 course concludes with a system integration capstone in <code>src/ros2_robotics_course/week_12/</code>. The lab exercises bridge every ROS 2 week into a single autonomous mission.</p>
+
+    <table>
+        <tr><th>Lab Exercise</th><th>Description</th><th>Control Course Link</th></tr>
+        <tr><td><strong>Exercise 1: System Architecture Design</strong></td><td>Design the complete node graph: perception, estimation, planning, control, actuation. Define topic names, message types, QoS profiles.</td><td>All 7 controllers as interchangeable control nodes</td></tr>
+        <tr><td><strong>Exercise 2: Integrated Sensor Fusion</strong></td><td>EKF fusing IMU + GPS + camera. Publish <code>/estimated_state</code> for the controller.</td><td>Week 8: Kalman filter in LQG</td></tr>
+        <tr><td><strong>Exercise 3: Planning-Control Pipeline</strong></td><td>A* global path &rarr; B-spline smoothing &rarr; LQR/MPC tracking &rarr; motor commands.</td><td>Week 3: MPC, Week 8: LQR tracking</td></tr>
+        <tr><td><strong>Exercise 4: Autonomous Mission</strong></td><td>Execute a complete mission: takeoff, navigate waypoints, avoid obstacles, land.</td><td>Full control course integration</td></tr>
+        <tr><td><strong>Exercise 5: Stress Testing</strong></td><td>Inject disturbances (wind, sensor dropout, parameter change). Evaluate robustness.</td><td>Week 5: Robust, Week 7: SMC</td></tr>
+        <tr><td><strong>Exercise 6: Comprehensive Evaluation</strong></td><td>Quantitative comparison: tracking RMSE, computation time, constraint violations, energy usage.</td><td>Section 3: Performance metrics</td></tr>
+    </table>
+
+    <div class="warning">
+        <strong>Integration is the hardest part:</strong> Research shows that integration and testing consume 40&ndash;60% of total project time in robotics. The "last 10%" of making a system work reliably often takes as long as the first 90%. Start early.
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: HANDS-ON ACTIVITIES                                -->
+<!-- ============================================================ -->
+<div class="section activity">
+    <h2>Activity 1: Controller Selection Challenge</h2>
+    <p>For each scenario, select the <strong>best</strong> controller and justify your choice in 2&ndash;3 sentences.</p>
+
+    <h3>Scenario 1: FANUC Paint Line with Variable Paint Guns (0.5&ndash;2.5 kg)</h3>
+    <div class="success"><strong>Best: Adaptive Control (Week 4)</strong> &mdash; Changing payload mass is a classic parameter uncertainty problem. Adaptive control estimates inertial parameters online, making tool changes seamless without re-calibration.</div>
+
+    <h3>Scenario 2: Delivery Drone in 30+ mph Crosswinds</h3>
+    <div class="success"><strong>Best: SMC (Week 7)</strong> &mdash; Wind gusts are large, persistent, matched disturbances. SMC's switching term rejects any bounded matched disturbance, guaranteeing stability. Super-twisting variant avoids chattering.</div>
+
+    <h3>Scenario 3: Self-Driving Car on Highway with Comfort Constraints</h3>
+    <div class="success"><strong>Best: MPC (Week 3)</strong> &mdash; Speed limits, steering angle limits, acceleration bounds, and following distance are all hard constraints. MPC is the only method that handles them natively within the optimisation.</div>
+
+    <h3>Scenario 4: Surgical Robot Tracking Breathing Tumour (0.1 mm precision)</h3>
+    <div class="success"><strong>Best: Robust + Backstepping (Weeks 5 &amp; 6)</strong> &mdash; 0.1 mm precision with uncertain friction calls for robust guaranteed performance bounds. Backstepping ensures no overshoot through constructive Lyapunov design for the multi-DOF cascade.</div>
+
+    <h3>Scenario 5: Geostationary Satellite Station-Keeping (Fuel-Limited)</h3>
+    <div class="success"><strong>Best: Nonlinear Control Optimization / NMPC (Week 8)</strong> &mdash; The Clohessy-Wiltshire relative-motion equations are nearly linear, but the manoeuvre involves thrust-constrained trajectory optimisation over long horizons and the primary objective is minimising fuel \(\equiv\) minimising control effort. NMPC/iLQR directly handles the nonlinear cost-plus-constraint problem and produces the bang-singular-bang fuel-optimal profile, which LQR cannot.</div>
+</div>
+
+<div class="section activity">
+    <h2>Activity 2: Industry Research Project</h2>
+    <p>Pick one company from the list below. Prepare a 5-minute presentation addressing four questions.</p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>Tier 1: Large Robotics</h4>
+            <ul><li>Boston Dynamics (Spot, Atlas, Stretch)</li><li>Tesla (Optimus, FSD)</li><li>Amazon Robotics (Proteus, Sparrow)</li><li>DJI (Matrice, Agras)</li></ul>
+        </div>
+        <div class="card">
+            <h4>Tier 2: Specialised</h4>
+            <ul><li>Intuitive Surgical (da Vinci, Ion)</li><li>Skydio (autonomous drones)</li><li>ANYbotics (ANYmal)</li><li>Zipline (delivery drones)</li></ul>
+        </div>
+        <div class="card">
+            <h4>Tier 3: Emerging</h4>
+            <ul><li>Agility Robotics (Digit)</li><li>Figure AI (humanoid)</li><li>Archer Aviation (eVTOL)</li><li>Covariant (warehouse manipulation)</li></ul>
+        </div>
+    </div>
+
+    <table>
+        <tr><th>Question</th><th>What to Address</th><th>Marks</th></tr>
+        <tr><td><strong>1. What robot/product?</strong></td><td>Physical configuration, DOF, sensors, application domain.</td><td>5</td></tr>
+        <tr><td><strong>2. What control method(s)?</strong></td><td>Identify algorithms (papers, patents, job postings). Map to our 7 methods.</td><td>10</td></tr>
+        <tr><td><strong>3. Key challenges?</strong></td><td>What makes the control problem hard?</td><td>5</td></tr>
+        <tr><td><strong>4. How would you improve it?</strong></td><td>Propose a concrete improvement using course controllers. Explain trade-offs.</td><td>10</td></tr>
+    </table>
+
+    <div class="info">
+        <strong>Research Tips:</strong> Check IEEE/RSS/ICRA papers, Google Patents, job descriptions (filter "control engineer"), and YouTube conference talks.
+    </div>
+</div>
+
+<div class="section activity">
+    <h2>Activity 3: Grand Demo &mdash; Portfolio Video</h2>
+    <p>Pick your <strong>best controller implementation</strong> from Weeks 9&ndash;11 and prepare a 5-minute demo video for your professional portfolio.</p>
+
+    <h3>Video Structure</h3>
+    <ol>
+        <li><strong>Introduction (30s):</strong> State the controller, the robot platform, and the control objective.</li>
+        <li><strong>Theory (60s):</strong> Show the key equation on screen. Explain the design choices (gains, horizon, sliding surface).</li>
+        <li><strong>ROS 2 Architecture (60s):</strong> Show the <code>rqt_graph</code> node graph. Explain the topic flow: sensor &rarr; controller &rarr; actuator.</li>
+        <li><strong>Live Demo (90s):</strong> Screen recording of Gazebo simulation with RViz2 overlay showing reference vs actual trajectory.</li>
+        <li><strong>Results (60s):</strong> Quantitative plots: tracking error, control effort, computation time. Compare against at least one alternative controller.</li>
+    </ol>
+
+    <div class="warning">
+        <strong>Portfolio Impact:</strong> This video is your most powerful interview asset. Upload it to YouTube (unlisted) and link it from your GitHub README. Companies like Boston Dynamics, DJI, and Tesla have confirmed that demo videos significantly influence hiring decisions.
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- QUICK QUIZ                                                    -->
+<!-- ============================================================ -->
+<div class="quiz-box">
+    <h4>Final Exam Preparation Quiz &mdash; 5 Questions</h4>
+
+    <p><strong>Q1:</strong> Which controller is the ONLY one that natively enforces hard state and input constraints?</p>
+    <p><em>Answer: <strong>MPC</strong> &mdash; constraints are encoded as inequalities in the optimisation problem.</em></p>
+    <hr style="margin: 15px 0; border: 1px dashed #7c4dff;">
+
+    <p><strong>Q2:</strong> A quadrotor must hover in 20 mph wind with minimal computation. Which controller and why?</p>
+    <p><em>Answer: <strong>SMC</strong> &mdash; wind is a matched disturbance; SMC's invariance property provides guaranteed rejection with O(n) computation (no online optimisation). Use super-twisting to avoid chattering.</em></p>
+    <hr style="margin: 15px 0; border: 1px dashed #7c4dff;">
+
+    <p><strong>Q3:</strong> Why does LQG lose the guaranteed robustness margins of LQR?</p>
+    <p><em>Answer: Doyle (1978) showed that the Kalman filter can arbitrarily degrade the phase/gain margins guaranteed by LQR. The separation principle ensures optimal performance for the <strong>nominal</strong> stochastic system but provides no robustness guarantees when the model is uncertain. This motivates LQG/LTR (Loop Transfer Recovery).</em></p>
+    <hr style="margin: 15px 0; border: 1px dashed #7c4dff;">
+
+    <p><strong>Q4:</strong> Name two industry applications where Adaptive Control is the primary method and explain why.</p>
+    <p><em>Answer: (1) <strong>Universal Robots UR5 in flexible manufacturing</strong> &mdash; payloads change frequently and the controller must adapt without re-calibration. (2) <strong>Zipline delivery drones</strong> &mdash; payload mass varies per delivery (blood, vaccines, 0.5&ndash;2.5 kg), requiring online adaptation of the flight controller.</em></p>
+    <hr style="margin: 15px 0; border: 1px dashed #7c4dff;">
+
+    <p><strong>Q5:</strong> In the ROS 2 controller node architecture, what are the standard subscriber and publisher topics for a mobile robot controller?</p>
+    <p><em>Answer: Subscribe to <code>/odom</code> (nav_msgs/Odometry &mdash; state feedback) and <code>/reference_trajectory</code> (desired path). Publish to <code>/cmd_vel</code> (geometry_msgs/Twist &mdash; control output) and <code>/controller_diagnostics</code> (error, computation time).</em></p>
+</div>
+
+<!-- ============================================================ -->
+<!-- COURSE WRAP-UP                                                -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Course Wrap-Up: 12 Weeks of Control for Robots</h2>
+
+    <h3>Summary of All 12 Weeks</h3>
+    <p>This course has taken you from the foundations of model-based control through seven distinct control methodologies, applied each to three robot systems, and connected theory to practice through ROS 2 implementation.</p>
+
+    <table>
+        <tr><th>Week</th><th>Topic</th><th>Key Concept</th><th>Robot System</th></tr>
+        <tr><td>1</td><td>Computed Torque Control (CTC)</td><td>Feedback linearisation, model cancellation</td><td>2-DOF Manipulator</td></tr>
+        <tr><td>2</td><td>MPC Foundations</td><td>Prediction horizon, cost function, constraints</td><td>All three systems</td></tr>
+        <tr><td>3</td><td>MPC Advanced</td><td>Nonlinear MPC, real-time solvers, MPPI</td><td>Mobile Robot, Quadrotor</td></tr>
+        <tr><td>4</td><td>Adaptive Control</td><td>Regressor form, parameter update law, Lyapunov</td><td>Manipulator, Quadrotor</td></tr>
+        <tr><td>5</td><td>Robust Control (H-infinity)</td><td>Uncertainty modelling, worst-case optimisation, LMIs</td><td>All three systems</td></tr>
+        <tr><td>6</td><td>Backstepping Control</td><td>Recursive Lyapunov, virtual control, strict-feedback</td><td>Quadrotor, Mobile Robot</td></tr>
+        <tr><td>7</td><td>Sliding Mode Control (SMC)</td><td>Sliding surface, matched disturbances, chattering</td><td>Manipulator, Quadrotor</td></tr>
+        <tr><td>8</td><td>Nonlinear Control Optimization</td><td>Pontryagin Minimum Principle, iLQR/DDP, NMPC, min-max optimization of SMC / adaptive / robust / backstepping gains</td><td>All three systems</td></tr>
+        <tr><td>9</td><td>ROS 2 Control Implementation</td><td>PID, LQR, MPC as ROS 2 nodes</td><td>TurtleBot3, Manipulator</td></tr>
+        <tr><td>10</td><td>ROS 2 Quadrotor Control</td><td>Cascaded control, PX4 integration, attitude loops</td><td>Quadrotor in Gazebo</td></tr>
+        <tr><td>11</td><td>ROS 2 Navigation &amp; Mobile Control</td><td>Nav2, DWA, AMCL, path planning + control</td><td>Mobile Robot in Gazebo</td></tr>
+        <tr><td>12</td><td><strong>Capstone: Comparison &amp; Integration</strong></td><td>Controller selection, industry applications, full pipeline</td><td>All systems integrated</td></tr>
+    </table>
+
+    <h3>What to Study Next</h3>
+    <div class="card-grid">
+        <div class="card">
+            <h4>Advanced Nonlinear Control</h4>
+            <ul>
+                <li>Input-to-State Stability (ISS) and nonlinear small-gain theorems</li>
+                <li>Contraction theory and incremental stability</li>
+                <li>Control barrier functions (CBFs) for safety</li>
+                <li>Port-Hamiltonian systems and passivity-based control</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Learning-Based Control</h4>
+            <ul>
+                <li>Reinforcement learning for locomotion (PPO, SAC)</li>
+                <li>Sim-to-real transfer and domain randomisation</li>
+                <li>Neural network Lyapunov functions</li>
+                <li>Gaussian process model learning for MPC</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Advanced MPC</h4>
+            <ul>
+                <li>Robust MPC (tube MPC, min-max MPC)</li>
+                <li>Stochastic MPC (chance constraints)</li>
+                <li>Learning-based MPC (data-driven models)</li>
+                <li>Distributed MPC for multi-robot systems</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>System-Level Skills</h4>
+            <ul>
+                <li>Real-time C++ (Eigen, OSQP, CasADi)</li>
+                <li>ROS 2 lifecycle nodes and real-time executors</li>
+                <li>Functional safety (IEC 61508, DO-178C)</li>
+                <li>Hardware-in-the-loop (HIL) testing</li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>Career Advice</h3>
+    <div class="info" style="border-width: 3px; padding: 25px;">
+        <ul>
+            <li><strong>Build a GitHub portfolio</strong> with your ROS 2 controller implementations. Include README files with theory, results plots, and demo videos.</li>
+            <li><strong>Target your applications:</strong> Drones? Focus on MPC + PX4. Warehouse? Focus on MPC + Nav2. Medical? Focus on Robust + Adaptive.</li>
+            <li><strong>Master the whiteboard:</strong> Boston Dynamics, Tesla, and Skydio all include whiteboard control theory in interviews. Practice deriving the Riccati equation, Lyapunov stability proofs, and the MPC cost function from scratch.</li>
+            <li><strong>Learn C++:</strong> Python is fine for prototyping, but production controllers run in C++ for real-time performance. Port your best controller to C++ using Eigen.</li>
+            <li><strong>Read papers:</strong> Follow RSS, ICRA, IROS, and pedestrian conferences. The state-of-the-art moves fast &mdash; MPC + RL is the frontier as of 2025.</li>
+            <li><strong>Contribute to open source:</strong> PR to ros2_control, PX4, or Nav2 demonstrates real-world engineering skills that employers value highly.</li>
+        </ul>
+    </div>
+
+    <div class="danger">
+        <strong>Final Message to the Class:</strong> You now possess the theoretical foundations and practical skills to design controllers for any robotic system. The seven methods you have learned &mdash; CTC, MPC, Adaptive, Robust, Backstepping, SMC, and Nonlinear Control Optimization &mdash; cover the vast majority of control problems you will encounter in industry. The key is knowing <em>which</em> tool to use <em>when</em>, and having the ROS 2 implementation skills to turn theory into working code. Go build robots.
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- RUNNING THE ROS2 DEMO -->
+<!-- ============================================================ -->
+<div class="section activity">
+    <h2>Running the ROS2 Demo</h2>
+
+    <h3>Build and Source</h3>
+    <div class="code-block">cd ~/auto_control_ws
+colcon build --packages-select week_12_capstone
+source install/setup.bash</div>
+
+    <h3>Launch the Demo</h3>
+    <div class="code-block">ros2 launch week_12_capstone demo.launch.py</div>
+    <p>This command replays the recorded multi-sensor bag data at 2x speed, starts three solution nodes (sensor fusion, mission planner, controller), and opens RViz2 with a preconfigured layout.</p>
+
+    <h3>ROS2 Topics</h3>
+    <table>
+        <tr><th>Topic</th><th>Type</th><th>Source</th><th>Description</th></tr>
+        <tr><td><code>/gps</code></td><td>sensor_msgs/NavSatFix</td><td>Bag</td><td>GPS fixes at 1 Hz</td></tr>
+        <tr><td><code>/imu</code></td><td>sensor_msgs/Imu</td><td>Bag</td><td>IMU data at 200 Hz</td></tr>
+        <tr><td><code>/odom</code></td><td>nav_msgs/Odometry</td><td>Bag</td><td>Visual-inertial odometry at 50 Hz</td></tr>
+        <tr><td><code>/camera/image</code></td><td>sensor_msgs/Image</td><td>Bag</td><td>Camera images at 10 Hz</td></tr>
+        <tr><td><code>/lidar_points</code></td><td>sensor_msgs/PointCloud2</td><td>Bag</td><td>LiDAR point cloud at 10 Hz</td></tr>
+        <tr><td><code>/cmd_vel</code></td><td>geometry_msgs/Twist</td><td>Nodes</td><td>Controller velocity commands</td></tr>
+        <tr><td><code>/fused_state</code></td><td>nav_msgs/Odometry</td><td>Nodes</td><td>EKF fused state estimate</td></tr>
+    </table>
+
+    <h3>Expected RViz2 Output</h3>
+    <p>RViz2 will display the fused state estimate trajectory, raw GPS markers, LiDAR point cloud, camera image panel, and the planned mission path. You should see the EKF estimate smoothly combining GPS (low rate, noisy) with IMU (high rate) and odometry. The mission planner path will be displayed as waypoints with the controller tracking them.</p>
+
+    <h3>Troubleshooting</h3>
+    <div class="warning">
+        <ul>
+            <li><strong>RViz2 crashes on launch:</strong> The launch file filters <code>snap</code> paths from <code>LD_LIBRARY_PATH</code> automatically. If RViz2 still crashes, try: <code>export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | grep -v snap | tr '\n' ':')</code></li>
+            <li><strong>No data visible:</strong> Ensure the bag file exists at <code>w12_exercises/bag_data/synthetic_capstone/</code>. Re-run <code>colcon build</code> if needed.</li>
+            <li><strong>High memory usage:</strong> The camera images and LiDAR point clouds consume significant memory. Close other applications if RViz2 becomes sluggish.</li>
+            <li><strong>QoS mismatch warnings:</strong> The bag uses default QoS. If your subscriber uses <code>BEST_EFFORT</code>, switch to <code>RELIABLE</code> or use <code>--qos-profile-overrides-path</code>.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- APPENDIX: REVIEW MATERIAL -->
+<!-- ============================================================ -->
+<div class="section exam-question">
+    <h2>Appendix: Review Material &mdash; Navigation Control</h2>
+
+    <h4>Question 1 &mdash; DWA vs MPC for Mobile Robot Navigation (25 marks)</h4>
+    <p>Compare the Dynamic Window Approach (DWA) and Model Predictive Control (MPC) as local controllers for mobile robot navigation.</p>
+    <p><strong>(a)</strong> In what sense is DWA a special case of MPC? Explain the structural similarities and differences. (10 marks)</p>
+    <p><strong>(b)</strong> When would you prefer Model Predictive Path Integral (MPPI) control over DWA? Give three specific scenarios with justification. (10 marks)</p>
+    <p><strong>(c)</strong> Describe how hard constraints (obstacle avoidance, velocity limits) are handled in each approach. (5 marks)</p>
+
+    <div class="derivation-box">
+        <h4>Model Answer</h4>
+        <p><strong>(a) DWA as a special case of MPC:</strong></p>
+        <p>DWA and MPC share the same fundamental structure: at each time step, both (1) predict future states over a finite horizon, (2) evaluate candidate trajectories against a cost function, and (3) select the best action. The key differences are:</p>
+        <ul>
+            <li><strong>Action space:</strong> DWA samples a discrete grid of \((v, \omega)\) pairs within the dynamic window (admissible velocities reachable in one time step), whereas MPC optimises over a continuous control sequence \(u_{0:N-1}\) using gradient-based or QP solvers.</li>
+            <li><strong>Prediction model:</strong> DWA uses a simplified kinematic model (constant-velocity arcs), while MPC can use the full nonlinear dynamic model.</li>
+            <li><strong>Horizon:</strong> DWA typically uses a short prediction horizon (1&ndash;3 seconds with fixed velocity), while MPC explicitly optimises over N discrete steps with time-varying controls.</li>
+            <li><strong>Optimality:</strong> DWA finds the best among sampled candidates (combinatorial), while MPC finds a local optimum of the continuous cost (gradient-based). DWA is MPC with a sampled action space and single-step constant-velocity prediction.</li>
+        </ul>
+
+        <p><strong>(b) When to prefer MPPI over DWA:</strong></p>
+        <ul>
+            <li><strong>Scenario 1 &mdash; Highly cluttered environments:</strong> MPPI samples thousands of trajectories (not just constant-velocity arcs) using GPU-parallel rollouts, covering a much richer space of manoeuvres. In tight spaces with narrow passages, MPPI finds feasible paths that DWA's limited arc-based sampling misses.</li>
+            <li><strong>Scenario 2 &mdash; Nonlinear cost functions:</strong> MPPI handles arbitrary (non-convex, non-differentiable) cost functions since it uses sampling rather than gradient-based optimisation. When the cost includes discrete penalties (e.g., semantic zone costs, social navigation rules), MPPI naturally handles them while DWA's scoring function is more restrictive.</li>
+            <li><strong>Scenario 3 &mdash; Dynamic obstacles:</strong> MPPI's longer and more diverse prediction horizons capture interactions with moving obstacles (pedestrians, other robots). The stochastic sampling naturally explores evasive manoeuvres that DWA's deterministic arc evaluation cannot anticipate.</li>
+        </ul>
+
+        <p><strong>(c) Constraint handling:</strong></p>
+        <ul>
+            <li><strong>DWA:</strong> Velocity constraints are enforced by the dynamic window (only admissible velocities are sampled). Obstacle constraints are handled by scoring: trajectories that intersect obstacles receive a very high (penalised) cost or are discarded. This is soft constraint handling &mdash; there is no formal guarantee of feasibility.</li>
+            <li><strong>MPC:</strong> Constraints are encoded as explicit inequality constraints in the optimisation: \(x \in \mathcal{X}\), \(u \in \mathcal{U}\), \(h(x) \geq d_{\text{safe}}\). The solver guarantees that the returned solution satisfies all constraints (if feasible). This is hard constraint handling with formal guarantees.</li>
+        </ul>
+    </div>
+
+    <hr style="margin: 30px 0; border: 1px dashed #ff6f00;">
+
+    <h4>Question 2 &mdash; AMCL and State Estimation for Navigation Control (25 marks)</h4>
+    <p>Explain how Adaptive Monte Carlo Localisation (AMCL) provides state estimation for the navigation control loop. Draw parallels to the Kalman filter used in LQG (Week 8).</p>
+    <p><strong>(a)</strong> Describe the AMCL algorithm (particle filter) and explain its role in providing state estimates \([\hat{x}, \hat{y}, \hat{\theta}]\) to the controller. (10 marks)</p>
+    <p><strong>(b)</strong> Compare AMCL (particle filter) with the Extended Kalman Filter (EKF) used in LQG. Under what conditions would you prefer each? (10 marks)</p>
+    <p><strong>(c)</strong> Explain how uncertainty in the AMCL estimate propagates to the controller and affects closed-loop performance. (5 marks)</p>
+
+    <div class="derivation-box">
+        <h4>Model Answer</h4>
+        <p><strong>(a) AMCL algorithm:</strong></p>
+        <p>AMCL is a particle filter implementation for robot localisation given a known map. It maintains a set of \(N\) weighted particles \(\{(x_i, y_i, \theta_i, w_i)\}_{i=1}^N\), each representing a hypothesis of the robot's pose.</p>
+        <ol>
+            <li><strong>Prediction:</strong> When the robot moves (odometry \(\Delta x, \Delta y, \Delta\theta\)), each particle is propagated using the motion model with added noise: \(x_i' = f(x_i, u) + \epsilon\). This is analogous to the Kalman filter prediction step \(\hat{x}^- = A\hat{x} + Bu\).</li>
+            <li><strong>Update:</strong> When a LiDAR scan arrives, each particle's weight is updated based on how well the scan matches the map from that particle's pose: \(w_i = p(z | x_i, \text{map})\). This is analogous to the Kalman update with innovation \(y - C\hat{x}\).</li>
+            <li><strong>Resampling:</strong> Particles with low weights are replaced by copies of high-weight particles (with noise). This concentrates particles around likely poses. The "adaptive" aspect adjusts \(N\) based on the spread of particle weights &mdash; fewer particles when confident, more when uncertain.</li>
+            <li><strong>Output:</strong> The state estimate \([\hat{x}, \hat{y}, \hat{\theta}]\) is the weighted mean of all particles: \(\hat{x} = \sum_i w_i x_i\). This estimate is published on <code>/amcl_pose</code> and consumed by the navigation controller.</li>
+        </ol>
+
+        <p><strong>(b) AMCL vs EKF comparison:</strong></p>
+        <table>
+            <tr><th>Feature</th><th>AMCL (Particle Filter)</th><th>EKF (Kalman Filter)</th></tr>
+            <tr><td>Distribution</td><td>Arbitrary (multimodal)</td><td>Gaussian (unimodal)</td></tr>
+            <tr><td>Global localisation</td><td>Yes (particles spread globally)</td><td>No (requires initial estimate)</td></tr>
+            <tr><td>Computational cost</td><td>O(N) per step, N = 500&ndash;5000</td><td>O(n^3) per step, n = state dim</td></tr>
+            <tr><td>Nonlinearity handling</td><td>Exact (samples from true distribution)</td><td>Approximate (first-order Taylor)</td></tr>
+            <tr><td>Curse of dimensionality</td><td>Scales poorly beyond ~6D</td><td>Scales well to high dimensions</td></tr>
+        </table>
+        <p><strong>Prefer AMCL when:</strong> (1) the initial pose is unknown (global localisation / kidnapped robot), (2) the environment has symmetries causing multimodal distributions, (3) the state space is low-dimensional (2D + heading). <strong>Prefer EKF when:</strong> (1) the state is high-dimensional (6-DOF drone), (2) good initial estimates are available, (3) real-time performance is critical on embedded hardware.</p>
+
+        <p><strong>(c) Uncertainty propagation to the controller:</strong></p>
+        <p>The AMCL estimate has covariance \(\Sigma_{\text{pose}}\) derived from the particle spread. When this uncertain estimate is fed to the controller (e.g., MPC tracking a path), the controller acts on \(\hat{x}\) rather than the true \(x\). The tracking error becomes \(e = x_{\text{ref}} - \hat{x} + (\hat{x} - x)\), where \(\hat{x} - x\) is the estimation error. High AMCL uncertainty (e.g., in featureless corridors) directly degrades tracking performance. This motivates the LQG separation principle: design the controller assuming perfect state knowledge, then account for estimation noise through the observer (Kalman filter or particle filter). However, unlike LQG, the separation principle does not hold optimally for nonlinear systems with particle filters, so the combined estimator-controller performance is suboptimal.</p>
+    </div>
+</div>
+
+</div> <!-- end content -->
+
+<!-- ============================================================ -->
+<!-- FOOTER                                                        -->
+<!-- ============================================================ -->
+<div class="footer" style="background: linear-gradient(135deg, #311b92 0%, #4527a0 100%);">
+    <p><strong>Autonomous Systems Corp</strong> &mdash; Senior Autonomy Engineer Technical Challenge</p>
+    <p>Pre-Interview Assessment &bull; Full-Stack Autonomy Team</p>
+    <p style="margin-top: 10px; opacity: 0.7;">Confidential &mdash; Do not distribute without authorization</p>
+</div>
+
+</div> <!-- end container -->
+</body>
+</html>

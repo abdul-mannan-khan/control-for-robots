@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 4: Adaptive Control</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "✓"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.1em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+        .pseudocode-block { background: #fff8dc; color: #333; padding: 20px; border-radius: 5px; margin: 15px 0; border: 3px solid #daa520; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .pseudocode-header { background: #daa520; color: white; padding: 10px 20px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-weight: bold; font-size: 16px; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; font-weight: bold; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card h4 { color: #2c3e50; margin-top: 0; margin-bottom: 15px; font-size: 1.2em; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.2em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; font-size: 1.1em; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .think-pair-share { background: #fce4ec; border: 2px solid #e91e63; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box { background: #ede7f6; border: 2px solid #7c4dff; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Week 4: Adaptive Control</h1>
+        <div class="subtitle">Lyapunov-Based Adaptive Control for Robotic Systems with Parametric Uncertainty</div>
+        <div class="meta">
+            M.Sc. Control for Robots &mdash; AY 2025&ndash;26<br>
+            3-Hour Lecture &amp; Lab &bull; Week 4 of 12
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ============================================================ -->
+        <!-- SECTION 0: PREVIOUS WEEK EXAM PRACTICE                       -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 0: Week 3 Recall &mdash; Model Predictive Control &mdash; Exam Practice</h2>
+            <p>Before we begin new material, spend 20 minutes working through these two exam-style questions that cover last week's MPC content. Write your solutions on paper.</p>
+
+            <div class="exam-question">
+                <h4>Question 1 &mdash; MPC Problem Formulation &amp; Lifted Form (10 marks)</h4>
+                <p>Consider a discrete-time linear time-invariant system:</p>
+                \[
+                    x_{k+1} = A\,x_k + B\,u_k
+                \]
+                <p>with state \(x_k \in \mathbb{R}^n\), control \(u_k \in \mathbb{R}^m\), and a finite prediction horizon \(N\). The MPC cost function is:</p>
+                \[
+                    J = \sum_{i=0}^{N-1}\Big[\big(x_{k+i} - x_{\mathrm{ref}}\big)^T Q \big(x_{k+i} - x_{\mathrm{ref}}\big) + u_{k+i}^T R\, u_{k+i}\Big]
+                \]
+                <p>where \(Q \succeq 0\) and \(R \succ 0\).</p>
+                <p><strong>(a)</strong> By recursive substitution, show that the predicted state sequence can be written in compact (lifted) form as:</p>
+                \[
+                    \mathbf{X} = \mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U}
+                \]
+                <p>where the stacked vectors are \(\mathbf{X} = \begin{bmatrix} x_{k+1} \\ x_{k+2} \\ \vdots \\ x_{k+N} \end{bmatrix}\) and \(\mathbf{U} = \begin{bmatrix} u_k \\ u_{k+1} \\ \vdots \\ u_{k+N-1} \end{bmatrix}\), and derive the explicit forms:</p>
+                \[
+                    \mathcal{A} = \begin{bmatrix} A \\ A^2 \\ A^3 \\ \vdots \\ A^N \end{bmatrix}, \qquad
+                    \mathcal{B} = \begin{bmatrix}
+                        B & 0 & 0 & \cdots & 0 \\
+                        AB & B & 0 & \cdots & 0 \\
+                        A^2B & AB & B & \cdots & 0 \\
+                        \vdots & \vdots & \vdots & \ddots & \vdots \\
+                        A^{N-1}B & A^{N-2}B & A^{N-3}B & \cdots & B
+                    \end{bmatrix}
+                \]
+                <p>Show every substitution step from \(i=1\) to \(i=N\).</p>
+
+                <p><strong>(b)</strong> Identify the structure of \(\mathcal{B}\) (lower-triangular block Toeplitz). Explain why this structure arises from the causal nature of the system (future states depend only on past and present inputs).</p>
+            </div>
+
+            <div class="exam-question">
+                <h4>Question 2 &mdash; Deriving the Optimal MPC Control Law (10 marks)</h4>
+                <p>Starting from the lifted quadratic cost:</p>
+                \[
+                    J = \big(\mathbf{X} - \mathbf{X}_{\mathrm{ref}}\big)^T \bar{Q}\,\big(\mathbf{X} - \mathbf{X}_{\mathrm{ref}}\big) + \mathbf{U}^T \bar{R}\,\mathbf{U}
+                \]
+                <p>where \(\bar{Q} = \mathrm{blkdiag}(Q, Q, \dots, Q) \in \mathbb{R}^{nN \times nN}\) and \(\bar{R} = \mathrm{blkdiag}(R, R, \dots, R) \in \mathbb{R}^{mN \times mN}\):</p>
+
+                <p><strong>(a)</strong> Substitute \(\mathbf{X} = \mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U}\) into \(J\) and expand fully:</p>
+                \[
+                    J = \big(\mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U} - \mathbf{X}_{\mathrm{ref}}\big)^T \bar{Q}\,\big(\mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U} - \mathbf{X}_{\mathrm{ref}}\big) + \mathbf{U}^T \bar{R}\,\mathbf{U}
+                \]
+                <p>Let \(\mathbf{E} = \mathbf{X}_{\mathrm{ref}} - \mathcal{A}\,x_k\). Show that:</p>
+                \[
+                    J = \mathbf{U}^T\!\big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)\mathbf{U} - 2\,\mathbf{E}^T \bar{Q}\,\mathcal{B}\,\mathbf{U} + \mathbf{E}^T \bar{Q}\,\mathbf{E}
+                \]
+
+                <p><strong>(b)</strong> Take \(\frac{\partial J}{\partial \mathbf{U}} = 0\) and derive:</p>
+                \[
+                    \mathbf{U}^* = \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}\,\big(\mathbf{X}_{\mathrm{ref}} - \mathcal{A}\,x_k\big)
+                \]
+
+                <p><strong>(c)</strong> Define the MPC gain. Since only the first \(m\) rows of \(\mathbf{U}^*\) are applied (receding horizon), let \(E_1 = [I_m \;\; 0 \;\; \cdots \;\; 0]\). Then:</p>
+                \[
+                    u_k^* = E_1 \mathbf{U}^* = \underbrace{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}}_{K_{\mathrm{MPC,ref}}}\,\mathbf{X}_{\mathrm{ref}} - \underbrace{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}\,\mathcal{A}}_{K_{\mathrm{MPC}}}\,x_k
+                \]
+                <p>Explain why \(K_{\mathrm{MPC}}\) is a state-feedback gain and how increasing \(R\) relative to \(Q\) affects the control aggressiveness.</p>
+            </div>
+
+            <div class="warning">
+                <strong>Time limit: 20 minutes.</strong> This is exactly the format and difficulty level you will encounter in the final exam. Write full derivations showing every step. Partial credit is awarded for correct intermediate work.
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 1: LEARNING OUTCOMES                                  -->
+        <!-- ============================================================ -->
+        <div class="section objectives">
+            <h2>Section 1: Learning Outcomes</h2>
+            <ul>
+                <li>Understand why adaptive control is needed when system parameters are unknown or time-varying, and articulate the limitations of computed torque and MPC that assume known models.</li>
+                <li>Derive the adaptive control law using Lyapunov-based stability analysis, including the construction of a candidate Lyapunov function and verification that its time derivative is negative semi-definite.</li>
+                <li>Apply the linearity-in-parameters property of rigid-body dynamics: \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = Y(q, \dot{q}, \ddot{q})\,\theta\), identifying the regressor matrix \(Y\) and parameter vector \(\theta\) for specific systems.</li>
+                <li>Implement adaptive control for three robotic platforms: a 2-DOF manipulator, a differential-drive mobile robot, and a quadrotor UAV.</li>
+                <li>Simulate and compare the performance of fixed-model computed torque control versus adaptive control under parameter uncertainty, demonstrating convergence of parameter estimates.</li>
+            </ul>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 2: SESSION ROADMAP                                    -->
+        <!-- ============================================================ -->
+        <div class="section timeline">
+            <h2>Section 2: Session Roadmap (3 Hours)</h2>
+
+            <div class="timeline-item">
+                <div class="timeline-time">0:00 &ndash; 0:20</div>
+                <div class="timeline-content">
+                    <h4>Previous Week Exam Practice</h4>
+                    <p>Two exam-style questions on MPC lifted form, optimal control law derivation, and the MPC gain matrix.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">0:20 &ndash; 1:00</div>
+                <div class="timeline-content">
+                    <h4>Part 1 &mdash; Adaptive Control Theory</h4>
+                    <p>Why adaptive? Parameter uncertainty and its consequences. Linearity in parameters. Regressor matrix. Adaptive update law. Lyapunov stability proof.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">1:00 &ndash; 1:20</div>
+                <div class="timeline-content">
+                    <h4>Part 2 &mdash; Adaptive Control for 2-DOF Manipulator</h4>
+                    <p>Full derivation: explicit regressor, parameter vector, control law, update law, and MATLAB implementation.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">1:20 &ndash; 1:30</div>
+                <div class="timeline-content">
+                    <h4>Break</h4>
+                    <p>10-minute comfort break.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">1:30 &ndash; 2:00</div>
+                <div class="timeline-content">
+                    <h4>Part 3 &mdash; Adaptive Control for Mobile Robot</h4>
+                    <p>Parametric uncertainty in wheel radius and track width. Regressor formulation for the unicycle kinematic model. Adaptive tracking controller.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">2:00 &ndash; 2:30</div>
+                <div class="timeline-content">
+                    <h4>Part 4 &mdash; Adaptive Control for Quadrotor</h4>
+                    <p>Unknown mass and inertia. Adaptive controller for position and attitude loops. MATLAB simulation.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">2:30 &ndash; 3:00</div>
+                <div class="timeline-content">
+                    <h4>Part 5 &mdash; MATLAB Implementation &amp; Activities</h4>
+                    <p>Hands-on activities: parameter convergence, comparison with computed torque, regressor construction quiz.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 3: PART 1 — ADAPTIVE CONTROL THEORY                  -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 3: Part 1 &mdash; Adaptive Control Theory</h2>
+
+            <!-- 3.1 Why Adaptive Control? -->
+            <h3>3.1 Why Adaptive Control?</h3>
+            <p>In Week 1, we designed a computed torque controller for a 2-DOF manipulator. The control law was:</p>
+            \[
+                \tau = M(q)\big(\ddot{q}_d + K_v\dot{e} + K_p e\big) + C(q,\dot{q})\dot{q} + G(q)
+            \]
+            <p>This requires <strong>exact knowledge</strong> of the inertia matrix \(M(q)\), Coriolis/centrifugal matrix \(C(q,\dot{q})\), and gravity vector \(G(q)\). In practice, this assumption fails for several reasons:</p>
+            <ul>
+                <li><strong>Unknown payloads:</strong> A manipulator picks up objects of unknown mass. The effective \(m_2\) changes.</li>
+                <li><strong>Manufacturing tolerances:</strong> Link lengths, masses, and centres of gravity are only approximately known.</li>
+                <li><strong>Wear and degradation:</strong> Friction coefficients, gear ratios, and joint stiffness change over time.</li>
+                <li><strong>Model simplification:</strong> We ignore link flexibility, actuator dynamics, and higher-order effects.</li>
+            </ul>
+
+            <div class="danger">
+                <strong>Key insight:</strong> If the model parameters used in computed torque are wrong, the nonlinear cancellation is imperfect, and the closed-loop system is no longer a simple linear error system. Tracking performance degrades, and stability may be lost.
+            </div>
+
+            <p>Adaptive control addresses this by estimating the unknown parameters online, while simultaneously controlling the system. The parameter estimates converge to values that ensure good tracking, even if the true parameters are never exactly identified.</p>
+
+            <!-- SVG: Adaptive Control Block Diagram -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrowBlue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#1e3c72"/>
+                        </marker>
+                        <marker id="arrowBlue2" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#2196f3"/>
+                        </marker>
+                        <marker id="arrowOrange" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#ff9800"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Background regions -->
+                    <rect x="20" y="15" width="760" height="180" rx="12" fill="#e3f2fd" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.5"/>
+                    <text x="40" y="38" font-size="13" fill="#2196f3" font-weight="bold">Control Loop</text>
+                    <rect x="20" y="215" width="760" height="170" rx="12" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.5"/>
+                    <text x="40" y="238" font-size="13" fill="#ff9800" font-weight="bold">Adaptation Loop</text>
+
+                    <!-- Reference input r(t) -->
+                    <text x="50" y="120" font-size="15" fill="#1e3c72" font-weight="bold" text-anchor="middle">r(t)</text>
+                    <text x="50" y="138" font-size="11" fill="#555" text-anchor="middle">Reference</text>
+
+                    <!-- Arrow: r(t) to summing junction -->
+                    <line x1="80" y1="120" x2="118" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+                    <!-- Summing junction circle -->
+                    <circle cx="135" cy="120" r="15" fill="white" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="135" y="125" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">+</text>
+                    <text x="123" y="112" font-size="13" fill="#e91e63" font-weight="bold">-</text>
+
+                    <!-- Arrow: summing junction to Controller -->
+                    <line x1="150" y1="120" x2="228" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue)"/>
+                    <text x="190" y="112" font-size="12" fill="#e91e63" font-weight="bold">e(t)</text>
+
+                    <!-- Controller block -->
+                    <rect x="230" y="90" width="150" height="60" rx="8" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="305" y="116" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Controller</text>
+                    <text x="305" y="136" font-size="11" fill="#ddd" text-anchor="middle">u = Y(q)&#x3B8;&#x302; + K&#x2084;s</text>
+
+                    <!-- Arrow: Controller to Plant -->
+                    <line x1="380" y1="120" x2="458" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue)"/>
+                    <text x="420" y="112" font-size="12" fill="#1e3c72" font-weight="bold">&#x3C4;</text>
+
+                    <!-- Plant block -->
+                    <rect x="460" y="90" width="150" height="60" rx="8" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="535" y="116" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Plant</text>
+                    <text x="535" y="136" font-size="10" fill="#e8f5e9" text-anchor="middle">M(q)q&#x308;+C(q,q&#x307;)q&#x307;+G</text>
+                    <!-- Unknown params label above plant -->
+                    <rect x="490" y="68" width="90" height="20" rx="5" fill="#ff9800" opacity="0.9"/>
+                    <text x="535" y="82" font-size="10" fill="white" text-anchor="middle" font-weight="bold">Unknown &#x3B8;</text>
+
+                    <!-- Arrow: Plant to output y(t) -->
+                    <line x1="610" y1="120" x2="700" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+                    <!-- Output y(t) -->
+                    <text x="735" y="120" font-size="15" fill="#1e3c72" font-weight="bold" text-anchor="middle">q(t)</text>
+                    <text x="735" y="138" font-size="11" fill="#555" text-anchor="middle">Output</text>
+
+                    <!-- Feedback path: y goes down, left, then up into summing junction (all orthogonal) -->
+                    <polyline points="700,120 700,180 135,180 135,135" fill="none" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowBlue2)"/>
+                    <text x="420" y="175" font-size="11" fill="#2196f3" font-weight="bold">feedback</text>
+
+                    <!-- Adaptation path: error e goes straight down -->
+                    <line x1="190" y1="120" x2="190" y2="310" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,3"/>
+                    <text x="202" y="220" font-size="11" fill="#ff9800" font-weight="bold">e(t), s(t)</text>
+
+                    <!-- Horizontal arrow into Parameter Estimator -->
+                    <line x1="190" y1="310" x2="278" y2="310" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+
+                    <!-- Parameter Estimator block -->
+                    <rect x="280" y="280" width="220" height="60" rx="8" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+                    <text x="390" y="306" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Parameter Estimator</text>
+                    <text x="390" y="326" font-size="11" fill="#fff3e0" text-anchor="middle">&#x3B8;&#x302;&#x307; = &#x393;&#x207B;&#xB9; Y&#x1D40; s</text>
+
+                    <!-- Output signal feeds down then left into estimator (orthogonal) -->
+                    <line x1="655" y1="120" x2="655" y2="310" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,3"/>
+                    <line x1="655" y1="310" x2="502" y2="310" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+                    <text x="665" y="220" font-size="11" fill="#ff9800">q, q&#x307;</text>
+
+                    <!-- Estimated params: estimator up to controller (orthogonal L-path) -->
+                    <line x1="390" y1="280" x2="390" y2="200" stroke="#ff9800" stroke-width="2.5" stroke-dasharray="5,3"/>
+                    <line x1="390" y1="200" x2="305" y2="200" stroke="#ff9800" stroke-width="2.5" stroke-dasharray="5,3"/>
+                    <line x1="305" y1="200" x2="305" y2="152" stroke="#ff9800" stroke-width="2.5" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+                    <text x="410" y="245" font-size="12" fill="#e65100" font-weight="bold">&#x3B8;&#x302;(t)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 1:</strong> Adaptive control block diagram. The <span style="color:#2196f3;">blue control loop</span> tracks the reference, while the <span style="color:#ff9800;">orange adaptation loop</span> estimates unknown plant parameters and feeds them to the controller.</p>
+            </div>
+
+            <!-- SVG: Direct vs Indirect Adaptive Control -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrD1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e3c72"/>
+                        </marker>
+                        <marker id="arrD2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#2196f3"/>
+                        </marker>
+                        <marker id="arrD3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff9800"/>
+                        </marker>
+                        <marker id="arrD4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#4caf50"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Title -->
+                    <text x="400" y="22" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">Direct vs Indirect Adaptive Control</text>
+
+                    <!-- ===== DIRECT PANEL ===== -->
+                    <rect x="15" y="35" width="770" height="185" rx="10" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+                    <text x="35" y="57" font-size="13" fill="#1e3c72" font-weight="bold">DIRECT Adaptive Control</text>
+                    <text x="35" y="72" font-size="11" fill="#555">Error directly adjusts controller gains</text>
+
+                    <!-- Signal flow: r → Σ → Controller → Plant → y -->
+                    <!-- r(t) label + arrow -->
+                    <text x="45" y="133" font-size="13" fill="#1e3c72" font-weight="bold" text-anchor="middle">r(t)</text>
+                    <line x1="70" y1="130" x2="103" y2="130" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <!-- Summing junction -->
+                    <circle cx="118" cy="130" r="13" fill="white" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="113" y="126" font-size="11" fill="#1e3c72" font-weight="bold">+</text>
+                    <text x="107" y="138" font-size="10" fill="#e91e63" font-weight="bold">−</text>
+                    <!-- Σ → Controller -->
+                    <line x1="131" y1="130" x2="193" y2="130" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <text x="162" y="122" font-size="11" fill="#e91e63" font-weight="bold">e</text>
+                    <!-- Controller block -->
+                    <rect x="195" y="105" width="130" height="50" rx="6" fill="#2196f3" stroke="#1565c0" stroke-width="2"/>
+                    <text x="260" y="127" font-size="13" fill="white" text-anchor="middle" font-weight="bold">Controller</text>
+                    <text x="260" y="145" font-size="10" fill="#bbdefb" text-anchor="middle">gains K(t)</text>
+                    <!-- Controller → Plant -->
+                    <line x1="325" y1="130" x2="388" y2="130" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <text x="356" y="122" font-size="11" fill="#1e3c72" font-weight="bold">u</text>
+                    <!-- Plant block -->
+                    <rect x="390" y="105" width="120" height="50" rx="6" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="450" y="134" font-size="13" fill="white" text-anchor="middle" font-weight="bold">Plant</text>
+                    <!-- Plant → y(t) -->
+                    <line x1="510" y1="130" x2="568" y2="130" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <text x="590" y="134" font-size="13" fill="#1e3c72" font-weight="bold">y(t)</text>
+
+                    <!-- Feedback path: y → down → left along bottom → up into Σ (negative) -->
+                    <line x1="568" y1="130" x2="568" y2="175" stroke="#2196f3" stroke-width="1.5"/>
+                    <line x1="568" y1="175" x2="118" y2="175" stroke="#2196f3" stroke-width="1.5"/>
+                    <line x1="118" y1="175" x2="118" y2="145" stroke="#2196f3" stroke-width="1.5" marker-end="url(#arrD2)"/>
+
+                    <!-- Adaptation Law block (top-right) -->
+                    <rect x="615" y="90" width="155" height="50" rx="6" fill="#2196f3" stroke="#1565c0" stroke-width="2"/>
+                    <text x="692" y="112" font-size="12" fill="white" text-anchor="middle" font-weight="bold">Adaptation Law</text>
+                    <text x="692" y="129" font-size="10" fill="#bbdefb" text-anchor="middle">e → update K(t)</text>
+
+                    <!-- e → Adaptation: tap off the e-wire, go up then right -->
+                    <line x1="162" y1="130" x2="162" y2="80" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="162" y1="80" x2="613" y2="80" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="613" y1="80" x2="613" y2="103" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrD2)"/>
+
+                    <!-- Adaptation → Controller: exit left side of block, go down-left-up into Controller top -->
+                    <line x1="615" y1="115" x2="540" y2="115" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="540" y1="115" x2="540" y2="195" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="540" y1="195" x2="260" y2="195" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="260" y1="195" x2="260" y2="157" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrD2)"/>
+                    <text x="390" y="190" font-size="11" fill="#1565c0" font-weight="bold">K(t)</text>
+
+                    <!-- ===== INDIRECT PANEL ===== -->
+                    <rect x="15" y="240" width="770" height="205" rx="10" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+                    <text x="35" y="263" font-size="13" fill="#2e7d32" font-weight="bold">INDIRECT Adaptive Control</text>
+                    <text x="35" y="278" font-size="11" fill="#555">Error estimates plant parameters, then computes controller gains</text>
+
+                    <!-- Signal flow: r → Σ → Controller → Plant → y -->
+                    <text x="45" y="333" font-size="13" fill="#1e3c72" font-weight="bold" text-anchor="middle">r(t)</text>
+                    <line x1="70" y1="330" x2="103" y2="330" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <!-- Summing junction -->
+                    <circle cx="118" cy="330" r="13" fill="white" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="113" y="326" font-size="11" fill="#1e3c72" font-weight="bold">+</text>
+                    <text x="107" y="338" font-size="10" fill="#e91e63" font-weight="bold">−</text>
+                    <!-- Σ → Controller -->
+                    <line x1="131" y1="330" x2="193" y2="330" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <text x="162" y="322" font-size="11" fill="#e91e63" font-weight="bold">e</text>
+                    <!-- Controller block -->
+                    <rect x="195" y="305" width="130" height="50" rx="6" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="260" y="327" font-size="13" fill="white" text-anchor="middle" font-weight="bold">Controller</text>
+                    <text x="260" y="345" font-size="10" fill="#c8e6c9" text-anchor="middle">gains K(θ̂)</text>
+                    <!-- Controller → Plant -->
+                    <line x1="325" y1="330" x2="388" y2="330" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <text x="356" y="322" font-size="11" fill="#1e3c72" font-weight="bold">u</text>
+                    <!-- Plant block -->
+                    <rect x="390" y="305" width="120" height="50" rx="6" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="450" y="334" font-size="13" fill="white" text-anchor="middle" font-weight="bold">Plant</text>
+                    <!-- Plant → y(t) -->
+                    <line x1="510" y1="330" x2="568" y2="330" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrD1)"/>
+                    <text x="590" y="334" font-size="13" fill="#1e3c72" font-weight="bold">y(t)</text>
+
+                    <!-- Feedback: y → down → left along bottom → up into Σ -->
+                    <line x1="568" y1="330" x2="568" y2="378" stroke="#4caf50" stroke-width="1.5"/>
+                    <line x1="568" y1="378" x2="118" y2="378" stroke="#4caf50" stroke-width="1.5"/>
+                    <line x1="118" y1="378" x2="118" y2="345" stroke="#4caf50" stroke-width="1.5" marker-end="url(#arrD4)"/>
+
+                    <!-- Param Estimator block -->
+                    <rect x="615" y="285" width="155" height="45" rx="6" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+                    <text x="692" y="305" font-size="12" fill="white" text-anchor="middle" font-weight="bold">Param Estimator</text>
+                    <text x="692" y="321" font-size="10" fill="#fff3e0" text-anchor="middle">e → θ̂</text>
+
+                    <!-- Gain Computation block -->
+                    <rect x="615" y="345" width="155" height="45" rx="6" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="692" y="365" font-size="12" fill="white" text-anchor="middle" font-weight="bold">Gain Computation</text>
+                    <text x="692" y="381" font-size="10" fill="#c8e6c9" text-anchor="middle">θ̂ → K(θ̂)</text>
+
+                    <!-- e → Param Estimator: tap off e-wire, go up then right -->
+                    <line x1="162" y1="330" x2="162" y2="295" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="162" y1="295" x2="613" y2="295" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="613" y1="295" x2="613" y2="302" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrD3)"/>
+
+                    <!-- Param Estimator → Gain Computation: straight down -->
+                    <line x1="692" y1="330" x2="692" y2="343" stroke="#4caf50" stroke-width="2" marker-end="url(#arrD4)"/>
+                    <text x="714" y="340" font-size="10" fill="#e65100" font-weight="bold">θ̂</text>
+
+                    <!-- Gain Computation → Controller: exit left, go down-left-up into Controller bottom -->
+                    <line x1="615" y1="367" x2="540" y2="367" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="540" y1="367" x2="540" y2="425" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="540" y1="425" x2="260" y2="425" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="260" y1="425" x2="260" y2="357" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrD4)"/>
+                    <text x="390" y="420" font-size="11" fill="#2e7d32" font-weight="bold">K(θ̂)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 2:</strong> Comparison of <span style="color:#2196f3;">Direct</span> and <span style="color:#4caf50;">Indirect</span> adaptive control. In direct adaptation, the error signal is fed to an adaptation law that adjusts controller gains K(t) directly. In indirect adaptation, the error drives a parameter estimator to obtain θ̂, which is then used in a gain computation step to determine K(θ̂).</p>
+            </div>
+
+            <!-- 3.2 Linearity in Parameters -->
+            <h3>3.2 The Linearity-in-Parameters Property</h3>
+            <p>The dynamics of a rigid-body robotic system can always be written as:</p>
+
+            <div class="formula-box">
+                \( M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = Y(q, \dot{q}, \ddot{q})\,\theta \)
+            </div>
+
+            <p>where:</p>
+            <ul>
+                <li>\(Y(q, \dot{q}, \ddot{q}) \in \mathbb{R}^{n \times p}\) is the <strong>regressor matrix</strong> &mdash; a known matrix that depends on joint positions, velocities, and accelerations, but <em>not</em> on the unknown parameters.</li>
+                <li>\(\theta \in \mathbb{R}^p\) is the <strong>parameter vector</strong> &mdash; a constant vector containing all the unknown dynamic parameters (products of masses, lengths, inertias, friction coefficients, etc.).</li>
+            </ul>
+
+            <p>This is the <em>linearity-in-parameters</em> property. It holds because the equations of motion are derived from the Lagrangian, which is quadratic in velocities and linear in the inertial parameters. The property is fundamental to adaptive control: it allows us to separate what we know (the structure of \(Y\)) from what we do not know (the values in \(\theta\)).</p>
+
+            <!-- SVG: Linearity in Parameters Concept -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <!-- Title -->
+                    <text x="400" y="28" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">Linearity-in-Parameters: Separating Known from Unknown</text>
+
+                    <!-- Robot Dynamics box -->
+                    <rect x="30" y="55" width="200" height="90" rx="8" fill="#f0f4ff" stroke="#667eea" stroke-width="2"/>
+                    <text x="130" y="82" font-size="13" fill="#1e3c72" text-anchor="middle" font-weight="bold">Robot Dynamics</text>
+                    <text x="130" y="104" font-size="13" fill="#333" text-anchor="middle">M(q)q&#x308;+C(q,q&#x307;)q&#x307;+G(q)</text>
+                    <text x="130" y="130" font-size="11" fill="#777" text-anchor="middle">Nonlinear, coupled terms</text>
+
+                    <!-- Equals sign -->
+                    <text x="262" y="105" font-size="28" fill="#1e3c72" text-anchor="middle" font-weight="bold">=</text>
+
+                    <!-- Regressor Y matrix box (green) -->
+                    <rect x="295" y="50" width="220" height="100" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2.5"/>
+                    <text x="405" y="74" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">Regressor Matrix Y</text>
+                    <!-- Matrix grid -->
+                    <rect x="315" y="82" width="180" height="55" rx="4" fill="white" stroke="#4caf50" stroke-width="1"/>
+                    <text x="335" y="102" font-size="10" fill="#4caf50">q&#x308;&#x2081;</text>
+                    <text x="370" y="102" font-size="10" fill="#4caf50">q&#x308;&#x2081;</text>
+                    <text x="405" y="102" font-size="10" fill="#4caf50">q&#x308;&#x2081;+q&#x308;&#x2082;</text>
+                    <text x="450" y="102" font-size="10" fill="#4caf50">cos(q&#x2082;)..</text>
+                    <text x="482" y="102" font-size="10" fill="#4caf50">sin..</text>
+                    <text x="335" y="126" font-size="10" fill="#4caf50">0</text>
+                    <text x="370" y="126" font-size="10" fill="#4caf50">0</text>
+                    <text x="405" y="126" font-size="10" fill="#4caf50">q&#x308;&#x2081;+q&#x308;&#x2082;</text>
+                    <text x="450" y="126" font-size="10" fill="#4caf50">cos(q&#x2082;)..</text>
+                    <text x="482" y="126" font-size="10" fill="#4caf50">sin..</text>
+                    <line x1="362" y1="82" x2="362" y2="137" stroke="#c8e6c9" stroke-width="0.5"/>
+                    <line x1="396" y1="82" x2="396" y2="137" stroke="#c8e6c9" stroke-width="0.5"/>
+                    <line x1="442" y1="82" x2="442" y2="137" stroke="#c8e6c9" stroke-width="0.5"/>
+                    <line x1="475" y1="82" x2="475" y2="137" stroke="#c8e6c9" stroke-width="0.5"/>
+                    <line x1="315" y1="110" x2="495" y2="110" stroke="#c8e6c9" stroke-width="0.5"/>
+
+                    <!-- Multiplication sign -->
+                    <text x="538" y="105" font-size="24" fill="#1e3c72" text-anchor="middle" font-weight="bold">&#xD7;</text>
+
+                    <!-- Parameter vector theta box (orange) -->
+                    <rect x="565" y="50" width="120" height="100" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2.5"/>
+                    <text x="625" y="74" font-size="13" fill="#e65100" text-anchor="middle" font-weight="bold">Parameters &#x3B8;</text>
+                    <rect x="590" y="82" width="70" height="55" rx="4" fill="white" stroke="#ff9800" stroke-width="1"/>
+                    <text x="625" y="98" font-size="11" fill="#ff9800" text-anchor="middle">m&#x2081;l&#xB2;&#x2081;</text>
+                    <text x="625" y="112" font-size="11" fill="#ff9800" text-anchor="middle">m&#x2082;l&#xB2;&#x2081;</text>
+                    <text x="625" y="126" font-size="11" fill="#ff9800" text-anchor="middle">m&#x2082;l&#xB2;&#x2082;</text>
+                    <text x="625" y="136" font-size="9" fill="#ff9800" text-anchor="middle">...</text>
+
+                    <!-- KNOWN label under Y -->
+                    <rect x="295" y="165" width="220" height="55" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+                    <text x="405" y="185" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">KNOWN (Computable)</text>
+                    <text x="405" y="202" font-size="11" fill="#555" text-anchor="middle">Y depends on q, q&#x307;, q&#x308; only</text>
+                    <text x="405" y="215" font-size="11" fill="#555" text-anchor="middle">Measurable kinematics</text>
+
+                    <!-- UNKNOWN label under theta -->
+                    <rect x="540" y="165" width="170" height="55" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                    <text x="625" y="185" font-size="13" fill="#e65100" text-anchor="middle" font-weight="bold">UNKNOWN (To Estimate)</text>
+                    <text x="625" y="202" font-size="11" fill="#555" text-anchor="middle">&#x3B8; = masses, inertias,</text>
+                    <text x="625" y="215" font-size="11" fill="#555" text-anchor="middle">friction, payload, etc.</text>
+
+                    <!-- Connecting lines from boxes to labels (vertical, orthogonal) -->
+                    <line x1="405" y1="150" x2="405" y2="165" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="3,2"/>
+                    <line x1="625" y1="150" x2="625" y2="165" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+                    <!-- Key insight box spanning full width -->
+                    <rect x="60" y="240" width="680" height="50" rx="8" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="400" y="262" font-size="13" fill="white" text-anchor="middle" font-weight="bold">Key Insight: This separation enables adaptive control -- estimate &#x3B8; online</text>
+                    <text x="400" y="280" font-size="11" fill="#ddd" text-anchor="middle">while using the known structure Y to maintain stability via Lyapunov analysis</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 3:</strong> The linearity-in-parameters property separates robot dynamics into a <span style="color:#4caf50;">known regressor matrix Y</span> (computable from kinematics) multiplied by an <span style="color:#ff9800;">unknown parameter vector &#x3B8;</span> (to be estimated online).</p>
+            </div>
+
+            <!-- 3.3 Example: 2-DOF Manipulator -->
+            <h3>3.3 Concrete Example: 2-DOF Planar Manipulator</h3>
+
+            <!-- SVG: 2-DOF Planar Manipulator Schematic -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrM1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#e91e63"/>
+                        </marker>
+                        <marker id="arrM2" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="7" markerHeight="7" orient="auto">
+                            <path d="M 0 0 L 10 0 L 5 10 z" fill="#555"/>
+                        </marker>
+                        <marker id="arrM3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#2196f3"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Background -->
+                    <rect x="0" y="0" width="800" height="420" fill="#fafbff" rx="10"/>
+
+                    <!-- Ground / base with hatching -->
+                    <rect x="120" y="320" width="80" height="18" fill="#555" rx="3"/>
+                    <line x1="120" y1="338" x2="200" y2="338" stroke="#333" stroke-width="2"/>
+                    <line x1="125" y1="338" x2="115" y2="350" stroke="#777" stroke-width="1.5"/>
+                    <line x1="140" y1="338" x2="130" y2="350" stroke="#777" stroke-width="1.5"/>
+                    <line x1="155" y1="338" x2="145" y2="350" stroke="#777" stroke-width="1.5"/>
+                    <line x1="170" y1="338" x2="160" y2="350" stroke="#777" stroke-width="1.5"/>
+                    <line x1="185" y1="338" x2="175" y2="350" stroke="#777" stroke-width="1.5"/>
+                    <line x1="200" y1="338" x2="190" y2="350" stroke="#777" stroke-width="1.5"/>
+
+                    <!-- Coordinate frame at base origin -->
+                    <line x1="160" y1="318" x2="160" y2="268" stroke="#e91e63" stroke-width="2.5" marker-end="url(#arrM1)"/>
+                    <text x="148" y="263" font-size="13" fill="#e91e63" font-weight="bold">y</text>
+                    <line x1="160" y1="318" x2="220" y2="318" stroke="#e91e63" stroke-width="2.5" marker-end="url(#arrM1)"/>
+                    <text x="225" y="323" font-size="13" fill="#e91e63" font-weight="bold">x</text>
+                    <text x="143" y="330" font-size="10" fill="#e91e63">O</text>
+
+                    <!-- Joint 1 circle at base -->
+                    <circle cx="160" cy="320" r="12" fill="white" stroke="#1e3c72" stroke-width="3"/>
+                    <circle cx="160" cy="320" r="4" fill="#1e3c72"/>
+
+                    <!-- Link 1 (at ~45 degrees) -->
+                    <line x1="160" y1="320" x2="340" y2="200" stroke="#667eea" stroke-width="10" stroke-linecap="round"/>
+                    <line x1="160" y1="320" x2="340" y2="200" stroke="#7e91ee" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Link 1 length label -->
+                    <text x="225" y="248" font-size="15" fill="#1e3c72" font-weight="bold" transform="rotate(-33.7 225 248)">l&#x2081;</text>
+                    <!-- Mass 1 at COM -->
+                    <circle cx="250" cy="260" r="16" fill="#667eea" opacity="0.3" stroke="#667eea" stroke-width="1"/>
+                    <text x="250" y="265" font-size="12" fill="#1e3c72" text-anchor="middle" font-weight="bold">m&#x2081;</text>
+
+                    <!-- Angle theta1 arc (from horizontal to link 1) -->
+                    <path d="M 195 320 A 35 35 0 0 0 180 292" fill="none" stroke="#ff9800" stroke-width="2"/>
+                    <text x="200" y="300" font-size="14" fill="#ff9800" font-weight="bold">&#x3B8;&#x2081;</text>
+
+                    <!-- Joint 2 circle -->
+                    <circle cx="340" cy="200" r="12" fill="white" stroke="#1e3c72" stroke-width="3"/>
+                    <circle cx="340" cy="200" r="4" fill="#1e3c72"/>
+
+                    <!-- Extension of Link 1 direction (dashed) for theta2 reference -->
+                    <line x1="340" y1="200" x2="415" y2="150" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+
+                    <!-- Link 2 -->
+                    <line x1="340" y1="200" x2="530" y2="145" stroke="#4caf50" stroke-width="10" stroke-linecap="round"/>
+                    <line x1="340" y1="200" x2="530" y2="145" stroke="#66bb6a" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Link 2 length label -->
+                    <text x="425" y="158" font-size="15" fill="#2e7d32" font-weight="bold" transform="rotate(-16.3 425 158)">l&#x2082;</text>
+                    <!-- Mass 2 at COM -->
+                    <circle cx="435" cy="172" r="16" fill="#4caf50" opacity="0.3" stroke="#4caf50" stroke-width="1"/>
+                    <text x="435" y="177" font-size="12" fill="#2e7d32" text-anchor="middle" font-weight="bold">m&#x2082;</text>
+
+                    <!-- Angle theta2 arc (from link1 extension to link2) -->
+                    <path d="M 378 183 A 40 40 0 0 0 386 168" fill="none" stroke="#ff9800" stroke-width="2"/>
+                    <text x="392" y="180" font-size="14" fill="#ff9800" font-weight="bold">&#x3B8;&#x2082;</text>
+
+                    <!-- End-effector (tip) -->
+                    <circle cx="530" cy="145" r="7" fill="#e91e63" stroke="#c2185b" stroke-width="2"/>
+                    <text x="545" y="142" font-size="12" fill="#e91e63" font-weight="bold">End-effector</text>
+
+                    <!-- Torque arrow at Joint 1 (counter-clockwise arc, arrowhead at tip) -->
+                    <path d="M 178 298 A 25 25 0 0 0 142 296" fill="none" stroke="#2196f3" stroke-width="2.5" marker-end="url(#arrM3)"/>
+                    <text x="122" y="292" font-size="13" fill="#2196f3" font-weight="bold">&#x3C4;&#x2081;</text>
+
+                    <!-- Torque arrow at Joint 2 (counter-clockwise arc, arrowhead at tip) -->
+                    <path d="M 358 180 A 25 25 0 0 0 324 178" fill="none" stroke="#2196f3" stroke-width="2.5" marker-end="url(#arrM3)"/>
+                    <text x="308" y="175" font-size="13" fill="#2196f3" font-weight="bold">&#x3C4;&#x2082;</text>
+
+                    <!-- Gravity arrow -->
+                    <line x1="680" y1="60" x2="680" y2="140" stroke="#555" stroke-width="3" marker-end="url(#arrM2)"/>
+                    <text x="680" y="50" font-size="15" fill="#555" text-anchor="middle" font-weight="bold">g</text>
+                    <text x="680" y="165" font-size="11" fill="#777" text-anchor="middle">9.81 m/s&#xB2;</text>
+
+                    <!-- Legend panel -->
+                    <rect x="580" y="225" width="200" height="155" rx="8" fill="white" stroke="#ddd" stroke-width="1.5"/>
+                    <text x="680" y="248" font-size="13" fill="#1e3c72" text-anchor="middle" font-weight="bold">Parameters</text>
+                    <line x1="595" y1="256" x2="765" y2="256" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="605" cy="276" r="6" fill="#667eea" opacity="0.5"/>
+                    <text x="620" y="281" font-size="12" fill="#333">Link 1: l&#x2081;, m&#x2081;</text>
+                    <circle cx="605" cy="301" r="6" fill="#4caf50" opacity="0.5"/>
+                    <text x="620" y="306" font-size="12" fill="#333">Link 2: l&#x2082;, m&#x2082;</text>
+                    <circle cx="605" cy="326" r="6" fill="#ff9800" opacity="0.5"/>
+                    <text x="620" y="331" font-size="12" fill="#333">Angles: &#x3B8;&#x2081;, &#x3B8;&#x2082;</text>
+                    <circle cx="605" cy="351" r="6" fill="#2196f3" opacity="0.5"/>
+                    <text x="620" y="356" font-size="12" fill="#333">Torques: &#x3C4;&#x2081;, &#x3C4;&#x2082;</text>
+                    <circle cx="605" cy="366" r="6" fill="#e91e63" opacity="0.5"/>
+                    <text x="620" y="371" font-size="12" fill="#333">End-effector</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 4:</strong> 2-DOF planar manipulator. <span style="color:#667eea;">Link 1</span> (length l&#x2081;, mass m&#x2081;) and <span style="color:#4caf50;">Link 2</span> (length l&#x2082;, mass m&#x2082;) rotate at joints with angles &#x3B8;&#x2081; and &#x3B8;&#x2082;. Joint torques &#x3C4;&#x2081; and &#x3C4;&#x2082; are the control inputs.</p>
+            </div>
+
+            <p>Consider the 2-DOF planar manipulator with link masses \(m_1, m_2\), link lengths \(l_1, l_2\), and gravity \(g\). The standard Euler-Lagrange dynamics are:</p>
+            \[
+                M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau
+            \]
+            <p>with:</p>
+            \[
+                M(q) = \begin{bmatrix}
+                    m_1 l_1^2 + m_2(l_1^2 + l_2^2 + 2l_1 l_2 \cos q_2) & m_2(l_2^2 + l_1 l_2 \cos q_2) \\
+                    m_2(l_2^2 + l_1 l_2 \cos q_2) & m_2 l_2^2
+                \end{bmatrix}
+            \]
+            \[
+                C(q,\dot{q}) = \begin{bmatrix}
+                    -m_2 l_1 l_2 \sin(q_2)\,\dot{q}_2 & -m_2 l_1 l_2 \sin(q_2)(\dot{q}_1 + \dot{q}_2) \\
+                    m_2 l_1 l_2 \sin(q_2)\,\dot{q}_1 & 0
+                \end{bmatrix}
+            \]
+            \[
+                G(q) = \begin{bmatrix}
+                    (m_1 + m_2)\,g\,l_1 \sin q_1 + m_2\,g\,l_2 \sin(q_1 + q_2) \\
+                    m_2\,g\,l_2 \sin(q_1 + q_2)
+                \end{bmatrix}
+            \]
+
+            <p>Define the parameter vector:</p>
+            <div class="math-box">
+                \[
+                    \theta = \begin{bmatrix} \theta_1 \\ \theta_2 \\ \theta_3 \\ \theta_4 \\ \theta_5 \\ \theta_6 \end{bmatrix}
+                    = \begin{bmatrix} m_1 l_1^2 \\ m_2 l_1^2 \\ m_2 l_2^2 \\ m_2 l_1 l_2 \\ (m_1 + m_2)\,g\,l_1 \\ m_2\,g\,l_2 \end{bmatrix}
+                \]
+            </div>
+
+            <p>Then the regressor matrix \(Y \in \mathbb{R}^{2 \times 6}\) such that \(\tau = Y(q, \dot{q}, \ddot{q})\,\theta\) is:</p>
+            <div class="math-box">
+                \[
+                    Y = \begin{bmatrix}
+                        \ddot{q}_1 & \ddot{q}_1 & \ddot{q}_1 + \ddot{q}_2 & 2\cos(q_2)\ddot{q}_1 + \cos(q_2)\ddot{q}_2 - \sin(q_2)\dot{q}_2\dot{q}_1 - \sin(q_2)(\dot{q}_1+\dot{q}_2)\dot{q}_2 & \sin(q_1) & \sin(q_1+q_2) \\
+                        0 & 0 & \ddot{q}_1 + \ddot{q}_2 & \cos(q_2)\ddot{q}_1 + \sin(q_2)\dot{q}_1^2 & 0 & \sin(q_1+q_2)
+                    \end{bmatrix}
+                \]
+            </div>
+
+            <p>You can verify: multiply \(Y\theta\) and recover exactly \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q)\). Every entry of \(Y\) is computable from measured (or commanded) \(q, \dot{q}, \ddot{q}\).</p>
+
+            <!-- 3.4 The Adaptive Control Law -->
+            <h3>3.4 The Adaptive Control Law</h3>
+            <p>We now construct the adaptive controller. Define the tracking error and its filtered version:</p>
+            <div class="math-box">
+                \[
+                    e = q_d - q, \qquad \dot{e} = \dot{q}_d - \dot{q}
+                \]
+            </div>
+            <p>Define the <strong>sliding variable</strong> (composite error):</p>
+            <div class="math-box">
+                \[
+                    s = \dot{e} + \Lambda\, e
+                \]
+            </div>
+            <p>where \(\Lambda = \Lambda^T \succ 0\) is a positive definite design matrix. Equivalently, define the <strong>reference velocity</strong> and <strong>reference acceleration</strong>:</p>
+            \[
+                \dot{q}_r = \dot{q}_d + \Lambda\,e = \dot{q} + s
+            \]
+            \[
+                \ddot{q}_r = \ddot{q}_d + \Lambda\,\dot{e}
+            \]
+            <p>Notice that \(s = \dot{q}_r - \dot{q}\), so \(s \to 0\) implies \(\dot{q} \to \dot{q}_r\), which combined with the definition of \(\dot{q}_r\) implies both \(e \to 0\) and \(\dot{e} \to 0\) exponentially (since \(\dot{e} + \Lambda e = 0\) is a stable linear ODE).</p>
+
+            <p>The <strong>adaptive control law</strong> is:</p>
+            <div class="formula-box">
+                \( \tau = Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r)\,\hat{\theta} + K_D\, s \)
+            </div>
+            <p>where:</p>
+            <ul>
+                <li>\(\hat{\theta}\) is the current estimate of the parameter vector \(\theta\).</li>
+                <li>\(Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r)\) is the regressor evaluated at the <em>reference</em> velocity and acceleration (not the actual \(\ddot{q}\), which we cannot measure cleanly).</li>
+                <li>\(K_D = K_D^T \succ 0\) is a positive definite gain matrix providing damping on the sliding variable.</li>
+            </ul>
+
+            <div class="info">
+                <strong>Important subtlety:</strong> We evaluate the regressor at \((\dot{q}_r, \ddot{q}_r)\) instead of \((\dot{q}, \ddot{q})\). This avoids the need to measure or numerically differentiate joint accelerations, and it ensures that the regressor is known (computable from \(q, \dot{q}, q_d, \dot{q}_d, \ddot{q}_d\)).
+            </div>
+
+            <!-- 3.5 Parameter Update Law -->
+            <h3>3.5 Parameter Update Law</h3>
+            <p>The parameter estimates are updated according to:</p>
+            <div class="formula-box">
+                \( \dot{\hat{\theta}} = \Gamma^{-1}\, Y^T\! s \)
+            </div>
+            <p>where \(\Gamma = \Gamma^T \succ 0\) is the <strong>adaptation gain matrix</strong>. Define the parameter estimation error:</p>
+            \[
+                \tilde{\theta} = \hat{\theta} - \theta
+            \]
+            <p>Since \(\theta\) is constant, \(\dot{\tilde{\theta}} = \dot{\hat{\theta}}\).</p>
+
+            <!-- SVG: Parameter Convergence Visualization -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 370" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrPC1" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#333"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Title -->
+                    <text x="400" y="25" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">Parameter Convergence: &#x3B8;&#x302;(t) Approaching True Values &#x3B8;*</text>
+
+                    <!-- Axes -->
+                    <line x1="80" y1="300" x2="760" y2="300" stroke="#333" stroke-width="2" marker-end="url(#arrPC1)"/>
+                    <text x="770" y="305" font-size="13" fill="#333">time</text>
+                    <line x1="80" y1="300" x2="80" y2="40" stroke="#333" stroke-width="2" marker-end="url(#arrPC1)"/>
+                    <text x="40" y="45" font-size="13" fill="#333">&#x3B8;&#x302;(t)</text>
+
+                    <!-- Time tick marks and labels -->
+                    <line x1="80" y1="300" x2="80" y2="305" stroke="#333" stroke-width="1"/>
+                    <text x="80" y="320" font-size="11" fill="#777" text-anchor="middle">0</text>
+                    <line x1="250" y1="300" x2="250" y2="305" stroke="#333" stroke-width="1"/>
+                    <text x="250" y="320" font-size="11" fill="#777" text-anchor="middle">5</text>
+                    <line x1="420" y1="300" x2="420" y2="305" stroke="#333" stroke-width="1"/>
+                    <text x="420" y="320" font-size="11" fill="#777" text-anchor="middle">10</text>
+                    <line x1="590" y1="300" x2="590" y2="305" stroke="#333" stroke-width="1"/>
+                    <text x="590" y="320" font-size="11" fill="#777" text-anchor="middle">15</text>
+                    <line x1="740" y1="300" x2="740" y2="305" stroke="#333" stroke-width="1"/>
+                    <text x="740" y="320" font-size="11" fill="#777" text-anchor="middle">20</text>
+
+                    <!-- True parameter line theta* (dashed horizontal) -->
+                    <line x1="80" y1="165" x2="750" y2="165" stroke="#1e3c72" stroke-width="2.5" stroke-dasharray="10,5"/>
+                    <rect x="690" y="145" width="60" height="18" rx="4" fill="#1e3c72"/>
+                    <text x="720" y="158" font-size="10" fill="white" text-anchor="middle" font-weight="bold">&#x3B8;* true</text>
+
+                    <!-- Convergence curve 1: starts high (orange) -->
+                    <path d="M 82 75 C 120 82, 160 95, 220 115 C 280 132, 340 148, 420 155 C 500 160, 580 163, 660 164 L 750 165" fill="none" stroke="#ff9800" stroke-width="2.5"/>
+                    <circle cx="82" cy="75" r="4" fill="#ff9800"/>
+                    <text x="55" y="73" font-size="11" fill="#ff9800" font-weight="bold">&#x3B8;&#x302;&#x2080;&#x2081;</text>
+
+                    <!-- Convergence curve 2: starts low (blue) -->
+                    <path d="M 82 265 C 120 258, 160 242, 220 220 C 280 200, 340 185, 420 175 C 500 170, 580 167, 660 166 L 750 165" fill="none" stroke="#2196f3" stroke-width="2.5"/>
+                    <circle cx="82" cy="265" r="4" fill="#2196f3"/>
+                    <text x="55" y="269" font-size="11" fill="#2196f3" font-weight="bold">&#x3B8;&#x302;&#x2080;&#x2082;</text>
+
+                    <!-- Convergence curve 3: starts very high (green) -->
+                    <path d="M 82 55 C 120 65, 160 85, 220 110 C 280 130, 340 148, 420 157 C 500 161, 580 164, 660 165 L 750 165" fill="none" stroke="#4caf50" stroke-width="2.5"/>
+                    <circle cx="82" cy="55" r="4" fill="#4caf50"/>
+                    <text x="55" y="53" font-size="11" fill="#4caf50" font-weight="bold">&#x3B8;&#x302;&#x2080;&#x2083;</text>
+
+                    <!-- Convergence curve 4: starts very low (pink) -->
+                    <path d="M 82 285 C 120 277, 160 260, 220 235 C 280 212, 340 195, 420 180 C 500 172, 580 168, 660 166 L 750 165" fill="none" stroke="#e91e63" stroke-width="2.5"/>
+                    <circle cx="82" cy="285" r="4" fill="#e91e63"/>
+                    <text x="55" y="289" font-size="11" fill="#e91e63" font-weight="bold">&#x3B8;&#x302;&#x2080;&#x2084;</text>
+
+                    <!-- Convergence curve 5: starts medium-high, slight overshoot (purple) -->
+                    <path d="M 82 100 C 120 108, 160 128, 220 145 C 260 155, 300 170, 340 173 C 380 170, 420 164, 460 164 C 500 165, 580 165, 660 165 L 750 165" fill="none" stroke="#667eea" stroke-width="2.5"/>
+                    <circle cx="82" cy="100" r="4" fill="#667eea"/>
+                    <text x="55" y="104" font-size="11" fill="#667eea" font-weight="bold">&#x3B8;&#x302;&#x2080;&#x2085;</text>
+
+                    <!-- Converged region shading -->
+                    <rect x="530" y="155" width="220" height="20" fill="#4caf50" opacity="0.1" rx="3"/>
+                    <text x="640" y="150" font-size="11" fill="#4caf50" font-weight="bold" text-anchor="middle">Converged region</text>
+
+                    <!-- Annotation: different initial conditions -->
+                    <rect x="130" y="42" width="210" height="20" rx="4" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+                    <text x="235" y="56" font-size="10" fill="#e65100" text-anchor="middle">Different initial estimates &#x3B8;&#x302;(0)</text>
+
+                    <!-- Note about persistent excitation -->
+                    <rect x="160" y="340" width="480" height="22" rx="4" fill="#e3f2fd" stroke="#2196f3" stroke-width="1"/>
+                    <text x="400" y="356" font-size="11" fill="#1565c0" text-anchor="middle" font-weight="bold">Persistent excitation required for full convergence to &#x3B8;*</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 8:</strong> Parameter convergence under adaptive control. Multiple parameter estimates starting from different initial conditions all converge toward the true parameter value &#x3B8;* (dashed line). The adaptation law drives estimates toward values that minimize tracking error.</p>
+            </div>
+
+            <!-- 3.6 Lyapunov Stability Proof -->
+            <h3>3.6 Lyapunov Stability Proof</h3>
+            <div class="derivation-box">
+                <h4>Theorem (Adaptive Control Stability)</h4>
+                <p>Under the adaptive control law \(\tau = Y\hat{\theta} + K_D s\) with the update law \(\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\), the sliding variable \(s \to 0\) and consequently the tracking errors \(e \to 0\), \(\dot{e} \to 0\) as \(t \to \infty\).</p>
+            </div>
+
+            <!-- SVG: Lyapunov Stability Concept -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 390" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrL1" viewBox="0 0 12 12" refX="6" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+                            <path d="M 0 12 L 6 0 L 12 12 z" fill="#333"/>
+                        </marker>
+                        <marker id="arrL2" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#333"/>
+                        </marker>
+                        <marker id="arrL3" viewBox="0 0 12 12" refX="6" refY="12" markerWidth="6" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 12 0 L 6 12 z" fill="#e91e63"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Title -->
+                    <text x="400" y="25" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">Lyapunov Stability: V > 0 and V&#x307; &lt; 0 Ensures Convergence</text>
+
+                    <!-- === LEFT PANEL: Contour plot with spiral === -->
+                    <text x="195" y="55" font-size="14" fill="#667eea" text-anchor="middle" font-weight="bold">Lyapunov Function V(s, &#x3B8;&#x303;)</text>
+
+                    <!-- Concentric contour ellipses (level sets of V) -->
+                    <ellipse cx="195" cy="210" rx="155" ry="100" fill="#667eea" opacity="0.04" stroke="#667eea" stroke-width="1" opacity="0.3"/>
+                    <ellipse cx="195" cy="210" rx="130" ry="84" fill="#667eea" opacity="0.05" stroke="#667eea" stroke-width="1" opacity="0.4"/>
+                    <ellipse cx="195" cy="210" rx="105" ry="68" fill="#667eea" opacity="0.06" stroke="#667eea" stroke-width="1.2" opacity="0.5"/>
+                    <ellipse cx="195" cy="210" rx="80" ry="52" fill="#667eea" opacity="0.07" stroke="#667eea" stroke-width="1.5" opacity="0.6"/>
+                    <ellipse cx="195" cy="210" rx="55" ry="36" fill="#667eea" opacity="0.08" stroke="#667eea" stroke-width="1.5" opacity="0.7"/>
+                    <ellipse cx="195" cy="210" rx="30" ry="20" fill="#667eea" opacity="0.10" stroke="#667eea" stroke-width="2" opacity="0.9"/>
+                    <ellipse cx="195" cy="210" rx="10" ry="7" fill="#667eea" opacity="0.15" stroke="#667eea" stroke-width="2" opacity="1"/>
+
+                    <!-- Equilibrium point at center -->
+                    <circle cx="195" cy="210" r="5" fill="#e91e63"/>
+                    <text x="195" y="198" font-size="11" fill="#e91e63" text-anchor="middle" font-weight="bold">s=0</text>
+
+                    <!-- Spiral trajectory going inward (approximate) -->
+                    <path d="M 310 155 C 295 130, 245 120, 195 135 C 145 150, 120 190, 140 230 C 155 260, 195 270, 230 255 C 260 240, 265 210, 245 190 C 230 175, 210 175, 200 190 C 192 200, 193 208, 195 210" fill="none" stroke="#e91e63" stroke-width="2.5"/>
+                    <circle cx="310" cy="155" r="4" fill="#e91e63" opacity="0.7"/>
+                    <text x="322" y="150" font-size="11" fill="#e91e63">start</text>
+                    <!-- Direction arrows along spiral -->
+                    <polygon points="195,135 200,128 190,130" fill="#e91e63"/>
+                    <polygon points="140,230 134,223 135,233" fill="#e91e63"/>
+                    <polygon points="245,190 248,182 239,186" fill="#e91e63"/>
+
+                    <!-- V > 0 label -->
+                    <rect x="48" y="140" width="55" height="25" rx="5" fill="#4caf50" opacity="0.9"/>
+                    <text x="75" y="157" font-size="12" fill="white" text-anchor="middle" font-weight="bold">V > 0</text>
+
+                    <!-- V-dot < 0 label -->
+                    <rect x="300" y="240" width="60" height="25" rx="5" fill="#e91e63" opacity="0.9"/>
+                    <text x="330" y="257" font-size="12" fill="white" text-anchor="middle" font-weight="bold">V&#x307; &lt; 0</text>
+
+                    <!-- === RIGHT PANEL: V(t) vs time plot === -->
+                    <text x="600" y="55" font-size="14" fill="#667eea" text-anchor="middle" font-weight="bold">V(t) Decreasing Over Time</text>
+
+                    <!-- Axes -->
+                    <line x1="440" y1="310" x2="770" y2="310" stroke="#333" stroke-width="2" marker-end="url(#arrL2)"/>
+                    <text x="775" y="315" font-size="12" fill="#333">t</text>
+                    <line x1="440" y1="310" x2="440" y2="70" stroke="#333" stroke-width="2" marker-end="url(#arrL1)"/>
+                    <text x="430" y="68" font-size="12" fill="#333">V</text>
+
+                    <!-- V > 0 region shading -->
+                    <rect x="442" y="80" width="315" height="228" fill="#4caf50" opacity="0.04"/>
+                    <text x="465" y="100" font-size="11" fill="#4caf50" font-weight="bold">V(t) > 0</text>
+
+                    <!-- V(t) curve: monotonically decreasing, approaching zero -->
+                    <path d="M 445 90 C 465 92, 480 105, 500 135 C 520 165, 535 185, 560 215 C 580 235, 600 252, 630 268 C 660 278, 690 286, 730 292 L 755 295" fill="none" stroke="#667eea" stroke-width="3"/>
+
+                    <!-- Tangent line showing negative slope -->
+                    <line x1="490" y1="115" x2="550" y2="195" stroke="#e91e63" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="558" y="182" font-size="11" fill="#e91e63" font-weight="bold">slope = V&#x307; &lt; 0</text>
+
+                    <!-- Arrow showing V decreasing -->
+                    <line x1="620" y1="195" x2="620" y2="260" stroke="#e91e63" stroke-width="2" marker-end="url(#arrL3)"/>
+                    <text x="640" y="230" font-size="11" fill="#e91e63" font-weight="bold">V decreases</text>
+
+                    <!-- Horizontal asymptote at zero -->
+                    <line x1="440" y1="308" x2="760" y2="308" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                    <text x="763" y="305" font-size="10" fill="#999">V=0</text>
+
+                    <!-- Bottom summary box -->
+                    <rect x="80" y="345" width="640" height="35" rx="6" fill="#667eea" opacity="0.9"/>
+                    <text x="400" y="368" font-size="13" fill="white" text-anchor="middle" font-weight="bold">V > 0, V&#x307; = -s&#x1D40;K&#x2084;s &#x2264; 0 &#x21D2; s(t) &#x2192; 0 &#x21D2; tracking errors converge to zero</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 7:</strong> Lyapunov stability concept. Left: the Lyapunov function V forms a bowl-shaped surface, and the system trajectory (pink spiral) descends toward the equilibrium. Right: V(t) monotonically decreases over time since V&#x307; = -s&#x1D40;K&#x2084;s is always non-positive.</p>
+            </div>
+
+            <p><strong>Proof.</strong> Define the candidate Lyapunov function:</p>
+            \[
+                V = \frac{1}{2}\,s^T M(q)\,s + \frac{1}{2}\,\tilde{\theta}^T \Gamma\,\tilde{\theta}
+            \]
+            <p>Since \(M(q) \succ 0\) and \(\Gamma \succ 0\), both terms are strictly positive for \((s, \tilde{\theta}) \neq (0,0)\), so \(V\) is a valid positive definite candidate with \(V = 0\) iff \(s = 0\) and \(\tilde{\theta} = 0\).</p>
+
+            <p><strong>Step 1: Time derivative of \(V\).</strong></p>
+            \[
+                \dot{V} = s^T M(q)\,\dot{s} + \frac{1}{2}\,s^T \dot{M}(q)\,s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+            \]
+
+            <p><strong>Step 2: Simplify \(s^T M\dot{s} + \tfrac{1}{2}s^T\dot{M}s\) using skew-symmetry.</strong><br>
+            The Euler-Lagrange formulation guarantees that \(N := \dot{M} - 2C\) is skew-symmetric, i.e.\ \(s^T N s = 0\) for all \(s\). This gives \(\tfrac{1}{2}s^T\dot{M}s = s^T C s\), so:
+            \[
+                s^T M\dot{s} + \tfrac{1}{2}s^T\dot{M}s = s^T(M\dot{s} + Cs)
+            \]</p>
+
+            <p><strong>Step 3: Evaluate \(M\dot{s} + Cs\).</strong><br>
+            Since \(s = \dot{q}_r - \dot{q}\), we have \(\dot{s} = \ddot{q}_r - \ddot{q}\). Substituting \(M\ddot{q} = \tau - C\dot{q} - G\):
+            \[
+                M\dot{s} + Cs = M\ddot{q}_r - M\ddot{q} + Cs = M\ddot{q}_r + C\dot{q} + G - \tau + C(\dot{q}_r - \dot{q})
+                = M\ddot{q}_r + C\dot{q}_r + G - \tau
+            \]
+            By linearity-in-parameters, \(M\ddot{q}_r + C\dot{q}_r + G = Y\theta\). Substituting the control law \(\tau = Y\hat{\theta} + K_D s\):
+            \[
+                M\dot{s} + Cs = Y\theta - Y\hat{\theta} - K_D s = -Y(\hat{\theta} - \theta) - K_D s = -Y\tilde{\theta} - K_D s
+            \]</p>
+
+            <p><strong>Step 4: Substitute back into \(\dot{V}\).</strong></p>
+            \[
+                \dot{V} = s^T(-Y\tilde{\theta} - K_D s) + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+                = -s^T Y\tilde{\theta} - s^T K_D s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+            \]
+
+            <p><strong>Step 5: Cancel the cross term using the update law.</strong><br>
+            Substitute \(\dot{\tilde{\theta}} = \dot{\hat{\theta}} = \Gamma^{-1}Y^T s\):
+            \[
+                \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}} = \tilde{\theta}^T \Gamma\,(\Gamma^{-1}Y^T s) = \tilde{\theta}^T Y^T s = (Y\tilde{\theta})^T s = s^T Y\tilde{\theta}
+            \]
+            The cross terms cancel exactly:
+            \[
+                \dot{V} = -s^T Y\tilde{\theta} - s^T K_D s + s^T Y\tilde{\theta} = -s^T K_D s
+            \]</p>
+
+            <div class="success">
+                <strong>Result:</strong>
+                \[
+                    \boxed{\dot{V} = -s^T K_D\, s \leq 0}
+                \]
+                Since \(K_D \succ 0\), we have \(\dot{V} < 0\) whenever \(s \neq 0\), so \(V\) is non-increasing and bounded below by zero. By Barbalat's lemma, \(s(t) \to 0\) as \(t \to \infty\). Since \(s = \dot{e} + \Lambda e\) with \(\Lambda \succ 0\), this implies \(e(t) \to 0\) and \(\dot{e}(t) \to 0\). \(\square\)
+            </div>
+
+            <div class="info">
+                <strong>Sign convention.</strong> We define \(\tilde{\theta} = \hat{\theta} - \theta\), so \(\dot{\tilde{\theta}} = \dot{\hat{\theta}}\). The Lyapunov weight on the parameter error term is \(\Gamma\) (not \(\Gamma^{-1}\)), which is why the update law \(\dot{\hat{\theta}} = \Gamma^{-1}Y^T s\) produces the exact cancellation \(\tilde{\theta}^T\Gamma(\Gamma^{-1}Y^T s) = s^T Y\tilde{\theta}\). Some textbooks define \(\tilde{\theta} = \theta - \hat{\theta}\); with that reversed convention the update law carries a negative sign, but the underlying physics is identical.
+            </div>
+
+            <div class="success">
+                <strong>Result:</strong>
+                \[
+                    \boxed{\dot{V} = -s^T K_D\, s \leq 0}
+                \]
+                Since \(K_D \succ 0\), \(\dot{V} < 0\) whenever \(s \neq 0\). By Barbalat's lemma, \(s(t) \to 0\) as \(t \to \infty\). Since \(s = \dot{e} + \Lambda e\) and \(\Lambda \succ 0\), this implies \(e(t) \to 0\) and \(\dot{e}(t) \to 0\).
+            </div>
+
+            <div class="info">
+                <strong>Sign convention note:</strong> We use \(\tilde{\theta} = \hat{\theta} - \theta\), so \(\dot{\tilde{\theta}} = \dot{\hat{\theta}}\). With the Lyapunov function \(V = \tfrac{1}{2}s^T M s + \tfrac{1}{2}\tilde{\theta}^T\Gamma\tilde{\theta}\), the update law that cancels the cross term is:
+                \[
+                    \dot{\hat{\theta}} = \Gamma^{-1}\,Y^T\!s
+                \]
+                Some textbooks define \(\tilde{\theta} = \theta - \hat{\theta}\) (reversed). With that convention \(\dot{\tilde{\theta}} = -\dot{\hat{\theta}}\), and the update law is written as \(\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\) with opposite sign in the cancellation. The physics is identical; only the bookkeeping differs. Always check which definition of \(\tilde{\theta}\) a textbook uses before comparing formulas.
+            </div>
+
+            <!-- 3.7 Think-Pair-Share -->
+            <div class="think-pair-share">
+                <h4>Think-Pair-Share: Effect of Adaptation Gain</h4>
+                <p>Consider the adaptation gain matrix \(\Gamma\). Discuss with your neighbour:</p>
+                <ol>
+                    <li>What happens if \(\Gamma\) is very large (fast adaptation)?
+                        <ul>
+                            <li>Parameter estimates change rapidly, which can cause large transient oscillations and potentially excite unmodelled dynamics. In the worst case, the system becomes unstable in practice (even though the theory guarantees stability for the nominal model).</li>
+                        </ul>
+                    </li>
+                    <li>What happens if \(\Gamma\) is very small (slow adaptation)?
+                        <ul>
+                            <li>Parameters converge very slowly. The controller behaves essentially like a PD controller (the \(K_D s\) term dominates) until the parameters have time to converge. Tracking errors may remain large for an extended period.</li>
+                        </ul>
+                    </li>
+                    <li>Does the Lyapunov proof guarantee that \(\hat{\theta} \to \theta\)?
+                        <ul>
+                            <li>No. The proof only guarantees \(s \to 0\) (and hence \(e \to 0\)). Parameter convergence requires <em>persistent excitation</em> of the regressor. If the trajectory does not excite all modes, some parameters may not converge to their true values, but tracking performance is still guaranteed.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 4: PART 2 — ADAPTIVE CONTROL FOR MANIPULATOR         -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 4: Part 2 &mdash; Adaptive Control for 2-DOF Manipulator</h2>
+
+            <h3>4.1 System Setup</h3>
+            <p>We now implement the full adaptive controller for the 2-DOF planar manipulator from Section 3.3. The true parameters are:</p>
+            <table>
+                <tr><th>Parameter</th><th>Symbol</th><th>True Value</th><th>Initial Estimate</th></tr>
+                <tr><td>Link 1 mass</td><td>\(m_1\)</td><td>1.0 kg</td><td>1.0 kg (known)</td></tr>
+                <tr><td>Link 2 mass</td><td>\(m_2\)</td><td>2.0 kg</td><td>1.0 kg (50% error)</td></tr>
+                <tr><td>Link 1 length</td><td>\(l_1\)</td><td>1.0 m</td><td>1.0 m (known)</td></tr>
+                <tr><td>Link 2 length</td><td>\(l_2\)</td><td>1.0 m</td><td>1.0 m (known)</td></tr>
+                <tr><td>Gravity</td><td>\(g\)</td><td>9.81 m/s&sup2;</td><td>9.81 m/s&sup2; (known)</td></tr>
+            </table>
+
+            <p>Even though only \(m_2\) is wrong, all composite parameters involving \(m_2\) are affected:</p>
+            <table>
+                <tr><th>Composite Parameter</th><th>True Value</th><th>Initial Estimate</th></tr>
+                <tr><td>\(\theta_1 = m_1 l_1^2\)</td><td>1.0</td><td>1.0</td></tr>
+                <tr><td>\(\theta_2 = m_2 l_1^2\)</td><td>2.0</td><td>1.0</td></tr>
+                <tr><td>\(\theta_3 = m_2 l_2^2\)</td><td>2.0</td><td>1.0</td></tr>
+                <tr><td>\(\theta_4 = m_2 l_1 l_2\)</td><td>2.0</td><td>1.0</td></tr>
+                <tr><td>\(\theta_5 = (m_1+m_2)gl_1\)</td><td>29.43</td><td>19.62</td></tr>
+                <tr><td>\(\theta_6 = m_2 g l_2\)</td><td>19.62</td><td>9.81</td></tr>
+            </table>
+
+            <h3>4.2 Building the Regressor Matrix</h3>
+            <p>We need the regressor evaluated at the reference quantities \((\dot{q}_r, \ddot{q}_r)\) instead of \((\dot{q}, \ddot{q})\). Define:</p>
+            \[
+                \dot{q}_r = \dot{q}_d + \Lambda(q_d - q), \qquad \ddot{q}_r = \ddot{q}_d + \Lambda(\dot{q}_d - \dot{q})
+            \]
+            <p>The regressor \(Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r) \in \mathbb{R}^{2 \times 6}\) is constructed by replacing every occurrence of \(\ddot{q}\) with \(\ddot{q}_r\) and every occurrence of \(\dot{q}\) in the Coriolis terms with a mix of \(\dot{q}\) and \(\dot{q}_r\) as appropriate. Specifically:</p>
+
+            \[
+                Y_{11} = \ddot{q}_{r1}
+            \]
+            \[
+                Y_{12} = \ddot{q}_{r1}
+            \]
+            \[
+                Y_{13} = \ddot{q}_{r1} + \ddot{q}_{r2}
+            \]
+            \[
+                Y_{14} = 2\cos(q_2)\ddot{q}_{r1} + \cos(q_2)\ddot{q}_{r2} - \sin(q_2)\dot{q}_2\dot{q}_{r1} - \sin(q_2)(\dot{q}_1 + \dot{q}_2)\dot{q}_{r2}
+            \]
+            \[
+                Y_{15} = \sin(q_1)
+            \]
+            \[
+                Y_{16} = \sin(q_1 + q_2)
+            \]
+            \[
+                Y_{21} = 0
+            \]
+            \[
+                Y_{22} = 0
+            \]
+            \[
+                Y_{23} = \ddot{q}_{r1} + \ddot{q}_{r2}
+            \]
+            \[
+                Y_{24} = \cos(q_2)\ddot{q}_{r1} + \sin(q_2)\dot{q}_1 \dot{q}_{r1}
+            \]
+            \[
+                Y_{25} = 0
+            \]
+            \[
+                Y_{26} = \sin(q_1 + q_2)
+            \]
+
+            <h3>4.3 Complete Control Algorithm</h3>
+            <div class="pseudocode-block">
+                <div class="pseudocode-header">Algorithm: Adaptive Control for 2-DOF Manipulator</div>
+<strong>Given:</strong> desired trajectory q_d(t), dq_d(t), ddq_d(t)
+<strong>Initialise:</strong> theta_hat = theta_hat_0  (initial parameter estimates)
+<strong>Design parameters:</strong> Lambda, K_D, Gamma  (all positive definite)
+
+<strong>At each time step:</strong>
+  1. Measure q, dq
+  2. Compute errors:
+       e  = q_d - q
+       de = dq_d - dq
+  3. Compute reference signals:
+       dq_r  = dq_d + Lambda * e
+       ddq_r = ddq_d + Lambda * de
+  4. Compute sliding variable:
+       s = de + Lambda * e  (equivalently s = dq_r - dq)
+  5. Build regressor Y(q, dq, dq_r, ddq_r)  [2x6 matrix]
+  6. Compute control torque:
+       tau = Y * theta_hat + K_D * s
+  7. Update parameter estimates:
+       d(theta_hat)/dt = Gamma_inv * Y' * s
+  8. Apply tau to the plant
+            </div>
+
+            <h3>4.4 MATLAB Implementation</h3>
+            <div class="code-block">%% Adaptive Control for 2-DOF Manipulator
+% True parameters
+m1 = 1; m2 = 2; l1 = 1; l2 = 1; g = 9.81;
+theta_true = [m1*l1^2; m2*l1^2; m2*l2^2; m2*l1*l2; (m1+m2)*g*l1; m2*g*l2];
+
+% Initial estimates (m2_hat = 1 instead of 2)
+m2_hat = 1;
+theta_hat0 = [m1*l1^2; m2_hat*l1^2; m2_hat*l2^2; m2_hat*l1*l2; ...
+              (m1+m2_hat)*g*l1; m2_hat*g*l2];
+
+% Design parameters
+Lambda = 10*eye(2);    % Sliding surface slope
+K_D    = 50*eye(2);    % Damping gain
+Gamma_inv = 5*eye(6);  % Inverse adaptation gain
+
+% Desired trajectory
+qd   = @(t) [0.5*sin(t); 0.5*cos(t)];
+dqd  = @(t) [0.5*cos(t); -0.5*sin(t)];
+ddqd = @(t) [-0.5*sin(t); -0.5*cos(t)];
+
+% State: [q1; q2; dq1; dq2; theta_hat(1:6)]
+x0 = [0; 0; 0; 0; theta_hat0];
+tspan = 0:0.01:20;
+
+[t, X] = ode45(@(t,x) adaptive_manipulator(t, x, ...
+    m1, m2, l1, l2, g, Lambda, K_D, Gamma_inv, qd, dqd, ddqd), tspan, x0);
+
+function dx = adaptive_manipulator(t, x, m1, m2, l1, l2, g, ...
+                                    Lambda, K_D, Gamma_inv, qd, dqd, ddqd)
+    q  = x(1:2);  dq = x(3:4);  theta_hat = x(5:10);
+
+    % True dynamics matrices
+    c2 = cos(q(2)); s2 = sin(q(2));
+    M = [m1*l1^2 + m2*(l1^2+l2^2+2*l1*l2*c2), m2*(l2^2+l1*l2*c2);
+         m2*(l2^2+l1*l2*c2),                    m2*l2^2];
+    C = [-m2*l1*l2*s2*dq(2), -m2*l1*l2*s2*(dq(1)+dq(2));
+          m2*l1*l2*s2*dq(1),  0];
+    G = [(m1+m2)*g*l1*sin(q(1)) + m2*g*l2*sin(q(1)+q(2));
+          m2*g*l2*sin(q(1)+q(2))];
+
+    % Errors and reference signals
+    e   = qd(t) - q;
+    de  = dqd(t) - dq;
+    dqr  = dqd(t) + Lambda*e;
+    ddqr = ddqd(t) + Lambda*de;
+    s    = de + Lambda*e;
+
+    % Build regressor Y(q, dq, dqr, ddqr) [2x6]
+    s2q = sin(q(2)); c2q = cos(q(2));
+    s1  = sin(q(1)); s12 = sin(q(1)+q(2));
+
+    Y = zeros(2,6);
+    Y(1,1) = ddqr(1);
+    Y(1,2) = ddqr(1);
+    Y(1,3) = ddqr(1) + ddqr(2);
+    Y(1,4) = 2*c2q*ddqr(1) + c2q*ddqr(2) ...
+             - s2q*dq(2)*dqr(1) - s2q*(dq(1)+dq(2))*dqr(2);
+    Y(1,5) = s1;
+    Y(1,6) = s12;
+    Y(2,1) = 0;
+    Y(2,2) = 0;
+    Y(2,3) = ddqr(1) + ddqr(2);
+    Y(2,4) = c2q*ddqr(1) + s2q*dq(1)*dqr(1);
+    Y(2,5) = 0;
+    Y(2,6) = s12;
+
+    % Adaptive control law
+    tau = Y*theta_hat + K_D*s;
+
+    % Parameter update law
+    dtheta_hat = Gamma_inv * Y' * s;
+
+    % True dynamics
+    ddq = M \ (tau - C*dq - G);
+
+    dx = [dq; ddq; dtheta_hat];
+end</div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 5: PART 3 — ADAPTIVE CONTROL FOR MOBILE ROBOT        -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 5: Part 3 &mdash; Adaptive Control for Mobile Robot</h2>
+
+            <h3>5.1 Parametric Uncertainty in Mobile Robots</h3>
+
+            <!-- SVG: Differential-Drive Mobile Robot -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrMR1" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#333"/>
+                        </marker>
+                        <marker id="arrMR2" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#ff9800"/>
+                        </marker>
+                        <marker id="arrMR4" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#e91e63"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Title -->
+                    <text x="400" y="25" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">Differential-Drive Mobile Robot: Trajectory Tracking</text>
+
+                    <!-- Global coordinate frame -->
+                    <line x1="60" y1="385" x2="60" y2="315" stroke="#333" stroke-width="2" marker-end="url(#arrMR1)"/>
+                    <text x="50" y="308" font-size="13" fill="#333" font-weight="bold">Y</text>
+                    <line x1="60" y1="385" x2="140" y2="385" stroke="#333" stroke-width="2" marker-end="url(#arrMR1)"/>
+                    <text x="145" y="390" font-size="13" fill="#333" font-weight="bold">X</text>
+                    <text x="48" y="400" font-size="11" fill="#555">Global</text>
+                    <text x="48" y="412" font-size="11" fill="#555">Frame</text>
+
+                    <!-- Reference trajectory (dashed curve) -->
+                    <path d="M 180 350 C 220 320, 260 270, 320 240 C 380 210, 420 200, 470 210 C 520 220, 550 250, 570 230 C 590 210, 620 180, 680 170" fill="none" stroke="#667eea" stroke-width="2.5" stroke-dasharray="8,5"/>
+                    <text x="690" y="168" font-size="12" fill="#667eea" font-weight="bold">Reference</text>
+                    <text x="690" y="182" font-size="12" fill="#667eea" font-weight="bold">trajectory</text>
+                    <!-- Reference position marker -->
+                    <circle cx="470" cy="210" r="5" fill="#667eea" opacity="0.6"/>
+                    <text x="478" y="200" font-size="10" fill="#667eea">(x&#x2084;, y&#x2084;)</text>
+
+                    <!-- Actual trajectory (solid curve) -->
+                    <path d="M 195 365 C 232 332, 268 285, 330 258 C 385 234, 418 224, 460 232" fill="none" stroke="#e91e63" stroke-width="2"/>
+                    <text x="195" y="380" font-size="11" fill="#e91e63">Actual path</text>
+
+                    <!-- Robot body (rotated group) -->
+                    <g transform="translate(460, 232) rotate(-15)">
+                        <!-- Robot rectangular body -->
+                        <rect x="-35" y="-22" width="70" height="44" rx="8" fill="#2196f3" stroke="#1565c0" stroke-width="2" opacity="0.85"/>
+
+                        <!-- Left wheel -->
+                        <rect x="-38" y="-30" width="8" height="16" rx="3" fill="#333" stroke="#111" stroke-width="1.5"/>
+                        <text x="-55" y="-18" font-size="9" fill="#333" font-weight="bold">&#x3C9;&#x2097;</text>
+
+                        <!-- Right wheel -->
+                        <rect x="-38" y="14" width="8" height="16" rx="3" fill="#333" stroke="#111" stroke-width="1.5"/>
+                        <text x="-55" y="28" font-size="9" fill="#333" font-weight="bold">&#x3C9;&#x1D63;</text>
+
+                        <!-- Caster (rear) -->
+                        <circle cx="28" cy="0" r="5" fill="#777" stroke="#555" stroke-width="1"/>
+
+                        <!-- Heading direction arrow -->
+                        <line x1="-20" y1="0" x2="-58" y2="0" stroke="#ff9800" stroke-width="2.5" marker-end="url(#arrMR2)"/>
+
+                        <!-- Body frame axes -->
+                        <line x1="0" y1="0" x2="-48" y2="0" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="3,2"/>
+                        <text x="-55" y="-5" font-size="10" fill="#4caf50" font-weight="bold">x&#x1D47;</text>
+                        <line x1="0" y1="0" x2="0" y2="-38" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="3,2"/>
+                        <text x="4" y="-40" font-size="10" fill="#4caf50" font-weight="bold">y&#x1D47;</text>
+
+                        <!-- Track width b annotation -->
+                        <line x1="-34" y1="-24" x2="-34" y2="24" stroke="#e91e63" stroke-width="1" stroke-dasharray="3,2"/>
+                        <text x="-30" y="42" font-size="10" fill="#e91e63" font-weight="bold">b</text>
+
+                        <!-- Wheel radius r annotation -->
+                        <line x1="-44" y1="-30" x2="-52" y2="-30" stroke="#ff9800" stroke-width="1"/>
+                        <line x1="-44" y1="-14" x2="-52" y2="-14" stroke="#ff9800" stroke-width="1"/>
+                        <line x1="-52" y1="-30" x2="-52" y2="-14" stroke="#ff9800" stroke-width="1"/>
+                        <text x="-65" y="-19" font-size="9" fill="#ff9800" font-weight="bold">r</text>
+                    </g>
+
+                    <!-- Heading angle phi -->
+                    <path d="M 500 232 A 40 40 0 0 0 490 198" fill="none" stroke="#ff9800" stroke-width="2"/>
+                    <text x="507" y="210" font-size="14" fill="#ff9800" font-weight="bold">&#x3D5;</text>
+
+                    <!-- Tracking errors -->
+                    <line x1="460" y1="232" x2="470" y2="210" stroke="#e91e63" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrMR4)"/>
+                    <text x="447" y="215" font-size="12" fill="#e91e63" font-weight="bold">e&#x2093;</text>
+                    <line x1="470" y1="210" x2="455" y2="198" stroke="#e91e63" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrMR4)"/>
+                    <text x="445" y="193" font-size="12" fill="#e91e63" font-weight="bold">e&#x2099;</text>
+
+                    <!-- Legend panel -->
+                    <rect x="560" y="250" width="220" height="160" rx="8" fill="white" stroke="#ddd" stroke-width="1.5"/>
+                    <text x="670" y="273" font-size="13" fill="#1e3c72" text-anchor="middle" font-weight="bold">Key Elements</text>
+                    <line x1="575" y1="280" x2="765" y2="280" stroke="#ddd" stroke-width="1"/>
+                    <line x1="580" y1="300" x2="610" y2="300" stroke="#667eea" stroke-width="2.5" stroke-dasharray="6,3"/>
+                    <text x="620" y="305" font-size="11" fill="#333">Reference trajectory</text>
+                    <line x1="580" y1="322" x2="610" y2="322" stroke="#e91e63" stroke-width="2"/>
+                    <text x="620" y="327" font-size="11" fill="#333">Actual trajectory</text>
+                    <rect x="580" y="338" width="25" height="14" rx="4" fill="#2196f3" opacity="0.85"/>
+                    <text x="620" y="350" font-size="11" fill="#333">Robot body</text>
+                    <text x="585" y="373" font-size="12" fill="#ff9800" font-weight="bold">&#x3D5;</text>
+                    <text x="620" y="373" font-size="11" fill="#333">Heading angle</text>
+                    <text x="580" y="393" font-size="12" fill="#e91e63" font-weight="bold">e&#x2093;, e&#x2099;</text>
+                    <text x="620" y="393" font-size="11" fill="#333">Tracking errors (body frame)</text>
+
+                    <!-- Uncertain parameters callout -->
+                    <rect x="180" y="40" width="260" height="55" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                    <text x="310" y="60" font-size="12" fill="#e65100" text-anchor="middle" font-weight="bold">Uncertain Parameters:</text>
+                    <text x="310" y="78" font-size="11" fill="#555" text-anchor="middle">r = wheel radius (tire wear, pressure)</text>
+                    <text x="310" y="92" font-size="11" fill="#555" text-anchor="middle">b = track width (alignment errors)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 5:</strong> Top-down view of a differential-drive mobile robot. The robot (blue) follows an actual path (pink) while tracking a reference trajectory (dashed purple). Tracking errors e&#x2093; and e&#x2099; are measured in the body frame. The uncertain parameters r (wheel radius) and b (track width) are indicated.</p>
+            </div>
+
+            <p>A differential-drive mobile robot converts wheel angular velocities \((\omega_L, \omega_R)\) to linear and angular velocity via:</p>
+            \[
+                v = \frac{r}{2}(\omega_R + \omega_L), \qquad \omega = \frac{r}{b}(\omega_R - \omega_L)
+            \]
+            <p>where \(r\) is the wheel radius and \(b\) is the track width (distance between wheels). The kinematic model in task space is:</p>
+            \[
+                \begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{\phi} \end{bmatrix}
+                = \begin{bmatrix} \cos\phi & 0 \\ \sin\phi & 0 \\ 0 & 1 \end{bmatrix}
+                \begin{bmatrix} v \\ \omega \end{bmatrix}
+            \]
+
+            <p>Uncertainties arise from:</p>
+            <ul>
+                <li><strong>Wheel radius \(r\):</strong> Tire pressure variations, wear, and deformation under load change the effective radius.</li>
+                <li><strong>Track width \(b\):</strong> Manufacturing tolerances and wheel alignment errors affect the effective distance between contact patches.</li>
+            </ul>
+
+            <h3>5.2 Linearity in Parameters for the Kinematic Model</h3>
+            <p>We can write the velocity-level kinematics in a form that is linear in the uncertain parameters. Define the control inputs as the wheel angular velocities \(u = [\omega_R, \omega_L]^T\). Then:</p>
+            \[
+                \begin{bmatrix} v \\ \omega \end{bmatrix}
+                = \begin{bmatrix} \frac{1}{2}\omega_R + \frac{1}{2}\omega_L \\ \frac{1}{b}(\omega_R - \omega_L) \end{bmatrix}
+                \cdot r
+            \]
+            <p>Define the parameter vector \(\theta_m = [r,\; r/b]^T\). Then:</p>
+            \[
+                \begin{bmatrix} v \\ \omega \end{bmatrix}
+                = \underbrace{\begin{bmatrix}
+                    \frac{1}{2}(\omega_R + \omega_L) & 0 \\
+                    0 & \omega_R - \omega_L
+                \end{bmatrix}}_{Y_m(u)}
+                \begin{bmatrix} r \\ r/b \end{bmatrix}
+            \]
+
+            <h3>5.3 Adaptive Tracking Controller</h3>
+            <p>For trajectory tracking, we use a Lyapunov-based approach. Define the position error in the body frame:</p>
+            \[
+                \begin{bmatrix} e_x \\ e_y \\ e_\phi \end{bmatrix}
+                = \begin{bmatrix} \cos\phi & \sin\phi & 0 \\ -\sin\phi & \cos\phi & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                \begin{bmatrix} x_d - x \\ y_d - y \\ \phi_d - \phi \end{bmatrix}
+            \]
+
+            <p>The desired velocity commands are computed from a standard tracking law:</p>
+            \[
+                v_c = v_d \cos(e_\phi) + k_1 e_x
+            \]
+            \[
+                \omega_c = \omega_d + v_d(k_2 e_y + k_3 \sin(e_\phi))
+            \]
+            <p>where \(v_d, \omega_d\) are the desired linear and angular velocities along the reference trajectory, and \(k_1, k_2, k_3 > 0\) are gains.</p>
+
+            <p>With known \(r\) and \(b\), we would directly compute the wheel speeds. With unknown parameters, we use adaptive estimation. The actual velocities depend on uncertain \(\theta_m\):</p>
+            \[
+                \begin{bmatrix} v \\ \omega \end{bmatrix} = Y_m(u)\,\hat{\theta}_m + \text{estimation error}
+            \]
+
+            <p>The parameter update law is:</p>
+            \[
+                \dot{\hat{\theta}}_m = \Gamma_m\, Y_m^T\, \begin{bmatrix} e_x \\ e_\phi \end{bmatrix}
+            \]
+            <p>where \(\Gamma_m \succ 0\) is the adaptation gain for the mobile robot parameters.</p>
+
+            <h3>5.4 MATLAB Implementation</h3>
+            <div class="code-block">%% Adaptive Control for Differential-Drive Mobile Robot
+% True parameters
+r_true = 0.05;     % wheel radius [m]
+b_true = 0.3;      % track width [m]
+theta_m_true = [r_true; r_true/b_true];
+
+% Initial estimates (20% error on both)
+r_hat0 = 0.04;   b_hat0 = 0.36;
+theta_m_hat0 = [r_hat0; r_hat0/b_hat0];
+
+% Tracking gains
+k1 = 3; k2 = 5; k3 = 3;
+Gamma_m = diag([0.01, 0.05]);
+
+% Circular reference trajectory
+R_circ = 2;  omega_circ = 0.5;
+xd   = @(t) R_circ*cos(omega_circ*t);
+yd   = @(t) R_circ*sin(omega_circ*t);
+phid = @(t) omega_circ*t + pi/2;
+vd   = @(t) R_circ*omega_circ;
+wd   = @(t) omega_circ;
+
+% State: [x; y; phi; theta_m_hat(1:2)]
+x0_mob = [R_circ; 0; pi/2; theta_m_hat0];
+tspan = 0:0.01:30;
+
+[t_mob, X_mob] = ode45(@(t,x) adaptive_mobile(t, x, ...
+    r_true, b_true, k1, k2, k3, Gamma_m, ...
+    xd, yd, phid, vd, wd), tspan, x0_mob);
+
+function dx = adaptive_mobile(t, x, r_true, b_true, ...
+                               k1, k2, k3, Gamma_m, ...
+                               xd, yd, phid, vd, wd)
+    px = x(1); py = x(2); phi = x(3);
+    theta_hat = x(4:5);
+
+    % Body-frame errors
+    ex =  cos(phi)*(xd(t)-px) + sin(phi)*(yd(t)-py);
+    ey = -sin(phi)*(xd(t)-px) + cos(phi)*(yd(t)-py);
+    ephi = phid(t) - phi;
+    ephi = atan2(sin(ephi), cos(ephi));  % wrap to [-pi,pi]
+
+    % Desired velocity commands
+    v_c  = vd(t)*cos(ephi) + k1*ex;
+    w_c  = wd(t) + vd(t)*(k2*ey + k3*sin(ephi));
+
+    % Inverse kinematics using estimated parameters
+    r_hat = theta_hat(1);
+    rb_hat = theta_hat(2);  % r/b estimate
+    omega_R = (v_c/r_hat) + (w_c/(2*rb_hat));
+    omega_L = (v_c/r_hat) - (w_c/(2*rb_hat));
+
+    % True velocities (using true parameters)
+    v_actual = (r_true/2)*(omega_R + omega_L);
+    w_actual = (r_true/b_true)*(omega_R - omega_L);
+
+    % Kinematics
+    dpx  = v_actual*cos(phi);
+    dpy  = v_actual*sin(phi);
+    dphi = w_actual;
+
+    % Parameter update
+    Y_m = [0.5*(omega_R+omega_L), 0; 0, omega_R-omega_L];
+    e_adapt = [ex; ephi];
+    dtheta = Gamma_m * Y_m' * e_adapt;
+
+    dx = [dpx; dpy; dphi; dtheta];
+end</div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 6: PART 4 — ADAPTIVE CONTROL FOR DRONE               -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 6: Part 4 &mdash; Adaptive Control for Quadrotor</h2>
+
+            <h3>6.1 Quadrotor Dynamics with Unknown Parameters</h3>
+
+            <!-- SVG: Quadrotor with Body Frame -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arrQ1" viewBox="0 0 12 12" refX="6" refY="0" markerWidth="7" markerHeight="7" orient="auto">
+                            <path d="M 0 12 L 6 0 L 12 12 z" fill="#4caf50"/>
+                        </marker>
+                        <marker id="arrQ2" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#ff9800"/>
+                        </marker>
+                        <marker id="arrQ3" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#667eea"/>
+                        </marker>
+                        <marker id="arrQ4" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#e91e63"/>
+                        </marker>
+                        <marker id="arrQ5" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 12 6 L 0 12 z" fill="#4caf50"/>
+                        </marker>
+                        <marker id="arrQ6" viewBox="0 0 12 12" refX="6" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+                            <path d="M 0 12 L 6 0 L 12 12 z" fill="#2196f3"/>
+                        </marker>
+                        <marker id="arrQ7" viewBox="0 0 12 12" refX="6" refY="12" markerWidth="7" markerHeight="7" orient="auto">
+                            <path d="M 0 0 L 12 0 L 6 12 z" fill="#333"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Title -->
+                    <text x="400" y="25" font-size="16" fill="#1e3c72" text-anchor="middle" font-weight="bold">Quadrotor UAV with Body Frame and Motor Configuration</text>
+
+                    <!-- Arms (draw first, behind body) -->
+                    <line x1="430" y1="220" x2="570" y2="150" stroke="#555" stroke-width="5" stroke-linecap="round"/>
+                    <line x1="370" y1="220" x2="230" y2="150" stroke="#555" stroke-width="5" stroke-linecap="round"/>
+                    <line x1="430" y1="240" x2="570" y2="310" stroke="#555" stroke-width="5" stroke-linecap="round"/>
+                    <line x1="370" y1="240" x2="230" y2="310" stroke="#555" stroke-width="5" stroke-linecap="round"/>
+
+                    <!-- Central body -->
+                    <ellipse cx="400" cy="230" rx="45" ry="20" fill="#2196f3" stroke="#1565c0" stroke-width="2" opacity="0.85"/>
+
+                    <!-- Motor 1 (Front-Right) CW -->
+                    <ellipse cx="570" cy="145" rx="45" ry="12" fill="#ff9800" opacity="0.15" stroke="#ff9800" stroke-width="1"/>
+                    <circle cx="570" cy="150" r="14" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+                    <text x="570" y="155" font-size="11" fill="white" text-anchor="middle" font-weight="bold">M1</text>
+                    <line x1="570" y1="130" x2="570" y2="88" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrQ1)"/>
+                    <text x="585" y="100" font-size="11" fill="#4caf50" font-weight="bold">T&#x2081;</text>
+                    <path d="M 545 138 A 30 10 0 0 1 595 138" fill="none" stroke="#ff9800" stroke-width="1.5" marker-end="url(#arrQ2)"/>
+                    <text x="570" y="175" font-size="9" fill="#e65100" text-anchor="middle" font-weight="bold">CW</text>
+
+                    <!-- Motor 2 (Front-Left) CCW -->
+                    <ellipse cx="230" cy="145" rx="45" ry="12" fill="#667eea" opacity="0.15" stroke="#667eea" stroke-width="1"/>
+                    <circle cx="230" cy="150" r="14" fill="#667eea" stroke="#3f51b5" stroke-width="2"/>
+                    <text x="230" y="155" font-size="11" fill="white" text-anchor="middle" font-weight="bold">M2</text>
+                    <line x1="230" y1="130" x2="230" y2="88" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrQ1)"/>
+                    <text x="215" y="100" font-size="11" fill="#4caf50" font-weight="bold">T&#x2082;</text>
+                    <path d="M 255 138 A 30 10 0 0 0 205 138" fill="none" stroke="#667eea" stroke-width="1.5" marker-end="url(#arrQ3)"/>
+                    <text x="230" y="175" font-size="9" fill="#3f51b5" text-anchor="middle" font-weight="bold">CCW</text>
+
+                    <!-- Motor 3 (Back-Left) CW -->
+                    <ellipse cx="230" cy="305" rx="45" ry="12" fill="#ff9800" opacity="0.15" stroke="#ff9800" stroke-width="1"/>
+                    <circle cx="230" cy="310" r="14" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+                    <text x="230" y="315" font-size="11" fill="white" text-anchor="middle" font-weight="bold">M3</text>
+                    <line x1="230" y1="290" x2="230" y2="255" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrQ1)"/>
+                    <text x="215" y="265" font-size="11" fill="#4caf50" font-weight="bold">T&#x2083;</text>
+                    <path d="M 205 300 A 30 10 0 0 1 255 300" fill="none" stroke="#ff9800" stroke-width="1.5" marker-end="url(#arrQ2)"/>
+                    <text x="230" y="338" font-size="9" fill="#e65100" text-anchor="middle" font-weight="bold">CW</text>
+
+                    <!-- Motor 4 (Back-Right) CCW -->
+                    <ellipse cx="570" cy="305" rx="45" ry="12" fill="#667eea" opacity="0.15" stroke="#667eea" stroke-width="1"/>
+                    <circle cx="570" cy="310" r="14" fill="#667eea" stroke="#3f51b5" stroke-width="2"/>
+                    <text x="570" y="315" font-size="11" fill="white" text-anchor="middle" font-weight="bold">M4</text>
+                    <line x1="570" y1="290" x2="570" y2="255" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrQ1)"/>
+                    <text x="585" y="265" font-size="11" fill="#4caf50" font-weight="bold">T&#x2084;</text>
+                    <path d="M 595 300 A 30 10 0 0 0 545 300" fill="none" stroke="#667eea" stroke-width="1.5" marker-end="url(#arrQ3)"/>
+                    <text x="570" y="338" font-size="9" fill="#3f51b5" text-anchor="middle" font-weight="bold">CCW</text>
+
+                    <!-- Body frame axes -->
+                    <line x1="400" y1="230" x2="310" y2="175" stroke="#e91e63" stroke-width="2.5" marker-end="url(#arrQ4)"/>
+                    <text x="295" y="170" font-size="13" fill="#e91e63" font-weight="bold">x&#x1D47;</text>
+                    <line x1="400" y1="230" x2="310" y2="278" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrQ5)"/>
+                    <text x="295" y="290" font-size="13" fill="#4caf50" font-weight="bold">y&#x1D47;</text>
+                    <line x1="400" y1="230" x2="400" y2="170" stroke="#2196f3" stroke-width="2.5" marker-end="url(#arrQ6)"/>
+                    <text x="410" y="168" font-size="13" fill="#2196f3" font-weight="bold">z&#x1D47;</text>
+
+                    <!-- Center of mass -->
+                    <circle cx="400" cy="230" r="5" fill="#1e3c72"/>
+
+                    <!-- Weight force (mg) -->
+                    <line x1="400" y1="248" x2="400" y2="318" stroke="#333" stroke-width="3" marker-end="url(#arrQ7)"/>
+                    <text x="418" y="308" font-size="14" fill="#333" font-weight="bold">mg</text>
+
+                    <!-- Euler Angles box -->
+                    <rect x="620" y="50" width="165" height="110" rx="8" fill="white" stroke="#ddd" stroke-width="1.5"/>
+                    <text x="702" y="72" font-size="13" fill="#1e3c72" text-anchor="middle" font-weight="bold">Euler Angles</text>
+                    <line x1="635" y1="78" x2="770" y2="78" stroke="#ddd" stroke-width="1"/>
+                    <text x="645" y="98" font-size="12" fill="#e91e63" font-weight="bold">&#x3D5;</text>
+                    <text x="665" y="98" font-size="11" fill="#333">Roll (about x&#x1D47;)</text>
+                    <text x="645" y="120" font-size="12" fill="#ff9800" font-weight="bold">&#x3B8;</text>
+                    <text x="665" y="120" font-size="11" fill="#333">Pitch (about y&#x1D47;)</text>
+                    <text x="645" y="142" font-size="12" fill="#2196f3" font-weight="bold">&#x3C8;</text>
+                    <text x="665" y="142" font-size="11" fill="#333">Yaw (about z&#x1D47;)</text>
+
+                    <!-- Unknown parameters callout -->
+                    <rect x="610" y="350" width="180" height="85" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                    <text x="700" y="372" font-size="12" fill="#e65100" text-anchor="middle" font-weight="bold">Unknown Parameters:</text>
+                    <text x="700" y="392" font-size="11" fill="#555" text-anchor="middle">m (mass)</text>
+                    <text x="700" y="408" font-size="11" fill="#555" text-anchor="middle">I&#x2093;&#x2093;, I&#x2099;&#x2099;, I&#x1D67;&#x1D67; (inertias)</text>
+                    <text x="700" y="424" font-size="11" fill="#555" text-anchor="middle">mg (gravity force)</text>
+
+                    <!-- Motor legend -->
+                    <rect x="30" y="50" width="155" height="75" rx="8" fill="white" stroke="#ddd" stroke-width="1.5"/>
+                    <text x="107" y="72" font-size="12" fill="#1e3c72" text-anchor="middle" font-weight="bold">Motor Direction</text>
+                    <line x1="45" y1="78" x2="170" y2="78" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="55" cy="95" r="7" fill="#ff9800" opacity="0.7"/>
+                    <text x="75" y="100" font-size="11" fill="#333">CW (M1, M3)</text>
+                    <circle cx="55" cy="115" r="7" fill="#667eea" opacity="0.7"/>
+                    <text x="75" y="120" font-size="11" fill="#333">CCW (M2, M4)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 6:</strong> Quadrotor UAV showing four rotors with alternating CW/CCW rotation, thrust vectors (green arrows), body frame axes (x&#x1D47;, y&#x1D47;, z&#x1D47;), weight force mg, and Euler angles. Unknown parameters include mass m and moments of inertia.</p>
+            </div>
+
+            <p>The translational dynamics of a quadrotor are:</p>
+            \[
+                m\ddot{p} = \begin{bmatrix} 0 \\ 0 \\ -mg \end{bmatrix} + R\begin{bmatrix} 0 \\ 0 \\ T \end{bmatrix}
+            \]
+            <p>where \(m\) is the mass, \(p = [x,y,z]^T\) is position, \(R \in SO(3)\) is the rotation matrix, and \(T\) is the total thrust. The rotational dynamics (simplified, Euler angles \(\phi, \theta, \psi\)) are:</p>
+            \[
+                I_{xx}\ddot{\phi} = \tau_\phi, \qquad I_{yy}\ddot{\theta} = \tau_\theta, \qquad I_{zz}\ddot{\psi} = \tau_\psi
+            \]
+            <p>The unknown parameters are:</p>
+            <div class="math-box">
+                \[
+                    \theta_d = \begin{bmatrix} m \\ m\,g \\ I_{xx} \\ I_{yy} \\ I_{zz} \end{bmatrix}
+                \]
+            </div>
+
+            <h3>6.2 Linearity in Parameters</h3>
+            <p>The translational dynamics can be written as:</p>
+            \[
+                m\ddot{p} + \begin{bmatrix} 0 \\ 0 \\ mg \end{bmatrix} = R\begin{bmatrix} 0 \\ 0 \\ T \end{bmatrix}
+            \]
+            <p>Define the position error \(e_p = p_d - p\), sliding variable \(s_p = \dot{e}_p + \Lambda_p e_p\), and reference acceleration \(\ddot{p}_r = \ddot{p}_d + \Lambda_p \dot{e}_p\). The desired thrust vector is:</p>
+            \[
+                F_{\mathrm{des}} = \hat{m}\,\ddot{p}_r + \begin{bmatrix} 0 \\ 0 \\ \hat{m}\hat{g} \end{bmatrix} + K_{D,p}\,s_p
+            \]
+            <p>This is linear in \([\hat{m},\; \hat{m}\hat{g}]^T\):</p>
+            \[
+                F_{\mathrm{des}} = Y_p\,\hat{\theta}_p + K_{D,p}\,s_p
+            \]
+            <p>where:</p>
+            \[
+                Y_p = \begin{bmatrix}
+                    \ddot{p}_{r,x} & 0 \\
+                    \ddot{p}_{r,y} & 0 \\
+                    \ddot{p}_{r,z} & 1
+                \end{bmatrix}, \qquad
+                \hat{\theta}_p = \begin{bmatrix} \hat{m} \\ \hat{m}\hat{g} \end{bmatrix}
+            \]
+
+            <p>The total thrust magnitude is \(T = \|F_{\mathrm{des}}\|\), and the desired orientation is extracted from \(F_{\mathrm{des}}\).</p>
+
+            <h3>6.3 Attitude Adaptive Control</h3>
+            <p>For the attitude loop, define the orientation error \(e_a = [\phi_d - \phi,\; \theta_d - \theta_0,\; \psi_d - \psi]^T\), the sliding variable \(s_a = \dot{e}_a + \Lambda_a e_a\), and the reference angular acceleration \(\ddot{\eta}_r = \ddot{\eta}_d + \Lambda_a \dot{e}_a\). The adaptive torque is:</p>
+            \[
+                \tau_a = Y_a\,\hat{\theta}_a + K_{D,a}\,s_a
+            \]
+            <p>where:</p>
+            \[
+                Y_a = \mathrm{diag}(\ddot{\eta}_{r,1},\; \ddot{\eta}_{r,2},\; \ddot{\eta}_{r,3}), \qquad
+                \hat{\theta}_a = \begin{bmatrix} \hat{I}_{xx} \\ \hat{I}_{yy} \\ \hat{I}_{zz} \end{bmatrix}
+            \]
+
+            <h3>6.4 Update Laws</h3>
+            \[
+                \dot{\hat{\theta}}_p = \Gamma_p^{-1}\,Y_p^T\,s_p, \qquad
+                \dot{\hat{\theta}}_a = \Gamma_a^{-1}\,Y_a^T\,s_a
+            \]
+
+            <h3>6.5 MATLAB Implementation</h3>
+            <div class="code-block">%% Adaptive Control for Quadrotor
+% True parameters
+m_true = 1.5;  g_val = 9.81;
+Ixx_true = 0.03; Iyy_true = 0.03; Izz_true = 0.06;
+
+theta_p_true = [m_true; m_true*g_val];
+theta_a_true = [Ixx_true; Iyy_true; Izz_true];
+
+% Initial estimates (mass off by 50%, inertias off by 40%)
+m_hat0 = 1.0;  g_hat = 9.81;
+theta_p_hat0 = [m_hat0; m_hat0*g_hat];
+theta_a_hat0 = [0.05; 0.05; 0.10];
+
+% Gains
+Lambda_p = 2*eye(3);   K_Dp = 15*eye(3);  Gamma_p_inv = 0.5*eye(2);
+Lambda_a = 5*eye(3);   K_Da = 8*eye(3);   Gamma_a_inv = 0.1*eye(3);
+
+% State: [x,y,z, dx,dy,dz, phi,theta,psi, dphi,dtheta,dpsi, theta_p_hat(2), theta_a_hat(3)]
+x0_quad = zeros(17,1);
+x0_quad(13:14) = theta_p_hat0;
+x0_quad(15:17) = theta_a_hat0;
+
+% Helical trajectory
+pd = @(t) [2*cos(0.5*t); 2*sin(0.5*t); 0.2*t];
+dpd = @(t) [-sin(0.5*t); cos(0.5*t); 0.2];
+ddpd = @(t) [-0.5*cos(0.5*t); -0.5*sin(0.5*t); 0];
+psid = @(t) 0;  dpsid = @(t) 0;  ddpsid = @(t) 0;
+
+tspan = 0:0.01:30;
+[t_q, X_q] = ode45(@(t,x) adaptive_quad(t, x, m_true, g_val, ...
+    Ixx_true, Iyy_true, Izz_true, Lambda_p, K_Dp, Gamma_p_inv, ...
+    Lambda_a, K_Da, Gamma_a_inv, pd, dpd, ddpd, psid, dpsid, ddpsid), ...
+    tspan, x0_quad);</div>
+
+            <p>The full implementation, including the ODE function for the quadrotor adaptive controller, is provided in the companion MATLAB file <code>adaptive_control_simulation.m</code>.</p>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 7: ACTIVITIES                                         -->
+        <!-- ============================================================ -->
+        <div class="section activity">
+            <h2>Section 7: Part 5 &mdash; MATLAB Implementation &amp; Activities</h2>
+
+            <h3>Activity 1: Parameter Convergence (10 minutes)</h3>
+            <div class="card">
+                <h4>Instructions</h4>
+                <ol>
+                    <li>Open <code>adaptive_control_simulation.m</code> in MATLAB.</li>
+                    <li>Run Section 1 (2-DOF Manipulator Adaptive Control). The true mass is \(m_2 = 2\) kg, but the initial estimate is \(\hat{m}_2 = 1\) kg.</li>
+                    <li>Observe the six subplots of parameter estimates \(\hat{\theta}_i(t)\) versus the true values \(\theta_i\).</li>
+                    <li>Answer: Do all parameters converge to their true values? If not, which ones do not, and why?</li>
+                </ol>
+                <div class="info">
+                    <strong>Expected observation:</strong> Parameters that appear in the regressor columns excited by the sinusoidal trajectory will converge. Parameters associated with modes not excited may converge to incorrect values &mdash; but tracking is still achieved. This is the difference between <em>stability</em> (guaranteed by Lyapunov) and <em>parameter convergence</em> (requires persistent excitation).
+                </div>
+            </div>
+
+            <h3>Activity 2: Adaptive vs Computed Torque Under Uncertainty (15 minutes)</h3>
+            <div class="card">
+                <h4>Instructions</h4>
+                <ol>
+                    <li>Run Section 4 of the MATLAB file, which compares:
+                        <ul>
+                            <li><strong>Computed torque</strong> using incorrect parameters (\(\hat{m}_2 = 1\) kg, true \(m_2 = 2\) kg).</li>
+                            <li><strong>Adaptive control</strong> with the same initial parameter estimates.</li>
+                        </ul>
+                    </li>
+                    <li>Compare the tracking error plots side-by-side.</li>
+                    <li>Answer these questions:
+                        <ul>
+                            <li>What is the steady-state tracking error for computed torque with wrong parameters?</li>
+                            <li>How long does adaptive control take to reduce the error to below the computed torque error?</li>
+                            <li>Is there a transient period where adaptive control is actually worse? Why?</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <h3>Quiz</h3>
+            <div class="quiz-box">
+                <h4>Quick Quiz: Regressor Construction</h4>
+                <p><strong>Question:</strong> Consider the gravity term for link 2 of the 2-DOF manipulator:</p>
+                \[
+                    G_2 = m_2\,g\,l_2\,\sin(q_1 + q_2)
+                \]
+                <p>This is the second element of the gravity vector \(G(q)\). Define a composite parameter \(\theta_6 = m_2 g l_2\). What is the corresponding regressor entry?</p>
+
+                <p><strong>Answer:</strong> The regressor entry for the second row (joint 2 equation) and the column corresponding to \(\theta_6\) is simply:</p>
+                \[
+                    Y_{2,6} = \sin(q_1 + q_2)
+                \]
+                <p>Because \(G_2 = \theta_6 \cdot \sin(q_1 + q_2)\). The regressor separates the known kinematic function \(\sin(q_1+q_2)\) from the unknown parameter \(\theta_6 = m_2 g l_2\).</p>
+
+                <p><strong>Follow-up:</strong> Does the first row (joint 1 equation) also have a \(\theta_6\) entry? Yes:</p>
+                \[
+                    Y_{1,6} = \sin(q_1 + q_2)
+                \]
+                <p>because the gravity contribution of link 2 to joint 1 is also \(m_2 g l_2 \sin(q_1+q_2)\).</p>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 8: SUMMARY COMPARISON TABLE                           -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 8: Summary &mdash; Control Methods Comparison</h2>
+
+            <table>
+                <tr>
+                    <th>Property</th>
+                    <th>Computed Torque (Week 1)</th>
+                    <th>MPC (Week 2)</th>
+                    <th>Adaptive Control (Week 3)</th>
+                </tr>
+                <tr>
+                    <td><strong>Core idea</strong></td>
+                    <td>Cancel nonlinearities with exact model, reduce to linear error dynamics</td>
+                    <td>Predict future states over horizon, optimise control sequence online</td>
+                    <td>Estimate unknown parameters online while controlling; Lyapunov guarantees stability</td>
+                </tr>
+                <tr>
+                    <td><strong>Model requirement</strong></td>
+                    <td>Exact knowledge of \(M(q), C(q,\dot{q}), G(q)\)</td>
+                    <td>Known (possibly linearised) model for prediction</td>
+                    <td>Known structure (regressor \(Y\)), unknown parameter values (\(\theta\))</td>
+                </tr>
+                <tr>
+                    <td><strong>Handles uncertainty?</strong></td>
+                    <td>No &mdash; performance degrades with parameter errors</td>
+                    <td>Partially &mdash; robust MPC variants exist but add conservatism</td>
+                    <td>Yes &mdash; explicitly designed for parametric uncertainty</td>
+                </tr>
+                <tr>
+                    <td><strong>Handles constraints?</strong></td>
+                    <td>No (must add saturation externally)</td>
+                    <td>Yes &mdash; naturally incorporates state and input constraints</td>
+                    <td>Not directly (parameter projection can enforce bounds on \(\hat{\theta}\))</td>
+                </tr>
+                <tr>
+                    <td><strong>Computation</strong></td>
+                    <td>Low &mdash; one matrix inversion per step</td>
+                    <td>High &mdash; solves QP at each step</td>
+                    <td>Low &mdash; regressor multiply + parameter ODE integration</td>
+                </tr>
+                <tr>
+                    <td><strong>Stability guarantee</strong></td>
+                    <td>Exponential (with exact model)</td>
+                    <td>Guaranteed with terminal cost/constraint</td>
+                    <td>Asymptotic via Lyapunov + Barbalat's lemma</td>
+                </tr>
+                <tr>
+                    <td><strong>Parameter convergence</strong></td>
+                    <td>N/A (parameters assumed known)</td>
+                    <td>N/A (parameters assumed known)</td>
+                    <td>Only with persistent excitation</td>
+                </tr>
+                <tr>
+                    <td><strong>Key design parameters</strong></td>
+                    <td>\(K_p, K_v\) (PD gains)</td>
+                    <td>\(Q, R, N\) (cost weights, horizon)</td>
+                    <td>\(\Lambda, K_D, \Gamma\) (sliding surface, damping, adaptation rate)</td>
+                </tr>
+                <tr>
+                    <td><strong>Best suited for</strong></td>
+                    <td>Well-modelled systems with known parameters</td>
+                    <td>Systems with constraints, preview information, and known models</td>
+                    <td>Systems with unknown or slowly-varying parameters, no constraints</td>
+                </tr>
+            </table>
+
+            <div class="info">
+                <strong>Looking ahead &mdash; Week 4: Robust Control.</strong> What if the uncertainty is not parametric but includes unmodelled dynamics, disturbances, or unstructured uncertainty? Robust control (e.g., sliding mode control, \(H_\infty\)) provides guaranteed performance bounds without requiring online estimation. We will see how robust and adaptive approaches can be combined.
+            </div>
+        </div>
+
+    </div><!-- end content -->
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>M.Sc. Control for Robots &mdash; AY 2025&ndash;26</p>
+        <p>Week 3: Adaptive Control &bull; Lecture Notes</p>
+    </div>
+
+</div><!-- end container -->
+</body>
+</html>

@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 12: Full System Integration &amp; Capstone Project</title>
+<script>
+    MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+@page { size: A4; margin: 2cm; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+.page { width: 21cm; min-height: 29.7cm; padding: 2cm; margin: 20px auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); page-break-after: always; }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+.header h1 { font-size: 2.5em; margin-bottom: 10px; }
+.header p { font-size: 1.2em; opacity: 0.9; }
+h2 { color: #667eea; border-bottom: 3px solid #764ba2; padding-bottom: 10px; margin: 30px 0 20px 0; font-size: 1.8em; }
+h3 { color: #764ba2; margin: 25px 0 15px 0; font-size: 1.4em; }
+h4 { color: #667eea; margin: 20px 0 10px 0; font-size: 1.2em; }
+.info-box { background: #e8f4f8; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+.warning-box { background: #fff4e6; border-left: 5px solid #ff9800; padding: 20px; margin: 20px 0; border-radius: 5px; }
+.activity-box { background: #f0f8ff; border: 3px solid #4CAF50; padding: 25px; margin: 30px 0; border-radius: 10px; }
+.activity-box h3 { color: #4CAF50; margin-top: 0; }
+.image-container { text-align: center; margin: 30px 0; }
+.image-container img { max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.image-caption { font-style: italic; color: #666; margin-top: 10px; font-size: 0.9em; }
+ul, ol { margin: 15px 0 15px 30px; }
+li { margin: 8px 0; }
+.two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+.two-column > * { min-width: 0; overflow: hidden; }
+.three-column { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0; }
+.three-column > * { min-width: 0; overflow: hidden; }
+.checklist { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
+.checklist li { list-style: none; padding: 8px 0; }
+.checklist li:before { content: "\2713 "; color: #4CAF50; font-weight: bold; margin-right: 10px; }
+table { width: 100%; border-collapse: collapse; margin: 20px 0; table-layout: fixed; word-wrap: break-word; }
+th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+th { background: #667eea; color: white; }
+tr:nth-child(even) { background: #f9f9f9; }
+td code { word-break: break-all; }
+.diagram { border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin: 20px 0; background: white; }
+.flow-step { background: #667eea; color: white; padding: 15px; margin: 10px 0; border-radius: 8px; text-align: center; font-weight: bold; }
+.arrow { text-align: center; font-size: 2em; color: #764ba2; margin: 5px 0; }
+.tip { background: #fffbea; border-left: 5px solid #ffd700; padding: 15px; margin: 15px 0; border-radius: 5px; }
+.tip:before { content: "\1F4A1 TIP: "; font-weight: bold; color: #ff9800; }
+code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; word-break: break-all; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-wrap: break-word; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.5; }
+.example-box { background: #f0fff0; border: 2px dashed #4CAF50; padding: 20px; margin: 20px 0; border-radius: 8px; }
+.math { padding: 15px; margin: 15px 0; border-radius: 5px; overflow-x: auto; max-width: 100%; }
+.sensor-card { background: white; border: 2px solid #667eea; border-radius: 10px; padding: 20px; text-align: center; }
+.sensor-card h4 { color: #667eea; margin-bottom: 10px; }
+img { max-width: 100%; height: auto; }
+svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: Title -->
+<div class="page">
+<div class="header">
+<h1>Week 12: Full System Integration &amp; Capstone Project</h1>
+<p>TC70045E Robotics &amp; Drone Engineering | Dr. Abdul Manan Khan</p>
+<p>Advanced Robotics Programme | Final Week</p>
+</div>
+
+<div style="background:#e8f5e9; border-left:5px solid #388e3c; padding:15px 20px; margin:20px 0; border-radius:6px;">
+    <strong style="color:#1b5e20;">Connection to Week 8 — Nonlinear Control Optimization.</strong>
+    <p style="margin-top:8px;">The capstone integrates every control method studied in the programme. Week 8 provides the <em>unified optimization framework</em> that now replaces the earlier LQR/LQG ending of the control block:</p>
+    <ul style="margin-top:6px;">
+        <li><strong>Controller comparison</strong>: Week 8's min-max tuning produces a fair like-for-like comparison between SMC / adaptive / robust / backstepping / NMPC on the same robot and same cost.</li>
+        <li><strong>Trajectory planning</strong>: iLQR / DDP is the <em>trajectory-level</em> optimizer that upstream planners (RRT*, A*, MPPI) hand off to for smoothing and kinodynamic refinement.</li>
+        <li><strong>Full-stack tuning</strong>: every PID / MPC / Kalman knob in the integrated system &mdash; position loop, attitude loop, estimator covariances, planner weights &mdash; is a decision variable for the same outer NLP framework Week 8 describes in §10.</li>
+    </ul>
+</div>
+<div class="info-box">
+<h3>The Culmination</h3>
+<p>This is the final week of TC70045E. Over the past 11 weeks you have built individual competencies in LiDAR processing, sensor fusion, ROS2, SLAM, navigation, quadrotor dynamics, PX4 integration, 3D path planning, trajectory optimisation, computer vision, and control systems. Now we bring <strong>everything together</strong> into a complete autonomous drone system.</p>
+</div>
+<h2>Module Information</h2>
+<table>
+<tr><th style="width:35%">Detail</th><th>Information</th></tr>
+<tr><td>Module Code</td><td>TC70045E</td></tr>
+<tr><td>Programme</td><td>M.Sc. Robotics &amp; Drone Engineering</td></tr>
+<tr><td>Week</td><td>12 of 12 (Final Week)</td></tr>
+<tr><td>Topic</td><td>Full System Integration &amp; Capstone Project</td></tr>
+<tr><td>Instructor</td><td>Dr. Abdul Manan Khan</td></tr>
+<tr><td>Institution</td><td>Advanced Robotics Programme</td></tr>
+<tr><td>Prerequisites</td><td>Weeks 1-11 (all prior modules)</td></tr>
+</table>
+<h2>Learning Objectives</h2>
+<ol>
+<li>Design and implement a complete autonomous drone software architecture</li>
+<li>Integrate perception, state estimation, planning, and control subsystems</li>
+<li>Apply systematic testing strategies from unit tests to field deployment</li>
+<li>Diagnose and resolve common integration failures</li>
+<li>Evaluate end-to-end system performance quantitatively</li>
+<li>Prepare professional documentation and project presentations</li>
+<li>Understand industry certification and deployment requirements</li>
+</ol>
+</div>
+
+<!-- PAGE 2: What System Integration Means -->
+<div class="page">
+<h2>1. What is System Integration?</h2>
+<p>System integration is the process of combining individually developed and tested subsystems into a single coherent system. In autonomous drone engineering this means connecting perception, estimation, planning and control into a pipeline that operates reliably in real time.</p>
+<h3>Why Integration is the Hardest Part</h3>
+<div class="warning-box">
+<strong>The Integration Problem:</strong> Individual components that work perfectly in isolation often fail when combined. Timing mismatches, frame transform errors, inconsistent assumptions, and cascading failures make integration the most challenging phase of any robotics project.
+</div>
+<div class="two-column">
+<div class="info-box">
+<h4>Component Development</h4>
+<ul><li>Well-defined inputs/outputs</li><li>Controlled test environment</li><li>Single failure mode at a time</li><li>Easier to debug</li></ul>
+</div>
+<div class="warning-box">
+<h4>System Integration</h4>
+<ul><li>Emergent behaviours</li><li>Timing dependencies</li><li>Cascading failures</li><li>Non-reproducible bugs</li></ul>
+</div>
+</div>
+<h3>The Integration Gap</h3>
+<p>Research shows that integration and testing typically consume <strong>40-60%</strong> of total project time in robotics. The "last 10%" of making a system work reliably often takes as long as the first 90%.</p>
+<div class="image-container">
+<svg width="600" height="160" viewBox="0 0 600 160">
+<defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs>
+<rect x="10" y="30" width="180" height="50" rx="8" fill="#4CAF50"/>
+<text x="100" y="60" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Component Dev (30%)</text>
+<rect x="200" y="30" width="180" height="50" rx="8" fill="#ff9800"/>
+<text x="290" y="60" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Integration (40%)</text>
+<rect x="390" y="30" width="180" height="50" rx="8" fill="#f44336"/>
+<text x="480" y="60" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Testing &amp; Debug (30%)</text>
+<text x="300" y="120" text-anchor="middle" font-size="14" fill="#333">Typical Robotics Project Time Distribution</text>
+<line x1="10" y1="135" x2="580" y2="135" stroke="#667eea" stroke-width="3"/>
+<text x="10" y="155" font-size="12" fill="#666">Project Start</text>
+<text x="500" y="155" font-size="12" fill="#666">Deployment</text>
+</svg>
+<div class="image-caption">Figure 1: Typical time distribution in a robotics project</div>
+</div>
+</div>
+
+<!-- PAGE 3: System Architecture Review -->
+<div class="page">
+<h2>2. System Architecture Review: The Full Autonomy Stack</h2>
+<p>A fully autonomous drone requires a layered software architecture where each layer provides services to the layer above it.</p>
+<div class="image-container">
+<svg width="650" height="450" viewBox="0 0 650 450">
+<defs>
+<linearGradient id="percGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#e91e63"/><stop offset="100%" style="stop-color:#f44336"/></linearGradient>
+<linearGradient id="estGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9c27b0"/><stop offset="100%" style="stop-color:#673ab7"/></linearGradient>
+<linearGradient id="planGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#2196f3"/><stop offset="100%" style="stop-color:#03a9f4"/></linearGradient>
+<linearGradient id="ctrlGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#4CAF50"/><stop offset="100%" style="stop-color:#8bc34a"/></linearGradient>
+<linearGradient id="actGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#ff9800"/><stop offset="100%" style="stop-color:#ffc107"/></linearGradient>
+</defs>
+<rect x="50" y="20" width="550" height="65" rx="10" fill="url(#percGrad)"/>
+<text x="325" y="48" text-anchor="middle" fill="white" font-size="18" font-weight="bold">Perception</text>
+<text x="325" y="70" text-anchor="middle" fill="white" font-size="12">LiDAR (Wk1) | Camera/CV (Wk10) | Depth Sensors</text>
+<polygon points="325,90 315,95 335,95" fill="#764ba2"/>
+<rect x="50" y="105" width="550" height="65" rx="10" fill="url(#estGrad)"/>
+<text x="325" y="133" text-anchor="middle" fill="white" font-size="18" font-weight="bold">State Estimation</text>
+<text x="325" y="155" text-anchor="middle" fill="white" font-size="12">EKF/UKF Fusion (Wk2) | SLAM (Wk4) | Localisation</text>
+<polygon points="325,175 315,180 335,180" fill="#764ba2"/>
+<rect x="50" y="190" width="550" height="65" rx="10" fill="url(#planGrad)"/>
+<text x="325" y="218" text-anchor="middle" fill="white" font-size="18" font-weight="bold">Planning</text>
+<text x="325" y="240" text-anchor="middle" fill="white" font-size="12">A*/RRT* (Wk8) | EGO-Planner (Wk9) | B-spline Trajectories</text>
+<polygon points="325,260 315,265 335,265" fill="#764ba2"/>
+<rect x="50" y="275" width="550" height="65" rx="10" fill="url(#ctrlGrad)"/>
+<text x="325" y="303" text-anchor="middle" fill="white" font-size="18" font-weight="bold">Control</text>
+<text x="325" y="325" text-anchor="middle" fill="white" font-size="12">PID/LQR/MPC (Wk11) | Attitude Control (Wk6)</text>
+<polygon points="325,345 315,350 335,350" fill="#764ba2"/>
+<rect x="50" y="360" width="550" height="65" rx="10" fill="url(#actGrad)"/>
+<text x="325" y="388" text-anchor="middle" fill="white" font-size="18" font-weight="bold">Actuation</text>
+<text x="325" y="410" text-anchor="middle" fill="white" font-size="12">PX4 Autopilot (Wk7) | Motor Mixing | ESC Commands</text>
+</svg>
+<div class="image-caption">Figure 2: Complete drone autonomy stack with course week references</div>
+</div>
+<h3>How All 12 Weeks Connect</h3>
+<table>
+<tr><th style="width:10%">Week</th><th style="width:25%">Topic</th><th>Role in Integrated System</th></tr>
+<tr><td>1</td><td>LiDAR Processing</td><td>Point cloud filtering, ground removal, obstacle detection</td></tr>
+<tr><td>2</td><td>Sensor Fusion</td><td>EKF/UKF combining IMU, GPS, vision for state estimation</td></tr>
+<tr><td>3</td><td>ROS2 Fundamentals</td><td>Communication middleware, node lifecycle, transforms</td></tr>
+<tr><td>4</td><td>SLAM</td><td>Simultaneous mapping and localisation for unknown environments</td></tr>
+<tr><td>5</td><td>Nav2</td><td>Navigation framework, costmaps, behaviour trees</td></tr>
+<tr><td>6</td><td>Quadrotor Dynamics</td><td>Physical model for simulation and control design</td></tr>
+<tr><td>7</td><td>PX4 Integration</td><td>Flight controller interface, offboard mode, MAVLink</td></tr>
+<tr><td>8</td><td>3D Path Planning</td><td>A*, RRT*, PRM for global path computation</td></tr>
+<tr><td>9</td><td>EGO-Planner</td><td>Real-time local planning, B-spline trajectory optimisation</td></tr>
+<tr><td>10</td><td>Computer Vision</td><td>Object detection, feature tracking, visual odometry</td></tr>
+<tr><td>11</td><td>Control Systems</td><td>PID, LQR, LQG, MPC for trajectory tracking</td></tr>
+<tr><td>12</td><td>Integration</td><td>Combining all subsystems into a working whole</td></tr>
+</table>
+</div>
+
+<!-- PAGE 4: Software Architecture Patterns -->
+<div class="page">
+<h2>3. Software Architecture Patterns</h2>
+<h3>Component-Based Architecture</h3>
+<p>The most common pattern in robotics: each functional module is an independent component with well-defined interfaces.</p>
+<div class="two-column">
+<div class="sensor-card"><h4>Advantages</h4><ul><li>Independent development</li><li>Reusable components</li><li>Easier testing</li><li>Parallel execution</li></ul></div>
+<div class="sensor-card"><h4>Disadvantages</h4><ul><li>Communication overhead</li><li>Synchronisation complexity</li><li>Distributed debugging</li><li>Interface versioning</li></ul></div>
+</div>
+<h3>Layered Architecture</h3>
+<div class="image-container">
+<svg width="500" height="260" viewBox="0 0 500 260">
+<rect x="50" y="10" width="400" height="50" rx="8" fill="#e91e63"/><text x="250" y="40" text-anchor="middle" fill="white" font-size="15" font-weight="bold">Mission Layer (Goals, Waypoints)</text>
+<rect x="50" y="70" width="400" height="50" rx="8" fill="#9c27b0"/><text x="250" y="100" text-anchor="middle" fill="white" font-size="15" font-weight="bold">Planning Layer (Paths, Trajectories)</text>
+<rect x="50" y="130" width="400" height="50" rx="8" fill="#2196f3"/><text x="250" y="160" text-anchor="middle" fill="white" font-size="15" font-weight="bold">Control Layer (Velocity, Attitude)</text>
+<rect x="50" y="190" width="400" height="50" rx="8" fill="#4CAF50"/><text x="250" y="220" text-anchor="middle" fill="white" font-size="15" font-weight="bold">Hardware Abstraction (Drivers, PX4)</text>
+</svg>
+<div class="image-caption">Figure 3: Layered architecture for drone autonomy</div>
+</div>
+<h3>Pipeline Architecture</h3>
+<div class="diagram">
+<div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;">
+<div style="background:#e91e63;color:white;padding:10px 15px;border-radius:8px;font-weight:bold;font-size:0.9em;">Raw Sensor</div>
+<span style="font-size:1.5em;color:#764ba2;">&rarr;</span>
+<div style="background:#9c27b0;color:white;padding:10px 15px;border-radius:8px;font-weight:bold;font-size:0.9em;">Filter</div>
+<span style="font-size:1.5em;color:#764ba2;">&rarr;</span>
+<div style="background:#2196f3;color:white;padding:10px 15px;border-radius:8px;font-weight:bold;font-size:0.9em;">Feature Extract</div>
+<span style="font-size:1.5em;color:#764ba2;">&rarr;</span>
+<div style="background:#4CAF50;color:white;padding:10px 15px;border-radius:8px;font-weight:bold;font-size:0.9em;">Classify</div>
+<span style="font-size:1.5em;color:#764ba2;">&rarr;</span>
+<div style="background:#ff9800;color:white;padding:10px 15px;border-radius:8px;font-weight:bold;font-size:0.9em;">Action</div>
+</div>
+</div>
+<h3>ROS2 Node Graph for Full System</h3>
+<div class="image-container">
+<svg width="600" height="300" viewBox="0 0 600 300">
+<rect x="10" y="10" width="110" height="35" rx="6" fill="#e91e63"/><text x="65" y="33" text-anchor="middle" fill="white" font-size="11" font-weight="bold">lidar_node</text>
+<rect x="10" y="60" width="110" height="35" rx="6" fill="#e91e63"/><text x="65" y="83" text-anchor="middle" fill="white" font-size="11" font-weight="bold">camera_node</text>
+<rect x="10" y="110" width="110" height="35" rx="6" fill="#e91e63"/><text x="65" y="133" text-anchor="middle" fill="white" font-size="11" font-weight="bold">imu_node</text>
+<rect x="190" y="30" width="110" height="35" rx="6" fill="#9c27b0"/><text x="245" y="53" text-anchor="middle" fill="white" font-size="11" font-weight="bold">obstacle_det</text>
+<rect x="190" y="100" width="110" height="35" rx="6" fill="#9c27b0"/><text x="245" y="123" text-anchor="middle" fill="white" font-size="11" font-weight="bold">ekf_fusion</text>
+<rect x="370" y="30" width="110" height="35" rx="6" fill="#2196f3"/><text x="425" y="53" text-anchor="middle" fill="white" font-size="11" font-weight="bold">map_server</text>
+<rect x="370" y="100" width="110" height="35" rx="6" fill="#2196f3"/><text x="425" y="123" text-anchor="middle" fill="white" font-size="11" font-weight="bold">path_planner</text>
+<rect x="370" y="175" width="110" height="35" rx="6" fill="#4CAF50"/><text x="425" y="198" text-anchor="middle" fill="white" font-size="11" font-weight="bold">traj_gen</text>
+<rect x="230" y="235" width="110" height="35" rx="6" fill="#ff9800"/><text x="285" y="258" text-anchor="middle" fill="white" font-size="11" font-weight="bold">controller</text>
+<rect x="420" y="245" width="110" height="35" rx="6" fill="#f44336"/><text x="475" y="268" text-anchor="middle" fill="white" font-size="11" font-weight="bold">px4_bridge</text>
+<line x1="120" y1="27" x2="190" y2="43" stroke="#999" stroke-width="2"/>
+<line x1="120" y1="77" x2="190" y2="52" stroke="#999" stroke-width="2"/>
+<line x1="120" y1="77" x2="190" y2="113" stroke="#999" stroke-width="2"/>
+<line x1="120" y1="127" x2="190" y2="120" stroke="#999" stroke-width="2"/>
+<line x1="300" y1="47" x2="370" y2="47" stroke="#999" stroke-width="2"/>
+<line x1="300" y1="117" x2="370" y2="117" stroke="#999" stroke-width="2"/>
+<line x1="425" y1="65" x2="425" y2="100" stroke="#999" stroke-width="2"/>
+<line x1="425" y1="135" x2="425" y2="175" stroke="#999" stroke-width="2"/>
+<line x1="400" y1="210" x2="340" y2="240" stroke="#999" stroke-width="2"/>
+<line x1="340" y1="252" x2="420" y2="260" stroke="#999" stroke-width="2"/>
+</svg>
+<div class="image-caption">Figure 4: ROS2 node graph for a complete autonomous drone system</div>
+</div>
+</div>
+
+<!-- PAGE 5: Integration Challenges -->
+<div class="page">
+<h2>4. Integration Challenges</h2>
+<h3>4.1 Timing and Synchronisation</h3>
+<p>Different sensors run at different rates: LiDAR at 10 Hz, IMU at 200 Hz, camera at 30 Hz. The controller expects consistent state estimates regardless of sensor availability.</p>
+<div class="warning-box">
+<strong>Common Timing Failure:</strong> The planner receives a stale state estimate because the EKF has not yet processed the latest sensor data. The planned path is based on where the drone <em>was</em>, not where it <em>is</em>, causing oscillations or collisions.
+</div>
+<div class="math">\[ \tau_{\text{total}} = \tau_{\text{perception}} + \tau_{\text{estimation}} + \tau_{\text{planning}} + \tau_{\text{control}} \]</div>
+<p>where:</p>
+<ul>
+<li>\(\tau_{\text{total}}\) is the end-to-end pipeline latency (seconds)</li>
+<li>\(\tau_{\text{perception}}\) is the time to process raw sensor data</li>
+<li>\(\tau_{\text{estimation}}\) is the state estimation computation time</li>
+<li>\(\tau_{\text{planning}}\) is the path/trajectory planning time</li>
+<li>\(\tau_{\text{control}}\) is the control computation and actuation time</li>
+</ul>
+<h3>4.2 Frame Transforms</h3>
+<p>Every sensor has its own coordinate frame. The LiDAR frame, camera frame, body frame, and world frame must all be correctly related through the TF2 transform tree.</p>
+<div class="warning-box">
+<strong>Frame Transform Bug:</strong> The camera obstacle detection reports positions in the camera frame, but the planner expects them in the world frame. Without the correct transform, obstacles appear in the wrong location.
+</div>
+<h3>4.3 Data Flow and Bandwidth</h3>
+<div class="info-box">
+<h4>Bandwidth Management Strategies</h4>
+<ul>
+<li>Downsample point clouds before publishing (voxel grid filter)</li>
+<li>Use compressed image transport</li>
+<li>Publish processed results not raw data when possible</li>
+<li>Use QoS profiles: <code>BEST_EFFORT</code> for sensors, <code>RELIABLE</code> for commands</li>
+</ul>
+</div>
+<h3>4.4 Error Propagation</h3>
+<p>Errors in one subsystem cascade through the pipeline:</p>
+<div class="math">\[ e_{\text{tracking}} = e_{\text{control}} + e_{\text{trajectory}} + e_{\text{state}} + e_{\text{sensor}} \]</div>
+<p>where:</p>
+<ul>
+<li>\(e_{\text{tracking}}\) is the total tracking error observed</li>
+<li>\(e_{\text{control}}\) is error from controller imperfections</li>
+<li>\(e_{\text{trajectory}}\) is error from trajectory generation</li>
+<li>\(e_{\text{state}}\) is error from state estimation inaccuracy</li>
+<li>\(e_{\text{sensor}}\) is the raw sensor measurement error</li>
+</ul>
+<div class="image-container">
+<svg width="550" height="80" viewBox="0 0 550 80">
+<rect x="5" y="15" width="100" height="45" rx="6" fill="#e91e63"/><text x="55" y="42" text-anchor="middle" fill="white" font-size="11">Sensor Noise</text>
+<text x="125" y="42" font-size="20" fill="#764ba2">&rarr;</text>
+<rect x="145" y="15" width="100" height="45" rx="6" fill="#9c27b0"/><text x="195" y="42" text-anchor="middle" fill="white" font-size="11">State Error</text>
+<text x="265" y="42" font-size="20" fill="#764ba2">&rarr;</text>
+<rect x="285" y="15" width="100" height="45" rx="6" fill="#2196f3"/><text x="335" y="42" text-anchor="middle" fill="white" font-size="11">Plan Error</text>
+<text x="405" y="42" font-size="20" fill="#764ba2">&rarr;</text>
+<rect x="425" y="15" width="110" height="45" rx="6" fill="#f44336"/><text x="480" y="42" text-anchor="middle" fill="white" font-size="11">Tracking Error</text>
+</svg>
+<div class="image-caption">Figure 5: Error propagation through the autonomy pipeline</div>
+</div>
+</div>
+
+<!-- PAGE 6: Testing Strategy -->
+<div class="page">
+<h2>5. Testing Strategy</h2>
+<h3>The Testing Pyramid for Robotics</h3>
+<div class="image-container">
+<svg width="460" height="300" viewBox="0 0 460 300">
+<polygon points="230,15 420,270 40,270" fill="none" stroke="#667eea" stroke-width="3"/>
+<line x1="115" y1="180" x2="345" y2="180" stroke="#667eea" stroke-width="2"/>
+<line x1="160" y1="120" x2="300" y2="120" stroke="#667eea" stroke-width="2"/>
+<line x1="195" y1="68" x2="265" y2="68" stroke="#667eea" stroke-width="2"/>
+<polygon points="230,15 265,68 195,68" fill="#f44336" opacity="0.3"/>
+<polygon points="195,68 265,68 300,120 160,120" fill="#ff9800" opacity="0.3"/>
+<polygon points="160,120 300,120 345,180 115,180" fill="#2196f3" opacity="0.3"/>
+<polygon points="115,180 345,180 420,270 40,270" fill="#4CAF50" opacity="0.3"/>
+<text x="230" y="50" text-anchor="middle" font-size="11" font-weight="bold" fill="#f44336">Field Tests</text>
+<text x="230" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#ff9800">HIL Tests</text>
+<text x="230" y="158" text-anchor="middle" font-size="12" font-weight="bold" fill="#2196f3">Integration Tests</text>
+<text x="230" y="235" text-anchor="middle" font-size="14" font-weight="bold" fill="#4CAF50">Unit Tests</text>
+<text x="440" y="70" font-size="10" fill="#f44336">Expensive</text>
+<text x="440" y="250" font-size="10" fill="#4CAF50">Cheap</text>
+</svg>
+<div class="image-caption">Figure 6: The robotics testing pyramid</div>
+</div>
+<h3>5.1 Unit Testing</h3>
+<pre>def test_ekf_predict():
+    ekf = EKF(state_dim=9)
+    ekf.x = np.array([0, 0, 0, 1, 0, 0, 0, 0, -9.81])
+    ekf.predict(dt=0.01)
+    assert np.isclose(ekf.x[0], 0.01, atol=1e-3)</pre>
+<h3>5.2 Integration Testing</h3>
+<p>Test pairs of connected components. Verify that the planner produces trajectories the controller can track, or that the EKF correctly fuses IMU and GPS data.</p>
+<h3>5.3 Simulation Testing (SITL)</h3>
+<p>Run the complete system in Gazebo or AirSim. Test dangerous scenarios safely and repeatably.</p>
+<h3>5.4 Hardware-in-the-Loop (HIL)</h3>
+<p>Connect flight controller hardware to simulation. PX4 runs on real hardware but receives simulated sensor data, validating real-time performance.</p>
+<h3>5.5 Field Testing</h3>
+<p>Final validation on real hardware. Always follow safety procedures and have manual override ready.</p>
+<div class="activity-box">
+<h3>Activity 1: Design Your Test Plan</h3>
+<p>For a drone that must navigate from A to B while avoiding obstacles:</p>
+<ol>
+<li>List 3 unit tests for the path planner</li>
+<li>List 2 integration tests for the perception-planning interface</li>
+<li>List 2 simulation scenarios that test edge cases</li>
+<li>Define pass/fail criteria for each test</li>
+</ol>
+</div>
+</div>
+
+<!-- PAGE 7: Sim2Real -->
+<div class="page">
+<h2>6. Simulation-to-Reality Transfer (Sim2Real)</h2>
+<h3>The Domain Gap</h3>
+<div class="image-container">
+<svg width="520" height="170" viewBox="0 0 520 170">
+<rect x="10" y="5" width="190" height="150" rx="10" fill="#e8f4f8" stroke="#2196f3" stroke-width="2"/>
+<text x="105" y="30" text-anchor="middle" font-weight="bold" fill="#2196f3" font-size="14">Simulation</text>
+<text x="105" y="52" text-anchor="middle" font-size="11">Perfect sensors</text>
+<text x="105" y="72" text-anchor="middle" font-size="11">No wind</text>
+<text x="105" y="92" text-anchor="middle" font-size="11">Ideal dynamics</text>
+<text x="105" y="112" text-anchor="middle" font-size="11">Clean textures</text>
+<text x="105" y="132" text-anchor="middle" font-size="11">Deterministic</text>
+<rect x="320" y="5" width="190" height="150" rx="10" fill="#fff4e6" stroke="#ff9800" stroke-width="2"/>
+<text x="415" y="30" text-anchor="middle" font-weight="bold" fill="#ff9800" font-size="14">Reality</text>
+<text x="415" y="52" text-anchor="middle" font-size="11">Noisy sensors</text>
+<text x="415" y="72" text-anchor="middle" font-size="11">Wind gusts</text>
+<text x="415" y="92" text-anchor="middle" font-size="11">Unmodelled effects</text>
+<text x="415" y="112" text-anchor="middle" font-size="11">Variable lighting</text>
+<text x="415" y="132" text-anchor="middle" font-size="11">Stochastic</text>
+<text x="260" y="75" text-anchor="middle" font-size="28" fill="#f44336">&#x21D4;</text>
+<text x="260" y="100" text-anchor="middle" font-size="12" fill="#f44336" font-weight="bold">Domain Gap</text>
+</svg>
+<div class="image-caption">Figure 7: The simulation-to-reality domain gap</div>
+</div>
+<h3>Bridging the Gap</h3>
+<table>
+<tr><th style="width:22%">Challenge</th><th style="width:38%">Simulation</th><th>Reality</th></tr>
+<tr><td>Sensor noise</td><td>Gaussian, zero-mean</td><td>Non-Gaussian, biased, correlated</td></tr>
+<tr><td>Dynamics</td><td>Rigid body, no flex</td><td>Vibration, prop wash, flex</td></tr>
+<tr><td>Latency</td><td>Deterministic, low</td><td>Variable, jitter, buffering</td></tr>
+<tr><td>Environment</td><td>Static, textured</td><td>Dynamic, varying light</td></tr>
+<tr><td>Communication</td><td>Perfect, instant</td><td>Packet loss, delays</td></tr>
+</table>
+<h3>Domain Randomisation</h3>
+<p>Randomise simulation parameters during training so the system learns robustness:</p>
+<ul>
+<li><strong>Visual:</strong> Randomise textures, lighting, colours</li>
+<li><strong>Physical:</strong> Randomise mass, inertia, drag coefficients</li>
+<li><strong>Sensor:</strong> Randomise noise levels, biases, dropout rates</li>
+<li><strong>Environmental:</strong> Randomise wind, obstacles, starting positions</li>
+</ul>
+<div class="info-box">
+<h4>Transfer Learning Approach</h4>
+<p>Train in simulation with domain randomisation, then fine-tune with a small amount of real-world data. More sample-efficient than training from scratch on real hardware.</p>
+</div>
+<div class="image-container">
+<svg width="480" height="90" viewBox="0 0 480 90">
+<rect x="5" y="15" width="130" height="50" rx="8" fill="#2196f3"/><text x="70" y="35" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Sim Training</text><text x="70" y="52" text-anchor="middle" fill="white" font-size="9">(1M episodes)</text>
+<text x="150" y="45" font-size="18" fill="#764ba2">&rarr;</text>
+<rect x="170" y="15" width="130" height="50" rx="8" fill="#ff9800"/><text x="235" y="35" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Domain Random.</text><text x="235" y="52" text-anchor="middle" fill="white" font-size="9">(vary params)</text>
+<text x="315" y="45" font-size="18" fill="#764ba2">&rarr;</text>
+<rect x="335" y="15" width="130" height="50" rx="8" fill="#4CAF50"/><text x="400" y="35" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Real Fine-tune</text><text x="400" y="52" text-anchor="middle" fill="white" font-size="9">(100 episodes)</text>
+</svg>
+<div class="image-caption">Figure 8: Sim2Real transfer pipeline</div>
+</div>
+</div>
+
+<!-- PAGE 8: System Performance Metrics -->
+<div class="page">
+<h2>7. System Performance Metrics</h2>
+<h3>7.1 End-to-End Latency</h3>
+<p>The total time from sensor measurement to actuator command must be less than the time to reach the nearest obstacle:</p>
+<div class="math">\[ \tau_{\text{safe}} &lt; \frac{d_{\min}}{v_{\max}} \]</div>
+<p>where:</p>
+<ul>
+<li>\(\tau_{\text{safe}}\) is the maximum allowable end-to-end latency (s)</li>
+<li>\(d_{\min}\) is the minimum obstacle detection distance (m)</li>
+<li>\(v_{\max}\) is the maximum drone velocity (m/s)</li>
+</ul>
+<h3>7.2 Tracking Accuracy</h3>
+<div class="math">\[ \text{RMSE} = \sqrt{\frac{1}{N} \sum_{i=1}^{N} \| \mathbf{p}_i^{\text{actual}} - \mathbf{p}_i^{\text{desired}} \|^2} \]</div>
+<p>where:</p>
+<ul>
+<li>\(N\) is the number of time samples</li>
+<li>\(\mathbf{p}_i^{\text{actual}}\) is the actual position at step \(i\)</li>
+<li>\(\mathbf{p}_i^{\text{desired}}\) is the desired position at step \(i\)</li>
+</ul>
+<h3>7.3 System Reliability</h3>
+<p>For \(n\) independent series components:</p>
+<div class="math">\[ R_{\text{system}} = \prod_{i=1}^{n} R_i \]</div>
+<p>where:</p>
+<ul>
+<li>\(R_{\text{system}}\) is the overall system reliability</li>
+<li>\(R_i\) is the reliability of component \(i\)</li>
+</ul>
+<div class="example-box">
+<h4>Example:</h4>
+<p>5 subsystems at 99% each: \(R = 0.99^5 = 0.951\) &mdash; only 95.1% reliable!</p>
+</div>
+<h3>7.4 Mean Time Between Failures</h3>
+<div class="math">\[ \text{MTBF} = \frac{\sum_{i=1}^{n} T_i}{n_f} \]</div>
+<p>where \(T_i\) is operating time per period and \(n_f\) is total failures.</p>
+<h3>7.5 Key Performance Indicators</h3>
+<table>
+<tr><th>Metric</th><th>Indoor Target</th><th>Outdoor Target</th></tr>
+<tr><td>End-to-end latency</td><td>&lt; 50 ms</td><td>&lt; 100 ms</td></tr>
+<tr><td>Tracking RMSE</td><td>&lt; 0.1 m</td><td>&lt; 0.5 m</td></tr>
+<tr><td>Planning time</td><td>&lt; 20 ms</td><td>&lt; 50 ms</td></tr>
+<tr><td>Mission success rate</td><td>&gt; 95%</td><td>&gt; 90%</td></tr>
+<tr><td>Obstacle avoidance</td><td>100%</td><td>&gt; 99%</td></tr>
+</table>
+<div class="image-container">
+<svg width="480" height="150" viewBox="0 0 480 150">
+<text x="240" y="18" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="13">Performance Dashboard</text>
+<circle cx="70" cy="80" r="40" fill="none" stroke="#e0e0e0" stroke-width="8"/><circle cx="70" cy="80" r="40" fill="none" stroke="#4CAF50" stroke-width="8" stroke-dasharray="225 251" transform="rotate(-90 70 80)"/><text x="70" y="85" text-anchor="middle" font-size="13" font-weight="bold">95%</text><text x="70" y="135" text-anchor="middle" font-size="10" fill="#666">Success</text>
+<circle cx="190" cy="80" r="40" fill="none" stroke="#e0e0e0" stroke-width="8"/><circle cx="190" cy="80" r="40" fill="none" stroke="#2196f3" stroke-width="8" stroke-dasharray="200 251" transform="rotate(-90 190 80)"/><text x="190" y="85" text-anchor="middle" font-size="13" font-weight="bold">0.08m</text><text x="190" y="135" text-anchor="middle" font-size="10" fill="#666">RMSE</text>
+<circle cx="310" cy="80" r="40" fill="none" stroke="#e0e0e0" stroke-width="8"/><circle cx="310" cy="80" r="40" fill="none" stroke="#ff9800" stroke-width="8" stroke-dasharray="175 251" transform="rotate(-90 310 80)"/><text x="310" y="85" text-anchor="middle" font-size="13" font-weight="bold">42ms</text><text x="310" y="135" text-anchor="middle" font-size="10" fill="#666">Latency</text>
+<circle cx="420" cy="80" r="40" fill="none" stroke="#e0e0e0" stroke-width="8"/><circle cx="420" cy="80" r="40" fill="none" stroke="#4CAF50" stroke-width="8" stroke-dasharray="251 251" transform="rotate(-90 420 80)"/><text x="420" y="85" text-anchor="middle" font-size="13" font-weight="bold">100%</text><text x="420" y="135" text-anchor="middle" font-size="10" fill="#666">Avoidance</text>
+</svg>
+<div class="image-caption">Figure 9: Example performance dashboard</div>
+</div>
+</div>
+
+<!-- PAGE 9: Capstone 1 -->
+<div class="page">
+<h2>8. Capstone Project 1: Autonomous Inspection Drone</h2>
+<h3>Project Overview</h3>
+<p>Design an autonomous drone that inspects a structure by following a pre-defined inspection path while avoiding obstacles and capturing images of points of interest.</p>
+<div class="two-column">
+<div class="info-box"><h4>Functional Requirements</h4><ul><li>Autonomous takeoff and landing</li><li>Follow 10+ inspection waypoints</li><li>Detect and avoid obstacles</li><li>Capture images at POIs</li><li>Return-to-home on low battery</li></ul></div>
+<div class="info-box"><h4>Performance Requirements</h4><ul><li>Position accuracy: &lt; 0.3 m</li><li>Max velocity: 2 m/s</li><li>Obstacle clearance: &gt; 1 m</li><li>Mission completion: &gt; 95%</li><li>Battery awareness: continuous</li></ul></div>
+</div>
+<h3>System Architecture</h3>
+<div class="image-container">
+<svg width="560" height="330" viewBox="0 0 560 330">
+<text x="280" y="18" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="15">Inspection Drone Architecture</text>
+<rect x="180" y="30" width="200" height="40" rx="8" fill="#e91e63"/><text x="280" y="55" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Mission Manager</text>
+<line x1="280" y1="70" x2="280" y2="90" stroke="#999" stroke-width="2"/>
+<rect x="20" y="90" width="150" height="40" rx="8" fill="#9c27b0"/><text x="95" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Perception</text>
+<rect x="205" y="90" width="150" height="40" rx="8" fill="#2196f3"/><text x="280" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Path Planner</text>
+<rect x="390" y="90" width="150" height="40" rx="8" fill="#673ab7"/><text x="465" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="12">State Estimation</text>
+<line x1="170" y1="110" x2="205" y2="110" stroke="#999" stroke-width="2"/>
+<line x1="355" y1="110" x2="390" y2="110" stroke="#999" stroke-width="2"/>
+<rect x="205" y="160" width="150" height="40" rx="8" fill="#03a9f4"/><text x="280" y="185" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Trajectory Generator</text>
+<line x1="280" y1="130" x2="280" y2="160" stroke="#999" stroke-width="2"/>
+<rect x="205" y="230" width="150" height="40" rx="8" fill="#4CAF50"/><text x="280" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="12">LQR Controller</text>
+<line x1="280" y1="200" x2="280" y2="230" stroke="#999" stroke-width="2"/>
+<rect x="205" y="290" width="150" height="35" rx="8" fill="#ff9800"/><text x="280" y="312" text-anchor="middle" fill="white" font-weight="bold" font-size="12">PX4 Autopilot</text>
+<line x1="280" y1="270" x2="280" y2="290" stroke="#999" stroke-width="2"/>
+<line x1="465" y1="130" x2="465" y2="250" stroke="#999" stroke-width="2" stroke-dasharray="5"/><line x1="465" y1="250" x2="355" y2="250" stroke="#999" stroke-width="2" stroke-dasharray="5"/>
+</svg>
+<div class="image-caption">Figure 10: Autonomous inspection drone system architecture</div>
+</div>
+<h3>Integration Points</h3>
+<ol>
+<li><strong>Perception &rarr; Planner:</strong> Obstacle detections as occupancy grid updates</li>
+<li><strong>Planner &rarr; Trajectory:</strong> Waypoint sequence to smooth B-spline</li>
+<li><strong>State Estimation &rarr; Controller:</strong> Fused state at 100+ Hz</li>
+<li><strong>Mission Manager &rarr; All:</strong> State machine controlling phases</li>
+</ol>
+</div>
+
+<!-- PAGE 10: Capstone 2 -->
+<div class="page">
+<h2>9. Capstone Project 2: Multi-Drone Search &amp; Rescue</h2>
+<h3>Project Overview</h3>
+<p>Coordinate 3+ drones to search a disaster area, detect survivors, report positions, and guide ground teams.</p>
+<div class="image-container">
+<svg width="560" height="290" viewBox="0 0 560 290">
+<text x="280" y="18" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="15">Multi-Drone SAR Architecture</text>
+<rect x="180" y="30" width="200" height="45" rx="10" fill="#f44336"/><text x="280" y="58" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Ground Control Station</text>
+<line x1="230" y1="75" x2="90" y2="120" stroke="#999" stroke-width="2" stroke-dasharray="5"/>
+<line x1="280" y1="75" x2="280" y2="120" stroke="#999" stroke-width="2" stroke-dasharray="5"/>
+<line x1="330" y1="75" x2="470" y2="120" stroke="#999" stroke-width="2" stroke-dasharray="5"/>
+<rect x="20" y="120" width="140" height="65" rx="8" fill="#2196f3"/><text x="90" y="145" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Drone 1 (Scout)</text><text x="90" y="165" text-anchor="middle" fill="white" font-size="10">Zone A | Camera+LiDAR</text>
+<rect x="210" y="120" width="140" height="65" rx="8" fill="#4CAF50"/><text x="280" y="145" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Drone 2 (Scout)</text><text x="280" y="165" text-anchor="middle" fill="white" font-size="10">Zone B | Camera+Thermal</text>
+<rect x="400" y="120" width="140" height="65" rx="8" fill="#ff9800"/><text x="470" y="145" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Drone 3 (Relay)</text><text x="470" y="165" text-anchor="middle" fill="white" font-size="10">Comm Hub | Extended</text>
+<rect x="20" y="220" width="520" height="50" rx="8" fill="#e8f4f8" stroke="#667eea" stroke-width="2"/>
+<line x1="195" y1="220" x2="195" y2="270" stroke="#667eea" stroke-width="1" stroke-dasharray="3"/>
+<line x1="370" y1="220" x2="370" y2="270" stroke="#667eea" stroke-width="1" stroke-dasharray="3"/>
+<text x="108" y="250" text-anchor="middle" font-size="12" fill="#2196f3" font-weight="bold">Zone A</text>
+<text x="283" y="250" text-anchor="middle" font-size="12" fill="#4CAF50" font-weight="bold">Zone B</text>
+<text x="455" y="250" text-anchor="middle" font-size="12" fill="#ff9800" font-weight="bold">Zone C</text>
+</svg>
+<div class="image-caption">Figure 11: Multi-drone search and rescue architecture</div>
+</div>
+<h3>Area Coverage Metric</h3>
+<div class="math">\[ C(t) = \frac{A_{\text{covered}}(t)}{A_{\text{total}}} \times 100\% \]</div>
+<p>where:</p>
+<ul>
+<li>\(C(t)\) is area coverage percentage at time \(t\)</li>
+<li>\(A_{\text{covered}}(t)\) is area covered by sensor footprints up to time \(t\)</li>
+<li>\(A_{\text{total}}\) is total search area</li>
+</ul>
+<h3>Key Technical Challenges</h3>
+<ul>
+<li><strong>Distributed planning:</strong> Independent plans but must avoid conflicts</li>
+<li><strong>Communication constraints:</strong> Limited bandwidth, possible link failure</li>
+<li><strong>Target confirmation:</strong> Multiple drones verify detections</li>
+<li><strong>Dynamic task allocation:</strong> Re-assign zones on low battery or target cluster</li>
+</ul>
+<div class="activity-box">
+<h3>Activity 2: Swarm Design Challenge</h3>
+<p>Design a communication protocol for 4 drones:</p>
+<ol>
+<li>What information must each drone share?</li>
+<li>How often should drones communicate?</li>
+<li>What happens when communication is lost with one drone?</li>
+<li>How do you prevent two drones from searching the same area?</li>
+</ol>
+</div>
+</div>
+
+<!-- PAGE 11: Capstone 3 -->
+<div class="page">
+<h2>10. Capstone Project 3: Autonomous Drone Racing</h2>
+<h3>Project Overview</h3>
+<p>Navigate a drone through gates at high speed. This pushes perception, planning, and control to their limits.</p>
+<div class="image-container">
+<svg width="520" height="200" viewBox="0 0 520 200">
+<text x="260" y="18" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="15">Racing Course Layout</text>
+<path d="M 50,110 Q 100,40 190,70 Q 280,100 330,55 Q 380,20 450,70 Q 490,110 450,160 Q 380,190 280,160 Q 190,130 100,180 Q 50,200 50,110" fill="none" stroke="#667eea" stroke-width="3" stroke-dasharray="8"/>
+<rect x="115" y="48" width="8" height="45" fill="#f44336"/><text x="119" y="40" text-anchor="middle" font-size="10" fill="#f44336" font-weight="bold">G1</text>
+<rect x="255" y="72" width="8" height="45" fill="#4CAF50"/><text x="259" y="64" text-anchor="middle" font-size="10" fill="#4CAF50" font-weight="bold">G2</text>
+<rect x="380" y="25" width="8" height="45" fill="#2196f3"/><text x="384" y="18" text-anchor="middle" font-size="10" fill="#2196f3" font-weight="bold">G3</text>
+<rect x="445" y="95" width="8" height="45" fill="#ff9800"/><text x="449" y="88" text-anchor="middle" font-size="10" fill="#ff9800" font-weight="bold">G4</text>
+<rect x="330" y="150" width="8" height="45" fill="#9c27b0"/><text x="334" y="143" text-anchor="middle" font-size="10" fill="#9c27b0" font-weight="bold">G5</text>
+<circle cx="75" cy="125" r="10" fill="#e91e63"/><text x="75" y="129" text-anchor="middle" fill="white" font-size="10" font-weight="bold">D</text>
+</svg>
+<div class="image-caption">Figure 12: Drone racing course with 5 gates</div>
+</div>
+<h3>Performance Requirements</h3>
+<table>
+<tr><th>Parameter</th><th>Racing Drone</th><th>Standard Drone</th></tr>
+<tr><td>Max velocity</td><td>15-20 m/s</td><td>2-5 m/s</td></tr>
+<tr><td>Max acceleration</td><td>15 m/s&sup2;</td><td>3 m/s&sup2;</td></tr>
+<tr><td>Perception latency</td><td>&lt; 10 ms</td><td>&lt; 50 ms</td></tr>
+<tr><td>Control rate</td><td>500+ Hz</td><td>50-100 Hz</td></tr>
+<tr><td>Gate detection range</td><td>&gt; 10 m</td><td>N/A</td></tr>
+</table>
+<h3>Minimum-Time Trajectory Optimisation</h3>
+<div class="math">\[ \min_{\mathbf{u}(\cdot)} \int_0^{t_f} 1 \, dt \quad \text{s.t.} \quad \dot{\mathbf{x}} = f(\mathbf{x}, \mathbf{u}), \quad \|\mathbf{u}\| \leq u_{\max} \]</div>
+<p>where:</p>
+<ul>
+<li>\(\mathbf{u}(\cdot)\) is the control input trajectory</li>
+<li>\(t_f\) is the final (minimum) time</li>
+<li>\(\mathbf{x}\) is the state vector (position, velocity, attitude)</li>
+<li>\(f(\mathbf{x}, \mathbf{u})\) is the quadrotor dynamics (Week 6)</li>
+<li>\(u_{\max}\) is the maximum thrust/torque limit</li>
+</ul>
+<div class="diagram">
+<div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;">
+<div style="background:#e91e63;color:white;padding:8px 12px;border-radius:6px;font-weight:bold;font-size:0.85em;">Camera</div><span style="font-size:1.3em;color:#764ba2;">&rarr;</span>
+<div style="background:#9c27b0;color:white;padding:8px 12px;border-radius:6px;font-weight:bold;font-size:0.85em;">Gate Detector</div><span style="font-size:1.3em;color:#764ba2;">&rarr;</span>
+<div style="background:#2196f3;color:white;padding:8px 12px;border-radius:6px;font-weight:bold;font-size:0.85em;">Pose Est</div><span style="font-size:1.3em;color:#764ba2;">&rarr;</span>
+<div style="background:#4CAF50;color:white;padding:8px 12px;border-radius:6px;font-weight:bold;font-size:0.85em;">Time-Opt Plan</div><span style="font-size:1.3em;color:#764ba2;">&rarr;</span>
+<div style="background:#ff9800;color:white;padding:8px 12px;border-radius:6px;font-weight:bold;font-size:0.85em;">Agile Ctrl</div>
+</div>
+</div>
+</div>
+
+<!-- PAGE 12: Implementation Guide -->
+<div class="page">
+<h2>11. Project Implementation Guide</h2>
+<h3>Step-by-Step Integration</h3>
+<div class="flow-step">Step 1: Get basic simulation running (Week 6 dynamics)</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 2: Add state estimation (EKF from Week 2)</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 3: Add simple controller (PID from Week 11)</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 4: Test hover and waypoint tracking</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 5: Add path planner (A* from Week 8)</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 6: Add trajectory smoothing (B-spline from Week 9)</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 7: Add obstacle detection (Week 10)</div><div class="arrow">&darr;</div>
+<div class="flow-step">Step 8: Add replanning and full mission logic</div>
+<h3>Milestone Planning</h3>
+<table>
+<tr><th style="width:18%">Milestone</th><th style="width:14%">Time</th><th>Deliverables</th></tr>
+<tr><td>M1: Simulation</td><td>Day 1-2</td><td>Quadrotor sim, basic hover, sensor models</td></tr>
+<tr><td>M2: Estimation</td><td>Day 2-3</td><td>EKF running, fusing IMU + GPS</td></tr>
+<tr><td>M3: Control</td><td>Day 3-4</td><td>PID/LQR tracking reference trajectories</td></tr>
+<tr><td>M4: Planning</td><td>Day 4-5</td><td>A* + B-spline generating flyable paths</td></tr>
+<tr><td>M5: Perception</td><td>Day 5-6</td><td>Obstacle detection + map updating</td></tr>
+<tr><td>M6: Integration</td><td>Day 6-7</td><td>Full mission, stress testing, evaluation</td></tr>
+</table>
+</div>
+
+<!-- PAGE 13: Common Failures -->
+<div class="page">
+<h2>12. Common Integration Failures</h2>
+<h3>Case Study 1: The Phantom Obstacle</h3>
+<div class="warning-box">
+<strong>Symptom:</strong> Drone repeatedly stops and replans in clear space.<br>
+<strong>Root Cause:</strong> Obstacle detector used camera frame but occupancy grid expected world frame.<br>
+<strong>Fix:</strong> Apply <code>tf2</code> transform from camera_optical_frame to map frame.<br>
+<strong>Lesson:</strong> Always verify frame transforms at every interface boundary.
+</div>
+<h3>Case Study 2: The Oscillating Drone</h3>
+<div class="warning-box">
+<strong>Symptom:</strong> Drone oscillates around waypoints.<br>
+<strong>Root Cause:</strong> EKF had 50 ms latency; controller assumed zero latency, always overcorrecting.<br>
+<strong>Fix:</strong> Compensate for latency or use predicted state at current time.<br>
+<strong>Lesson:</strong> Measure and account for pipeline latency.
+</div>
+<h3>Case Study 3: The Planning Timeout</h3>
+<div class="warning-box">
+<strong>Symptom:</strong> Drone hovers indefinitely after obstacle detection.<br>
+<strong>Root Cause:</strong> A* on 1 cm resolution grid took 5+ seconds.<br>
+<strong>Fix:</strong> Hierarchical planning: coarse grid global, fine grid local.<br>
+<strong>Lesson:</strong> Profile planners and set appropriate resolution.
+</div>
+<h3>Case Study 4: The Silent Sensor</h3>
+<div class="warning-box">
+<strong>Symptom:</strong> Works in sim, crashes on real hardware.<br>
+<strong>Root Cause:</strong> LiDAR driver drops messages; EKF drifts without corrections.<br>
+<strong>Fix:</strong> Sensor health monitoring; hover on 500 ms timeout.<br>
+<strong>Lesson:</strong> Implement timeout and fallback for every sensor input.
+</div>
+<div class="image-container">
+<svg width="480" height="170" viewBox="0 0 480 170">
+<text x="240" y="18" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="13">Top Integration Failure Categories</text>
+<rect x="100" y="35" width="280" height="22" rx="4" fill="#f44336"/><text x="95" y="51" text-anchor="end" font-size="10">Frames</text><text x="390" y="51" font-size="10">35%</text>
+<rect x="100" y="63" width="224" height="22" rx="4" fill="#ff9800"/><text x="95" y="79" text-anchor="end" font-size="10">Timing</text><text x="334" y="79" font-size="10">28%</text>
+<rect x="100" y="91" width="144" height="22" rx="4" fill="#2196f3"/><text x="95" y="107" text-anchor="end" font-size="10">Data Fmt</text><text x="254" y="107" font-size="10">18%</text>
+<rect x="100" y="119" width="96" height="22" rx="4" fill="#4CAF50"/><text x="95" y="135" text-anchor="end" font-size="10">Resource</text><text x="206" y="135" font-size="10">12%</text>
+<rect x="100" y="147" width="56" height="22" rx="4" fill="#9c27b0"/><text x="95" y="163" text-anchor="end" font-size="10">Other</text><text x="166" y="163" font-size="10">7%</text>
+</svg>
+<div class="image-caption">Figure 13: Distribution of integration failure causes</div>
+</div>
+</div>
+
+<!-- PAGE 14: Logging & Monitoring -->
+<div class="page">
+<h2>13. Logging, Monitoring &amp; Diagnostics</h2>
+<h3>13.1 ROS2 Bag Recording</h3>
+<pre>ros2 bag record -a -o flight_session1
+
+ros2 bag record -o mission_log \
+    /drone/pose /drone/imu /drone/gps \
+    /planner/path /controller/cmd \
+    --compression-mode message --compression-format zstd</pre>
+<h3>13.2 RQT Tools</h3>
+<div class="three-column">
+<div class="sensor-card"><h4>rqt_graph</h4><p>Visualise node connections</p></div>
+<div class="sensor-card"><h4>rqt_plot</h4><p>Real-time numeric plotting</p></div>
+<div class="sensor-card"><h4>rqt_console</h4><p>Filter log messages</p></div>
+</div>
+<h3>13.3 Health Monitoring</h3>
+<pre>class HealthMonitor:
+    def __init__(self):
+        self.components = {
+            'ekf': {'timeout': 0.1, 'last_seen': 0},
+            'planner': {'timeout': 1.0, 'last_seen': 0},
+            'controller': {'timeout': 0.02, 'last_seen': 0},
+            'lidar': {'timeout': 0.2, 'last_seen': 0},
+        }
+
+    def check_health(self, current_time):
+        status = {}
+        for name, comp in self.components.items():
+            elapsed = current_time - comp['last_seen']
+            if elapsed > comp['timeout']:
+                status[name] = 'CRITICAL'
+            elif elapsed > comp['timeout'] * 0.8:
+                status[name] = 'WARNING'
+            else:
+                status[name] = 'OK'
+        return status</pre>
+<div class="image-container">
+<svg width="520" height="160" viewBox="0 0 520 160">
+<rect x="5" y="5" width="510" height="150" rx="10" fill="#1e1e1e"/>
+<text x="260" y="28" text-anchor="middle" fill="#4CAF50" font-weight="bold" font-size="13">System Dashboard</text>
+<rect x="20" y="40" width="110" height="50" rx="6" fill="#2d2d2d"/><text x="75" y="57" text-anchor="middle" fill="#aaa" font-size="10">EKF Rate</text><text x="75" y="78" text-anchor="middle" fill="#4CAF50" font-size="17" font-weight="bold">98 Hz</text>
+<rect x="145" y="40" width="110" height="50" rx="6" fill="#2d2d2d"/><text x="200" y="57" text-anchor="middle" fill="#aaa" font-size="10">Track Error</text><text x="200" y="78" text-anchor="middle" fill="#4CAF50" font-size="17" font-weight="bold">0.07 m</text>
+<rect x="270" y="40" width="110" height="50" rx="6" fill="#2d2d2d"/><text x="325" y="57" text-anchor="middle" fill="#aaa" font-size="10">Battery</text><text x="325" y="78" text-anchor="middle" fill="#ff9800" font-size="17" font-weight="bold">72%</text>
+<rect x="395" y="40" width="110" height="50" rx="6" fill="#2d2d2d"/><text x="450" y="57" text-anchor="middle" fill="#aaa" font-size="10">Latency</text><text x="450" y="78" text-anchor="middle" fill="#4CAF50" font-size="17" font-weight="bold">38 ms</text>
+<rect x="20" y="100" width="490" height="20" rx="4" fill="#2d2d2d"/>
+<circle cx="40" cy="110" r="6" fill="#4CAF50"/><text x="55" y="114" fill="#ccc" font-size="9">EKF</text>
+<circle cx="100" cy="110" r="6" fill="#4CAF50"/><text x="115" y="114" fill="#ccc" font-size="9">Plan</text>
+<circle cx="165" cy="110" r="6" fill="#4CAF50"/><text x="180" y="114" fill="#ccc" font-size="9">Ctrl</text>
+<circle cx="235" cy="110" r="6" fill="#4CAF50"/><text x="250" y="114" fill="#ccc" font-size="9">LiDAR</text>
+<circle cx="310" cy="110" r="6" fill="#ff9800"/><text x="325" y="114" fill="#ccc" font-size="9">GPS</text>
+<circle cx="375" cy="110" r="6" fill="#4CAF50"/><text x="390" y="114" fill="#ccc" font-size="9">Cam</text>
+<rect x="20" y="128" width="490" height="20" rx="4" fill="#0d0d0d"/>
+<text x="30" y="142" fill="#4CAF50" font-size="9" font-family="monospace">[INFO] waypoint 3/8 reached  [WARN] GPS HDOP 2.3</text>
+</svg>
+<div class="image-caption">Figure 14: Custom system health dashboard</div>
+</div>
+</div>
+
+<!-- PAGE 15: Documentation -->
+<div class="page">
+<h2>14. Documentation &amp; Reporting</h2>
+<h3>14.1 Technical Documentation Standards</h3>
+<div class="checklist"><ul>
+<li>System Architecture Document (SAD) with component diagrams</li>
+<li>Interface Control Document (ICD) defining all message types</li>
+<li>Test Plan and Test Report with pass/fail results</li>
+<li>User Manual with setup and operation procedures</li>
+<li>API Documentation (auto-generated from docstrings)</li>
+<li>Risk Assessment and Safety Analysis</li>
+</ul></div>
+<h3>14.2 API Documentation Example</h3>
+<pre>class PathPlanner:
+    """A* path planner for 3D grid environments.
+
+    Attributes:
+        grid: OccupancyGrid3D - The 3D occupancy grid map
+        resolution: float - Grid cell size in metres
+
+    Methods:
+        plan(start, goal) -&gt; List[np.ndarray]
+            Compute shortest collision-free path.
+            Args:
+                start: np.ndarray shape (3,) - Start [x,y,z]
+                goal: np.ndarray shape (3,) - Goal [x,y,z]
+            Returns:
+                List of 3D waypoints or empty list if none.
+            Raises:
+                ValueError: If start or goal in collision.
+    """</pre>
+<h3>14.3 Test Report Format</h3>
+<table>
+<tr><th style="width:12%">Test ID</th><th style="width:28%">Description</th><th style="width:16%">Expected</th><th style="width:16%">Actual</th><th style="width:10%">Status</th></tr>
+<tr><td>TC-001</td><td>Hover at 2m altitude</td><td>Err &lt; 0.1m</td><td>0.07m</td><td style="color:#4CAF50">PASS</td></tr>
+<tr><td>TC-002</td><td>Navigate 5 waypoints</td><td>All reached</td><td>5/5</td><td style="color:#4CAF50">PASS</td></tr>
+<tr><td>TC-003</td><td>Avoid pop-up obstacle</td><td>No collision</td><td>Clear 0.8m</td><td style="color:#4CAF50">PASS</td></tr>
+<tr><td>TC-004</td><td>GPS dropout recovery</td><td>Hold hover</td><td>Drift 0.3m</td><td style="color:#ff9800">WARN</td></tr>
+<tr><td>TC-005</td><td>Mission under wind</td><td>Complete</td><td>Timeout</td><td style="color:#f44336">FAIL</td></tr>
+</table>
+<h3>14.4 Presentation Structure</h3>
+<div class="image-container">
+<svg width="460" height="100" viewBox="0 0 460 100">
+<rect x="5" y="5" width="75" height="40" rx="4" fill="#667eea"/><text x="42" y="29" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Problem</text>
+<rect x="90" y="5" width="75" height="40" rx="4" fill="#764ba2"/><text x="127" y="29" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Architecture</text>
+<rect x="175" y="5" width="75" height="40" rx="4" fill="#9c27b0"/><text x="212" y="29" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Decisions</text>
+<rect x="260" y="5" width="75" height="40" rx="4" fill="#2196f3"/><text x="297" y="29" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Implement</text>
+<rect x="345" y="5" width="75" height="40" rx="4" fill="#4CAF50"/><text x="382" y="29" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Results</text>
+<rect x="5" y="55" width="75" height="40" rx="4" fill="#ff9800"/><text x="42" y="79" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Demo</text>
+<rect x="90" y="55" width="75" height="40" rx="4" fill="#f44336"/><text x="127" y="79" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Lessons</text>
+<rect x="175" y="55" width="75" height="40" rx="4" fill="#607d8b"/><text x="212" y="79" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Future Work</text>
+</svg>
+<div class="image-caption">Figure 15: Recommended final presentation structure</div>
+</div>
+</div>
+
+<!-- PAGE 16: Industry -->
+<div class="page">
+<h2>15. Industry Deployment: Prototype to Product</h2>
+<h3>15.1 Certification Standards</h3>
+<table>
+<tr><th style="width:18%">Standard</th><th style="width:22%">Domain</th><th>Description</th></tr>
+<tr><td>DO-178C</td><td>Avionics Software</td><td>Software assurance for airborne systems. 5 DAL levels (A-E)</td></tr>
+<tr><td>DO-254</td><td>Avionics Hardware</td><td>Design assurance for airborne electronic hardware</td></tr>
+<tr><td>EASA SC-UAS</td><td>EU Drone Regulation</td><td>Special conditions: open, specific, certified categories</td></tr>
+<tr><td>ASTM F3322</td><td>UAS Operations</td><td>Small UAS parachute system specifications</td></tr>
+<tr><td>ISO 21384</td><td>UAS General</td><td>UAS terminology, design and operation</td></tr>
+<tr><td>JARUS SORA</td><td>Risk Assessment</td><td>Specific Operations Risk Assessment for UAS</td></tr>
+</table>
+<h3>15.2 Safety Requirements</h3>
+<div class="two-column">
+<div class="warning-box"><h4>Mandatory Safety</h4><ul><li>Geofencing (hard limits)</li><li>Return-to-home failsafe</li><li>Battery monitor + auto-land</li><li>Manual override always</li><li>Propeller guards</li></ul></div>
+<div class="info-box"><h4>Recommended</h4><ul><li>Redundant estimation</li><li>Dual GPS receivers</li><li>Motor failure detection</li><li>Parachute for heavy drones</li><li>Flight data recorder</li></ul></div>
+</div>
+<h3>15.3 Deployment Readiness</h3>
+<div class="checklist"><ul>
+<li>All unit tests passing (100%)</li>
+<li>Integration tests covering all interfaces</li>
+<li>50+ hours simulation testing</li>
+<li>10+ hours flight testing in controlled environment</li>
+<li>Safety analysis reviewed independently</li>
+<li>Emergency procedures documented and rehearsed</li>
+<li>Maintenance schedule defined</li>
+<li>Operator training completed</li>
+</ul></div>
+<div class="image-container">
+<svg width="480" height="100" viewBox="0 0 480 100">
+<text x="240" y="16" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="12">Technology Readiness Levels (TRL)</text>
+<rect x="15" y="28" width="55" height="32" rx="4" fill="#f44336"/><text x="42" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 1-3</text>
+<rect x="80" y="28" width="55" height="32" rx="4" fill="#ff9800"/><text x="107" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 4</text>
+<rect x="145" y="28" width="55" height="32" rx="4" fill="#ffc107"/><text x="172" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 5</text>
+<rect x="210" y="28" width="55" height="32" rx="4" fill="#8bc34a"/><text x="237" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 6</text>
+<rect x="275" y="28" width="55" height="32" rx="4" fill="#4CAF50"/><text x="302" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 7</text>
+<rect x="340" y="28" width="55" height="32" rx="4" fill="#009688"/><text x="367" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 8</text>
+<rect x="405" y="28" width="55" height="32" rx="4" fill="#2196f3"/><text x="432" y="48" text-anchor="middle" fill="white" font-size="9" font-weight="bold">TRL 9</text>
+<text x="42" y="78" text-anchor="middle" font-size="9" fill="#666">Research</text>
+<text x="172" y="78" text-anchor="middle" font-size="9" fill="#666">Lab Demo</text>
+<text x="302" y="78" text-anchor="middle" font-size="9" fill="#666">Prototype</text>
+<text x="432" y="78" text-anchor="middle" font-size="9" fill="#666">Deployed</text>
+<text x="140" y="96" text-anchor="middle" font-size="10" fill="#e91e63" font-weight="bold">This course: TRL 4-5</text>
+</svg>
+<div class="image-caption">Figure 16: Technology Readiness Levels</div>
+</div>
+</div>
+
+<!-- PAGE 17: Career -->
+<div class="page">
+<h2>16. Career Preparation</h2>
+<h3>16.1 Skills Matrix</h3>
+<table>
+<tr><th style="width:22%">Category</th><th style="width:43%">Skills Acquired</th><th>Weeks</th></tr>
+<tr><td>Perception</td><td>LiDAR processing, point clouds, CV, object detection</td><td>1, 10</td></tr>
+<tr><td>State Estimation</td><td>EKF, UKF, sensor fusion, SLAM</td><td>2, 4</td></tr>
+<tr><td>Middleware</td><td>ROS2, topics, services, actions, TF2</td><td>3, 5</td></tr>
+<tr><td>Dynamics</td><td>Quadrotor modelling, Newton-Euler, motor models</td><td>6</td></tr>
+<tr><td>Systems</td><td>PX4, MAVLink, offboard control, SITL</td><td>7</td></tr>
+<tr><td>Planning</td><td>A*, RRT*, PRM, B-splines, EGO-Planner</td><td>8, 9</td></tr>
+<tr><td>Control</td><td>PID, LQR, LQG, MPC, pole placement</td><td>11</td></tr>
+<tr><td>Integration</td><td>System architecture, testing, deployment</td><td>12</td></tr>
+</table>
+<h3>16.2 Interview Topics</h3>
+<div class="three-column">
+<div class="sensor-card"><h4>Technical</h4><ul style="text-align:left"><li>EKF derivation</li><li>PID tuning</li><li>A* vs RRT*</li><li>ROS2 architecture</li></ul></div>
+<div class="sensor-card"><h4>System Design</h4><ul style="text-align:left"><li>Architecture patterns</li><li>Failure handling</li><li>Real-time constraints</li><li>Testing strategies</li></ul></div>
+<div class="sensor-card"><h4>Practical</h4><ul style="text-align:left"><li>Debugging</li><li>Sim2Real transfer</li><li>Safety procedures</li><li>Team collaboration</li></ul></div>
+</div>
+<h3>16.3 Industry Sectors</h3>
+<div class="image-container">
+<svg width="480" height="150" viewBox="0 0 480 150">
+<rect x="5" y="5" width="145" height="60" rx="8" fill="#667eea"/><text x="77" y="28" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Defence &amp; Security</text><text x="77" y="48" text-anchor="middle" fill="white" font-size="9">Surveillance, ISR</text>
+<rect x="165" y="5" width="145" height="60" rx="8" fill="#4CAF50"/><text x="237" y="28" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Agriculture</text><text x="237" y="48" text-anchor="middle" fill="white" font-size="9">Crop monitoring</text>
+<rect x="325" y="5" width="145" height="60" rx="8" fill="#ff9800"/><text x="397" y="28" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Delivery</text><text x="397" y="48" text-anchor="middle" fill="white" font-size="9">Last-mile logistics</text>
+<rect x="5" y="80" width="145" height="60" rx="8" fill="#e91e63"/><text x="77" y="103" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Infrastructure</text><text x="77" y="123" text-anchor="middle" fill="white" font-size="9">Inspection, mapping</text>
+<rect x="165" y="80" width="145" height="60" rx="8" fill="#9c27b0"/><text x="237" y="103" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Film &amp; Media</text><text x="237" y="123" text-anchor="middle" fill="white" font-size="9">Aerial cinematography</text>
+<rect x="325" y="80" width="145" height="60" rx="8" fill="#2196f3"/><text x="397" y="103" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Research</text><text x="397" y="123" text-anchor="middle" fill="white" font-size="9">Universities, labs</text>
+</svg>
+<div class="image-caption">Figure 17: Industry sectors for drone engineering</div>
+</div>
+<div class="activity-box">
+<h3>Activity 3: Integration Planning</h3>
+<ol>
+<li>List the components you will integrate and their interfaces</li>
+<li>Define the order of integration (which two first?)</li>
+<li>For each step, define a verification test</li>
+<li>Identify the highest-risk integration point</li>
+</ol>
+</div>
+</div>
+
+<!-- PAGE 18: Course Summary -->
+<div class="page">
+<h2>17. Course Summary</h2>
+<table>
+<tr><th style="width:6%">Wk</th><th style="width:20%">Topic</th><th style="width:38%">Key Concepts</th><th>Lab Focus</th></tr>
+<tr><td>1</td><td>LiDAR Processing</td><td>Point clouds, filtering, segmentation</td><td>PCL pipeline</td></tr>
+<tr><td>2</td><td>Sensor Fusion</td><td>EKF, UKF, IMU+GPS fusion</td><td>Multi-sensor EKF</td></tr>
+<tr><td>3</td><td>ROS2</td><td>Nodes, topics, services, TF2</td><td>Custom robot</td></tr>
+<tr><td>4</td><td>SLAM</td><td>Occupancy grids, graph SLAM</td><td>2D SLAM</td></tr>
+<tr><td>5</td><td>Nav2</td><td>Costmaps, behaviour trees</td><td>Navigation stack</td></tr>
+<tr><td>6</td><td>Quadrotor Dynamics</td><td>Newton-Euler, motor models</td><td>Dynamics sim</td></tr>
+<tr><td>7</td><td>PX4 Integration</td><td>MAVLink, offboard, SITL</td><td>PX4 SITL</td></tr>
+<tr><td>8</td><td>3D Path Planning</td><td>A*, RRT*, PRM, octomap</td><td>3D planner</td></tr>
+<tr><td>9</td><td>EGO-Planner</td><td>B-splines, ESDF, traj opt</td><td>Local replanning</td></tr>
+<tr><td>10</td><td>Computer Vision</td><td>Features, optical flow, det</td><td>Vision pipeline</td></tr>
+<tr><td>11</td><td>Control Systems</td><td>PID, LQR, LQG, MPC</td><td>Controller compare</td></tr>
+<tr><td>12</td><td>Integration</td><td>Architecture, test, deploy</td><td>Capstone</td></tr>
+</table>
+<h3>Key Takeaways</h3>
+<ol>
+<li><strong>Robotics is systems engineering</strong> &mdash; integration is where the real challenge lies</li>
+<li><strong>Test early, test often</strong> &mdash; simulation enables safe, rapid iteration</li>
+<li><strong>State estimation is foundational</strong> &mdash; everything depends on knowing where you are</li>
+<li><strong>Safety is non-negotiable</strong> &mdash; manual override and failsafe always</li>
+<li><strong>Theory-practice gap is real</strong> &mdash; Sim2Real requires deliberate effort</li>
+</ol>
+<div class="image-container">
+<svg width="480" height="140" viewBox="0 0 480 140">
+<text x="240" y="16" text-anchor="middle" font-weight="bold" fill="#667eea" font-size="13">Your Learning Journey</text>
+<path d="M 30,110 Q 65,95 100,98 Q 140,102 180,80 Q 220,55 260,62 Q 300,70 340,45 Q 380,25 420,32 Q 450,36 470,25" fill="none" stroke="#667eea" stroke-width="3"/>
+<circle cx="30" cy="110" r="5" fill="#f44336"/><text x="30" y="128" text-anchor="middle" font-size="9" fill="#666">Wk1</text>
+<circle cx="140" cy="102" r="5" fill="#ff9800"/><text x="140" y="120" text-anchor="middle" font-size="9" fill="#666">Wk4</text>
+<circle cx="260" cy="62" r="5" fill="#8bc34a"/><text x="260" y="80" text-anchor="middle" font-size="9" fill="#666">Wk7</text>
+<circle cx="380" cy="25" r="5" fill="#4CAF50"/><text x="380" y="43" text-anchor="middle" font-size="9" fill="#666">Wk10</text>
+<circle cx="470" cy="25" r="7" fill="#667eea" stroke="#764ba2" stroke-width="2"/><text x="470" y="45" text-anchor="middle" font-size="9" fill="#667eea" font-weight="bold">Wk12</text>
+</svg>
+<div class="image-caption">Figure 18: From individual skills to systems thinking</div>
+</div>
+</div>
+
+<!-- PAGE 19: Final -->
+<div class="page">
+<h2>18. Where to Go Next</h2>
+<div class="two-column">
+<div class="info-box"><h4>Deep Dive Topics</h4><ul>
+<li>Reinforcement Learning for drone control</li>
+<li>Visual-Inertial Odometry (VIO)</li>
+<li>Multi-agent systems and swarm intelligence</li>
+<li>Neural SLAM and learned representations</li>
+<li>Event cameras and neuromorphic sensing</li>
+</ul></div>
+<div class="info-box"><h4>Platforms &amp; Competitions</h4><ul>
+<li>IROS / ICRA robotics conferences</li>
+<li>AlphaPilot / AIRR drone racing</li>
+<li>DJI RoboMaster competitions</li>
+<li>PX4, ArduPilot, ROS2 open-source</li>
+<li>Kaggle for computer vision</li>
+</ul></div>
+</div>
+<h3>Recommended Resources</h3>
+<table>
+<tr><th style="width:38%">Resource</th><th style="width:18%">Type</th><th>Topic</th></tr>
+<tr><td>Siciliano et al., "Robotics"</td><td>Textbook</td><td>Comprehensive robotics</td></tr>
+<tr><td>Thrun et al., "Probabilistic Robotics"</td><td>Textbook</td><td>State estimation, SLAM</td></tr>
+<tr><td>LaValle, "Planning Algorithms"</td><td>Free textbook</td><td>Motion planning</td></tr>
+<tr><td>Beard &amp; McLain, "Small UAS"</td><td>Textbook</td><td>Drone dynamics/control</td></tr>
+<tr><td>PX4 Developer Guide</td><td>Online</td><td>Flight controller</td></tr>
+<tr><td>ROS2 Documentation</td><td>Online</td><td>Middleware</td></tr>
+</table>
+<div class="info-box">
+<h3>Final Remarks</h3>
+<p>You have completed a comprehensive journey through autonomous drone systems. From processing raw sensor data to designing controllers that track optimal trajectories, you now possess the skills to build systems that push the boundaries of what drones can achieve.</p>
+<p style="margin-top:15px;">Urban air mobility, autonomous delivery, precision agriculture, and disaster response all need these skills. <strong>The best engineers are the ones who never stop learning.</strong></p>
+</div>
+<div class="header" style="margin-top:30px;">
+<h1>Congratulations!</h1>
+<p>You have completed TC70045E: Robotics &amp; Drone Engineering</p>
+<p>Dr. Abdul Manan Khan</p>
+</div>
+<h3>References</h3>
+<ol>
+<li>Siciliano, B. et al. (2009). <em>Robotics: Modelling, Planning and Control</em>. Springer.</li>
+<li>Thrun, S., Burgard, W., Fox, D. (2005). <em>Probabilistic Robotics</em>. MIT Press.</li>
+<li>LaValle, S. M. (2006). <em>Planning Algorithms</em>. Cambridge University Press.</li>
+<li>Beard, R. W., McLain, T. W. (2012). <em>Small Unmanned Aircraft</em>. Princeton UP.</li>
+<li>Quan, Q. (2017). <em>Introduction to Multicopter Design and Control</em>. Springer.</li>
+<li>Zhou, B. et al. (2020). EGO-Planner. <em>IEEE RAL</em>.</li>
+<li>Rawlings, J. B., Mayne, D. Q. (2017). <em>Model Predictive Control</em>.</li>
+<li>PX4 Docs. <em>https://docs.px4.io/</em></li>
+<li>ROS2 Docs. <em>https://docs.ros.org/en/humble/</em></li>
+<li>EASA (2023). <em>Special Condition for Small UAS</em>.</li>
+</ol>
+
+<div class="activity-box">
+<h3>Activity 4: Career Planning</h3>
+<ol>
+<li>Write a 200-word project summary for your CV</li>
+<li>Identify 3 companies in drone engineering</li>
+<li>Map course skills to each company's needs</li>
+<li>Draft 2 interview questions with outline answers</li>
+</ol>
+</div>
+
+<div class="image-container">
+<svg width="380" height="55" viewBox="0 0 380 55">
+<rect x="0" y="0" width="380" height="55" rx="10" fill="url(#g1)"/>
+<text x="190" y="25" text-anchor="middle" fill="white" font-size="14" font-weight="bold">End of Week 12</text>
+<text x="190" y="44" text-anchor="middle" fill="white" font-size="11" opacity="0.9">Full System Integration &amp; Capstone Project</text>
+</svg>
+</div>
+</div>
+
+</body>
+</html>

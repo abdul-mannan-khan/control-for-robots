@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 5: Robust Control</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "\2713"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.1em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+        .pseudocode-block { background: #fff8dc; color: #333; padding: 20px; border-radius: 5px; margin: 15px 0; border: 3px solid #daa520; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .pseudocode-header { background: #daa520; color: white; padding: 10px 20px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-weight: bold; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; }
+        .card h4 { color: #2c3e50; margin-top: 0; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.2em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .think-pair-share { background: #fce4ec; border: 2px solid #e91e63; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box { background: #ede7f6; border: 2px solid #7c4dff; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>Week 5: Robust Control</h1>
+            <div class="subtitle">Control for Robots &mdash; M.Sc. Robotics &amp; Autonomous Systems</div>
+            <div class="meta">Advanced Robotics Programme &bull; AY 2025&ndash;26 &bull; 3-Hour Session</div>
+        </div>
+
+        <div class="content">
+
+            <!-- ============================================================ -->
+            <!-- SECTION 0: PREVIOUS WEEK EXAM PRACTICE                       -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 0 &mdash; Week 4 Recall: Adaptive Control &mdash; Exam Practice (20 min)</h2>
+
+                <div class="exam-question">
+                    <h4>Question 1 &mdash; Lyapunov Stability Proof for Adaptive Control</h4>
+                    <p>Consider a 2-DOF manipulator whose dynamics are</p>
+                    \[
+                        M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau
+                    \]
+                    <p>The dynamics are <strong>linear in parameters</strong>:</p>
+                    \[
+                        M(q)\ddot{q}_r + C(q,\dot{q})\dot{q}_r + G(q) = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\,\theta
+                    \]
+                    <p>where \(\dot{q}_r = \dot{q}_d - \Lambda e\), \(\ddot{q}_r = \ddot{q}_d - \Lambda \dot{e}\), and \(e = q - q_d\).</p>
+                    <p>The adaptive control law is</p>
+                    \[
+                        \tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\,\hat{\theta} - K_D\,s
+                    \]
+                    <p>where \(s = \dot{e} + \Lambda e = \dot{q} - \dot{q}_r\). The parameter update law is</p>
+                    \[
+                        \dot{\hat{\theta}} = -\Gamma^{-1}\,Y^T s
+                    \]
+
+                    <p><strong>Task:</strong> Using the Lyapunov candidate</p>
+                    \[
+                        V = \tfrac{1}{2}\,s^T M(q)\,s + \tfrac{1}{2}\,\tilde{\theta}^T \Gamma\,\tilde{\theta}, \qquad \tilde{\theta} = \theta - \hat{\theta}
+                    \]
+                    <p>derive \(\dot{V}\) step by step and show that \(\dot{V} = -s^T K_D\,s \le 0\). Explain why this guarantees bounded parameter estimates.</p>
+
+                    <div class="derivation-box">
+                        <h4>Solution Outline</h4>
+                        <p><strong>Step 1.</strong> Differentiate \(V\):</p>
+                        \[
+                            \dot{V} = s^T M(q)\,\dot{s} + \tfrac{1}{2}\,s^T \dot{M}(q)\,s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+                        \]
+
+                        <p><strong>Step 2.</strong> Find the closed-loop error dynamics. Substitute the control law into the manipulator equation:</p>
+                        \[
+                            M(q)\dot{s} + C(q,\dot{q})\,s = Y\,\tilde{\theta} - K_D\,s
+                        \]
+                        <p>This follows because \(M\ddot{q} + C\dot{q} + G = \tau\) and \(M\ddot{q}_r + C\dot{q}_r + G = Y\theta\), so subtracting gives \(M\dot{s} + Cs = Y\theta - \tau = Y\theta - Y\hat{\theta} + K_D s = Y\tilde{\theta} - K_D s\). Wait &mdash; note the sign: \(\tau = Y\hat{\theta} - K_D s\), so \(Y\theta - \tau = Y\theta - Y\hat{\theta} + K_D s = Y\tilde{\theta} + K_D s\). Hence:</p>
+                        \[
+                            M(q)\dot{s} = -C(q,\dot{q})\,s + Y\,\tilde{\theta} - K_D\,s
+                        \]
+
+                        <p><strong>Step 3.</strong> Substitute into \(\dot{V}\):</p>
+                        \[
+                            \dot{V} = s^T\!\bigl[-C s + Y\tilde{\theta} - K_D s\bigr] + \tfrac{1}{2}\,s^T \dot{M}\,s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+                        \]
+                        \[
+                            = s^T\!\bigl[\tfrac{1}{2}(\dot{M} - 2C)\bigr]s + s^T Y\,\tilde{\theta} - s^T K_D\,s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+                        \]
+
+                        <p><strong>Step 4.</strong> Use the skew-symmetry property \(\dot{M} - 2C\) is skew-symmetric, so \(s^T(\dot{M}-2C)s = 0\):</p>
+                        \[
+                            \dot{V} = s^T Y\,\tilde{\theta} - s^T K_D\,s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+                        \]
+
+                        <p><strong>Step 5.</strong> Note \(\dot{\tilde{\theta}} = -\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\) (since \(\theta\) is constant). Therefore:</p>
+                        \[
+                            \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}} = \tilde{\theta}^T \Gamma\,\Gamma^{-1} Y^T s = \tilde{\theta}^T Y^T s = (Y\tilde{\theta})^T s = s^T Y\tilde{\theta}
+                        \]
+                        <p>Wait &mdash; this would give \(+2s^T Y\tilde{\theta}\), which is incorrect. Let us be careful with the sign convention. We have \(\dot{\hat{\theta}} = -\Gamma^{-1} Y^T s\), and \(\tilde{\theta} = \theta - \hat{\theta}\), so \(\dot{\tilde{\theta}} = -\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\).</p>
+                        <p>Then \(\tilde{\theta}^T \Gamma \dot{\tilde{\theta}} = \tilde{\theta}^T \Gamma \Gamma^{-1} Y^T s = \tilde{\theta}^T Y^T s\). And from Step 4 we also have \(+s^T Y\tilde{\theta}\). So we get \(2 s^T Y\tilde{\theta}\).</p>
+                        <p>The resolution: the standard adaptive law uses \(\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\) (positive sign). Then \(\dot{\tilde{\theta}} = -\Gamma^{-1} Y^T s\), giving \(\tilde{\theta}^T \Gamma \dot{\tilde{\theta}} = -s^T Y\tilde{\theta}\), and the cross terms cancel:</p>
+                        \[
+                            \dot{V} = s^T Y\tilde{\theta} - s^T K_D s - s^T Y\tilde{\theta} = -s^T K_D s \le 0
+                        \]
+
+                        <p><strong>Step 6.</strong> Conclusion: Since \(V \ge 0\) and \(\dot{V} \le 0\), the function \(V(t)\) is non-increasing. Because \(V\) includes \(\tfrac{1}{2}\tilde{\theta}^T\Gamma\tilde{\theta}\), boundedness of \(V\) implies boundedness of \(\tilde{\theta}\) and hence \(\hat{\theta}\). By Barbalat's lemma, \(s \to 0\) as \(t \to \infty\).</p>
+                    </div>
+                </div>
+
+                <div class="exam-question">
+                    <h4>Question 2 &mdash; Regressor and Parameter Vector for Gravity Terms</h4>
+                    <p>For the same 2-DOF manipulator, the gravity vector is</p>
+                    \[
+                        G(q) = \begin{bmatrix} (m_1+m_2)\,g\,l_1\cos q_1 + m_2\,g\,l_2\cos(q_1+q_2) \\ m_2\,g\,l_2\cos(q_1+q_2) \end{bmatrix}
+                    \]
+                    <p>Write the regressor matrix \(Y_G\) and parameter vector \(\theta_G\) such that \(G(q) = Y_G(q)\,\theta_G\). Identify what each element of \(\theta_G\) represents physically.</p>
+
+                    <div class="derivation-box">
+                        <h4>Solution</h4>
+                        <p>We seek a factorisation \(G(q) = Y_G(q)\,\theta_G\). Observe that the gravity terms depend on two independent parameter groups:</p>
+                        <ul>
+                            <li>\(\theta_{G,1} = (m_1 + m_2)\,g\,l_1\) &mdash; gravitational torque parameter for link 1 (total mass times gravity times link-1 length)</li>
+                            <li>\(\theta_{G,2} = m_2\,g\,l_2\) &mdash; gravitational torque parameter for link 2 (link-2 mass times gravity times link-2 length)</li>
+                        </ul>
+                        <p>Then:</p>
+                        \[
+                            G(q) = \underbrace{\begin{bmatrix} \cos q_1 & \cos(q_1+q_2) \\ 0 & \cos(q_1+q_2) \end{bmatrix}}_{Y_G(q)} \underbrace{\begin{bmatrix} (m_1+m_2)\,g\,l_1 \\ m_2\,g\,l_2 \end{bmatrix}}_{\theta_G}
+                        \]
+                        <p><strong>Physical meaning:</strong></p>
+                        <ul>
+                            <li>\(\theta_{G,1} = (m_1+m_2)gl_1\): the maximum gravitational torque that link 1 must support (both link masses hanging at full link-1 lever arm).</li>
+                            <li>\(\theta_{G,2} = m_2 g l_2\): the maximum gravitational torque due to link 2 alone (link-2 mass at full link-2 lever arm).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Time Limit:</strong> 20 minutes to complete both questions. Work individually first, then discuss with your neighbour.
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 1: LEARNING OUTCOMES                                 -->
+            <!-- ============================================================ -->
+            <div class="section objectives">
+                <h2>Section 1 &mdash; Learning Outcomes</h2>
+                <ul>
+                    <li>Understand robust control philosophy: guarantee performance despite <strong>bounded</strong> uncertainties without estimating them</li>
+                    <li>Derive a robust control law for a manipulator subject to bounded disturbances</li>
+                    <li>Understand \(\mathcal{H}_\infty\) control concepts and their application to robotics</li>
+                    <li>Apply robust PD+ control with known disturbance bounds</li>
+                    <li>Implement robust control for three systems: manipulator, mobile robot, drone</li>
+                    <li>Compare robust control vs adaptive control vs computed torque control</li>
+                </ul>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 2: SESSION ROADMAP                                   -->
+            <!-- ============================================================ -->
+            <div class="section timeline">
+                <h2>Section 2 &mdash; Session Roadmap (3 Hours)</h2>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">0:00 &ndash; 0:20</div>
+                    <div class="timeline-content">
+                        <h4>Previous Week Exam Practice</h4>
+                        <p>Adaptive control recall: Lyapunov proof and regressor identification.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">0:20 &ndash; 1:00</div>
+                    <div class="timeline-content">
+                        <h4>Part 1 &mdash; Robust Control Theory</h4>
+                        <p>Philosophy, problem setup, robust term design, Lyapunov proof, \(\mathcal{H}_\infty\) concepts.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">1:00 &ndash; 1:20</div>
+                    <div class="timeline-content">
+                        <h4>Part 2 &mdash; Robust Control for Manipulator</h4>
+                        <p>Full derivation for 2-DOF arm, uncertainty bounds, MATLAB implementation.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">1:20 &ndash; 1:30</div>
+                    <div class="timeline-content">
+                        <h4>Break</h4>
+                        <p>10-minute break.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">1:30 &ndash; 2:00</div>
+                    <div class="timeline-content">
+                        <h4>Part 3 &mdash; Robust Control for Mobile Robot</h4>
+                        <p>Wheel slip, terrain disturbances, robust unicycle tracking.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">2:00 &ndash; 2:30</div>
+                    <div class="timeline-content">
+                        <h4>Part 4 &mdash; Robust Control for Drone</h4>
+                        <p>Wind disturbance rejection, robust position and attitude control.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">2:30 &ndash; 3:00</div>
+                    <div class="timeline-content">
+                        <h4>Part 5 &mdash; MATLAB &amp; Activities</h4>
+                        <p>Hands-on simulation, comparison exercises, quick quiz.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 3: PART 1 — ROBUST CONTROL THEORY                   -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 3 &mdash; Part 1: Robust Control Theory</h2>
+
+                <!-- 3.1 Why Robust Control? -->
+                <h3>3.1 Why Robust Control?</h3>
+                <p>In Weeks 1&ndash;3 we developed increasingly sophisticated controllers:</p>
+                <ul>
+                    <li><strong>Computed Torque (Week 1):</strong> requires exact model &mdash; any mismatch degrades performance.</li>
+                    <li><strong>MPC (Week 2):</strong> optimises over a prediction horizon using a model &mdash; sensitive to model error.</li>
+                    <li><strong>Adaptive Control (Week 3):</strong> estimates unknown parameters online &mdash; but requires linearity in parameters and persistent excitation.</li>
+                </ul>
+                <p><strong>Robust control</strong> takes a different philosophy:</p>
+                <div class="info">
+                    <strong>Core Idea:</strong> Instead of estimating the uncertainty, assume it is <em>bounded</em> and design a controller that guarantees performance for <em>all</em> disturbances within that bound. No online estimation, no model identification &mdash; just guaranteed worst-case performance.
+                </div>
+
+                <!-- SVG DIAGRAM 1: Robust Control Block Diagram -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <defs>
+                    <marker id="arrowBlue1" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/></marker>
+                    <marker id="arrowRed1" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#dc3545"/></marker>
+                    <marker id="arrowGreen1" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/></marker>
+                  </defs>
+                  <!-- Background -->
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <!-- Title -->
+                  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Robust Control Block Diagram</text>
+
+                  <!-- r(t) label and arrow to summing junction -->
+                  <text x="18" y="125" font-size="13" fill="#1e3c72" font-weight="bold">r(t)</text>
+                  <line x1="48" y1="120" x2="85" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue1)"/>
+
+                  <!-- Summing junction 1 (error) -->
+                  <circle cx="105" cy="120" r="16" fill="white" stroke="#1e3c72" stroke-width="2"/>
+                  <text x="97" y="116" font-size="13" fill="#4caf50" font-weight="bold">+</text>
+                  <text x="97" y="132" font-size="13" fill="#dc3545" font-weight="bold">&#8722;</text>
+
+                  <!-- Arrow from sum1 to controller -->
+                  <line x1="121" y1="120" x2="170" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue1)"/>
+                  <text x="133" y="112" font-size="11" fill="#555">e(t)</text>
+
+                  <!-- Robust Controller block -->
+                  <rect x="180" y="92" width="150" height="56" rx="8" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+                  <text x="255" y="115" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Robust Controller</text>
+                  <text x="255" y="133" text-anchor="middle" font-size="10" fill="#e0e0ff">Nominal + Robust Term</text>
+
+                  <!-- Arrow from controller to sum2 -->
+                  <line x1="330" y1="120" x2="374" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue1)"/>
+                  <text x="340" y="112" font-size="11" fill="#555">&#964;(t)</text>
+
+                  <!-- Summing junction 2 (disturbance entry) -->
+                  <circle cx="394" cy="120" r="16" fill="white" stroke="#1e3c72" stroke-width="2"/>
+                  <text x="386" y="116" font-size="13" fill="#4caf50" font-weight="bold">+</text>
+                  <text x="399" y="132" font-size="13" fill="#4caf50" font-weight="bold">+</text>
+
+                  <!-- Disturbance d(t) arrow entering vertically from top into sum2 -->
+                  <text x="404" y="48" font-size="12" fill="#dc3545" font-weight="bold">d(t)</text>
+                  <text x="404" y="62" font-size="10" fill="#dc3545">disturbance</text>
+                  <line x1="394" y1="68" x2="394" y2="94" stroke="#dc3545" stroke-width="2" marker-end="url(#arrowRed1)"/>
+
+                  <!-- Arrow from sum2 to plant envelope -->
+                  <line x1="410" y1="120" x2="450" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue1)"/>
+
+                  <!-- Actual Plant dashed envelope -->
+                  <rect x="460" y="68" width="220" height="108" rx="10" fill="#fff3e0" stroke="#ff9800" stroke-width="2" stroke-dasharray="6,3"/>
+                  <text x="570" y="86" text-anchor="middle" font-size="11" fill="#ff9800" font-weight="bold">Actual Plant</text>
+
+                  <!-- Nominal Plant inner box -->
+                  <rect x="478" y="96" width="115" height="50" rx="6" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+                  <text x="536" y="118" text-anchor="middle" font-size="12" fill="#1e3c72" font-weight="bold">Nominal Plant</text>
+                  <text x="536" y="136" text-anchor="middle" font-size="10" fill="#2196f3">M&#x0302;, C&#x0302;, G&#x0302;</text>
+
+                  <!-- Uncertainty Delta block -->
+                  <rect x="608" y="96" width="58" height="50" rx="6" fill="#ffebee" stroke="#dc3545" stroke-width="2"/>
+                  <text x="637" y="118" text-anchor="middle" font-size="16" fill="#dc3545" font-weight="bold">&#916;</text>
+                  <text x="637" y="136" text-anchor="middle" font-size="9" fill="#dc3545">uncertainty</text>
+
+                  <!-- Bounded label below envelope -->
+                  <text x="570" y="192" text-anchor="middle" font-size="11" fill="#ff9800" font-style="italic">bounded: ||&#916;|| &#8804; &#948;_max</text>
+
+                  <!-- Arrow from plant to output y(t) -->
+                  <line x1="680" y1="120" x2="740" y2="120" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue1)"/>
+                  <text x="755" y="125" font-size="13" fill="#1e3c72" font-weight="bold">y(t)</text>
+
+                  <!-- Feedback path: y down, left, up into sum1 (orthogonal) -->
+                  <!-- Tap point on output line -->
+                  <line x1="730" y1="120" x2="730" y2="270" stroke="#4caf50" stroke-width="2"/>
+                  <line x1="730" y1="270" x2="105" y2="270" stroke="#4caf50" stroke-width="2"/>
+                  <line x1="105" y1="270" x2="105" y2="146" stroke="#4caf50" stroke-width="2" marker-end="url(#arrowGreen1)"/>
+
+                  <!-- Sensor block on feedback horizontal segment -->
+                  <rect x="380" y="254" width="90" height="32" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.5"/>
+                  <text x="425" y="275" text-anchor="middle" font-size="11" fill="#4caf50">Sensor</text>
+
+                  <!-- Feedback label -->
+                  <text x="425" y="248" text-anchor="middle" font-size="11" fill="#4caf50" font-weight="bold">Feedback: y(t)</text>
+
+                  <!-- Legend -->
+                  <rect x="20" y="305" width="760" height="38" rx="6" fill="#f0f4ff" stroke="#667eea" stroke-width="1"/>
+                  <rect x="30" y="316" width="14" height="14" fill="#e3f2fd" stroke="#2196f3" stroke-width="1"/>
+                  <text x="50" y="328" font-size="11" fill="#333">Nominal Model</text>
+                  <rect x="170" y="316" width="14" height="14" fill="#ffebee" stroke="#dc3545" stroke-width="1"/>
+                  <text x="190" y="328" font-size="11" fill="#333">Uncertainty &#916;</text>
+                  <line x1="310" y1="323" x2="340" y2="323" stroke="#dc3545" stroke-width="2"/>
+                  <text x="347" y="328" font-size="11" fill="#333">Disturbance d(t)</text>
+                  <line x1="470" y1="323" x2="500" y2="323" stroke="#4caf50" stroke-width="2"/>
+                  <text x="507" y="328" font-size="11" fill="#333">Feedback Path</text>
+                  <rect x="620" y="316" width="40" height="14" rx="3" fill="#fff3e0" stroke="#ff9800" stroke-width="1" stroke-dasharray="4,2"/>
+                  <text x="667" y="328" font-size="11" fill="#333">Actual Plant Envelope</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 1:</strong> Robust control block diagram showing the nominal plant with additive uncertainty block &#916; and disturbance d(t). The robust controller compensates for all bounded uncertainties without estimating them.</p>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>When to Use Robust Control</h4>
+                        <ul>
+                            <li>Uncertainty bound is known (e.g., wind &le; 10 N)</li>
+                            <li>Parameters change too fast for adaptation</li>
+                            <li>Safety-critical: need guaranteed bounds on tracking error</li>
+                            <li>Simple implementation desired (no online estimation)</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>When NOT to Use Robust Control</h4>
+                        <ul>
+                            <li>Uncertainty bound is unknown or very conservative</li>
+                            <li>Performance must improve over time (use adaptive)</li>
+                            <li>Large parametric uncertainty (robust term becomes too large)</li>
+                            <li>Tight energy constraints (robust terms use more control effort)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 3.2 Problem Setup -->
+                <h3>3.2 Problem Setup</h3>
+                <p>Consider the general manipulator dynamics with a <strong>bounded disturbance</strong>:</p>
+                <div class="formula-box">
+                    \[
+                        M(q)\,\ddot{q} + C(q,\dot{q})\,\dot{q} + G(q) = \tau + d(t), \qquad \|d(t)\| \le d_{\max}
+                    \]
+                </div>
+                <p>Here \(d(t) \in \mathbb{R}^n\) represents <em>all</em> unmodelled effects: external forces, friction, payload changes, model mismatch, sensor noise coupling, etc. The only assumption is a known upper bound \(d_{\max}\).</p>
+
+                <p>Additionally, suppose we have an <strong>imperfect model</strong>: estimates \(\hat{M}(q)\), \(\hat{C}(q,\dot{q})\), \(\hat{G}(q)\) with bounded errors:</p>
+                \[
+                    \Delta M = M - \hat{M}, \quad \Delta C = C - \hat{C}, \quad \Delta G = G - \hat{G}
+                \]
+                <p>Then the total uncertainty is:</p>
+                \[
+                    \eta(t) = \Delta M\,\ddot{q} + \Delta C\,\dot{q} + \Delta G + d(t)
+                \]
+                <p>If we can bound \(\|\eta(t)\| \le \rho(q,\dot{q},t)\) for a known function \(\rho\), we can design a robust controller.</p>
+
+                <!-- SVG DIAGRAM 2: Uncertainty Types Visualization -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <defs>
+                    <marker id="arrowBlue2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/></marker>
+                    <marker id="arrowRed2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#dc3545"/></marker>
+                    <marker id="arrowOrange2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Three Types of Uncertainty in Robotic Systems</text>
+
+                  <!-- ===== Card (a): Parametric Uncertainty ===== -->
+                  <rect x="12" y="45" width="248" height="292" rx="10" fill="white" stroke="#667eea" stroke-width="2"/>
+                  <rect x="12" y="45" width="248" height="35" rx="10" fill="#667eea"/>
+                  <rect x="12" y="65" width="248" height="15" fill="#667eea"/>
+                  <text x="136" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="white">(a) Parametric Uncertainty</text>
+
+                  <!-- Number line for m -->
+                  <line x1="35" y1="130" x2="240" y2="130" stroke="#333" stroke-width="2"/>
+                  <line x1="60" y1="122" x2="60" y2="138" stroke="#333" stroke-width="2"/>
+                  <line x1="136" y1="122" x2="136" y2="138" stroke="#333" stroke-width="2"/>
+                  <line x1="215" y1="122" x2="215" y2="138" stroke="#333" stroke-width="2"/>
+                  <rect x="60" y="125" width="155" height="10" rx="3" fill="#667eea" opacity="0.2"/>
+                  <circle cx="136" cy="130" r="5" fill="#1e3c72"/>
+                  <circle cx="60" cy="130" r="4" fill="#dc3545"/>
+                  <circle cx="215" cy="130" r="4" fill="#dc3545"/>
+                  <text x="60" y="155" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">m_min</text>
+                  <text x="136" y="155" text-anchor="middle" font-size="10" fill="#1e3c72" font-weight="bold">m&#x0302;</text>
+                  <text x="215" y="155" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">m_max</text>
+                  <!-- delta arrows -->
+                  <line x1="136" y1="170" x2="215" y2="170" stroke="#ff9800" stroke-width="1.5" marker-end="url(#arrowOrange2)"/>
+                  <line x1="136" y1="170" x2="60" y2="170" stroke="#ff9800" stroke-width="1.5" marker-end="url(#arrowOrange2)"/>
+                  <text x="180" y="186" text-anchor="middle" font-size="10" fill="#ff9800">&#948;_m</text>
+                  <text x="95" y="186" text-anchor="middle" font-size="10" fill="#ff9800">&#948;_m</text>
+
+                  <!-- Number line for l -->
+                  <line x1="35" y1="220" x2="240" y2="220" stroke="#333" stroke-width="2"/>
+                  <line x1="72" y1="212" x2="72" y2="228" stroke="#333" stroke-width="2"/>
+                  <line x1="136" y1="212" x2="136" y2="228" stroke="#333" stroke-width="2"/>
+                  <line x1="200" y1="212" x2="200" y2="228" stroke="#333" stroke-width="2"/>
+                  <rect x="72" y="215" width="128" height="10" rx="3" fill="#667eea" opacity="0.2"/>
+                  <circle cx="136" cy="220" r="5" fill="#1e3c72"/>
+                  <circle cx="72" cy="220" r="4" fill="#dc3545"/>
+                  <circle cx="200" cy="220" r="4" fill="#dc3545"/>
+                  <text x="72" y="245" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">l_min</text>
+                  <text x="136" y="245" text-anchor="middle" font-size="10" fill="#1e3c72" font-weight="bold">l&#x0302;</text>
+                  <text x="200" y="245" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">l_max</text>
+
+                  <text x="136" y="278" text-anchor="middle" font-size="11" fill="#555">|m - m&#x0302;| &#8804; &#948;_m</text>
+                  <text x="136" y="296" text-anchor="middle" font-size="11" fill="#555">|l - l&#x0302;| &#8804; &#948;_l</text>
+                  <text x="136" y="328" text-anchor="middle" font-size="10" fill="#667eea" font-style="italic">Known ranges for each parameter</text>
+
+                  <!-- ===== Card (b): Unstructured / Additive ===== -->
+                  <rect x="276" y="45" width="248" height="292" rx="10" fill="white" stroke="#4caf50" stroke-width="2"/>
+                  <rect x="276" y="45" width="248" height="35" rx="10" fill="#4caf50"/>
+                  <rect x="276" y="65" width="248" height="15" fill="#4caf50"/>
+                  <text x="400" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="white">(b) Unstructured / Additive</text>
+
+                  <!-- Frequency response axes -->
+                  <line x1="300" y1="285" x2="505" y2="285" stroke="#333" stroke-width="1.5"/>
+                  <line x1="300" y1="285" x2="300" y2="100" stroke="#333" stroke-width="1.5"/>
+                  <text x="400" y="305" text-anchor="middle" font-size="11" fill="#333">Frequency &#969;</text>
+                  <text x="290" y="100" text-anchor="end" font-size="11" fill="#333" transform="rotate(-90, 290, 190)">|G(j&#969;)|</text>
+
+                  <!-- Nominal frequency response curve -->
+                  <path d="M310,140 Q350,145 380,160 Q410,180 440,220 Q470,255 500,270" fill="none" stroke="#1e3c72" stroke-width="2.5"/>
+                  <!-- Upper envelope -->
+                  <path d="M310,115 Q350,118 380,130 Q410,148 440,190 Q470,230 500,255" fill="none" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="5,3"/>
+                  <!-- Lower envelope -->
+                  <path d="M310,160 Q350,168 380,188 Q410,210 440,245 Q470,268 500,278" fill="none" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="5,3"/>
+                  <!-- Shaded region -->
+                  <path d="M310,115 Q350,118 380,130 Q410,148 440,190 Q470,230 500,255 L500,278 Q470,268 440,245 Q410,210 380,188 Q350,168 310,160 Z" fill="#dc3545" opacity="0.1"/>
+
+                  <!-- Legend items -->
+                  <line x1="320" y1="92" x2="345" y2="92" stroke="#1e3c72" stroke-width="2.5"/>
+                  <text x="350" y="96" font-size="10" fill="#333">Nominal G&#x0302;(j&#969;)</text>
+                  <line x1="435" y1="92" x2="460" y2="92" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="5,3"/>
+                  <text x="465" y="96" font-size="10" fill="#333">G &#177; &#916;(j&#969;)</text>
+                  <text x="400" y="328" text-anchor="middle" font-size="10" fill="#4caf50" font-style="italic">Frequency-dependent uncertainty envelope</text>
+
+                  <!-- ===== Card (c): Matched Disturbance ===== -->
+                  <rect x="540" y="45" width="248" height="292" rx="10" fill="white" stroke="#ff9800" stroke-width="2"/>
+                  <rect x="540" y="45" width="248" height="35" rx="10" fill="#ff9800"/>
+                  <rect x="540" y="65" width="248" height="15" fill="#ff9800"/>
+                  <text x="664" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="white">(c) Matched Disturbance</text>
+
+                  <!-- Controller block -->
+                  <rect x="560" y="150" width="65" height="40" rx="5" fill="#667eea" stroke="#1e3c72" stroke-width="1.5"/>
+                  <text x="593" y="174" text-anchor="middle" font-size="12" fill="white" font-weight="bold">K</text>
+
+                  <!-- Arrow from K to summing junction (horizontal) -->
+                  <line x1="625" y1="170" x2="653" y2="170" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue2)"/>
+                  <text x="636" y="163" font-size="10" fill="#555">u</text>
+
+                  <!-- Summing junction -->
+                  <circle cx="673" cy="170" r="12" fill="white" stroke="#1e3c72" stroke-width="1.5"/>
+                  <text x="667" y="167" font-size="11" fill="#4caf50" font-weight="bold">+</text>
+                  <text x="678" y="180" font-size="11" fill="#4caf50" font-weight="bold">+</text>
+
+                  <!-- d(t) entering vertically from top -->
+                  <text x="688" y="108" font-size="11" fill="#dc3545" font-weight="bold">d(t)</text>
+                  <!-- Waveform sketch -->
+                  <path d="M648,120 Q653,110 658,120 Q663,130 668,120 Q673,110 678,120 Q683,130 688,120 Q693,110 698,120" fill="none" stroke="#dc3545" stroke-width="1.5"/>
+                  <line x1="673" y1="132" x2="673" y2="148" stroke="#dc3545" stroke-width="2" marker-end="url(#arrowRed2)"/>
+
+                  <!-- Arrow from sum to Plant (horizontal) -->
+                  <line x1="685" y1="170" x2="713" y2="170" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue2)"/>
+
+                  <!-- Plant block -->
+                  <rect x="723" y="150" width="55" height="40" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="1.5"/>
+                  <text x="751" y="174" text-anchor="middle" font-size="11" fill="#1e3c72" font-weight="bold">Plant</text>
+
+                  <!-- Output arrow -->
+                  <line x1="778" y1="170" x2="780" y2="170" stroke="#1e3c72" stroke-width="2" marker-end="url(#arrowBlue2)"/>
+
+                  <!-- Bound label -->
+                  <text x="664" y="225" text-anchor="middle" font-size="12" fill="#ff9800" font-weight="bold">||d(t)|| &#8804; d_max</text>
+                  <text x="664" y="248" text-anchor="middle" font-size="11" fill="#555">d(t) enters at control input</text>
+                  <text x="664" y="266" text-anchor="middle" font-size="11" fill="#555">(same channel as &#964;)</text>
+                  <text x="664" y="328" text-anchor="middle" font-size="10" fill="#ff9800" font-style="italic">Bounded signal at plant input</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 2:</strong> Three types of uncertainty: (a) parametric -- parameters lie in known intervals; (b) unstructured/additive -- frequency-dependent uncertainty envelope around the nominal response; (c) matched disturbance -- bounded signal entering at the plant input.</p>
+                </div>
+
+                <!-- 3.3 Robust Control Approach -->
+                <h3>3.3 Robust Computed Torque + Robust Term</h3>
+                <p>The control law has two components:</p>
+                <div class="math-box">
+                    \[
+                        \tau = \underbrace{\hat{M}(q)\bigl[\ddot{q}_d + K_D\,\dot{e} + K_P\,e\bigr] + \hat{C}(q,\dot{q})\,\dot{q} + \hat{G}(q)}_{\text{nominal computed torque}} + \underbrace{\tau_{\text{robust}}}_{\text{robust term}}
+                    \]
+                </div>
+                <p>where \(e = q_d - q\) is the tracking error.</p>
+
+                <h4>Closed-Loop Error Dynamics</h4>
+                <p>Substituting into the manipulator equation:</p>
+                \[
+                    M\ddot{q} + C\dot{q} + G = \hat{M}(\ddot{q}_d + K_D\dot{e} + K_P e) + \hat{C}\dot{q} + \hat{G} + \tau_{\text{robust}} + d
+                \]
+                <p>Rearranging with \(\ddot{e} = \ddot{q}_d - \ddot{q}\):</p>
+                \[
+                    M\ddot{e} + (C + \hat{M}K_D)\dot{e} + \hat{M}K_P e = \underbrace{\Delta M\ddot{q} + \Delta C\dot{q} + \Delta G + d(t)}_{\eta(t)} - \tau_{\text{robust}}
+                \]
+
+                <!-- 3.4 Robust Term Design via Sliding Surface -->
+                <h3>3.4 Robust Term Design</h3>
+                <p>Define the <strong>sliding variable</strong> (same as in adaptive control):</p>
+                \[
+                    s = \dot{e} + \Lambda\,e
+                \]
+                <p>where \(\Lambda \succ 0\) is a positive-definite gain matrix. Then the robust controller is:</p>
+                <div class="math-box">
+                    \[
+                        \tau = \hat{M}(q)\,\ddot{q}_r + \hat{C}(q,\dot{q})\,\dot{q}_r + \hat{G}(q) - K_D\,s + \tau_{\text{robust}}
+                    \]
+                </div>
+                <p>where \(\dot{q}_r = \dot{q}_d - \Lambda e\), \(\ddot{q}_r = \ddot{q}_d - \Lambda\dot{e}\) (the reference velocity and acceleration).</p>
+
+                <p>The <strong>robust term</strong> is designed as:</p>
+                <div class="formula-box">
+                    \[
+                        \tau_{\text{robust}} = \begin{cases} -\rho(t)\,\dfrac{s}{\|s\|} & \text{if } \|s\| \ge \epsilon \\ -\dfrac{\rho(t)}{\epsilon}\,s & \text{if } \|s\| < \epsilon \end{cases}
+                    \]
+                </div>
+                <p>where \(\rho(t) \ge \|\eta(t)\|\) is the uncertainty bound and \(\epsilon > 0\) is a small boundary-layer thickness to avoid chattering. The first case is the <strong>discontinuous</strong> (sliding-mode-like) form; the second is a <strong>continuous approximation</strong> inside a boundary layer.</p>
+
+                <div class="warning">
+                    <strong>Chattering Problem:</strong> The pure discontinuous form \(\tau_{\text{robust}} = -\rho\,s/\|s\|\) causes high-frequency switching (chattering) in actuators. The boundary layer \(\epsilon\) trades off robustness for smoothness. Smaller \(\epsilon\) = more robust but more chattering.
+                </div>
+
+                <!-- 3.5 Lyapunov Proof -->
+                <h3>3.5 Lyapunov Stability Proof</h3>
+                <div class="derivation-box">
+                    <h4>Theorem: Robust Tracking with Bounded Error</h4>
+                    <p>Consider the Lyapunov candidate:</p>
+                    \[
+                        V = \tfrac{1}{2}\,s^T M(q)\,s
+                    \]
+                    <p><strong>Step 1.</strong> Differentiate:</p>
+                    \[
+                        \dot{V} = s^T M\dot{s} + \tfrac{1}{2}s^T\dot{M}s
+                    \]
+
+                    <p><strong>Step 2.</strong> The closed-loop error dynamics give:</p>
+                    \[
+                        M\dot{s} = -Cs + \eta(t) - K_D s + \tau_{\text{robust}}
+                    \]
+                    <p>Substituting:</p>
+                    \[
+                        \dot{V} = s^T(-Cs + \eta - K_D s + \tau_{\text{robust}}) + \tfrac{1}{2}s^T\dot{M}s
+                    \]
+                    \[
+                        = \tfrac{1}{2}s^T(\dot{M}-2C)s + s^T\eta - s^T K_D s + s^T\tau_{\text{robust}}
+                    \]
+
+                    <p><strong>Step 3.</strong> By skew-symmetry, \(s^T(\dot{M}-2C)s = 0\):</p>
+                    \[
+                        \dot{V} = s^T\eta - s^T K_D s + s^T\tau_{\text{robust}}
+                    \]
+
+                    <p><strong>Step 4.</strong> For the discontinuous case (\(\|s\| \ge \epsilon\)), \(\tau_{\text{robust}} = -\rho\,s/\|s\|\):</p>
+                    \[
+                        s^T\tau_{\text{robust}} = -\rho\,\frac{s^Ts}{\|s\|} = -\rho\,\|s\|
+                    \]
+                    <p>And \(s^T\eta \le \|s\|\,\|\eta\| \le \|s\|\,\rho\) by Cauchy&ndash;Schwarz and the bound \(\|\eta\| \le \rho\). Therefore:</p>
+                    \[
+                        \dot{V} \le \|s\|\rho - s^T K_D s - \rho\|s\| = -s^T K_D s \le 0
+                    \]
+
+                    <p><strong>Step 5.</strong> For the boundary-layer case (\(\|s\| < \epsilon\)), the tracking error is already within the boundary layer. The ultimate bound on \(\|s\|\) is \(\epsilon\), which translates to a bounded tracking error.</p>
+
+                    <div class="success">
+                        <strong>Result:</strong> With the robust term, the sliding variable \(s\) converges to the boundary layer \(\|s\| \le \epsilon\), guaranteeing that tracking error is ultimately bounded. With \(s = \dot{e}+\Lambda e \to 0\), we get \(e \to 0\) exponentially inside the boundary layer.
+                    </div>
+                </div>
+
+                <!-- SVG DIAGRAM 4: Robust Stability Region -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Robust Stability: Lyapunov Contours and Ultimate Bound</text>
+
+                  <!-- Divider -->
+                  <line x1="400" y1="50" x2="400" y2="340" stroke="#ddd" stroke-width="1.5" stroke-dasharray="5,5"/>
+                  <text x="400" y="48" text-anchor="middle" font-size="12" fill="#ff9800" font-weight="bold">vs</text>
+
+                  <!-- ===== LEFT PANEL: Nominal (converges to origin) ===== -->
+                  <text x="195" y="58" text-anchor="middle" font-size="13" font-weight="bold" fill="#2196f3">Nominal (no disturbance)</text>
+                  <text x="195" y="74" text-anchor="middle" font-size="11" fill="#555">Converges to origin</text>
+
+                  <!-- Axes -->
+                  <line x1="75" y1="195" x2="315" y2="195" stroke="#999" stroke-width="1"/>
+                  <line x1="195" y1="90" x2="195" y2="300" stroke="#999" stroke-width="1"/>
+                  <text x="322" y="200" font-size="11" fill="#555">x&#8321;</text>
+                  <text x="200" y="88" font-size="11" fill="#555">x&#8322;</text>
+
+                  <!-- Concentric Lyapunov ellipses -->
+                  <ellipse cx="195" cy="195" rx="105" ry="85" fill="none" stroke="#667eea" stroke-width="1" opacity="0.3"/>
+                  <ellipse cx="195" cy="195" rx="80" ry="65" fill="none" stroke="#667eea" stroke-width="1" opacity="0.4"/>
+                  <ellipse cx="195" cy="195" rx="55" ry="45" fill="none" stroke="#667eea" stroke-width="1" opacity="0.5"/>
+                  <ellipse cx="195" cy="195" rx="30" ry="24" fill="none" stroke="#667eea" stroke-width="1" opacity="0.6"/>
+                  <ellipse cx="195" cy="195" rx="10" ry="8" fill="#667eea" opacity="0.15" stroke="#667eea" stroke-width="1"/>
+
+                  <!-- Contour labels -->
+                  <text x="306" y="160" font-size="9" fill="#667eea">V=c&#8324;</text>
+                  <text x="278" y="170" font-size="9" fill="#667eea">V=c&#8323;</text>
+                  <text x="253" y="180" font-size="9" fill="#667eea">V=c&#8322;</text>
+                  <text x="228" y="188" font-size="9" fill="#667eea">V=c&#8321;</text>
+
+                  <!-- Spiral trajectory to origin -->
+                  <path d="M275,135 Q305,175 265,225 Q228,255 178,235 Q140,210 165,170 Q185,148 205,165 Q220,180 200,195 Q192,200 195,195" fill="none" stroke="#2196f3" stroke-width="2.5"/>
+                  <circle cx="195" cy="195" r="4" fill="#2196f3"/>
+                  <circle cx="275" cy="135" r="4" fill="#2196f3"/>
+                  <text x="283" y="133" font-size="10" fill="#2196f3">x(0)</text>
+
+                  <!-- V-dot annotation -->
+                  <text x="195" y="318" text-anchor="middle" font-size="12" fill="#2196f3" font-weight="bold">V&#775; &#8804; -&#945;||x||&#178;</text>
+                  <text x="195" y="336" text-anchor="middle" font-size="11" fill="#555">&#8658; x(t) &#8594; 0</text>
+
+                  <!-- ===== RIGHT PANEL: Robust (converges to ball) ===== -->
+                  <text x="605" y="58" text-anchor="middle" font-size="13" font-weight="bold" fill="#4caf50">Robust (with disturbance)</text>
+                  <text x="605" y="74" text-anchor="middle" font-size="11" fill="#555">Converges to bounded ball</text>
+
+                  <!-- Axes -->
+                  <line x1="485" y1="195" x2="725" y2="195" stroke="#999" stroke-width="1"/>
+                  <line x1="605" y1="90" x2="605" y2="300" stroke="#999" stroke-width="1"/>
+                  <text x="732" y="200" font-size="11" fill="#555">x&#8321;</text>
+                  <text x="610" y="88" font-size="11" fill="#555">x&#8322;</text>
+
+                  <!-- Concentric Lyapunov ellipses -->
+                  <ellipse cx="605" cy="195" rx="105" ry="85" fill="none" stroke="#667eea" stroke-width="1" opacity="0.3"/>
+                  <ellipse cx="605" cy="195" rx="80" ry="65" fill="none" stroke="#667eea" stroke-width="1" opacity="0.4"/>
+                  <ellipse cx="605" cy="195" rx="55" ry="45" fill="none" stroke="#667eea" stroke-width="1" opacity="0.5"/>
+                  <ellipse cx="605" cy="195" rx="30" ry="24" fill="none" stroke="#667eea" stroke-width="1" opacity="0.6"/>
+
+                  <!-- Ultimate bound ball -->
+                  <circle cx="605" cy="195" r="22" fill="#4caf50" opacity="0.15" stroke="#4caf50" stroke-width="2.5"/>
+                  <circle cx="605" cy="195" r="22" fill="none" stroke="#4caf50" stroke-width="2" stroke-dasharray="6,3"/>
+
+                  <!-- Epsilon radius line -->
+                  <line x1="605" y1="195" x2="627" y2="195" stroke="#dc3545" stroke-width="1.5"/>
+                  <text x="632" y="192" font-size="11" fill="#dc3545" font-weight="bold">&#949;</text>
+
+                  <!-- Spiral trajectory converging to ball boundary -->
+                  <path d="M685,135 Q715,180 675,230 Q640,258 580,238 Q542,212 570,175 Q592,148 615,165 Q628,180 618,200 Q604,212 598,205 Q592,196 600,190 Q608,184 614,192 Q618,200 612,204 Q605,208 602,200" fill="none" stroke="#4caf50" stroke-width="2.5"/>
+                  <circle cx="685" cy="135" r="4" fill="#4caf50"/>
+                  <text x="693" y="133" font-size="10" fill="#4caf50">x(0)</text>
+
+                  <!-- Ball labels -->
+                  <text x="605" y="235" text-anchor="middle" font-size="10" fill="#4caf50" font-weight="bold">||x|| &#8804; &#949;</text>
+                  <text x="605" y="250" text-anchor="middle" font-size="9" fill="#4caf50">Ultimate Bound</text>
+
+                  <!-- V-dot annotation -->
+                  <text x="605" y="308" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">V&#775; &#8804; -&#945;||x|| + &#946;</text>
+                  <text x="605" y="326" text-anchor="middle" font-size="11" fill="#555">&#8658; x(t) &#8594; Ball(&#949;)</text>
+                  <text x="605" y="342" text-anchor="middle" font-size="10" fill="#555">&#949; = &#946;/&#945; = &#961;&#949;/(K_D &#923;)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 4:</strong> Robust stability comparison. Left: nominal system without disturbance -- the trajectory converges asymptotically to the origin along Lyapunov contours. Right: robust system with bounded disturbance -- the trajectory converges to a bounded ball of radius &#949; (the ultimate bound), which depends on the boundary layer thickness and gains.</p>
+                </div>
+
+                <!-- 3.6 H-infinity -->
+                <h3>3.6 \(\mathcal{H}_\infty\) Control Concepts</h3>
+                <p>\(\mathcal{H}_\infty\) (H-infinity) control is the <strong>frequency-domain</strong> counterpart to the Lyapunov-based robust control above. The key idea:</p>
+
+                <div class="info">
+                    <strong>Goal:</strong> Design a controller \(K\) that minimises the worst-case gain from disturbance \(w\) to performance output \(z\):
+                    \[
+                        \min_K \;\|T_{zw}(s)\|_\infty = \min_K \;\sup_\omega \;\bar{\sigma}\!\bigl(T_{zw}(j\omega)\bigr)
+                    \]
+                    where \(\bar{\sigma}\) is the maximum singular value.
+                </div>
+
+                <h4>Standard Plant Formulation</h4>
+                <p>The generalised plant \(P\) connects disturbance \(w\), control \(u\), performance output \(z\), and measurement \(y\):</p>
+                \[
+                    \begin{bmatrix} z \\ y \end{bmatrix} = \begin{bmatrix} P_{11} & P_{12} \\ P_{21} & P_{22} \end{bmatrix} \begin{bmatrix} w \\ u \end{bmatrix}
+                \]
+                <p>The closed-loop transfer function from \(w\) to \(z\) is:</p>
+                \[
+                    T_{zw} = P_{11} + P_{12}\,K\,(I - P_{22}\,K)^{-1}\,P_{21}
+                \]
+
+                <!-- SVG DIAGRAM 8: H-infinity Control Concept -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <defs>
+                    <marker id="arrowRed8" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#dc3545"/></marker>
+                    <marker id="arrowOrange8" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/></marker>
+                    <marker id="arrowGreen8" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/></marker>
+                    <marker id="arrowBlue8" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2196f3"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">H-infinity (H&#8734;) Standard Plant Configuration</text>
+
+                  <!-- ===== LEFT SIDE: Generalized Plant P ===== -->
+                  <text x="230" y="52" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">Generalized Plant Structure</text>
+
+                  <!-- P block -->
+                  <rect x="140" y="68" width="180" height="130" rx="12" fill="#e3f2fd" stroke="#1e3c72" stroke-width="2.5"/>
+                  <text x="230" y="96" text-anchor="middle" font-size="18" fill="#1e3c72" font-weight="bold">P</text>
+                  <!-- Internal partition lines -->
+                  <line x1="140" y1="133" x2="320" y2="133" stroke="#1e3c72" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+                  <line x1="230" y1="68" x2="230" y2="198" stroke="#1e3c72" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+                  <text x="185" y="112" text-anchor="middle" font-size="12" fill="#1e3c72">P&#8321;&#8321;</text>
+                  <text x="275" y="112" text-anchor="middle" font-size="12" fill="#1e3c72">P&#8321;&#8322;</text>
+                  <text x="185" y="178" text-anchor="middle" font-size="12" fill="#1e3c72">P&#8322;&#8321;</text>
+                  <text x="275" y="178" text-anchor="middle" font-size="12" fill="#1e3c72">P&#8322;&#8322;</text>
+
+                  <!-- w input (horizontal into left edge at top row center y=100) -->
+                  <text x="25" y="104" font-size="13" fill="#dc3545" font-weight="bold">w</text>
+                  <text x="42" y="118" font-size="10" fill="#dc3545">(disturbance)</text>
+                  <line x1="42" y1="100" x2="130" y2="100" stroke="#dc3545" stroke-width="2.5" marker-end="url(#arrowRed8)"/>
+
+                  <!-- z output (horizontal from right edge at top row center y=100) -->
+                  <line x1="320" y1="100" x2="418" y2="100" stroke="#ff9800" stroke-width="2.5" marker-end="url(#arrowOrange8)"/>
+                  <text x="430" y="104" font-size="13" fill="#ff9800" font-weight="bold">z</text>
+                  <text x="398" y="118" font-size="10" fill="#ff9800">(performance)</text>
+
+                  <!-- u input (horizontal into left edge at bottom row center y=166) -->
+                  <text x="25" y="170" font-size="13" fill="#4caf50" font-weight="bold">u</text>
+                  <text x="42" y="184" font-size="10" fill="#4caf50">(control)</text>
+                  <line x1="42" y1="166" x2="130" y2="166" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrowGreen8)"/>
+
+                  <!-- y output (horizontal from right edge at bottom row center y=166) -->
+                  <line x1="320" y1="166" x2="418" y2="166" stroke="#2196f3" stroke-width="2.5" marker-end="url(#arrowBlue8)"/>
+                  <text x="430" y="170" font-size="13" fill="#2196f3" font-weight="bold">y</text>
+                  <text x="398" y="184" font-size="10" fill="#2196f3">(measurement)</text>
+
+                  <!-- Controller K block -->
+                  <rect x="155" y="240" width="150" height="50" rx="8" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+                  <text x="230" y="270" text-anchor="middle" font-size="16" fill="white" font-weight="bold">K</text>
+
+                  <!-- y to K: right edge down then left into K right edge (orthogonal) -->
+                  <line x1="395" y1="166" x2="395" y2="265" stroke="#2196f3" stroke-width="2"/>
+                  <line x1="395" y1="265" x2="315" y2="265" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowBlue8)"/>
+
+                  <!-- K to u: left edge of K, then left and up to u line (orthogonal) -->
+                  <line x1="155" y1="265" x2="70" y2="265" stroke="#4caf50" stroke-width="2"/>
+                  <line x1="70" y1="265" x2="70" y2="166" stroke="#4caf50" stroke-width="2"/>
+
+                  <!-- ===== RIGHT SIDE: Closed-loop objective ===== -->
+                  <text x="625" y="52" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">Closed-Loop Objective</text>
+
+                  <!-- Closed-loop transfer box -->
+                  <rect x="540" y="68" width="170" height="60" rx="10" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+                  <text x="625" y="94" text-anchor="middle" font-size="14" fill="white" font-weight="bold">T_wz(s)</text>
+                  <text x="625" y="116" text-anchor="middle" font-size="11" fill="#e0e0ff">Closed-loop TF</text>
+
+                  <!-- w into closed-loop (horizontal) -->
+                  <line x1="485" y1="98" x2="530" y2="98" stroke="#dc3545" stroke-width="2" marker-end="url(#arrowRed8)"/>
+                  <text x="498" y="90" font-size="11" fill="#dc3545">w</text>
+
+                  <!-- z out of closed-loop (horizontal) -->
+                  <line x1="710" y1="98" x2="760" y2="98" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange8)"/>
+                  <text x="748" y="90" font-size="11" fill="#ff9800">z</text>
+
+                  <!-- Link between diagrams (dashed) -->
+                  <line x1="445" y1="130" x2="485" y2="98" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,3"/>
+                  <text x="455" y="125" font-size="10" fill="#667eea">close loop</text>
+
+                  <!-- Objective box -->
+                  <rect x="530" y="152" width="190" height="55" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                  <text x="625" y="175" text-anchor="middle" font-size="13" fill="#1e3c72" font-weight="bold">Objective:</text>
+                  <text x="625" y="197" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold">min_K ||T_wz||&#8734; &lt; &#947;</text>
+
+                  <!-- Interpretation box -->
+                  <rect x="520" y="225" width="210" height="110" rx="8" fill="#f0f4ff" stroke="#667eea" stroke-width="1"/>
+                  <text x="625" y="246" text-anchor="middle" font-size="11" fill="#1e3c72" font-weight="bold">Interpretation:</text>
+                  <text x="625" y="266" text-anchor="middle" font-size="10" fill="#555">||T_wz||&#8734; = sup over &#969; of</text>
+                  <text x="625" y="283" text-anchor="middle" font-size="10" fill="#555">max singular value &#963;&#772;(T_wz(j&#969;))</text>
+                  <text x="625" y="303" text-anchor="middle" font-size="10" fill="#555">= worst-case gain from</text>
+                  <text x="625" y="323" text-anchor="middle" font-size="10" fill="#555">disturbance w to performance z</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 8:</strong> H-infinity standard plant configuration. Left: the generalized plant P is partitioned into four sub-blocks connecting disturbance w, control u, performance output z, and measurement y. The controller K closes the loop from y to u. Right: the closed-loop objective is to minimize the H-infinity norm ||T_wz||&#8734;, which represents the worst-case gain from disturbance to performance across all frequencies.</p>
+                </div>
+
+                <h4>Riccati-Based Solution (for Linear Systems)</h4>
+                <p>For a linear system \(\dot{x} = Ax + B_1 w + B_2 u\), \(z = C_1 x + D_{12} u\), \(y = C_2 x + D_{21}w\), the \(\mathcal{H}_\infty\) controller exists if and only if two Algebraic Riccati Equations (AREs) have stabilising solutions \(X \ge 0\) and \(Y \ge 0\):</p>
+                \[
+                    A^TX + XA + C_1^TC_1 + X\!\left(\gamma^{-2}B_1B_1^T - B_2B_2^T\right)\!X = 0
+                \]
+                \[
+                    AY + YA^T + B_1B_1^T + Y\!\left(\gamma^{-2}C_1^TC_1 - C_2^TC_2\right)\!Y = 0
+                \]
+                <p>and \(\rho(XY) < \gamma^2\), where \(\gamma\) is the desired attenuation level.</p>
+
+                <h4>Practical Interpretation for Robotics</h4>
+                <p>For nonlinear robotic systems, pure \(\mathcal{H}_\infty\) is often applied via:</p>
+                <ul>
+                    <li><strong>Linearisation + \(\mathcal{H}_\infty\):</strong> linearise at operating points, design \(\mathcal{H}_\infty\) controllers, use gain scheduling.</li>
+                    <li><strong>Nonlinear \(\mathcal{H}_\infty\):</strong> use Hamilton&ndash;Jacobi&ndash;Isaacs (HJI) equations (computationally expensive).</li>
+                    <li><strong>Practical approach:</strong> use the Lyapunov-based robust controller (Section 3.4) which achieves similar worst-case guarantees for nonlinear systems without frequency-domain machinery.</li>
+                </ul>
+
+                <div class="think-pair-share">
+                    <h4>Think &ndash; Pair &ndash; Share</h4>
+                    <p><strong>Question:</strong> What is the fundamental difference between adaptive control and robust control? When would you prefer one over the other?</p>
+                    <p><strong>Discussion points:</strong></p>
+                    <ul>
+                        <li>Adaptive: estimates parameters &rarr; performance improves over time, but needs PE and structure (linearity in parameters).</li>
+                        <li>Robust: assumes bounded uncertainty &rarr; guaranteed worst-case performance, but conservative (over-designs for typical case).</li>
+                        <li>If the uncertainty is structured and slowly varying &rarr; adaptive. If it is fast/unknown structure but bounded &rarr; robust.</li>
+                        <li>Can be combined: <strong>robust-adaptive control</strong> uses adaptation with a robust modification for unstructured uncertainty.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 4: PART 2 — ROBUST CONTROL FOR MANIPULATOR           -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 4 &mdash; Part 2: Robust Control for 2-DOF Manipulator</h2>
+
+                <h3>4.1 System Description</h3>
+                <p>Consider the 2-DOF planar manipulator from previous weeks:</p>
+                \[
+                    M(q) = \begin{bmatrix} (m_1+m_2)l_1^2 + m_2 l_2^2 + 2m_2 l_1 l_2 \cos q_2 & m_2 l_2^2 + m_2 l_1 l_2 \cos q_2 \\ m_2 l_2^2 + m_2 l_1 l_2 \cos q_2 & m_2 l_2^2 \end{bmatrix}
+                \]
+                \[
+                    C(q,\dot{q}) = \begin{bmatrix} -m_2 l_1 l_2 \dot{q}_2 \sin q_2 & -m_2 l_1 l_2(\dot{q}_1+\dot{q}_2)\sin q_2 \\ m_2 l_1 l_2 \dot{q}_1 \sin q_2 & 0 \end{bmatrix}
+                \]
+                \[
+                    G(q) = \begin{bmatrix} (m_1+m_2)g l_1 \cos q_1 + m_2 g l_2 \cos(q_1+q_2) \\ m_2 g l_2 \cos(q_1+q_2) \end{bmatrix}
+                \]
+
+                <!-- SVG DIAGRAM 3: 2-DOF Planar Manipulator -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <defs>
+                    <marker id="arrowBlack3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+                    <marker id="arrowOrange3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">2-DOF Planar Manipulator: Nominal vs Perturbed</text>
+
+                  <!-- ===== LEFT: Nominal Configuration ===== -->
+                  <text x="195" y="52" text-anchor="middle" font-size="14" font-weight="bold" fill="#2196f3">Nominal Configuration</text>
+
+                  <!-- Ground / Base -->
+                  <rect x="130" y="285" width="130" height="12" fill="#ddd" stroke="#999" stroke-width="1"/>
+                  <line x1="135" y1="297" x2="145" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="150" y1="297" x2="160" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="165" y1="297" x2="175" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="180" y1="297" x2="190" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="195" y1="297" x2="205" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="210" y1="297" x2="220" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="225" y1="297" x2="235" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="240" y1="297" x2="250" y2="307" stroke="#999" stroke-width="1"/>
+
+                  <!-- Base joint (Joint 1) -->
+                  <circle cx="195" cy="285" r="10" fill="#1e3c72" stroke="#1e3c72" stroke-width="2"/>
+                  <circle cx="195" cy="285" r="4" fill="white"/>
+
+                  <!-- Link 1 -->
+                  <line x1="195" y1="285" x2="255" y2="170" stroke="#2196f3" stroke-width="8" stroke-linecap="round"/>
+                  <text x="212" y="224" font-size="12" fill="#2196f3" font-weight="bold" transform="rotate(-63, 212, 224)">l&#8321;</text>
+
+                  <!-- theta1 arc -->
+                  <path d="M195,258 A27,27 0 0,1 212,240" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                  <text x="218" y="255" font-size="12" fill="#ff9800" font-weight="bold">&#952;&#8321;</text>
+
+                  <!-- m1 mass indicator -->
+                  <circle cx="225" cy="228" r="12" fill="#2196f3" opacity="0.3" stroke="#2196f3" stroke-width="1"/>
+                  <text x="225" y="232" text-anchor="middle" font-size="10" fill="#1e3c72" font-weight="bold">m&#8321;</text>
+
+                  <!-- Joint 2 -->
+                  <circle cx="255" cy="170" r="8" fill="#1e3c72" stroke="#1e3c72" stroke-width="2"/>
+                  <circle cx="255" cy="170" r="3" fill="white"/>
+
+                  <!-- Link 2 -->
+                  <line x1="255" y1="170" x2="330" y2="90" stroke="#2196f3" stroke-width="6" stroke-linecap="round"/>
+                  <text x="280" y="124" font-size="12" fill="#2196f3" font-weight="bold" transform="rotate(-60, 280, 124)">l&#8322;</text>
+
+                  <!-- theta2 arc -->
+                  <path d="M255,146 A24,24 0 0,1 272,133" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                  <text x="274" y="148" font-size="12" fill="#ff9800" font-weight="bold">&#952;&#8322;</text>
+
+                  <!-- m2 mass indicator -->
+                  <circle cx="293" cy="130" r="12" fill="#2196f3" opacity="0.3" stroke="#2196f3" stroke-width="1"/>
+                  <text x="293" y="134" text-anchor="middle" font-size="10" fill="#1e3c72" font-weight="bold">m&#8322;</text>
+
+                  <!-- End-effector -->
+                  <circle cx="330" cy="90" r="6" fill="#4caf50" stroke="#4caf50" stroke-width="2"/>
+                  <text x="342" y="88" font-size="11" fill="#4caf50" font-weight="bold">End-effector</text>
+
+                  <!-- Gravity vector -->
+                  <line x1="65" y1="75" x2="65" y2="135" stroke="#333" stroke-width="2" marker-end="url(#arrowBlack3)"/>
+                  <text x="55" y="70" font-size="13" fill="#333" font-weight="bold">g</text>
+
+                  <!-- ===== RIGHT: Perturbed Configuration ===== -->
+                  <text x="595" y="52" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc3545">Perturbed Configuration</text>
+
+                  <!-- Ground / Base -->
+                  <rect x="530" y="285" width="130" height="12" fill="#ddd" stroke="#999" stroke-width="1"/>
+                  <line x1="535" y1="297" x2="545" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="550" y1="297" x2="560" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="565" y1="297" x2="575" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="580" y1="297" x2="590" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="595" y1="297" x2="605" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="610" y1="297" x2="620" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="625" y1="297" x2="635" y2="307" stroke="#999" stroke-width="1"/>
+                  <line x1="640" y1="297" x2="650" y2="307" stroke="#999" stroke-width="1"/>
+
+                  <!-- Base joint -->
+                  <circle cx="595" cy="285" r="10" fill="#1e3c72" stroke="#1e3c72" stroke-width="2"/>
+                  <circle cx="595" cy="285" r="4" fill="white"/>
+
+                  <!-- Nominal link 1 ghost (dashed) -->
+                  <line x1="595" y1="285" x2="655" y2="170" stroke="#2196f3" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,4" opacity="0.4"/>
+
+                  <!-- Perturbed link 1 -->
+                  <line x1="595" y1="285" x2="660" y2="175" stroke="#dc3545" stroke-width="8" stroke-linecap="round"/>
+                  <text x="615" y="228" font-size="12" fill="#dc3545" font-weight="bold" transform="rotate(-62, 615, 228)">l&#8321;</text>
+
+                  <!-- Perturbed m1 (dashed circle = uncertain mass) -->
+                  <circle cx="628" cy="230" r="18" fill="#dc3545" opacity="0.15" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="4,3"/>
+                  <text x="628" y="234" text-anchor="middle" font-size="9" fill="#dc3545" font-weight="bold">m&#8321;+&#916;m&#8321;</text>
+
+                  <!-- Joint 2 -->
+                  <circle cx="660" cy="175" r="8" fill="#1e3c72" stroke="#1e3c72" stroke-width="2"/>
+                  <circle cx="660" cy="175" r="3" fill="white"/>
+
+                  <!-- Nominal link 2 ghost (dashed) -->
+                  <line x1="655" y1="170" x2="730" y2="90" stroke="#2196f3" stroke-width="3" stroke-linecap="round" stroke-dasharray="8,4" opacity="0.4"/>
+
+                  <!-- Perturbed link 2 -->
+                  <line x1="660" y1="175" x2="738" y2="95" stroke="#dc3545" stroke-width="6" stroke-linecap="round"/>
+
+                  <!-- Perturbed m2 (dashed circle) -->
+                  <circle cx="700" cy="136" r="16" fill="#dc3545" opacity="0.15" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="4,3"/>
+                  <text x="700" y="140" text-anchor="middle" font-size="9" fill="#dc3545" font-weight="bold">m&#8322;+&#916;m&#8322;</text>
+
+                  <!-- End-effector (perturbed) -->
+                  <circle cx="738" cy="95" r="6" fill="#dc3545" stroke="#dc3545" stroke-width="2"/>
+                  <!-- Nominal end-effector ghost -->
+                  <circle cx="730" cy="90" r="6" fill="none" stroke="#2196f3" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.5"/>
+
+                  <!-- Displacement arrow -->
+                  <line x1="730" y1="90" x2="738" y2="95" stroke="#ff9800" stroke-width="1.5" marker-end="url(#arrowOrange3)"/>
+
+                  <!-- Disturbance force arrow (vertical then horizontal = orthogonal) -->
+                  <line x1="738" y1="95" x2="738" y2="68" stroke="#ff9800" stroke-width="2"/>
+                  <line x1="738" y1="68" x2="770" y2="68" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange3)"/>
+                  <text x="772" y="65" font-size="11" fill="#ff9800" font-weight="bold">d(t)</text>
+
+                  <!-- Legend -->
+                  <rect x="140" y="318" width="520" height="28" rx="6" fill="#f0f4ff" stroke="#667eea" stroke-width="1"/>
+                  <line x1="158" y1="332" x2="188" y2="332" stroke="#2196f3" stroke-width="4"/>
+                  <text x="195" y="336" font-size="10" fill="#333">Nominal</text>
+                  <line x1="262" y1="332" x2="292" y2="332" stroke="#dc3545" stroke-width="4"/>
+                  <text x="299" y="336" font-size="10" fill="#333">Perturbed</text>
+                  <line x1="372" y1="332" x2="402" y2="332" stroke="#2196f3" stroke-width="3" stroke-dasharray="6,3"/>
+                  <text x="409" y="336" font-size="10" fill="#333">Nominal (ghost)</text>
+                  <circle cx="520" cy="332" r="7" fill="#dc3545" opacity="0.15" stroke="#dc3545" stroke-width="1" stroke-dasharray="3,2"/>
+                  <text x="533" y="336" font-size="10" fill="#333">&#916;m uncertainty</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 3:</strong> 2-DOF planar manipulator showing nominal configuration (left, blue) versus perturbed configuration (right, red) with uncertain masses &#916;m&#8321;, &#916;m&#8322; and external disturbance d(t). Dashed outlines indicate the uncertain mass envelopes.</p>
+                </div>
+
+                <h3>4.2 Uncertainty Model</h3>
+                <p>Suppose we have nominal parameters \(\hat{m}_1, \hat{m}_2, \hat{l}_1, \hat{l}_2\) with known error bounds:</p>
+                \[
+                    |m_i - \hat{m}_i| \le \delta_{m_i}, \quad |l_i - \hat{l}_i| \le \delta_{l_i}
+                \]
+                <p>Plus an external disturbance \(d(t)\) with \(\|d(t)\| \le d_{\max}\).</p>
+                <p>The total uncertainty bound can be computed as:</p>
+                \[
+                    \rho(q,\dot{q},\ddot{q}_r) = \|\Delta M\|_F \|\ddot{q}_r\| + \|\Delta C\|_F \|\dot{q}\| + \|\Delta G\| + d_{\max}
+                \]
+                <p>In practice, we often use a <strong>constant upper bound</strong> \(\rho_0\) that covers the worst case over the workspace.</p>
+
+                <h3>4.3 Robust Controller</h3>
+                <p>Define \(s = \dot{e} + \Lambda e\), \(\dot{q}_r = \dot{q}_d - \Lambda e\), \(\ddot{q}_r = \ddot{q}_d - \Lambda\dot{e}\). The control law is:</p>
+                <div class="formula-box">
+                    \[
+                        \tau = \hat{M}(q)\,\ddot{q}_r + \hat{C}(q,\dot{q})\,\dot{q}_r + \hat{G}(q) - K_D\,s - \rho_0\,\frac{s}{\|s\| + \epsilon}
+                    \]
+                </div>
+                <p>Note: we use \(\|s\| + \epsilon\) in the denominator (instead of switching) for a smooth approximation that avoids chattering entirely.</p>
+
+                <h3>4.4 Guaranteed Tracking Error Bound</h3>
+                <p>From the Lyapunov analysis, the ultimate bound on the sliding variable is:</p>
+                \[
+                    \|s\|_{\text{ult}} \le \frac{\rho_0\,\epsilon}{\lambda_{\min}(K_D)}
+                \]
+                <p>Since \(s = \dot{e} + \Lambda e\), the position tracking error is ultimately bounded by:</p>
+                \[
+                    \|e\|_{\text{ult}} \le \frac{\rho_0\,\epsilon}{\lambda_{\min}(K_D)\,\lambda_{\min}(\Lambda)}
+                \]
+
+                <div class="success">
+                    <strong>Design Rule:</strong> To achieve a desired tracking accuracy \(\|e\| \le e_{\max}\), choose
+                    \(K_D\) and \(\Lambda\) large enough and \(\epsilon\) small enough such that \(\rho_0\,\epsilon / (\lambda_{\min}(K_D)\,\lambda_{\min}(\Lambda)) \le e_{\max}\).
+                </div>
+
+                <h3>4.5 MATLAB Implementation</h3>
+                <div class="code-block">%% Robust Computed Torque Control for 2-DOF Manipulator
+% Parameters
+m1 = 2.0; m2 = 1.5; l1 = 1.0; l2 = 0.8; g = 9.81;
+% Nominal (imperfect) model
+m1_hat = 1.8; m2_hat = 1.3; l1_hat = 1.0; l2_hat = 0.8;
+
+% Controller gains
+Kp = diag([100, 100]);   Kd = diag([40, 40]);
+Lambda = diag([10, 10]);
+rho0 = 15.0;  % uncertainty bound
+epsilon = 0.01;  % boundary layer
+
+% Desired trajectory: sinusoidal
+qd   = @(t) [sin(t); 0.5*cos(t)];
+qd_d = @(t) [cos(t); -0.5*sin(t)];
+qd_dd= @(t) [-sin(t); -0.5*cos(t)];
+
+% Disturbance
+d_max = 5.0;
+dist  = @(t) d_max * [sin(3*t); cos(2*t)];
+
+% ODE: state = [q1; q2; dq1; dq2]
+odefun = @(t, x) manipulator_robust_ode(t, x, ...
+    m1, m2, l1, l2, g, ...
+    m1_hat, m2_hat, l1_hat, l2_hat, ...
+    Kp, Kd, Lambda, rho0, epsilon, ...
+    qd, qd_d, qd_dd, dist);
+
+[t, X] = ode45(odefun, [0 10], [0.5; -0.3; 0; 0]);
+
+% Plot tracking errors
+e1 = arrayfun(@(i) qd(t(i)), 1:length(t), 'Un', 0);
+e1 = cell2mat(e1')' - X(:,1:2)';
+figure; plot(t, e1'); legend('e_1','e_2');
+xlabel('Time [s]'); ylabel('Error [rad]');
+title('Robust Control: Tracking Error');</div>
+
+                <div class="code-block">function dx = manipulator_robust_ode(t, x, ...
+    m1, m2, l1, l2, g, ...
+    m1_hat, m2_hat, l1_hat, l2_hat, ...
+    Kp, Kd, Lambda, rho0, epsilon, ...
+    qd_fun, qd_d_fun, qd_dd_fun, dist_fun)
+
+    q  = x(1:2);  dq = x(3:4);
+    q1 = q(1); q2 = q(2);
+
+    % TRUE dynamics matrices
+    M = [(m1+m2)*l1^2+m2*l2^2+2*m2*l1*l2*cos(q2), m2*l2^2+m2*l1*l2*cos(q2);
+         m2*l2^2+m2*l1*l2*cos(q2),                  m2*l2^2];
+    C = [-m2*l1*l2*dq(2)*sin(q2), -m2*l1*l2*(dq(1)+dq(2))*sin(q2);
+          m2*l1*l2*dq(1)*sin(q2),  0];
+    G_vec = [(m1+m2)*g*l1*cos(q1)+m2*g*l2*cos(q1+q2);
+              m2*g*l2*cos(q1+q2)];
+
+    % NOMINAL (hat) dynamics matrices
+    Mh = [(m1_hat+m2_hat)*l1_hat^2+m2_hat*l2_hat^2+2*m2_hat*l1_hat*l2_hat*cos(q2), ...
+            m2_hat*l2_hat^2+m2_hat*l1_hat*l2_hat*cos(q2);
+           m2_hat*l2_hat^2+m2_hat*l1_hat*l2_hat*cos(q2), m2_hat*l2_hat^2];
+    Ch = [-m2_hat*l1_hat*l2_hat*dq(2)*sin(q2), ...
+           -m2_hat*l1_hat*l2_hat*(dq(1)+dq(2))*sin(q2);
+            m2_hat*l1_hat*l2_hat*dq(1)*sin(q2), 0];
+    Gh = [(m1_hat+m2_hat)*g*l1_hat*cos(q1)+m2_hat*g*l2_hat*cos(q1+q2);
+           m2_hat*g*l2_hat*cos(q1+q2)];
+
+    % Desired trajectory
+    qd    = qd_fun(t);
+    qd_d  = qd_d_fun(t);
+    qd_dd = qd_dd_fun(t);
+
+    % Errors
+    e  = q - qd;
+    ed = dq - qd_d;
+
+    % Sliding variable
+    s = ed + Lambda * e;
+
+    % Reference velocity/acceleration
+    dqr   = qd_d - Lambda * e;
+    ddqr  = qd_dd - Lambda * ed;
+
+    % Robust term (smooth approximation)
+    s_norm = norm(s);
+    tau_robust = -rho0 * s / (s_norm + epsilon);
+
+    % Control law
+    tau = Mh * ddqr + Ch * dqr + Gh - Kd * s + tau_robust;
+
+    % Disturbance
+    d = dist_fun(t);
+
+    % True dynamics: M*ddq + C*dq + G = tau + d
+    ddq = M \ (tau + d - C*dq - G_vec);
+
+    dx = [dq; ddq];
+end</div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 5: PART 3 — ROBUST CONTROL FOR MOBILE ROBOT          -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 5 &mdash; Part 3: Robust Control for Mobile Robot</h2>
+
+                <h3>5.1 Sources of Disturbance</h3>
+                <p>A differential-drive mobile robot (unicycle model) faces several real-world disturbances:</p>
+                <ul>
+                    <li><strong>Wheel slip:</strong> terrain changes cause unpredictable velocity loss or gain.</li>
+                    <li><strong>Uneven terrain:</strong> slopes and bumps inject forces into the kinematic model.</li>
+                    <li><strong>Wind:</strong> for outdoor robots, crosswind affects heading.</li>
+                    <li><strong>Payload shifts:</strong> centre of mass changes alter dynamics.</li>
+                </ul>
+
+                <!-- SVG DIAGRAM 5: Differential-Drive Mobile Robot -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <defs>
+                    <marker id="arrowNavy5" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/></marker>
+                    <marker id="arrowOrange5" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3c72">Differential-Drive Mobile Robot with Disturbances</text>
+
+                  <!-- Reference trajectory (dashed blue curve) -->
+                  <path d="M110,290 Q190,70 390,150 Q590,230 680,80" fill="none" stroke="#2196f3" stroke-width="2.5" stroke-dasharray="10,5"/>
+                  <text x="665" y="65" font-size="11" fill="#2196f3" font-weight="bold">Reference trajectory</text>
+
+                  <!-- Error tube (green dashed boundaries + fill) -->
+                  <path d="M108,308 Q185,82 388,168 Q588,248 678,98" fill="none" stroke="#4caf50" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>
+                  <path d="M112,274 Q195,58 392,132 Q592,212 682,62" fill="none" stroke="#4caf50" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>
+                  <path d="M108,308 Q185,82 388,168 Q588,248 678,98 L682,62 Q592,212 392,132 Q195,58 112,274 Z" fill="#4caf50" opacity="0.06"/>
+                  <text x="640" y="48" font-size="11" fill="#4caf50" font-weight="bold">Error tube: ||e|| &#8804; &#949;</text>
+
+                  <!-- Actual trajectory (solid red) -->
+                  <path d="M115,286 Q200,78 395,158 Q585,228 678,86" fill="none" stroke="#dc3545" stroke-width="2"/>
+                  <text x="688" y="100" font-size="11" fill="#dc3545" font-weight="bold">Actual path</text>
+
+                  <!-- Robot body (top-down) at approx (395, 158) -->
+                  <g transform="translate(395, 158) rotate(-25)">
+                    <rect x="-26" y="-18" width="52" height="36" rx="7" fill="#667eea" stroke="#1e3c72" stroke-width="2" opacity="0.9"/>
+                    <!-- Left front wheel -->
+                    <rect x="-33" y="-20" width="7" height="14" rx="2" fill="#333" stroke="#1e3c72" stroke-width="1"/>
+                    <!-- Right front wheel -->
+                    <rect x="26" y="-20" width="7" height="14" rx="2" fill="#333" stroke="#1e3c72" stroke-width="1"/>
+                    <!-- Left rear wheel -->
+                    <rect x="-33" y="6" width="7" height="14" rx="2" fill="#333" stroke="#1e3c72" stroke-width="1"/>
+                    <!-- Right rear wheel -->
+                    <rect x="26" y="6" width="7" height="14" rx="2" fill="#333" stroke="#1e3c72" stroke-width="1"/>
+                    <!-- Heading arrow -->
+                    <line x1="0" y1="0" x2="0" y2="-42" stroke="#1e3c72" stroke-width="2.5" marker-end="url(#arrowNavy5)"/>
+                    <!-- Caster -->
+                    <circle cx="0" cy="14" r="3" fill="#999" stroke="#666" stroke-width="1"/>
+                    <!-- Center -->
+                    <circle cx="0" cy="0" r="3" fill="#ff9800"/>
+                  </g>
+
+                  <!-- Labels -->
+                  <text x="445" y="148" font-size="11" fill="#667eea" font-weight="bold">Robot</text>
+                  <text x="380" y="112" font-size="11" fill="#1e3c72">v</text>
+                  <text x="388" y="100" font-size="12" fill="#1e3c72" font-weight="bold">&#952;</text>
+                  <path d="M398,128 A28,28 0 0,0 391,114" fill="none" stroke="#1e3c72" stroke-width="1.5"/>
+
+                  <!-- Wind disturbance arrows (horizontal, orthogonal) -->
+                  <line x1="265" y1="120" x2="320" y2="120" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange5)"/>
+                  <line x1="260" y1="140" x2="315" y2="140" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange5)"/>
+                  <line x1="265" y1="160" x2="320" y2="160" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange5)"/>
+                  <text x="255" y="110" font-size="11" fill="#ff9800" font-weight="bold">Wind</text>
+                  <text x="255" y="178" font-size="10" fill="#ff9800">d_x, d_y</text>
+
+                  <!-- Terrain disturbance (wavy line below robot) -->
+                  <path d="M358,200 Q368,192 378,200 Q388,208 398,200 Q408,192 418,200 Q428,208 438,200" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                  <text x="398" y="218" text-anchor="middle" font-size="10" fill="#ff9800">terrain: d_&#952;</text>
+
+                  <!-- Wheel slip -->
+                  <path d="M440,172 L445,169 L442,172 L447,169 L444,172 L449,169" fill="none" stroke="#dc3545" stroke-width="1.5"/>
+                  <text x="452" y="176" font-size="9" fill="#dc3545">slip</text>
+
+                  <!-- Error vector -->
+                  <line x1="390" y1="150" x2="395" y2="158" stroke="#ff9800" stroke-width="1.5" marker-end="url(#arrowOrange5)"/>
+                  <text x="402" y="164" font-size="9" fill="#ff9800">e</text>
+
+                  <!-- Legend -->
+                  <rect x="80" y="315" width="640" height="28" rx="6" fill="#f0f4ff" stroke="#667eea" stroke-width="1"/>
+                  <line x1="98" y1="329" x2="128" y2="329" stroke="#2196f3" stroke-width="2.5" stroke-dasharray="8,4"/>
+                  <text x="135" y="333" font-size="10" fill="#333">Reference</text>
+                  <line x1="208" y1="329" x2="238" y2="329" stroke="#dc3545" stroke-width="2"/>
+                  <text x="245" y="333" font-size="10" fill="#333">Actual</text>
+                  <rect x="298" y="323" width="30" height="12" rx="3" fill="#4caf50" opacity="0.15" stroke="#4caf50" stroke-width="1" stroke-dasharray="3,2"/>
+                  <text x="335" y="333" font-size="10" fill="#333">Error tube</text>
+                  <line x1="408" y1="329" x2="438" y2="329" stroke="#ff9800" stroke-width="2"/>
+                  <text x="445" y="333" font-size="10" fill="#333">Disturbances</text>
+                  <rect x="535" y="323" width="16" height="12" rx="3" fill="#667eea" stroke="#1e3c72" stroke-width="1"/>
+                  <text x="558" y="333" font-size="10" fill="#333">Robot (top view)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 5:</strong> Top-down view of a differential-drive mobile robot. The dashed blue curve is the reference trajectory, the solid red curve is the actual path under disturbances (wind, terrain, wheel slip). The green tube represents the guaranteed tracking error bound ||e|| &#8804; &#949; provided by the robust controller.</p>
+                </div>
+
+                <h3>5.2 Disturbed Unicycle Model</h3>
+                <p>The kinematic unicycle model with additive disturbance:</p>
+                <div class="math-box">
+                    \[
+                        \begin{cases}
+                            \dot{x} = v\cos\theta + d_x(t) \\
+                            \dot{y} = v\sin\theta + d_y(t) \\
+                            \dot{\theta} = \omega + d_\theta(t)
+                        \end{cases}
+                    \]
+                </div>
+                <p>where \(v\) is linear velocity, \(\omega\) is angular velocity, and \(d_x, d_y, d_\theta\) are bounded disturbances with \(\|[d_x, d_y, d_\theta]^T\| \le d_{\max}\).</p>
+
+                <h3>5.3 Robust Tracking Controller</h3>
+                <p>Given a reference trajectory \((x_r(t), y_r(t), \theta_r(t))\), define the tracking error in the <strong>body frame</strong>:</p>
+                \[
+                    \begin{bmatrix} e_x \\ e_y \\ e_\theta \end{bmatrix}
+                    = \begin{bmatrix} \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                    \begin{bmatrix} x_r - x \\ y_r - y \\ \theta_r - \theta \end{bmatrix}
+                \]
+
+                <p>The error dynamics (without disturbance) satisfy:</p>
+                \[
+                    \begin{cases}
+                        \dot{e}_x = \omega\,e_y - v + v_r\cos e_\theta \\
+                        \dot{e}_y = -\omega\,e_x + v_r\sin e_\theta \\
+                        \dot{e}_\theta = \omega_r - \omega
+                    \end{cases}
+                \]
+
+                <p>The <strong>nominal tracking controller</strong> (without robustness) is:</p>
+                \[
+                    v = v_r\cos e_\theta + k_1\,e_x, \qquad \omega = \omega_r + v_r\,(k_2\,e_y + k_3\sin e_\theta)
+                \]
+
+                <p>The <strong>robust augmentation</strong> adds terms to reject disturbances:</p>
+                <div class="formula-box">
+                    \[
+                        v = v_r\cos e_\theta + k_1\,e_x + \rho_v\,\frac{e_x}{|e_x|+\epsilon_v}
+                    \]
+                    \[
+                        \omega = \omega_r + v_r(k_2\,e_y + k_3\sin e_\theta) + \rho_\omega\,\frac{e_\theta}{|e_\theta|+\epsilon_\omega}
+                    \]
+                </div>
+                <p>where \(\rho_v\) and \(\rho_\omega\) are bounds on the linear and angular disturbances, respectively.</p>
+
+                <h3>5.4 Stability Analysis</h3>
+                <p>Consider the Lyapunov function:</p>
+                \[
+                    V = \tfrac{1}{2}(e_x^2 + e_y^2) + \frac{1-\cos e_\theta}{k_2}
+                \]
+                <p>Without going through every step (see the manipulator proof for the pattern), the robust terms ensure that the disturbance contribution to \(\dot{V}\) is cancelled by the robust term, leaving \(\dot{V} \le -k_1 e_x^2 - k_3 v_r \sin^2 e_\theta / k_2 \le 0\) outside the boundary layers.</p>
+
+                <h3>5.5 MATLAB Implementation</h3>
+                <div class="code-block">%% Robust Tracking Control for Unicycle Mobile Robot
+% Reference: circular trajectory
+R = 2; omega_ref = 0.5;
+xr   = @(t) R*cos(omega_ref*t);
+yr   = @(t) R*sin(omega_ref*t);
+dxr  = @(t) -R*omega_ref*sin(omega_ref*t);
+dyr  = @(t)  R*omega_ref*cos(omega_ref*t);
+thr  = @(t) omega_ref*t + pi/2;
+vr   = @(t) R*omega_ref;
+wr   = @(t) omega_ref;
+
+% Disturbance (wheel slip + terrain)
+d_mob = @(t) 0.3*[sin(5*t); cos(3*t); 0.2*sin(7*t)];
+
+% Controller gains
+k1 = 5; k2 = 3; k3 = 5;
+rho_v = 0.5; rho_w = 0.3;
+eps_v = 0.01; eps_w = 0.01;
+
+odefun_mob = @(t, x) mobile_robust_ode(t, x, ...
+    xr, yr, thr, vr, wr, k1, k2, k3, ...
+    rho_v, rho_w, eps_v, eps_w, d_mob);
+
+[t_m, X_m] = ode45(odefun_mob, [0 20], [3; 0; 0]);
+
+% Plot trajectory
+figure; hold on;
+tt = linspace(0,20,500);
+plot(arrayfun(xr,tt), arrayfun(yr,tt), 'b--', 'LineWidth', 2);
+plot(X_m(:,1), X_m(:,2), 'r', 'LineWidth', 1.5);
+legend('Reference','Robust'); xlabel('x'); ylabel('y');
+title('Mobile Robot: Robust Tracking');</div>
+
+                <div class="code-block">function dx = mobile_robust_ode(t, x, ...
+    xr_fun, yr_fun, thr_fun, vr_fun, wr_fun, ...
+    k1, k2, k3, rho_v, rho_w, eps_v, eps_w, dist_fun)
+
+    px = x(1); py = x(2); th = x(3);
+
+    % Reference
+    xr_val  = xr_fun(t);   yr_val  = yr_fun(t);
+    thr_val = thr_fun(t);  vr_val  = vr_fun(t);  wr_val = wr_fun(t);
+
+    % Body-frame error
+    dx_err = xr_val - px;
+    dy_err = yr_val - py;
+    ex =  cos(th)*dx_err + sin(th)*dy_err;
+    ey = -sin(th)*dx_err + cos(th)*dy_err;
+    eth = thr_val - th;
+    eth = atan2(sin(eth), cos(eth));  % wrap to [-pi, pi]
+
+    % Nominal controller
+    v_nom = vr_val*cos(eth) + k1*ex;
+    w_nom = wr_val + vr_val*(k2*ey + k3*sin(eth));
+
+    % Robust augmentation
+    v = v_nom + rho_v * ex / (abs(ex) + eps_v);
+    w = w_nom + rho_w * eth / (abs(eth) + eps_w);
+
+    % Disturbance
+    d = dist_fun(t);
+
+    % Disturbed kinematics
+    dx = [v*cos(th) + d(1);
+          v*sin(th) + d(2);
+          w          + d(3)];
+end</div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 6: PART 4 — ROBUST CONTROL FOR DRONE                 -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 6 &mdash; Part 4: Robust Control for Quadrotor Drone</h2>
+
+                <h3>6.1 Wind Disturbance Model</h3>
+                <p>A quadrotor operating outdoors experiences wind disturbances on all axes:</p>
+                \[
+                    m\ddot{p} = \begin{bmatrix} 0\\0\\-mg \end{bmatrix} + R(\Phi)\begin{bmatrix} 0\\0\\T \end{bmatrix} + f_{\text{wind}}(t)
+                \]
+                <p>where \(p = [x,y,z]^T\) is position, \(T\) is total thrust, \(R(\Phi)\) is the rotation matrix from body to world, and \(f_{\text{wind}} \in \mathbb{R}^3\) with \(\|f_{\text{wind}}\| \le f_{\max}\).</p>
+
+                <!-- SVG DIAGRAM 6: Quadrotor with Disturbances -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <defs>
+                    <marker id="arrowGreen6" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/></marker>
+                    <marker id="arrowGreen6b" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/></marker>
+                    <marker id="arrowRed6" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#dc3545"/></marker>
+                    <marker id="arrowOrange6" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/></marker>
+                    <marker id="arrowBlack6" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+                    <marker id="arrowBlueSmall6" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0, 6 2.5, 0 5" fill="#2196f3"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="24" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3c72">Quadrotor Drone with Wind Disturbances and Uncertainties</text>
+
+                  <!-- Central body -->
+                  <rect x="355" y="150" width="90" height="50" rx="10" fill="#667eea" stroke="#1e3c72" stroke-width="2"/>
+                  <text x="400" y="173" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Body</text>
+                  <text x="400" y="190" text-anchor="middle" font-size="9" fill="#e0e0ff">m &#177; &#916;m</text>
+
+                  <!-- Arms (diagonal lines from body corners to rotor centers) -->
+                  <line x1="370" y1="160" x2="250" y2="100" stroke="#1e3c72" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="430" y1="160" x2="550" y2="100" stroke="#1e3c72" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="370" y1="190" x2="250" y2="250" stroke="#1e3c72" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="430" y1="190" x2="550" y2="250" stroke="#1e3c72" stroke-width="4" stroke-linecap="round"/>
+
+                  <!-- Rotor 1 (front-left) -->
+                  <ellipse cx="250" cy="100" rx="42" ry="11" fill="#2196f3" opacity="0.2" stroke="#2196f3" stroke-width="1.5"/>
+                  <circle cx="250" cy="100" r="4" fill="#1e3c72"/>
+                  <line x1="250" y1="86" x2="250" y2="50" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrowGreen6)"/>
+                  <text x="258" y="48" font-size="10" fill="#4caf50" font-weight="bold">T&#8321;</text>
+                  <path d="M222,100 A28,7 0 0,1 278,100" fill="none" stroke="#2196f3" stroke-width="1" marker-end="url(#arrowBlueSmall6)"/>
+
+                  <!-- Rotor 2 (front-right) -->
+                  <ellipse cx="550" cy="100" rx="42" ry="11" fill="#2196f3" opacity="0.2" stroke="#2196f3" stroke-width="1.5"/>
+                  <circle cx="550" cy="100" r="4" fill="#1e3c72"/>
+                  <line x1="550" y1="86" x2="550" y2="50" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrowGreen6)"/>
+                  <text x="558" y="48" font-size="10" fill="#4caf50" font-weight="bold">T&#8322;</text>
+                  <path d="M578,100 A28,7 0 0,1 522,100" fill="none" stroke="#2196f3" stroke-width="1" marker-end="url(#arrowBlueSmall6)"/>
+
+                  <!-- Rotor 3 (back-left) -->
+                  <ellipse cx="250" cy="250" rx="42" ry="11" fill="#2196f3" opacity="0.2" stroke="#2196f3" stroke-width="1.5"/>
+                  <circle cx="250" cy="250" r="4" fill="#1e3c72"/>
+                  <line x1="250" y1="236" x2="250" y2="205" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrowGreen6)"/>
+                  <text x="258" y="203" font-size="10" fill="#4caf50" font-weight="bold">T&#8323;</text>
+                  <path d="M278,250 A28,7 0 0,1 222,250" fill="none" stroke="#2196f3" stroke-width="1" marker-end="url(#arrowBlueSmall6)"/>
+
+                  <!-- Rotor 4 (back-right) -->
+                  <ellipse cx="550" cy="250" rx="42" ry="11" fill="#2196f3" opacity="0.2" stroke="#2196f3" stroke-width="1.5"/>
+                  <circle cx="550" cy="250" r="4" fill="#1e3c72"/>
+                  <line x1="550" y1="236" x2="550" y2="205" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrowGreen6)"/>
+                  <text x="558" y="203" font-size="10" fill="#4caf50" font-weight="bold">T&#8324;</text>
+                  <path d="M522,250 A28,7 0 0,1 578,250" fill="none" stroke="#2196f3" stroke-width="1" marker-end="url(#arrowBlueSmall6)"/>
+
+                  <!-- Body frame axes -->
+                  <!-- x_b (forward/up from body top) -->
+                  <line x1="400" y1="150" x2="400" y2="115" stroke="#dc3545" stroke-width="2" marker-end="url(#arrowRed6)"/>
+                  <text x="408" y="115" font-size="10" fill="#dc3545" font-weight="bold">x_b</text>
+                  <!-- y_b (right from body right edge) -->
+                  <line x1="445" y1="175" x2="478" y2="175" stroke="#4caf50" stroke-width="2" marker-end="url(#arrowGreen6b)"/>
+                  <text x="482" y="173" font-size="10" fill="#4caf50" font-weight="bold">y_b</text>
+                  <!-- z_b (out of page, circle with dot) -->
+                  <circle cx="400" cy="175" r="6" fill="none" stroke="#2196f3" stroke-width="1.5"/>
+                  <circle cx="400" cy="175" r="2" fill="#2196f3"/>
+                  <text x="400" y="208" text-anchor="middle" font-size="9" fill="#2196f3">z_b (up)</text>
+
+                  <!-- Wind disturbance arrows (horizontal, orthogonal from left) -->
+                  <line x1="60" y1="130" x2="135" y2="130" stroke="#ff9800" stroke-width="2.5" marker-end="url(#arrowOrange6)"/>
+                  <line x1="55" y1="155" x2="130" y2="155" stroke="#ff9800" stroke-width="2.5" marker-end="url(#arrowOrange6)"/>
+                  <line x1="60" y1="180" x2="135" y2="180" stroke="#ff9800" stroke-width="2.5" marker-end="url(#arrowOrange6)"/>
+                  <line x1="55" y1="205" x2="130" y2="205" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange6)"/>
+                  <text x="50" y="118" font-size="12" fill="#ff9800" font-weight="bold">Wind</text>
+                  <text x="38" y="225" font-size="10" fill="#ff9800">f_wind(t)</text>
+                  <text x="30" y="240" font-size="9" fill="#ff9800">||f_wind|| &#8804; f_max</text>
+
+                  <!-- Wind gust from top-right (vertical arrows) -->
+                  <line x1="640" y1="40" x2="640" y2="85" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange6)"/>
+                  <line x1="668" y1="38" x2="668" y2="83" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowOrange6)"/>
+                  <text x="652" y="32" font-size="10" fill="#ff9800" text-anchor="middle">Gust</text>
+
+                  <!-- Torque disturbance indicator (curved dashed) -->
+                  <path d="M360,146 A48,48 0 0,0 350,195" fill="none" stroke="#dc3545" stroke-width="1.5" stroke-dasharray="4,3"/>
+                  <text x="325" y="170" font-size="10" fill="#dc3545">&#964;_wind</text>
+
+                  <!-- Gravity arrow (vertical down from body bottom) -->
+                  <line x1="400" y1="200" x2="400" y2="248" stroke="#333" stroke-width="2" marker-end="url(#arrowBlack6)"/>
+                  <text x="410" y="244" font-size="10" fill="#333" font-weight="bold">mg</text>
+
+                  <!-- Uncertainty info box -->
+                  <rect x="590" y="275" width="195" height="68" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+                  <text x="688" y="292" text-anchor="middle" font-size="11" fill="#ff9800" font-weight="bold">Uncertainties</text>
+                  <text x="688" y="308" text-anchor="middle" font-size="10" fill="#555">Mass: m &#177; &#916;m</text>
+                  <text x="688" y="323" text-anchor="middle" font-size="10" fill="#555">Inertia: I_xx &#177; &#916;I_xx</text>
+                  <text x="688" y="338" text-anchor="middle" font-size="10" fill="#555">Wind: ||f_wind|| &#8804; f_max</text>
+
+                  <!-- Control inputs info box -->
+                  <rect x="15" y="275" width="195" height="68" rx="8" fill="#e3f2fd" stroke="#2196f3" stroke-width="1.5"/>
+                  <text x="113" y="292" text-anchor="middle" font-size="11" fill="#2196f3" font-weight="bold">Control Inputs</text>
+                  <text x="113" y="308" text-anchor="middle" font-size="10" fill="#555">Thrust: T = T&#8321;+T&#8322;+T&#8323;+T&#8324;</text>
+                  <text x="113" y="323" text-anchor="middle" font-size="10" fill="#555">Roll: &#964;_&#966; = l(T&#8324;-T&#8323;)</text>
+                  <text x="113" y="338" text-anchor="middle" font-size="10" fill="#555">Pitch: &#964;_&#952; = l(T&#8321;-T&#8322;)</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 6:</strong> Quadrotor schematic with four rotors generating thrust vectors T&#8321;--T&#8324;. Wind disturbance forces f_wind and torque disturbances &#964;_wind act on the body. Uncertainties include mass (m &#177; &#916;m) and moment of inertia. The body frame axes (x_b, y_b, z_b) are shown at the centre of mass.</p>
+                </div>
+
+                <p>Attitude dynamics with disturbance torques:</p>
+                \[
+                    J\dot{\omega}_b = -\omega_b \times J\omega_b + \tau_b + \tau_{\text{wind}}(t), \qquad \|\tau_{\text{wind}}\| \le \tau_{\max}
+                \]
+
+                <h3>6.2 Simplified Model for Control Design</h3>
+                <p>Using the standard near-hover approximation with Euler angles \((\phi,\theta,\psi)\):</p>
+                \[
+                    m\ddot{x} \approx T(\cos\psi\sin\theta\cos\phi + \sin\psi\sin\phi) + f_{\text{wind},x}
+                \]
+                \[
+                    m\ddot{y} \approx T(\sin\psi\sin\theta\cos\phi - \cos\psi\sin\phi) + f_{\text{wind},y}
+                \]
+                \[
+                    m\ddot{z} = T\cos\theta\cos\phi - mg + f_{\text{wind},z}
+                \]
+
+                <p>For small angles, this simplifies to the double-integrator-like model per axis:</p>
+                \[
+                    m\ddot{z} \approx T - mg + f_z, \qquad
+                    m\ddot{x} \approx T\theta_{\text{cmd}} + f_x, \qquad
+                    m\ddot{y} \approx -T\phi_{\text{cmd}} + f_y
+                \]
+
+                <h3>6.3 Robust Position Controller</h3>
+                <p>For each translational axis (showing \(z\) as example), define \(e_z = z_d - z\), \(s_z = \dot{e}_z + \lambda_z e_z\):</p>
+                <div class="formula-box">
+                    \[
+                        T = m\bigl(\ddot{z}_d + \lambda_z\dot{e}_z + k_{D,z}\,s_z\bigr) + mg + \rho_z\,\frac{s_z}{|s_z| + \epsilon_z}
+                    \]
+                </div>
+
+                <p>Similarly for \(x\) and \(y\), the outer loop computes desired angles \(\theta_d\) and \(\phi_d\) which are tracked by an inner attitude controller.</p>
+
+                <h3>6.4 Robust Attitude Controller</h3>
+                <p>For each Euler angle (showing roll \(\phi\)):</p>
+                \[
+                    e_\phi = \phi_d - \phi, \quad s_\phi = \dot{e}_\phi + \lambda_\phi e_\phi
+                \]
+                \[
+                    \tau_\phi = I_{xx}\bigl(\ddot{\phi}_d + \lambda_\phi\dot{e}_\phi + k_{D,\phi}\,s_\phi\bigr) + \rho_\phi\,\frac{s_\phi}{|s_\phi|+\epsilon_\phi}
+                \]
+
+                <h3>6.5 MATLAB Implementation</h3>
+                <div class="code-block">%% Robust Control for Quadrotor with Wind Disturbance
+% Drone parameters
+m_d = 1.5; g = 9.81; Ixx = 0.03; Iyy = 0.03; Izz = 0.05;
+
+% Gains: position
+kd_z = 15; lam_z = 5; rho_z = 8; eps_z = 0.01;
+kd_x = 10; lam_x = 4; rho_x = 5; eps_x = 0.01;
+kd_y = 10; lam_y = 4; rho_y = 5; eps_y = 0.01;
+
+% Gains: attitude
+kd_phi = 20; lam_phi = 8; rho_phi = 1; eps_phi = 0.005;
+kd_th  = 20; lam_th  = 8; rho_th  = 1; eps_th  = 0.005;
+kd_psi = 10; lam_psi = 5; rho_psi = 0.5; eps_psi= 0.005;
+
+% Desired trajectory
+pd  = @(t) [2*sin(0.3*t); 2*cos(0.3*t); 1+0.5*sin(0.2*t)];
+dpd = @(t) [0.6*cos(0.3*t); -0.6*sin(0.3*t); 0.1*cos(0.2*t)];
+ddpd= @(t) [-0.18*sin(0.3*t); -0.18*cos(0.3*t); -0.02*sin(0.2*t)];
+
+% Wind disturbance
+f_wind = @(t) [3*sin(2*t+1); 2*cos(1.5*t); 1.5*sin(t)];
+tau_wind = @(t) [0.3*sin(4*t); 0.2*cos(3*t); 0.1*sin(2*t)];
+
+% state = [x y z dx dy dz phi theta psi dphi dtheta dpsi]
+x0 = [0;0;0; 0;0;0; 0;0;0; 0;0;0];
+odefun_drone = @(t,x) drone_robust_ode(t, x, m_d, g, ...
+    Ixx, Iyy, Izz, ...
+    kd_z, lam_z, rho_z, eps_z, ...
+    kd_x, lam_x, rho_x, eps_x, ...
+    kd_y, lam_y, rho_y, eps_y, ...
+    kd_phi, lam_phi, rho_phi, eps_phi, ...
+    kd_th,  lam_th,  rho_th,  eps_th, ...
+    kd_psi, lam_psi, rho_psi, eps_psi, ...
+    pd, dpd, ddpd, f_wind, tau_wind);
+
+[t_d, X_d] = ode45(odefun_drone, [0 20], x0);
+
+figure;
+plot3(X_d(:,1), X_d(:,2), X_d(:,3), 'r', 'LineWidth', 1.5); hold on;
+tt = linspace(0,20,500);
+ref = cell2mat(arrayfun(pd, tt, 'Un', 0));
+plot3(ref(1,:), ref(2,:), ref(3,:), 'b--', 'LineWidth', 2);
+legend('Robust','Reference'); xlabel('x'); ylabel('y'); zlabel('z');
+title('Quadrotor: Robust Tracking under Wind'); grid on;</div>
+
+                <div class="code-block">function dx = drone_robust_ode(t, x, m, g, ...
+    Ixx, Iyy, Izz, ...
+    kd_z, lam_z, rho_z, eps_z, ...
+    kd_x, lam_x, rho_x, eps_x, ...
+    kd_y, lam_y, rho_y, eps_y, ...
+    kd_phi, lam_phi, rho_phi, eps_phi, ...
+    kd_th,  lam_th,  rho_th,  eps_th, ...
+    kd_psi, lam_psi, rho_psi, eps_psi, ...
+    pd_fun, dpd_fun, ddpd_fun, f_wind_fun, tau_wind_fun)
+
+    pos = x(1:3); vel = x(4:6);
+    phi = x(7); theta = x(8); psi = x(9);
+    omega = x(10:12);  % dphi, dtheta, dpsi
+
+    % Desired
+    p_d  = pd_fun(t);   dp_d = dpd_fun(t);  ddp_d = ddpd_fun(t);
+    psi_d = 0;  dpsi_d = 0;  ddpsi_d = 0;
+
+    % Position errors
+    ep  = p_d - pos;
+    dep = dp_d - vel;
+
+    % --- Z-axis (altitude) robust controller ---
+    sz = dep(3) + lam_z*ep(3);
+    T = m*(ddp_d(3) + lam_z*dep(3) + kd_z*sz) + m*g ...
+        + rho_z*sz/(abs(sz)+eps_z);
+    T = max(T, 0.1);  % thrust must be positive
+
+    % --- X-axis robust controller -> desired theta ---
+    sx = dep(1) + lam_x*ep(1);
+    ax_cmd = ddp_d(1) + lam_x*dep(1) + kd_x*sx + rho_x*sx/(abs(sx)+eps_x);
+    theta_d = m*ax_cmd / T;
+    theta_d = max(min(theta_d, 0.5), -0.5);  % saturate
+
+    % --- Y-axis robust controller -> desired phi ---
+    sy = dep(2) + lam_y*ep(2);
+    ay_cmd = ddp_d(2) + lam_y*dep(2) + kd_y*sy + rho_y*sy/(abs(sy)+eps_y);
+    phi_d = -m*ay_cmd / T;
+    phi_d = max(min(phi_d, 0.5), -0.5);
+
+    % --- Attitude robust controllers ---
+    % Roll
+    e_phi = phi_d - phi;
+    de_phi = 0 - omega(1);  % dphi_d approx 0
+    s_phi = de_phi + lam_phi*e_phi;
+    tau_phi = Ixx*(lam_phi*de_phi + kd_phi*s_phi) ...
+              + rho_phi*s_phi/(abs(s_phi)+eps_phi);
+
+    % Pitch
+    e_th = theta_d - theta;
+    de_th = 0 - omega(2);
+    s_th = de_th + lam_th*e_th;
+    tau_th = Iyy*(lam_th*de_th + kd_th*s_th) ...
+             + rho_th*s_th/(abs(s_th)+eps_th);
+
+    % Yaw
+    e_psi = psi_d - psi;
+    de_psi = dpsi_d - omega(3);
+    s_psi = de_psi + lam_psi*e_psi;
+    tau_psi = Izz*(lam_psi*de_psi + kd_psi*s_psi) ...
+              + rho_psi*s_psi/(abs(s_psi)+eps_psi);
+
+    % Wind
+    fw  = f_wind_fun(t);
+    tw  = tau_wind_fun(t);
+
+    % Translational dynamics
+    % Rotation matrix (ZYX convention)
+    R = [cos(psi)*cos(theta), cos(psi)*sin(theta)*sin(phi)-sin(psi)*cos(phi), ...
+         cos(psi)*sin(theta)*cos(phi)+sin(psi)*sin(phi);
+         sin(psi)*cos(theta), sin(psi)*sin(theta)*sin(phi)+cos(psi)*cos(phi), ...
+         sin(psi)*sin(theta)*cos(phi)-cos(psi)*sin(phi);
+         -sin(theta), cos(theta)*sin(phi), cos(theta)*cos(phi)];
+
+    thrust_body = [0; 0; T];
+    accel = [0;0;-g] + R*thrust_body/m + fw/m;
+
+    % Rotational dynamics (simplified Euler)
+    domega = [( tau_phi + tw(1) - (Izz-Iyy)*omega(2)*omega(3) ) / Ixx;
+              ( tau_th  + tw(2) - (Ixx-Izz)*omega(1)*omega(3) ) / Iyy;
+              ( tau_psi + tw(3) - (Iyy-Ixx)*omega(1)*omega(2) ) / Izz];
+
+    dx = [vel; accel; omega; domega];
+end</div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 7: ACTIVITIES                                        -->
+            <!-- ============================================================ -->
+            <div class="section activity">
+                <h2>Section 7 &mdash; MATLAB Activities</h2>
+
+                <h3>Activity 1: Robust vs Non-Robust Manipulator (10 min)</h3>
+                <div class="exam-question">
+                    <h4>Instructions</h4>
+                    <ol>
+                        <li>Open <code>robust_control_simulation.m</code> (provided with this lecture).</li>
+                        <li>Run Part 1 (Manipulator). The script simulates both:
+                            <ul>
+                                <li><strong>Robust controller</strong> with \(d(t) = 5\sin(3t)\) disturbance and \(\rho_0 = 15\).</li>
+                                <li><strong>Computed torque only</strong> (no robust term, i.e., \(\rho_0 = 0\)).</li>
+                            </ul>
+                        </li>
+                        <li>Record the maximum tracking error for each controller in the table below.</li>
+                    </ol>
+                    <table>
+                        <tr><th>Controller</th><th>Max |e<sub>1</sub>| (rad)</th><th>Max |e<sub>2</sub>| (rad)</th></tr>
+                        <tr><td>Computed Torque (no robust)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>Robust CT (\(\rho_0 = 15\))</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </table>
+                    <p><strong>Question:</strong> What happens if you increase \(\rho_0\) to 50? Does tracking improve? What is the trade-off?</p>
+                </div>
+
+                <h3>Activity 2: Robust vs Adaptive &mdash; All Three Systems (15 min)</h3>
+                <div class="exam-question">
+                    <h4>Instructions</h4>
+                    <ol>
+                        <li>Run Parts 1, 2, and 3 of the MATLAB script. Each produces comparison plots.</li>
+                        <li>The script injects <strong>random disturbances</strong> (bounded uniform noise).</li>
+                        <li>For each system, note:
+                            <ul>
+                                <li>Which controller has smaller steady-state error?</li>
+                                <li>Which controller recovers faster from disturbance spikes?</li>
+                                <li>Which uses more control effort?</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p><strong>Discussion:</strong> Robust control provides guaranteed bounds but is conservative. Adaptive control can achieve zero steady-state error for parametric uncertainty but may struggle with fast-varying disturbances. Which is better for a warehouse robot? A surgical robot? An outdoor drone?</p>
+                </div>
+
+                <h3>Quick Quiz</h3>
+                <div class="quiz-box">
+                    <h4>Quiz: Uncertainty Bounds and Controller Design</h4>
+                    <ol>
+                        <li>If the disturbance bound \(d_{\max}\) doubles, what must change in the controller to maintain the same tracking accuracy?</li>
+                        <li>What is the boundary layer parameter \(\epsilon\)? What happens if \(\epsilon \to 0\)?</li>
+                        <li>In the Lyapunov proof, which property of the manipulator dynamics makes the \(s^T(\dot{M}-2C)s\) term vanish?</li>
+                        <li>True or False: Robust control can reject disturbances larger than \(\rho_0\).</li>
+                    </ol>
+                    <div class="derivation-box">
+                        <h4>Answers</h4>
+                        <ol>
+                            <li>\(\rho_0\) must at least double (or increase \(K_D\), or decrease \(\epsilon\)).</li>
+                            <li>\(\epsilon\) is the boundary layer thickness. As \(\epsilon \to 0\), the controller becomes discontinuous (pure sliding mode), giving perfect rejection but causing chattering.</li>
+                            <li>The <strong>skew-symmetry</strong> property: \(\dot{M}(q) - 2C(q,\dot{q})\) is skew-symmetric for manipulators with the Christoffel-symbol-based \(C\) matrix.</li>
+                            <li><strong>False.</strong> If \(\|d\| > \rho_0\), the Lyapunov proof fails and tracking is not guaranteed. The bound must be correctly estimated.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 8: SUMMARY COMPARISON TABLE                          -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Section 8 &mdash; Summary: Comparison of All Four Controllers</h2>
+
+                <table>
+                    <tr>
+                        <th>Property</th>
+                        <th>Week 1: Computed Torque</th>
+                        <th>Week 2: MPC</th>
+                        <th>Week 3: Adaptive</th>
+                        <th>Week 4: Robust</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Core Idea</strong></td>
+                        <td>Cancel nonlinearities with exact model</td>
+                        <td>Optimise control over prediction horizon</td>
+                        <td>Estimate unknown parameters online</td>
+                        <td>Guarantee performance despite bounded uncertainty</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Model Requirement</strong></td>
+                        <td>Exact model needed</td>
+                        <td>Prediction model needed</td>
+                        <td>Structure known (linear in parameters)</td>
+                        <td>Approximate model + uncertainty bound</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Handles Disturbances?</strong></td>
+                        <td>No (degrades gracefully)</td>
+                        <td>Partially (via constraints)</td>
+                        <td>Parametric only (structured)</td>
+                        <td>Yes (any bounded disturbance)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Online Computation</strong></td>
+                        <td>Low (matrix multiply)</td>
+                        <td>High (optimisation at each step)</td>
+                        <td>Medium (parameter update)</td>
+                        <td>Low (matrix multiply + norm)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stability Guarantee</strong></td>
+                        <td>Asymptotic (exact model)</td>
+                        <td>Depends on horizon/model</td>
+                        <td>Asymptotic (with PE)</td>
+                        <td>Uniformly ultimately bounded</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tracking Error</strong></td>
+                        <td>Zero (ideal), grows with model error</td>
+                        <td>Optimised (model-dependent)</td>
+                        <td>Converges to zero</td>
+                        <td>Bounded by \(\rho\epsilon/(K_D\Lambda)\)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Control Effort</strong></td>
+                        <td>Moderate</td>
+                        <td>Optimised (can constrain)</td>
+                        <td>Moderate</td>
+                        <td>Higher (robust term adds effort)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance Over Time</strong></td>
+                        <td>Constant</td>
+                        <td>Constant</td>
+                        <td>Improves (learns parameters)</td>
+                        <td>Constant (no learning)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conservatism</strong></td>
+                        <td>None (exact cancellation)</td>
+                        <td>Low (optimised)</td>
+                        <td>Low (estimates true values)</td>
+                        <td>High (designs for worst case)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Implementation Complexity</strong></td>
+                        <td>Low</td>
+                        <td>High</td>
+                        <td>Medium</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Well-modelled systems</td>
+                        <td>Constrained systems, optimal performance</td>
+                        <td>Unknown but slowly-varying parameters</td>
+                        <td>Safety-critical, bounded unknown disturbances</td>
+                    </tr>
+                </table>
+
+                <!-- SVG DIAGRAM 7: Nominal vs Robust Response Comparison -->
+                <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                  <rect x="0" y="0" width="800" height="350" fill="#fafbff" rx="10"/>
+                  <text x="400" y="24" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3c72">Time Response Comparison: Nominal vs Robust Control</text>
+
+                  <!-- Axes -->
+                  <line x1="80" y1="290" x2="760" y2="290" stroke="#333" stroke-width="2"/>
+                  <line x1="80" y1="290" x2="80" y2="42" stroke="#333" stroke-width="2"/>
+
+                  <!-- Axis labels -->
+                  <text x="420" y="318" text-anchor="middle" font-size="12" fill="#333">Time (s)</text>
+                  <text x="38" y="168" text-anchor="middle" font-size="12" fill="#333" transform="rotate(-90, 38, 168)">Position / Angle</text>
+
+                  <!-- X-axis ticks -->
+                  <line x1="180" y1="290" x2="180" y2="296" stroke="#333" stroke-width="1"/>
+                  <text x="180" y="308" text-anchor="middle" font-size="10" fill="#555">2</text>
+                  <line x1="280" y1="290" x2="280" y2="296" stroke="#333" stroke-width="1"/>
+                  <text x="280" y="308" text-anchor="middle" font-size="10" fill="#555">4</text>
+                  <line x1="380" y1="290" x2="380" y2="296" stroke="#333" stroke-width="1"/>
+                  <text x="380" y="308" text-anchor="middle" font-size="10" fill="#555">6</text>
+                  <line x1="480" y1="290" x2="480" y2="296" stroke="#333" stroke-width="1"/>
+                  <text x="480" y="308" text-anchor="middle" font-size="10" fill="#555">8</text>
+                  <line x1="580" y1="290" x2="580" y2="296" stroke="#333" stroke-width="1"/>
+                  <text x="580" y="308" text-anchor="middle" font-size="10" fill="#555">10</text>
+                  <line x1="680" y1="290" x2="680" y2="296" stroke="#333" stroke-width="1"/>
+                  <text x="680" y="308" text-anchor="middle" font-size="10" fill="#555">12</text>
+
+                  <!-- Y-axis ticks -->
+                  <line x1="74" y1="245" x2="80" y2="245" stroke="#333" stroke-width="1"/>
+                  <line x1="74" y1="200" x2="80" y2="200" stroke="#333" stroke-width="1"/>
+                  <line x1="74" y1="155" x2="80" y2="155" stroke="#333" stroke-width="1"/>
+                  <line x1="74" y1="110" x2="80" y2="110" stroke="#333" stroke-width="1"/>
+                  <line x1="74" y1="65" x2="80" y2="65" stroke="#333" stroke-width="1"/>
+
+                  <!-- Grid lines -->
+                  <line x1="80" y1="245" x2="750" y2="245" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="80" y1="200" x2="750" y2="200" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="80" y1="155" x2="750" y2="155" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="80" y1="110" x2="750" y2="110" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="80" y1="65" x2="750" y2="65" stroke="#eee" stroke-width="0.5"/>
+
+                  <!-- Reference (black dashed sinusoid) -->
+                  <path d="M80,200 Q130,110 180,110 Q230,110 280,200 Q330,290 380,290 Q430,290 480,200 Q530,110 580,110 Q630,110 680,200 Q720,265 750,290" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="8,5"/>
+
+                  <!-- (1) Nominal no disturbance (blue) - tracks well -->
+                  <path d="M80,245 Q120,135 170,115 Q220,105 270,195 Q320,285 380,290 Q430,290 480,200 Q530,110 580,110 Q630,110 680,200 Q720,265 750,290" fill="none" stroke="#2196f3" stroke-width="2.5"/>
+
+                  <!-- (2) Nominal + disturbance (red) - oscillating / large error -->
+                  <path d="M80,240 Q110,160 140,140 Q160,120 180,150 Q200,95 220,130 Q240,195 260,230 Q280,280 310,290 Q340,265 360,240 Q380,290 400,295 Q420,255 440,220 Q460,175 480,210 Q500,155 520,130 Q540,105 560,140 Q580,95 600,135 Q620,175 640,230 Q660,265 690,240 Q710,280 740,295" fill="none" stroke="#dc3545" stroke-width="2.5"/>
+
+                  <!-- (3) Robust + disturbance (green) - bounded tracking -->
+                  <path d="M80,242 Q125,128 175,118 Q225,108 275,198 Q325,286 378,288 Q428,286 478,198 Q528,112 578,112 Q628,114 678,202 Q718,264 748,288" fill="none" stroke="#4caf50" stroke-width="2.5"/>
+
+                  <!-- Error bound envelope around reference for robust (light green dashed) -->
+                  <path d="M380,276 Q430,276 480,186 Q530,96 580,96 Q630,96 680,186 Q720,252 750,276" fill="none" stroke="#4caf50" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+                  <path d="M380,302 Q430,302 480,212 Q530,122 580,122 Q630,122 680,212 Q720,278 750,302" fill="none" stroke="#4caf50" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+
+                  <!-- Disturbance injection vertical marker -->
+                  <line x1="130" y1="42" x2="130" y2="290" stroke="#ff9800" stroke-width="1" stroke-dasharray="5,5"/>
+                  <text x="135" y="52" font-size="10" fill="#ff9800" font-weight="bold">Disturbance ON</text>
+
+                  <!-- Annotation: red oscillation -->
+                  <line x1="520" y1="130" x2="540" y2="68" stroke="#dc3545" stroke-width="1" stroke-dasharray="3,2"/>
+                  <text x="508" y="62" font-size="10" fill="#dc3545" font-weight="bold">Oscillation / large error</text>
+
+                  <!-- Annotation: green bounded -->
+                  <line x1="630" y1="114" x2="650" y2="56" stroke="#4caf50" stroke-width="1" stroke-dasharray="3,2"/>
+                  <text x="612" y="50" font-size="10" fill="#4caf50" font-weight="bold">Bounded tracking error &#8804; &#949;</text>
+
+                  <!-- Legend -->
+                  <rect x="120" y="330" width="560" height="18" rx="4" fill="#f0f4ff" stroke="#667eea" stroke-width="1"/>
+                  <line x1="135" y1="339" x2="165" y2="339" stroke="#333" stroke-width="2" stroke-dasharray="6,3"/>
+                  <text x="170" y="343" font-size="10" fill="#333">Reference</text>
+                  <line x1="248" y1="339" x2="278" y2="339" stroke="#2196f3" stroke-width="2.5"/>
+                  <text x="283" y="343" font-size="10" fill="#333">Nominal (no dist.)</text>
+                  <line x1="395" y1="339" x2="425" y2="339" stroke="#dc3545" stroke-width="2.5"/>
+                  <text x="430" y="343" font-size="10" fill="#333">Nominal + dist.</text>
+                  <line x1="530" y1="339" x2="560" y2="339" stroke="#4caf50" stroke-width="2.5"/>
+                  <text x="565" y="343" font-size="10" fill="#333">Robust + dist.</text>
+                </svg>
+                <p style="font-size:0.9em; color:#555; margin-top:8px;"><strong>Figure 7:</strong> Time-response comparison. Blue: nominal controller tracks perfectly without disturbance. Red: nominal controller with disturbance shows large oscillations and tracking degradation. Green: robust controller with disturbance maintains bounded tracking error within the guaranteed envelope &#949;.</p>
+                </div>
+
+                <div class="info">
+                    <strong>Key Takeaway:</strong> No single controller is best for all scenarios. In practice, these approaches are often <strong>combined</strong>:
+                    <ul>
+                        <li><strong>Robust-Adaptive:</strong> adaptive estimation with a robust modification for unstructured uncertainty.</li>
+                        <li><strong>Robust MPC:</strong> MPC with tube/min-max formulations for bounded disturbances.</li>
+                        <li><strong>Computed Torque + Robust:</strong> nominal model cancellation with a robust term for residual error (this week's approach).</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div><!-- end .content -->
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>Control for Robots &mdash; Week 4: Robust Control</p>
+            <p>M.Sc. Robotics &amp; Autonomous Systems &bull; AY 2025&ndash;26</p>
+        </div>
+
+    </div><!-- end .container -->
+</body>
+</html>

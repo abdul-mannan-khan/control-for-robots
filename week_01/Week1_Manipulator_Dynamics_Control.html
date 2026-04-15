@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 1: Manipulator Dynamics & Control Design</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                tags: 'ams'
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6; color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px; margin: 0 auto; background: white;
+            border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 40px; text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em; margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section {
+            margin-bottom: 40px; padding: 30px; background: #f8f9fa;
+            border-radius: 10px; border-left: 5px solid #667eea;
+        }
+        .section h2 {
+            color: #2c3e50; font-size: 1.8em; margin-bottom: 20px;
+            padding-bottom: 10px; border-bottom: 2px solid #667eea;
+        }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li {
+            padding: 10px; margin: 8px 0; background: white;
+            border-radius: 5px; position: relative; padding-left: 40px;
+        }
+        .objectives li:before {
+            content: "✓"; position: absolute; left: 15px;
+            color: #2196f3; font-weight: bold; font-size: 1.2em;
+        }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item {
+            display: flex; margin: 20px 0; padding: 20px; background: white;
+            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .timeline-time {
+            flex: 0 0 120px; font-weight: bold;
+            color: #ff9800; font-size: 1.1em;
+        }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block {
+            background: #263238; color: #aed581; padding: 20px;
+            border-radius: 5px; margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px; line-height: 1.6;
+            white-space: pre-wrap; overflow-x: auto;
+        }
+        .pseudocode-block {
+            background: #fff8dc; color: #333; padding: 20px;
+            border-radius: 5px; margin: 15px 0; border: 3px solid #daa520;
+            font-family: 'Courier New', monospace;
+            font-size: 14px; line-height: 1.6; white-space: pre-wrap;
+        }
+        .pseudocode-header {
+            background: #daa520; color: white; padding: 10px 20px;
+            margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0;
+            font-weight: bold; font-size: 16px;
+        }
+        .warning {
+            background: #fff3cd; border: 2px solid #ffc107;
+            border-radius: 5px; padding: 15px; margin: 15px 0;
+        }
+        .warning:before { content: "⚠️ "; font-size: 1.2em; }
+        .info {
+            background: #d1ecf1; border: 2px solid #17a2b8;
+            border-radius: 5px; padding: 15px; margin: 15px 0;
+        }
+        .info:before { content: "ℹ️ "; font-size: 1.2em; }
+        .success {
+            background: #d4edda; border: 2px solid #28a745;
+            border-radius: 5px; padding: 15px; margin: 15px 0;
+        }
+        .success:before { content: "✅ "; font-size: 1.2em; }
+        .danger {
+            background: #f8d7da; border: 2px solid #dc3545;
+            border-radius: 5px; padding: 15px; margin: 15px 0;
+        }
+        .danger:before { content: "🔴 "; font-size: 1.2em; }
+        table {
+            width: 100%; border-collapse: collapse;
+            margin: 20px 0; background: white;
+        }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; font-weight: bold; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; margin: 20px 0;
+        }
+        .card {
+            background: white; padding: 20px; border-radius: 8px;
+            border: 2px solid #e0e0e0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card h4 { color: #2c3e50; margin-top: 0; margin-bottom: 15px; font-size: 1.2em; }
+        .formula-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 25px; border-radius: 10px;
+            margin: 20px 0; text-align: center;
+            font-size: 1.2em;
+        }
+        .math-box {
+            background: #fafbff; border: 2px solid #667eea;
+            border-radius: 8px; padding: 20px; margin: 15px 0;
+            text-align: center; font-size: 1.1em;
+        }
+        .derivation-box {
+            background: #f0f4ff; border-left: 4px solid #3f51b5;
+            padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0;
+        }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .diagram {
+            background: #f5f5f5; padding: 20px; border-radius: 8px;
+            margin: 20px 0; font-family: 'Courier New', monospace;
+            overflow-x: auto; font-size: 12px;
+        }
+        .footer {
+            background: #2c3e50; color: white;
+            padding: 30px; text-align: center;
+        }
+        .footer a { color: #667eea; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .think-pair-share {
+            background: #fce4ec; border: 2px solid #e91e63;
+            border-radius: 8px; padding: 20px; margin: 20px 0;
+        }
+        .think-pair-share:before { content: "💬 "; font-size: 1.2em; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box {
+            background: #ede7f6; border: 2px solid #7c4dff;
+            border-radius: 8px; padding: 20px; margin: 20px 0;
+        }
+        .quiz-box:before { content: "🧠 "; font-size: 1.2em; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+
+        /* ===== PRINT STYLES — preserve all colors, backgrounds, borders ===== */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
+        @media print {
+            @page {
+                size: A4;
+                margin: 12mm 10mm 12mm 10mm;
+            }
+            html, body {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            /* Keep header gradient */
+            .header {
+                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+                color: white !important;
+                padding: 30px 25px !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            .header h1 {
+                color: white !important;
+                text-shadow: none !important;
+                font-size: 2em !important;
+            }
+            .header .subtitle, .header .meta { color: white !important; opacity: 1 !important; }
+
+            /* Keep section backgrounds and borders */
+            .section {
+                background: #f8f9fa !important;
+                border-left: 5px solid #667eea !important;
+                padding: 20px !important;
+                margin-bottom: 25px !important;
+                page-break-inside: avoid;
+            }
+            .section h2 {
+                color: #2c3e50 !important;
+                border-bottom: 2px solid #667eea !important;
+            }
+            .section h3 { color: #34495e !important; }
+
+            /* Objectives */
+            .objectives {
+                background: #e3f2fd !important;
+                border-left-color: #2196f3 !important;
+            }
+            .objectives li {
+                background: white !important;
+            }
+            .objectives li:before { color: #2196f3 !important; }
+
+            /* Timeline */
+            .timeline {
+                background: #fff3e0 !important;
+                border-left-color: #ff9800 !important;
+            }
+            .timeline-item {
+                background: white !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+            }
+            .timeline-time { color: #ff9800 !important; }
+
+            /* Activity */
+            .activity {
+                background: #e8f5e9 !important;
+                border-left-color: #4caf50 !important;
+            }
+
+            /* Cards */
+            .card {
+                background: white !important;
+                border: 2px solid #e0e0e0 !important;
+                page-break-inside: avoid;
+            }
+
+            /* Formula box gradient */
+            .formula-box {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+
+            /* Math box */
+            .math-box {
+                background: #fafbff !important;
+                border: 2px solid #667eea !important;
+            }
+
+            /* Derivation box */
+            .derivation-box {
+                background: #f0f4ff !important;
+                border-left: 4px solid #3f51b5 !important;
+                page-break-inside: avoid;
+            }
+            .derivation-box h4 { color: #3f51b5 !important; }
+
+            /* Code blocks */
+            .code-block {
+                background: #263238 !important;
+                color: #aed581 !important;
+                -webkit-print-color-adjust: exact !important;
+                page-break-inside: avoid;
+                font-size: 12px !important;
+            }
+            .pseudocode-block {
+                background: #fff8dc !important;
+                border: 3px solid #daa520 !important;
+                page-break-inside: avoid;
+            }
+            .pseudocode-header {
+                background: #daa520 !important;
+                color: white !important;
+            }
+
+            /* Alert boxes */
+            .warning {
+                background: #fff3cd !important;
+                border: 2px solid #ffc107 !important;
+            }
+            .info {
+                background: #d1ecf1 !important;
+                border: 2px solid #17a2b8 !important;
+            }
+            .success {
+                background: #d4edda !important;
+                border: 2px solid #28a745 !important;
+            }
+            .danger {
+                background: #f8d7da !important;
+                border: 2px solid #dc3545 !important;
+            }
+
+            /* Think-pair-share */
+            .think-pair-share {
+                background: #fce4ec !important;
+                border: 2px solid #e91e63 !important;
+                page-break-inside: avoid;
+            }
+            .think-pair-share h4 { color: #c2185b !important; }
+
+            /* Quiz box */
+            .quiz-box {
+                background: #ede7f6 !important;
+                border: 2px solid #7c4dff !important;
+                page-break-inside: avoid;
+            }
+            .quiz-box h4 { color: #512da8 !important; }
+
+            /* Tables */
+            th {
+                background: #1e3c72 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            tr:nth-child(even) { background: #f8f9fa !important; }
+
+            /* Footer */
+            .footer {
+                background: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            .footer a { color: #667eea !important; }
+
+            /* Details/summary */
+            details {
+                background: #f0f4ff !important;
+                border: 1px solid #667eea !important;
+            }
+
+            /* Prevent awkward breaks */
+            h2, h3, h4 { page-break-after: avoid; }
+            table { page-break-inside: avoid; }
+            .card-grid { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Week 1: Manipulator Dynamics &amp; Control Design</h1>
+            <div class="subtitle">From Equations of Motion to Computed Torque Control</div>
+            <div class="meta">
+                Control for Robots<br>
+                AY 2025–26 | 3-Hour Lecture + Activity Session
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- Learning Outcomes -->
+            <div class="section objectives">
+                <h2>🎯 Learning Outcomes</h2>
+                <p><strong>By the end of this session, you will be able to:</strong></p>
+                <ul>
+                    <li><strong>Derive</strong> the Euler–Lagrange equations of motion for a 2-DOF robot manipulator</li>
+                    <li><strong>Identify</strong> the mass matrix \(M(q)\), Coriolis matrix \(C(q,\dot{q})\), and gravity vector \(G(q)\) and explain their physical roles</li>
+                    <li><strong>Design</strong> a computed torque (inverse dynamics) controller and prove its stability using Lyapunov analysis</li>
+                    <li><strong>Implement</strong> computed torque control in MATLAB/Simulink and interpret tracking error plots</li>
+                    <li><strong>Analyse</strong> robustness of the controller against model uncertainties, payload variations, and disturbances</li>
+                    <li><strong>Compare</strong> PD, PD + gravity compensation, and full computed torque control performance</li>
+                </ul>
+            </div>
+
+            <!-- Session Timeline -->
+            <div class="section timeline">
+                <h2>📅 Session Roadmap (3 Hours)</h2>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">0:00 – 0:40</div>
+                    <div class="timeline-content">
+                        <h4>Part 1 — Manipulator Dynamics</h4>
+                        <ul>
+                            <li>Review of feedback vs feedforward control</li>
+                            <li>Euler–Lagrange formulation</li>
+                            <li>Properties of the dynamics: \(M(q)\), \(C(q,\dot{q})\), \(G(q)\)</li>
+                            <li>Skew-symmetry property &amp; its role in control</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">0:40 – 1:20</div>
+                    <div class="timeline-content">
+                        <h4>Part 2 — Control Design</h4>
+                        <ul>
+                            <li>PD control and its limitations</li>
+                            <li>PD + gravity compensation</li>
+                            <li>Computed torque (inverse dynamics) control</li>
+                            <li>Lyapunov stability proof</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">1:20 – 1:30</div>
+                    <div class="timeline-content">
+                        <h4>☕ Break</h4>
+                        <ul>
+                            <li>10-minute break</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">1:30 – 2:15</div>
+                    <div class="timeline-content">
+                        <h4>Part 3 — MATLAB Implementation</h4>
+                        <ul>
+                            <li>Guided MATLAB coding of computed torque controller</li>
+                            <li>Running ODE45 simulations</li>
+                            <li>Interpreting tracking and error plots</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">2:15 – 3:00</div>
+                    <div class="timeline-content">
+                        <h4>Part 4 — Robustness Analysis &amp; Activities</h4>
+                        <ul>
+                            <li>Effect of model uncertainty on computed torque</li>
+                            <li>Payload variation experiments</li>
+                            <li>Disturbance rejection analysis</li>
+                            <li>Group activity &amp; wrap-up quiz</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  PART 1: MANIPULATOR DYNAMICS                                 -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>📖 Part 1 — Manipulator Dynamics</h2>
+
+                <h3>1.1 Why Dynamics Matter</h3>
+                <p>
+                    Kinematics tells us <em>where</em> the robot moves; dynamics tells us <em>what forces and torques</em> are required to produce that motion. Without a dynamic model we cannot design controllers that truly cancel the nonlinear effects of inertia, coupling, Coriolis forces, and gravity.
+                </p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>🔄 Feedback Control</h4>
+                        <p>Uses sensor measurements (encoders, IMUs) to adjust torques in real time. Robust against model errors but reacts <em>after</em> errors occur.</p>
+                    </div>
+                    <div class="card">
+                        <h4>➡️ Feedforward Control</h4>
+                        <p>Applies precomputed torques from the dynamic model <em>before</em> the error appears. Requires an accurate model but gives faster response.</p>
+                    </div>
+                    <div class="card">
+                        <h4>⚙️ Combined (Computed Torque)</h4>
+                        <p>Feedforward cancels known dynamics; feedback corrects remaining error. This is the gold standard for manipulator control.</p>
+                    </div>
+                </div>
+
+                <h3>1.2 The Euler–Lagrange Equation of Motion</h3>
+                <p>
+                    For an \(n\)-DOF rigid-body manipulator, the Lagrangian \(\mathcal{L} = T - V\) (kinetic minus potential energy) yields the standard form:
+                </p>
+
+                <div class="formula-box">
+                    \[ M(q)\,\ddot{q} \;+\; C(q,\dot{q})\,\dot{q} \;+\; G(q) \;=\; \tau \]
+                </div>
+
+                <table>
+                    <tr><th>Symbol</th><th>Name</th><th>Dimension</th><th>Physical Meaning</th></tr>
+                    <tr><td>\(q\)</td><td>Joint positions</td><td>\(n \times 1\)</td><td>Generalised coordinates (angles for revolute joints)</td></tr>
+                    <tr><td>\(M(q)\)</td><td>Mass (inertia) matrix</td><td>\(n \times n\)</td><td>Relates joint accelerations to required torques; symmetric positive-definite</td></tr>
+                    <tr><td>\(C(q,\dot{q})\)</td><td>Coriolis &amp; centrifugal matrix</td><td>\(n \times n\)</td><td>Velocity-dependent coupling forces between joints</td></tr>
+                    <tr><td>\(G(q)\)</td><td>Gravity vector</td><td>\(n \times 1\)</td><td>Torques required to hold the arm against gravity</td></tr>
+                    <tr><td>\(\tau\)</td><td>Joint torques</td><td>\(n \times 1\)</td><td>Control inputs (what we design)</td></tr>
+                </table>
+
+                <h3>1.3 A Concrete Example: 2-DOF Planar Manipulator</h3>
+                <p>
+                    Consider a two-link planar arm with link masses \(m_1, m_2\), link lengths \(l_1, l_2\), and distances to centres of mass \(l_{c1}, l_{c2}\). For simplicity we take \(l_{ci} = l_i\) (point masses at link tips).
+                </p>
+
+                <div class="derivation-box">
+                    <h4>📐 Mass Matrix \(M(q)\)</h4>
+                    \[
+                    M(q) = \begin{bmatrix}
+                    m_1 l_1^2 + m_2(l_1^2 + l_2^2 + 2l_1 l_2 \cos q_2) & m_2(l_2^2 + l_1 l_2 \cos q_2) \\
+                    m_2(l_2^2 + l_1 l_2 \cos q_2) & m_2 l_2^2
+                    \end{bmatrix}
+                    \]
+                    <p style="margin-top:10px; color:#555;">Notice: \(M(q)\) depends on \(q_2\) only (the relative angle), and is always symmetric positive-definite so it is invertible.</p>
+                </div>
+
+                <div class="derivation-box">
+                    <h4>🌀 Coriolis &amp; Centrifugal Matrix \(C(q,\dot{q})\)</h4>
+                    <p>Using Christoffel symbols of the first kind:</p>
+                    \[
+                    C(q,\dot{q}) = \begin{bmatrix}
+                    -m_2 l_1 l_2 \sin(q_2)\,\dot{q}_2 & -m_2 l_1 l_2 \sin(q_2)(\dot{q}_1 + \dot{q}_2) \\
+                    m_2 l_1 l_2 \sin(q_2)\,\dot{q}_1 & 0
+                    \end{bmatrix}
+                    \]
+                </div>
+
+                <div class="derivation-box">
+                    <h4>⬇️ Gravity Vector \(G(q)\)</h4>
+                    \[
+                    G(q) = \begin{bmatrix}
+                    (m_1 + m_2)\,g\,l_1 \cos q_1 + m_2\,g\,l_2 \cos(q_1 + q_2) \\
+                    m_2\,g\,l_2 \cos(q_1 + q_2)
+                    \end{bmatrix}
+                    \]
+                </div>
+
+                <h3>1.4 Key Properties of the Dynamic Model</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>✅ Property 1: Symmetry &amp; Positive-Definiteness</h4>
+                        <p>\(M(q) = M(q)^T > 0\) for all \(q\). This guarantees the system always has finite inertia and the dynamics are well-posed.</p>
+                    </div>
+                    <div class="card">
+                        <h4>✅ Property 2: Skew-Symmetry</h4>
+                        <p>The matrix \(\dot{M}(q) - 2C(q,\dot{q})\) is skew-symmetric, i.e., \(x^T[\dot{M} - 2C]x = 0\) for all \(x\). This property is <strong>essential</strong> for Lyapunov-based stability proofs.</p>
+                    </div>
+                    <div class="card">
+                        <h4>✅ Property 3: Linearity in Parameters</h4>
+                        <p>The dynamics can be written as \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = Y(q,\dot{q},\ddot{q})\,\theta\) where \(\theta\) contains the physical parameters. This enables adaptive control.</p>
+                    </div>
+                </div>
+
+                <div class="think-pair-share">
+                    <h4>Think–Pair–Share (5 min)</h4>
+                    <p><strong>Question:</strong> If the second link mass \(m_2\) doubles (e.g., the robot picks up a heavy payload), which terms in \(M(q)\), \(C(q,\dot{q})\), and \(G(q)\) are affected? Which are <em>not</em> affected?</p>
+                    <p style="margin-top:10px; font-style:italic; color:#666;">Discuss with your neighbour for 2 minutes, then we will share answers as a class.</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  PART 2: CONTROL DESIGN                                       -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>🎛️ Part 2 — Control Design for the Manipulator</h2>
+
+                <h3>2.1 Approach 1: Simple PD Control</h3>
+                <p>
+                    The simplest approach is a joint-space PD controller:
+                </p>
+                <div class="math-box">
+                    \[ \tau = K_P\,e + K_D\,\dot{e} \]
+                    <div style="font-size:0.85em; margin-top:8px; color:#555;">
+                        where \(e = q_d - q\) is the tracking error and \(K_P, K_D \succ 0\) are diagonal gain matrices.
+                    </div>
+                </div>
+                <p>
+                    This treats the manipulator as if it were a collection of independent linear joints. It ignores nonlinear coupling, Coriolis forces, and gravity entirely.
+                </p>
+                <div class="warning">
+                    <strong>Limitation:</strong> PD control alone cannot guarantee zero steady-state error in the presence of gravity. The arm will droop under its own weight because no term compensates for \(G(q)\).
+                </div>
+
+                <h3>2.2 Approach 2: PD + Gravity Compensation</h3>
+                <div class="math-box">
+                    \[ \tau = K_P\,e + K_D\,\dot{e} + G(q) \]
+                </div>
+                <p>
+                    Adding the gravity term \(G(q)\) eliminates the steady-state droop at the desired position. However, during fast motions the Coriolis and inertia coupling terms still cause significant tracking errors.
+                </p>
+
+                <h3>2.3 Approach 3: Computed Torque Control (Inverse Dynamics)</h3>
+                <p>
+                    The computed torque controller uses the full dynamic model to <strong>cancel all nonlinear dynamics</strong> and then imposes a desired linear closed-loop behaviour.
+                </p>
+
+                <div class="formula-box">
+                    <strong>Computed Torque Control Law</strong><br><br>
+                    \[ \tau = M(q)\,\bigl[\ddot{q}_d + K_D\,\dot{e} + K_P\,e\bigr] + C(q,\dot{q})\,\dot{q} + G(q) \]
+                </div>
+
+                <div class="derivation-box">
+                    <h4>📐 Derivation — Step by Step</h4>
+                    <p><strong>Step 1:</strong> Start from the robot dynamics:</p>
+                    \[ M(q)\,\ddot{q} + C(q,\dot{q})\,\dot{q} + G(q) = \tau \]
+
+                    <p style="margin-top:15px;"><strong>Step 2:</strong> Substitute the control law into the dynamics:</p>
+                    \[ M(q)\,\ddot{q} + \cancel{C(q,\dot{q})\,\dot{q}} + \cancel{G(q)} = M(q)\bigl[\ddot{q}_d + K_D\dot{e} + K_P e\bigr] + \cancel{C(q,\dot{q})\,\dot{q}} + \cancel{G(q)} \]
+
+                    <p style="margin-top:15px;"><strong>Step 3:</strong> Since \(M(q)\) is invertible, left-multiply both sides by \(M^{-1}(q)\):</p>
+                    \[ \ddot{q} = \ddot{q}_d + K_D\,\dot{e} + K_P\,e \]
+
+                    <p style="margin-top:15px;"><strong>Step 4:</strong> Since \(\ddot{e} = \ddot{q}_d - \ddot{q}\), rearrange to get the <strong>closed-loop error dynamics</strong>:</p>
+
+                    <div style="background:white; padding:15px; border-radius:5px; text-align:center; margin-top:10px; border: 2px solid #3f51b5;">
+                        \[ \ddot{e} + K_D\,\dot{e} + K_P\,e = 0 \]
+                    </div>
+
+                    <p style="margin-top:15px;">This is a <strong>linear, decoupled, second-order ODE</strong> for each joint — identical to a mass–spring–damper system. With proper gain selection the error converges to zero exponentially!</p>
+                </div>
+
+                <h3>2.4 Gain Selection: Placing Closed-Loop Poles</h3>
+                <p>
+                    For each joint, the characteristic equation is \(s^2 + k_d\,s + k_p = 0\). Comparing with the standard second-order form \(s^2 + 2\zeta\omega_n s + \omega_n^2 = 0\):
+                </p>
+                <div class="math-box">
+                    \[ k_p = \omega_n^2, \qquad k_d = 2\zeta\omega_n \]
+                </div>
+
+                <table>
+                    <tr><th>Design Choice</th><th>\(\zeta\)</th><th>\(\omega_n\)</th><th>\(K_P\)</th><th>\(K_D\)</th><th>Behaviour</th></tr>
+                    <tr><td>Underdamped</td><td>0.5</td><td>10</td><td>100</td><td>10</td><td>Fast but oscillatory</td></tr>
+                    <tr style="background:#c8e6c9;"><td>Critically damped</td><td>1.0</td><td>10</td><td>100</td><td>20</td><td>Fastest without overshoot ✓</td></tr>
+                    <tr><td>Overdamped</td><td>2.0</td><td>10</td><td>100</td><td>40</td><td>Sluggish but smooth</td></tr>
+                </table>
+
+                <h3>2.5 Lyapunov Stability Proof</h3>
+                <p>
+                    Even though the computed torque controller linearises the system, we can also prove stability directly using Lyapunov theory — which is more rigorous and generalises to uncertain models.
+                </p>
+
+                <div class="derivation-box">
+                    <h4>🔒 Lyapunov Proof for Computed Torque Control</h4>
+
+                    <p><strong>Step 1 — Choose a Lyapunov candidate:</strong></p>
+                    \[ V(e, \dot{e}) = \frac{1}{2}\dot{e}^T M(q)\,\dot{e} + \frac{1}{2}e^T K_P\,e \]
+                    <p>Since \(M(q) \succ 0\) and \(K_P \succ 0\), we have \(V > 0\) for all \((e, \dot{e}) \ne (0,0)\).</p>
+
+                    <p style="margin-top:15px;"><strong>Step 2 — Differentiate:</strong></p>
+                    \[ \dot{V} = \dot{e}^T M(q)\,\ddot{e} + \frac{1}{2}\dot{e}^T \dot{M}(q)\,\dot{e} + e^T K_P\,\dot{e} \]
+
+                    <p style="margin-top:15px;"><strong>Step 3 — Substitute the closed-loop dynamics</strong> \(M(q)\ddot{e} = -C(q,\dot{q})\dot{e} - K_D\dot{e} - K_P e\):</p>
+                    \[ \dot{V} = \dot{e}^T\bigl[-C\dot{e} - K_D\dot{e} - K_P e\bigr] + \frac{1}{2}\dot{e}^T\dot{M}\,\dot{e} + e^T K_P\dot{e} \]
+
+                    <p style="margin-top:15px;"><strong>Step 4 — Apply the skew-symmetry property</strong> \(\dot{e}^T[\dot{M} - 2C]\dot{e} = 0\):</p>
+                    \[ \dot{V} = -\dot{e}^T K_D\,\dot{e} \;\leq\; 0 \]
+
+                    <p style="margin-top:15px;"><strong>Step 5 — Invoke LaSalle's invariance principle:</strong> \(\dot{V} = 0 \implies \dot{e} = 0 \implies \ddot{e} = 0 \implies K_P e = 0 \implies e = 0\). Therefore the equilibrium \((e, \dot{e}) = (0, 0)\) is <strong>asymptotically stable</strong>. ∎</p>
+                </div>
+
+                <div class="success">
+                    <strong>Key Insight:</strong> The skew-symmetry of \(\dot{M} - 2C\) is what makes the cross terms cancel in the Lyapunov derivative. This is the most important structural property in robot control!
+                </div>
+
+                <div class="quiz-box">
+                    <h4>Quick Check (2 min)</h4>
+                    <ol>
+                        <li>What happens if \(K_P = 0\) in the Lyapunov function? Can we still guarantee that \(e \to 0\)?</li>
+                        <li>In the computed torque law, which term handles gravity? Which handles Coriolis coupling?</li>
+                        <li>If \(M(q)\) were identity (unit mass everywhere), how would the computed torque law simplify?</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  PART 3: MATLAB IMPLEMENTATION                                -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>💻 Part 3 — MATLAB Implementation</h2>
+
+                <p>
+                    We will now implement the computed torque controller for a 2-DOF manipulator step by step. The robot must track a sinusoidal trajectory:
+                    \(q_d(t) = \begin{bmatrix} 0.5\sin(t) \\ 0.5\cos(t) \end{bmatrix}\).
+                </p>
+
+                <h3>3.1 System Parameters</h3>
+                <div class="code-block">% ===== System Parameters =====
+clear all; close all; clc;
+
+params.m1 = 1;      % Mass of link 1 (kg)
+params.m2 = 1;      % Mass of link 2 (kg)
+params.l1 = 1;      % Length of link 1 (m)
+params.l2 = 1;      % Length of link 2 (m)
+params.g  = 9.81;   % Gravitational acceleration (m/s^2)
+
+% Control gains (critically damped, wn = 7.07)
+params.Kp = diag([50 50]);   % Kp = wn^2
+params.Kd = diag([20 20]);   % Kd = 2*zeta*wn  (zeta ≈ 1.4)
+
+% Simulation setup
+t_span = 0:0.01:20;          % 20 seconds, 10 ms step
+q0  = [0; 0];                % Initial joint angles
+dq0 = [0; 0];                % Initial joint velocities
+x0  = [q0; dq0];             % State vector [q1; q2; dq1; dq2]</div>
+
+                <h3>3.2 Desired Trajectory Functions</h3>
+                <div class="code-block">% ===== Desired Trajectory =====
+qd   = @(t) [0.5*sin(t);  0.5*cos(t)];
+dqd  = @(t) [0.5*cos(t); -0.5*sin(t)];
+ddqd = @(t) [-0.5*sin(t); -0.5*cos(t)];</div>
+
+                <h3>3.3 Dynamics with Computed Torque Controller</h3>
+
+                <h4>🧮 Pseudocode</h4>
+                <div class="pseudocode-block">
+                    <div class="pseudocode-header">📋 PSEUDOCODE — Computed Torque Controller</div>
+FUNCTION manipulator_dynamics(t, state, params):
+    EXTRACT q = state[1:2], dq = state[3:4]
+    
+    COMPUTE desired trajectory: qd(t), dqd(t), ddqd(t)
+    COMPUTE tracking error:  e  = qd - q
+    COMPUTE velocity error:  de = dqd - dq
+    
+    BUILD M(q):    2×2 mass matrix using m1, m2, l1, l2, cos(q2)
+    BUILD C(q,dq): 2×2 Coriolis matrix using m2, l1, l2, sin(q2), dq
+    BUILD G(q):    2×1 gravity vector using g, m1, m2, l1, l2
+    
+    COMPUTE feedforward:  a_cmd = ddqd + Kd*de + Kp*e
+    COMPUTE torque:       tau   = M * a_cmd + C * dq + G
+    
+    COMPUTE acceleration: ddq = M \ (tau - C*dq - G)
+    RETURN [dq; ddq]
+                </div>
+
+                <h4>⚙️ MATLAB Code</h4>
+                <div class="code-block">function dx = manipulator_dynamics(t, x, params, qd, dqd, ddqd)
+    q  = x(1:2);       % Joint angles
+    dq = x(3:4);       % Joint velocities
+
+    % Desired trajectory at current time
+    q_des   = qd(t);
+    dq_des  = dqd(t);
+    ddq_des = ddqd(t);
+
+    % Tracking errors
+    e  = q_des - q;
+    de = dq_des - dq;
+
+    % --- Build the Dynamic Model ---
+    m1 = params.m1;  m2 = params.m2;
+    l1 = params.l1;  l2 = params.l2;
+    g  = params.g;
+
+    % Mass matrix M(q)
+    M11 = m1*l1^2 + m2*(l1^2 + l2^2 + 2*l1*l2*cos(q(2)));
+    M12 = m2*(l2^2 + l1*l2*cos(q(2)));
+    M22 = m2*l2^2;
+    M   = [M11, M12; M12, M22];
+
+    % Coriolis matrix C(q, dq)
+    h = m2*l1*l2*sin(q(2));
+    C = [-h*dq(2),  -h*(dq(1)+dq(2));
+          h*dq(1),   0               ];
+
+    % Gravity vector G(q)
+    G = [(m1+m2)*g*l1*cos(q(1)) + m2*g*l2*cos(q(1)+q(2));
+          m2*g*l2*cos(q(1)+q(2))                          ];
+
+    % --- Computed Torque Control Law ---
+    a_cmd = ddq_des + params.Kd*de + params.Kp*e;
+    tau   = M * a_cmd + C * dq + G;
+
+    % --- Forward Dynamics ---
+    ddq = M \ (tau - C*dq - G);
+
+    dx = [dq; ddq];
+end</div>
+
+                <div class="info">
+                    <strong>Why <code>M\b</code> instead of <code>inv(M)*b</code>?</strong> The backslash operator is numerically more stable and faster. Never invert the mass matrix explicitly in production code.
+                </div>
+
+                <h3>3.4 Run Simulation &amp; Plot</h3>
+                <div class="code-block">% ===== Run ODE45 =====
+[t, x] = ode45(@(t,x) manipulator_dynamics(t, x, params, qd, dqd, ddqd), ...
+               t_span, x0);
+
+% ===== Compute desired trajectory for plotting =====
+qd_vals = zeros(length(t), 2);
+for i = 1:length(t)
+    qd_vals(i,:) = qd(t(i))';
+end
+
+% ===== Plot: Joint Angles =====
+figure('Position', [100 100 1200 500]);
+
+subplot(1,2,1);
+plot(t, x(:,1), 'b', 'LineWidth', 1.5); hold on;
+plot(t, x(:,2), 'r', 'LineWidth', 1.5);
+plot(t, qd_vals(:,1), 'b--', 'LineWidth', 1.2);
+plot(t, qd_vals(:,2), 'r--', 'LineWidth', 1.2);
+xlabel('Time (s)'); ylabel('Angle (rad)');
+title('Joint Angles: Actual vs Desired');
+legend('q_1', 'q_2', 'q_{1,d}', 'q_{2,d}');
+grid on;
+
+% ===== Plot: Tracking Error =====
+subplot(1,2,2);
+e_vals = qd_vals - x(:,1:2);
+plot(t, e_vals(:,1), 'b', 'LineWidth', 1.5); hold on;
+plot(t, e_vals(:,2), 'r', 'LineWidth', 1.5);
+xlabel('Time (s)'); ylabel('Error (rad)');
+title('Tracking Error');
+legend('e_1', 'e_2');
+grid on;
+
+sgtitle('Computed Torque Control — 2-DOF Manipulator');</div>
+
+                <div class="success">
+                    <strong>Expected Result:</strong> After a brief transient (≈ 1–2 s), both joint errors should converge to near zero and the actual trajectory should overlay the desired trajectory almost perfectly.
+                </div>
+
+                <div class="think-pair-share">
+                    <h4>Hands-On Activity 1 (10 min)</h4>
+                    <p><strong>Task:</strong> Run the code above in MATLAB. Then modify the gains as follows and observe the effect on the tracking error plot:</p>
+                    <ol>
+                        <li>Set \(K_P = \text{diag}([10, 10])\) and \(K_D = \text{diag}([5, 5])\) — <em>what happens?</em></li>
+                        <li>Set \(K_P = \text{diag}([200, 200])\) and \(K_D = \text{diag}([5, 5])\) — <em>is there overshoot?</em></li>
+                        <li>Set \(K_P = \text{diag}([50, 50])\) and \(K_D = \text{diag}([50, 50])\) — <em>is the response sluggish?</em></li>
+                    </ol>
+                    <p style="margin-top:10px; font-style:italic; color:#666;">Record the peak error for each case. We will compare results as a class.</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  PART 3.5: COMPARING CONTROLLERS                              -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>📊 Comparing Control Strategies</h2>
+
+                <p>To appreciate why computed torque is superior, let us compare three controllers on the same trajectory.</p>
+
+                <h3>Controller A: PD Only</h3>
+                <div class="code-block">% Inside dynamics function, replace control law with:
+tau = params.Kp * e + params.Kd * de;
+% No model terms — ignores M, C, G completely</div>
+
+                <h3>Controller B: PD + Gravity Compensation</h3>
+                <div class="code-block">% Inside dynamics function, replace control law with:
+tau = params.Kp * e + params.Kd * de + G;
+% Compensates gravity but ignores Coriolis and inertia coupling</div>
+
+                <h3>Controller C: Computed Torque (Full)</h3>
+                <div class="code-block">% Full computed torque (already implemented above):
+a_cmd = ddq_des + params.Kd * de + params.Kp * e;
+tau   = M * a_cmd + C * dq + G;</div>
+
+                <table>
+                    <tr><th>Controller</th><th>Model Knowledge</th><th>Steady-State Error</th><th>Transient Error</th><th>Coupling Rejection</th></tr>
+                    <tr style="background:#ffcdd2;"><td>PD Only</td><td>None</td><td>Non-zero (gravity droop)</td><td>Large</td><td>Poor</td></tr>
+                    <tr style="background:#fff9c4;"><td>PD + Gravity</td><td>\(G(q)\)</td><td>Zero at setpoints</td><td>Moderate</td><td>Moderate</td></tr>
+                    <tr style="background:#c8e6c9;"><td>Computed Torque</td><td>\(M, C, G\)</td><td>Zero</td><td>Small (tunable)</td><td>Excellent ✓</td></tr>
+                </table>
+
+                <div class="think-pair-share">
+                    <h4>Hands-On Activity 2 (15 min)</h4>
+                    <p><strong>Task:</strong> Implement all three controllers. Plot their tracking errors on the same figure using <code>subplot</code> or overlaid with different colours. Answer:</p>
+                    <ol>
+                        <li>Which controller has the largest peak error during the first 2 seconds?</li>
+                        <li>Which controller has a non-zero steady-state error? Why?</li>
+                        <li>At what joint velocity does the PD controller start to diverge noticeably from computed torque?</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  PART 4: ROBUSTNESS ANALYSIS                                  -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>🛡️ Part 4 — Robustness Analysis</h2>
+
+                <p>
+                    Computed torque control delivers <strong>perfect</strong> tracking when the model is exact. In practice, we never know the model perfectly. Robustness analysis studies what happens when the model used in the controller differs from the true plant.
+                </p>
+
+                <h3>4.1 Sources of Model Uncertainty</h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>📦 Payload Variation</h4>
+                        <p>The mass \(m_2\) changes when the robot picks up or drops objects. The controller may still use the nominal value.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔩 Friction</h4>
+                        <p>Real joints exhibit Coulomb and viscous friction not captured in the rigid-body model.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📏 Parameter Errors</h4>
+                        <p>Link lengths and centres of mass are measured imprecisely. Actuator dynamics are neglected.</p>
+                    </div>
+                    <div class="card">
+                        <h4>💨 External Disturbances</h4>
+                        <p>Contact forces, wind loads, or interaction forces when collaborating with humans.</p>
+                    </div>
+                </div>
+
+                <h3>4.2 Mathematical Framework</h3>
+                <p>
+                    Let the true dynamics be governed by \((M, C, G)\) and the <em>estimated</em> (controller) model be \((\hat{M}, \hat{C}, \hat{G})\). The control law uses the estimated model:
+                </p>
+                <div class="math-box">
+                    \[ \tau = \hat{M}(q)\bigl[\ddot{q}_d + K_D\dot{e} + K_P e\bigr] + \hat{C}(q,\dot{q})\dot{q} + \hat{G}(q) \]
+                </div>
+                <p>Substituting into the true dynamics:</p>
+                \[ M\,\ddot{q} + C\,\dot{q} + G = \hat{M}\bigl[\ddot{q}_d + K_D\dot{e} + K_P e\bigr] + \hat{C}\,\dot{q} + \hat{G} \]
+
+                <p>Defining model errors \(\Delta M = M - \hat{M}\), \(\Delta C = C - \hat{C}\), \(\Delta G = G - \hat{G}\), the closed-loop error dynamics become:</p>
+
+                <div class="formula-box">
+                    \[ M\,\ddot{e} + (C + K_D^*)\,\dot{e} + K_P^*\,e = \underbrace{\Delta M\,\ddot{q}_d + \Delta C\,\dot{q} + \Delta G}_{\text{perturbation } d(t)} \]
+                    <div style="font-size:0.7em; margin-top:10px; font-weight:normal;">
+                        The error no longer converges to zero — it is driven by the perturbation \(d(t)\).
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Key Result:</strong> With model mismatch, computed torque control guarantees <em>bounded</em> errors (the errors stay small if the gains are high and the model errors are small), but not <em>asymptotic</em> tracking to zero.
+                </div>
+
+                <h3>4.3 Experiment: Payload Mismatch</h3>
+                <p>
+                    We simulate the scenario where the <strong>true</strong> plant has \(m_2 = 2\,\text{kg}\) but the controller still assumes \(m_2 = 1\,\text{kg}\).
+                </p>
+
+                <div class="code-block">% ===== Robustness Test: Payload Mismatch =====
+% True plant parameters (what reality is)
+params_true = params;
+params_true.m2 = 2;    % True mass of link 2 is DOUBLE
+
+% Controller still uses params (m2 = 1) for its model
+% We need a modified dynamics function:
+
+function dx = manipulator_robust_test(t, x, params_ctrl, params_true, qd, dqd, ddqd)
+    q  = x(1:2);
+    dq = x(3:4);
+    
+    q_des   = qd(t);
+    dq_des  = dqd(t);
+    ddq_des = ddqd(t);
+    e  = q_des - q;
+    de = dq_des - dq;
+    
+    % --- Controller uses ESTIMATED model (params_ctrl) ---
+    [M_hat, C_hat, G_hat] = build_model(q, dq, params_ctrl);
+    a_cmd = ddq_des + params_ctrl.Kd*de + params_ctrl.Kp*e;
+    tau   = M_hat * a_cmd + C_hat * dq + G_hat;
+    
+    % --- Plant uses TRUE model (params_true) ---
+    [M_true, C_true, G_true] = build_model(q, dq, params_true);
+    ddq = M_true \ (tau - C_true*dq - G_true);
+    
+    dx = [dq; ddq];
+end
+
+function [M, C, G] = build_model(q, dq, p)
+    M11 = p.m1*p.l1^2 + p.m2*(p.l1^2 + p.l2^2 + 2*p.l1*p.l2*cos(q(2)));
+    M12 = p.m2*(p.l2^2 + p.l1*p.l2*cos(q(2)));
+    M22 = p.m2*p.l2^2;
+    M   = [M11, M12; M12, M22];
+    
+    h = p.m2*p.l1*p.l2*sin(q(2));
+    C = [-h*dq(2), -h*(dq(1)+dq(2)); h*dq(1), 0];
+    
+    G = [(p.m1+p.m2)*p.g*p.l1*cos(q(1)) + p.m2*p.g*p.l2*cos(q(1)+q(2));
+          p.m2*p.g*p.l2*cos(q(1)+q(2))];
+end</div>
+
+                <h3>4.4 Experiment: Adding Joint Friction</h3>
+                <div class="code-block">% ===== Add Coulomb + Viscous Friction =====
+% After computing ddq from the model, add friction terms:
+
+b_viscous = 0.5;      % Viscous friction coefficient
+f_coulomb = 0.3;      % Coulomb friction magnitude
+
+% Friction torque (not modelled by controller)
+tau_friction = b_viscous * dq + f_coulomb * sign(dq);
+
+% Modified acceleration (true plant sees friction)
+ddq = M_true \ (tau - C_true*dq - G_true - tau_friction);</div>
+
+                <h3>4.5 Experiment: External Disturbance Pulse</h3>
+                <div class="code-block">% ===== External Disturbance =====
+% Simulate a sudden impact at t = 10 s lasting 0.5 s
+
+if t >= 10 && t <= 10.5
+    tau_dist = [5; 3];   % Disturbance torque (N·m)
+else
+    tau_dist = [0; 0];
+end
+
+ddq = M_true \ (tau - C_true*dq - G_true + tau_dist);</div>
+
+                <h3>4.6 Summary of Robustness Results</h3>
+                <table>
+                    <tr><th>Scenario</th><th>Peak Error (rad)</th><th>Steady-State Error</th><th>Stability</th></tr>
+                    <tr style="background:#c8e6c9;"><td>Perfect model</td><td>≈ 0.02 (transient only)</td><td>≈ 0</td><td>Asymptotically stable</td></tr>
+                    <tr style="background:#fff9c4;"><td>Payload ×2</td><td>≈ 0.08 – 0.15</td><td>Small oscillatory</td><td>Bounded (stable)</td></tr>
+                    <tr style="background:#fff9c4;"><td>Joint friction</td><td>≈ 0.03 – 0.06</td><td>Small bias</td><td>Bounded (stable)</td></tr>
+                    <tr style="background:#fff3e0;"><td>Disturbance pulse</td><td>≈ 0.10 (at impact)</td><td>Returns to ≈ 0</td><td>ISS (input-to-state stable)</td></tr>
+                    <tr style="background:#ffcdd2;"><td>Payload ×5 + friction</td><td>≈ 0.3 – 0.5</td><td>Significant</td><td>May become unstable with low gains</td></tr>
+                </table>
+
+                <div class="info">
+                    <strong>Rule of Thumb:</strong> Higher gains (\(K_P, K_D\)) improve robustness by rejecting perturbations faster, but they also amplify sensor noise and demand higher torques. Controller design is always a trade-off between performance, robustness, and actuator limits.
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  ACTIVITIES                                                    -->
+            <!-- ============================================================ -->
+
+            <div class="section activity">
+                <h2>🔬 Hands-On Activities</h2>
+
+                <h3>Activity 3: Robustness Investigation (20 min)</h3>
+                <ol>
+                    <li>Start with the nominal computed torque controller (\(m_2 = 1\,\text{kg}\) in both plant and controller).</li>
+                    <li>Change the <strong>true</strong> \(m_2\) to 1.5, 2.0, 3.0, and 5.0 kg while keeping the controller model at \(m_2 = 1\).</li>
+                    <li>For each case, record the maximum tracking error \(\|e\|_\infty\) from the error plot.</li>
+                    <li>Plot \(\|e\|_\infty\) vs payload ratio \(m_{2,\text{true}} / m_{2,\text{ctrl}}\).</li>
+                    <li><strong>Bonus:</strong> At what payload ratio does the system become unstable? Increase \(K_P\) and \(K_D\) — does this extend the stability boundary?</li>
+                </ol>
+
+                <div class="success">
+                    <strong>Expected Observation:</strong> Tracking error grows approximately linearly with payload mismatch for small mismatches, but growth accelerates for large mismatches.
+                </div>
+
+                <h3>Activity 4: Controller Comparison Dashboard (25 min)</h3>
+                <p>Create a single MATLAB figure with a 3×2 subplot layout:</p>
+                <table>
+                    <tr><th></th><th>Column 1: Joint Angles</th><th>Column 2: Tracking Error</th></tr>
+                    <tr><td><strong>Row 1</strong></td><td>PD Only — actual vs desired</td><td>PD Only — error</td></tr>
+                    <tr><td><strong>Row 2</strong></td><td>PD + Gravity — actual vs desired</td><td>PD + Gravity — error</td></tr>
+                    <tr><td><strong>Row 3</strong></td><td>Computed Torque — actual vs desired</td><td>Computed Torque — error</td></tr>
+                </table>
+                <p style="margin-top:10px;">Use the same gains and trajectory for all three. Include a title, legends, and axis labels on every subplot.</p>
+
+                <h3>Activity 5: Design Challenge (15 min)</h3>
+                <div class="card">
+                    <h4>🏆 Challenge: Robust Trajectory Tracking</h4>
+                    <p>Design a controller that can track the reference trajectory with \(\|e\|_\infty < 0.05\,\text{rad}\) under the following <strong>simultaneous</strong> conditions:</p>
+                    <ul>
+                        <li>True \(m_2 = 2\,\text{kg}\), controller assumes \(m_2 = 1\,\text{kg}\)</li>
+                        <li>Viscous friction \(b = 0.5\,\text{N·m·s/rad}\) (not modelled)</li>
+                        <li>An external disturbance of \(\tau_d = [3; 2]\,\text{N·m}\) applied from \(t = 8\) to \(t = 8.5\,\text{s}\)</li>
+                    </ul>
+                    <p style="margin-top:10px;"><strong>Hint:</strong> You may increase gains, add integral action, or add a robust term \(\tau_{\text{robust}} = K_r\,\text{sign}(\dot{e})\).</p>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  WRAP-UP QUIZ                                                  -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>🧠 End-of-Lecture Quiz</h2>
+
+                <div class="quiz-box">
+                    <h4>Test Your Understanding</h4>
+                    <ol>
+                        <li>
+                            <strong>True or False:</strong> The mass matrix \(M(q)\) is always diagonal for a 2-DOF manipulator.
+                            <p style="color:#666; font-size:0.9em; margin-top:5px;"><em>Think about what the off-diagonal terms represent physically.</em></p>
+                        </li>
+                        <li>
+                            <strong>Fill in the blank:</strong> The property that \(\dot{M} - 2C\) is ___________ is essential for the Lyapunov stability proof of computed torque control.
+                        </li>
+                        <li>
+                            <strong>Short answer:</strong> Name two practical reasons why computed torque control may not achieve perfect tracking on a real robot.
+                        </li>
+                        <li>
+                            <strong>Calculation:</strong> For a desired natural frequency \(\omega_n = 15\,\text{rad/s}\) and critical damping (\(\zeta = 1\)), compute \(K_P\) and \(K_D\) per joint.
+                        </li>
+                        <li>
+                            <strong>Design question:</strong> If you double all link masses simultaneously, but the controller model remains unchanged, how does the perturbation term \(d(t)\) scale? Would increasing \(K_P\) alone fix the problem? Why or why not?
+                        </li>
+                    </ol>
+                </div>
+
+                <details style="margin-top: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px; border: 1px solid #667eea;">
+                    <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">Click to reveal answers</summary>
+                    <div style="margin-top: 15px;">
+                        <ol>
+                            <li><strong>False.</strong> The off-diagonal terms \(M_{12} = M_{21}\) capture inertia coupling between joints. They are zero only in special configurations.</li>
+                            <li><strong>Skew-symmetric.</strong></li>
+                            <li>Any two of: model parameter uncertainty, unmodelled friction, actuator saturation/dynamics, sensor noise, discretisation effects, joint flexibility.</li>
+                            <li>\(K_P = \omega_n^2 = 225\), \(K_D = 2 \times 1 \times 15 = 30\).</li>
+                            <li>The perturbation scales proportionally with the mass error \(\Delta M\), which doubles. Increasing \(K_P\) alone gives faster error correction but does not cancel the feedforward mismatch — you also need higher \(K_D\) to damp the resulting oscillations, or better yet, update the model.</li>
+                        </ol>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  SUMMARY                                                       -->
+            <!-- ============================================================ -->
+
+            <div class="section">
+                <h2>📚 Week 1 Summary</h2>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>⚙️ Manipulator Dynamics</h4>
+                        <ul style="font-size: 0.95em;">
+                            <li>✅ Euler–Lagrange formulation</li>
+                            <li>✅ Mass matrix \(M(q)\) — SPD</li>
+                            <li>✅ Coriolis matrix \(C(q,\dot{q})\)</li>
+                            <li>✅ Gravity vector \(G(q)\)</li>
+                            <li>✅ Skew-symmetry property</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h4>🎛️ Control Design</h4>
+                        <ul style="font-size: 0.95em;">
+                            <li>✅ PD control &amp; limitations</li>
+                            <li>✅ PD + gravity compensation</li>
+                            <li>✅ Computed torque derivation</li>
+                            <li>✅ Gain selection via pole placement</li>
+                            <li>✅ Lyapunov stability proof</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h4>💻 Implementation</h4>
+                        <ul style="font-size: 0.95em;">
+                            <li>✅ MATLAB ODE45 simulation</li>
+                            <li>✅ Building \(M\), \(C\), \(G\) in code</li>
+                            <li>✅ Tracking &amp; error plots</li>
+                            <li>✅ Controller comparison</li>
+                            <li>✅ Gain tuning experiments</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h4>🛡️ Robustness</h4>
+                        <ul style="font-size: 0.95em;">
+                            <li>✅ Payload mismatch analysis</li>
+                            <li>✅ Unmodelled friction effects</li>
+                            <li>✅ Disturbance rejection</li>
+                            <li>✅ Bounded error guarantees</li>
+                            <li>✅ Gain–robustness trade-off</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Key Equations to Remember</h3>
+                <table>
+                    <tr><th>Equation</th><th>Description</th></tr>
+                    <tr><td>\(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\)</td><td>Robot dynamics (Euler–Lagrange)</td></tr>
+                    <tr><td>\(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\)</td><td>Computed torque control law</td></tr>
+                    <tr><td>\(\ddot{e} + K_D\dot{e} + K_P e = 0\)</td><td>Closed-loop error dynamics (perfect model)</td></tr>
+                    <tr><td>\(V = \tfrac{1}{2}\dot{e}^T M \dot{e} + \tfrac{1}{2}e^T K_P e\)</td><td>Lyapunov function</td></tr>
+                    <tr><td>\(\dot{V} = -\dot{e}^T K_D \dot{e} \leq 0\)</td><td>Lyapunov derivative (guarantees stability)</td></tr>
+                </table>
+            </div>
+
+            <!-- ============================================================ -->
+            <!--  NEXT WEEK                                                     -->
+            <!-- ============================================================ -->
+
+            <div class="section timeline">
+                <h2>🚀 Next Week: Advanced Control Techniques</h2>
+
+                <div class="info">
+                    <strong>Building on this week's foundation, we will cover:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>📐 Adaptive control — automatically estimating \(M, C, G\) online</li>
+                        <li>🛡️ Sliding mode control — guaranteed robustness despite bounded uncertainties</li>
+                        <li>🤖 Task-space (operational space) control</li>
+                        <li>🔄 Impedance and force control for contact tasks</li>
+                    </ul>
+                </div>
+
+                <h3>Preparation for Next Lecture</h3>
+                <ul>
+                    <li>Complete all MATLAB activities from today and save your scripts</li>
+                    <li>Review Lyapunov stability theory (especially LaSalle's invariance principle)</li>
+                    <li>Read about sliding mode control fundamentals</li>
+                    <li>Think about: <em>"If I don't know \(m_2\), how could the controller learn it during operation?"</em></li>
+                </ul>
+
+                <div class="success">
+                    <strong>✅ Skills Achieved Today:</strong> You can now derive manipulator dynamics, design and implement a computed torque controller, prove its stability using Lyapunov theory, and analyse its robustness to model uncertainties — the foundational skill set for all advanced robot control!
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Control for Robots</strong></p>
+            <p>Advanced Robotics Programme | Academic Year 2025–26</p>
+            <p>Week 1: Manipulator Dynamics &amp; Control Design</p>
+            <p style="margin-top: 20px; font-size: 0.9em;">
+                This lecture material is for educational use only.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

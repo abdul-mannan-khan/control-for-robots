@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 11: Control Systems - PID to MPC</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .page { width: 21cm; min-height: 29.7cm; padding: 2cm; margin: 20px auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); page-break-after: always; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        h2 { color: #667eea; border-bottom: 3px solid #764ba2; padding-bottom: 10px; margin: 30px 0 20px 0; font-size: 1.8em; }
+        h3 { color: #764ba2; margin: 25px 0 15px 0; font-size: 1.4em; }
+        h4 { color: #667eea; margin: 20px 0 10px 0; font-size: 1.2em; }
+        .info-box { background: #e8f4f8; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff4e6; border-left: 5px solid #ff9800; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .activity-box { background: #f0f8ff; border: 3px solid #4CAF50; padding: 25px; margin: 30px 0; border-radius: 10px; }
+        .activity-box h3 { color: #4CAF50; margin-top: 0; }
+        .image-container { text-align: center; margin: 30px 0; }
+        .image-container img { max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .image-caption { font-style: italic; color: #666; margin-top: 10px; font-size: 0.9em; }
+        ul, ol { margin: 15px 0 15px 30px; }
+        li { margin: 8px 0; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .two-column > * { min-width: 0; overflow: hidden; }
+        .three-column { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .three-column > * { min-width: 0; overflow: hidden; }
+        .checklist { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .checklist li { list-style: none; padding: 8px 0; }
+        .checklist li:before { content: "\2713 "; color: #4CAF50; font-weight: bold; margin-right: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; table-layout: fixed; word-wrap: break-word; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #667eea; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        td code { word-break: break-all; }
+        .diagram { border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin: 20px 0; background: white; }
+        .flow-step { background: #667eea; color: white; padding: 15px; margin: 10px 0; border-radius: 8px; text-align: center; font-weight: bold; }
+        .arrow { text-align: center; font-size: 2em; color: #764ba2; margin: 5px 0; }
+        .tip { background: #fffbea; border-left: 5px solid #ffd700; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .tip:before { content: "\1F4A1 TIP: "; font-weight: bold; color: #ff9800; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; word-break: break-all; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-wrap: break-word; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.5; }
+        .example-box { background: #f0fff0; border: 2px dashed #4CAF50; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .math { padding: 15px; margin: 15px 0; border-radius: 5px; overflow-x: auto; max-width: 100%; }
+        .sensor-card { background: white; border: 2px solid #667eea; border-radius: 10px; padding: 20px; text-align: center; }
+        .sensor-card h4 { color: #667eea; margin-bottom: 10px; }
+        img { max-width: 100%; height: auto; }
+        svg { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: TITLE ===== -->
+<div class="page">
+    <div class="header">
+        <h1>Control Systems: PID to MPC</h1>
+        <p>Week 11 - TC70045E Robotics &amp; Drone Engineering</p>
+        <p>Dr. Abdul Manan Khan</p>
+        <p style="margin-top: 15px; font-size: 0.9em;">From Classical Feedback to Optimal Predictive Control</p>
+    </div>
+
+    <div style="background:#e8f5e9; border-left:5px solid #388e3c; padding:15px 20px; margin:20px 0; border-radius:6px;">
+        <strong style="color:#1b5e20;">Connection to Week 8 — Nonlinear Control Optimization.</strong>
+        <p style="margin-top:8px;">This package introduces <em>linear</em> optimal control (LQR, LQG, linear MPC) as the ROS2 building blocks. Week 8 extends every idea here to the nonlinear case:</p>
+        <ul style="margin-top:6px;">
+            <li><strong>LQR &rarr; iLQR</strong>: linear Riccati becomes a Gauss-Newton Riccati on a current-iterate trajectory; handles the full nonlinear robot dynamics \(M(q)\ddot q + C\dot q + G = \tau\).</li>
+            <li><strong>LQG (LQR+KF) &rarr; NMPC + matched estimator</strong>: the controller-estimator pairing is preserved but the estimator can be EKF/UKF (unimodal) or particle filter (multimodal), matching the dynamics and sensor-noise structure.</li>
+            <li><strong>Linear MPC &rarr; NMPC via iLQR</strong>: same receding-horizon idea, but the inner NLP is solved by iLQR rather than a QP. See the new node <code>w11_exercises/task_nmpc_node.py</code>.</li>
+            <li><strong>Meta-use</strong>: Week 8 also shows that the same optimization framework tunes the gains of non-optimal controllers (SMC \(\lambda,\phi,\eta\); adaptive \(\Gamma,\sigma\); robust \(K_p,K_d,\rho,\Lambda\); backstepping \(k_1,\ldots,k_n\)) via min-max / Bayesian search.</li>
+        </ul>
+    </div>
+
+    <div class="image-container">
+        <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gPID" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1"/>
+                </linearGradient>
+            </defs>
+            <rect x="10" y="40" width="130" height="60" rx="10" fill="#667eea" opacity="0.8"/>
+            <text x="75" y="75" text-anchor="middle" fill="white" font-size="16" font-weight="bold">PID</text>
+            <text x="75" y="92" text-anchor="middle" fill="white" font-size="10">Classical</text>
+            <line x1="140" y1="70" x2="180" y2="70" stroke="#764ba2" stroke-width="3" marker-end="url(#arrowhead)"/>
+            <rect x="180" y="40" width="130" height="60" rx="10" fill="#764ba2" opacity="0.8"/>
+            <text x="245" y="75" text-anchor="middle" fill="white" font-size="16" font-weight="bold">State-Space</text>
+            <text x="245" y="92" text-anchor="middle" fill="white" font-size="10">Modern</text>
+            <line x1="310" y1="70" x2="350" y2="70" stroke="#764ba2" stroke-width="3"/>
+            <rect x="350" y="40" width="130" height="60" rx="10" fill="#4CAF50" opacity="0.8"/>
+            <text x="415" y="75" text-anchor="middle" fill="white" font-size="16" font-weight="bold">LQR / LQG</text>
+            <text x="415" y="92" text-anchor="middle" fill="white" font-size="10">Optimal</text>
+            <line x1="480" y1="70" x2="520" y2="70" stroke="#764ba2" stroke-width="3"/>
+            <rect x="520" y="40" width="150" height="60" rx="10" fill="#ff5722" opacity="0.8"/>
+            <text x="595" y="75" text-anchor="middle" fill="white" font-size="16" font-weight="bold">MPC</text>
+            <text x="595" y="92" text-anchor="middle" fill="white" font-size="10">Predictive</text>
+            <rect x="10" y="140" width="660" height="100" rx="10" fill="#f5f5f5" stroke="#667eea" stroke-width="2"/>
+            <text x="340" y="170" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Control Complexity vs Capability</text>
+            <rect x="30" y="190" width="100" height="30" rx="5" fill="#667eea" opacity="0.4"/>
+            <rect x="30" y="190" width="200" height="30" rx="5" fill="#764ba2" opacity="0.3"/>
+            <rect x="30" y="190" width="400" height="30" rx="5" fill="#4CAF50" opacity="0.2"/>
+            <rect x="30" y="190" width="620" height="30" rx="5" fill="#ff5722" opacity="0.15"/>
+            <text x="80" y="210" text-anchor="middle" fill="#333" font-size="11">Simple</text>
+            <text x="340" y="210" text-anchor="middle" fill="#333" font-size="11">Moderate</text>
+            <text x="600" y="210" text-anchor="middle" fill="#333" font-size="11">Advanced + Constraints</text>
+        </svg>
+        <div class="image-caption">Figure 1: Evolution of control system design for drones</div>
+    </div>
+
+    <div class="info-box">
+        <h3>Module Information</h3>
+        <ul>
+            <li><strong>Module Code:</strong> TC70045E</li>
+            <li><strong>Week:</strong> 11 of 12</li>
+            <li><strong>Prerequisites:</strong> Week 6 (Quadrotor Dynamics), Linear Algebra, Calculus</li>
+            <li><strong>Lab:</strong> 7 tasks covering PID analysis through full MPC implementation</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ===== PAGE 2: LEARNING OBJECTIVES ===== -->
+<div class="page">
+    <h2>Learning Objectives</h2>
+    <p>By the end of this week, you will be able to:</p>
+    <ol>
+        <li><strong>Analyze</strong> PID controllers: tuning methods, frequency response, limitations</li>
+        <li><strong>Formulate</strong> systems in state-space form and assess controllability/observability</li>
+        <li><strong>Design</strong> state-feedback controllers via pole placement and Ackermann's formula</li>
+        <li><strong>Derive</strong> LQR controllers by solving the algebraic Riccati equation</li>
+        <li><strong>Implement</strong> Model Predictive Control with constraints using optimization</li>
+        <li><strong>Compare</strong> PID, LQR, and MPC on quadrotor control tasks</li>
+        <li><strong>Integrate</strong> advanced controllers with the ROS2 control framework</li>
+    </ol>
+
+    <h2>Control Systems Hierarchy</h2>
+    <div class="image-container">
+        <svg viewBox="0 0 650 350" xmlns="http://www.w3.org/2000/svg">
+            <rect x="200" y="10" width="250" height="50" rx="8" fill="#ff5722"/>
+            <text x="325" y="40" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Mission Planning</text>
+            <line x1="325" y1="60" x2="325" y2="80" stroke="#333" stroke-width="2"/>
+            <rect x="200" y="80" width="250" height="50" rx="8" fill="#ff9800"/>
+            <text x="325" y="110" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Path Planning (Week 8-9)</text>
+            <line x1="325" y1="130" x2="325" y2="150" stroke="#333" stroke-width="2"/>
+            <rect x="200" y="150" width="250" height="50" rx="8" fill="#4CAF50"/>
+            <text x="325" y="180" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Trajectory Control (This Week)</text>
+            <line x1="325" y1="200" x2="325" y2="220" stroke="#333" stroke-width="2"/>
+            <rect x="200" y="220" width="250" height="50" rx="8" fill="#667eea"/>
+            <text x="325" y="250" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Attitude Control (Week 6)</text>
+            <line x1="325" y1="270" x2="325" y2="290" stroke="#333" stroke-width="2"/>
+            <rect x="200" y="290" width="250" height="50" rx="8" fill="#764ba2"/>
+            <text x="325" y="320" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Motor/ESC Commands</text>
+            <text x="100" y="40" text-anchor="middle" fill="#666" font-size="11">~0.1 Hz</text>
+            <text x="100" y="110" text-anchor="middle" fill="#666" font-size="11">~1 Hz</text>
+            <text x="100" y="180" text-anchor="middle" fill="#666" font-size="11">~50 Hz</text>
+            <text x="100" y="250" text-anchor="middle" fill="#666" font-size="11">~250 Hz</text>
+            <text x="100" y="320" text-anchor="middle" fill="#666" font-size="11">~500 Hz</text>
+            <text x="560" y="110" text-anchor="middle" fill="#666" font-size="11">Waypoints</text>
+            <text x="560" y="180" text-anchor="middle" fill="#666" font-size="11">Positions</text>
+            <text x="560" y="250" text-anchor="middle" fill="#666" font-size="11">Attitudes</text>
+            <text x="560" y="320" text-anchor="middle" fill="#666" font-size="11">PWM</text>
+        </svg>
+        <div class="image-caption">Figure 2: Drone control hierarchy - this week focuses on trajectory and position control</div>
+    </div>
+
+    <div class="warning-box">
+        <h4>Why Advanced Control Matters for Drones</h4>
+        <p>PID controllers work for basic hover, but <strong>fail</strong> for:</p>
+        <ul>
+            <li>Aggressive maneuvers near actuator limits (constraints)</li>
+            <li>Precise trajectory tracking (no prediction/preview)</li>
+            <li>Multi-variable coupling (MIMO systems)</li>
+            <li>Optimal energy usage for long-endurance flights</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ===== PAGE 3: PID REVIEW ===== -->
+<div class="page">
+    <h2>Review: PID Control</h2>
+
+    <p>The Proportional-Integral-Derivative (PID) controller is the most widely used feedback controller in industry. Over 90% of industrial control loops use some form of PID.</p>
+
+    <h3>PID Transfer Function</h3>
+    <div class="math">
+        \[ C(s) = K_p + \frac{K_i}{s} + K_d s = K_p \left(1 + \frac{1}{T_i s} + T_d s\right) \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( C(s) \) — controller transfer function in the Laplace domain</li>
+        <li>\( K_p \) — proportional gain</li>
+        <li>\( K_i \) — integral gain</li>
+        <li>\( K_d \) — derivative gain</li>
+        <li>\( T_i = K_p / K_i \) — integral time constant</li>
+        <li>\( T_d = K_d / K_p \) — derivative time constant</li>
+        <li>\( s \) — Laplace variable</li>
+    </ul>
+
+    <p>In the time domain, the control output is:</p>
+    <div class="math">
+        \[ u(t) = K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d \frac{de(t)}{dt} \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( u(t) \) — control output signal</li>
+        <li>\( e(t) \) — tracking error (reference minus measured output)</li>
+    </ul>
+
+    <h3>The Three Terms</h3>
+    <div class="three-column">
+        <div class="sensor-card">
+            <h4>P - Proportional</h4>
+            <p>Reacts to <strong>present</strong> error</p>
+            <p>\( u_P = K_p \cdot e(t) \)</p>
+            <p>Higher \(K_p\) = faster but more oscillatory</p>
+        </div>
+        <div class="sensor-card">
+            <h4>I - Integral</h4>
+            <p>Eliminates <strong>past</strong> (steady-state) error</p>
+            <p>\( u_I = K_i \int e(\tau)\,d\tau \)</p>
+            <p>Higher \(K_i\) = zero SS error but can windup</p>
+        </div>
+        <div class="sensor-card">
+            <h4>D - Derivative</h4>
+            <p>Anticipates <strong>future</strong> error trend</p>
+            <p>\( u_D = K_d \frac{de}{dt} \)</p>
+            <p>Higher \(K_d\) = damping but amplifies noise</p>
+        </div>
+    </div>
+
+    <h3>PID Block Diagram</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 650 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="80" cy="100" r="20" fill="none" stroke="#333" stroke-width="2"/>
+            <text x="80" y="105" text-anchor="middle" font-size="18">+</text>
+            <text x="68" y="125" font-size="12">-</text>
+            <text x="20" y="105" font-size="13" font-weight="bold">r(t)</text>
+            <line x1="40" y1="100" x2="60" y2="100" stroke="#333" stroke-width="2" marker-end="url(#ah)"/>
+            <text x="120" y="95" font-size="12" fill="#667eea">e(t)</text>
+            <line x1="100" y1="100" x2="150" y2="100" stroke="#333" stroke-width="2"/>
+            <rect x="150" y="75" width="120" height="50" rx="5" fill="#667eea"/>
+            <text x="210" y="98" text-anchor="middle" fill="white" font-size="13">PID Controller</text>
+            <text x="210" y="113" text-anchor="middle" fill="white" font-size="10">C(s)</text>
+            <line x1="270" y1="100" x2="320" y2="100" stroke="#333" stroke-width="2"/>
+            <text x="295" y="95" font-size="12" fill="#4CAF50">u(t)</text>
+            <rect x="320" y="75" width="120" height="50" rx="5" fill="#4CAF50"/>
+            <text x="380" y="98" text-anchor="middle" fill="white" font-size="13">Plant</text>
+            <text x="380" y="113" text-anchor="middle" fill="white" font-size="10">G(s)</text>
+            <line x1="440" y1="100" x2="550" y2="100" stroke="#333" stroke-width="2"/>
+            <text x="560" y="95" font-size="13" font-weight="bold">y(t)</text>
+            <line x1="500" y1="100" x2="500" y2="170" stroke="#333" stroke-width="2"/>
+            <line x1="500" y1="170" x2="80" y2="170" stroke="#333" stroke-width="2"/>
+            <line x1="80" y1="170" x2="80" y2="120" stroke="#333" stroke-width="2"/>
+        </svg>
+        <div class="image-caption">Figure 3: Standard PID feedback control loop</div>
+    </div>
+
+    <div class="info-box">
+        <h4>Discrete-Time PID Implementation</h4>
+<pre>
+# Standard discrete PID with anti-windup
+e = reference - measurement
+P = Kp * e
+integral += e * dt
+integral = clamp(integral, -limit, limit)  # Anti-windup
+I = Ki * integral
+derivative = (e - prev_e) / dt
+D = Kd * alpha * derivative + (1-alpha) * prev_D  # Filter
+u = clamp(P + I + D, u_min, u_max)
+</pre>
+    </div>
+</div>
+
+<!-- ===== PAGE 4: PID TUNING ===== -->
+<div class="page">
+    <h2>PID Tuning Methods</h2>
+
+    <h3>Ziegler-Nichols Method</h3>
+    <p>The classic heuristic tuning method. Increase \(K_p\) until sustained oscillation (ultimate gain \(K_u\)) at ultimate period \(T_u\).</p>
+
+    <table>
+        <tr><th>Controller</th><th>\(K_p\)</th><th>\(T_i\)</th><th>\(T_d\)</th></tr>
+        <tr><td>P</td><td>\(0.5 K_u\)</td><td>-</td><td>-</td></tr>
+        <tr><td>PI</td><td>\(0.45 K_u\)</td><td>\(T_u / 1.2\)</td><td>-</td></tr>
+        <tr><td>PID</td><td>\(0.6 K_u\)</td><td>\(T_u / 2\)</td><td>\(T_u / 8\)</td></tr>
+    </table>
+
+    <p>Where \(K_i = K_p / T_i\) and \(K_d = K_p \cdot T_d\).</p>
+
+    <h3>Cohen-Coon Method</h3>
+    <p>Uses the process reaction curve (step response). Fit a first-order plus dead-time model: \(G(s) \approx \frac{K \cdot e^{-\theta s}}{\tau s + 1}\) and compute gains from \(K\), \(\tau\), \(\theta\).</p>
+
+    <h3>Relay Feedback Method</h3>
+    <p>Replace PID with a relay (on-off control). The system will oscillate. Measure \(K_u = \frac{4d}{\pi a}\) where \(d\) is relay amplitude and \(a\) is oscillation amplitude.</p>
+
+    <div class="image-container">
+        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+            <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">PID Tuning Effect on Step Response</text>
+            <line x1="50" y1="180" x2="580" y2="180" stroke="#333" stroke-width="1"/>
+            <line x1="50" y1="30" x2="50" y2="180" stroke="#333" stroke-width="1"/>
+            <text x="300" y="198" text-anchor="middle" font-size="11">Time</text>
+            <text x="30" y="105" text-anchor="middle" font-size="11" transform="rotate(-90, 30, 105)">Output</text>
+            <line x1="50" y1="100" x2="580" y2="100" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+            <!-- Under-damped -->
+            <path d="M50,180 C100,180 120,40 180,60 C220,70 230,110 260,95 C290,80 300,105 340,100 C380,95 420,102 580,100" fill="none" stroke="#ff5722" stroke-width="2"/>
+            <!-- Well-tuned -->
+            <path d="M50,180 C100,180 140,80 200,95 C240,102 260,98 300,100 C340,101 400,100 580,100" fill="none" stroke="#4CAF50" stroke-width="2"/>
+            <!-- Over-damped -->
+            <path d="M50,180 C100,180 200,140 300,115 C400,105 500,101 580,100" fill="none" stroke="#667eea" stroke-width="2"/>
+            <rect x="400" y="35" width="160" height="55" rx="5" fill="white" stroke="#ddd"/>
+            <line x1="410" y1="50" x2="435" y2="50" stroke="#ff5722" stroke-width="2"/>
+            <text x="440" y="54" font-size="11">Aggressive (high Kp)</text>
+            <line x1="410" y1="65" x2="435" y2="65" stroke="#4CAF50" stroke-width="2"/>
+            <text x="440" y="69" font-size="11">Well-tuned</text>
+            <line x1="410" y1="80" x2="435" y2="80" stroke="#667eea" stroke-width="2"/>
+            <text x="440" y="84" font-size="11">Conservative (low Kp)</text>
+        </svg>
+        <div class="image-caption">Figure 4: Effect of PID tuning on step response characteristics</div>
+    </div>
+
+    <div class="tip">
+        In practice, start with P-only control, then add I for steady-state accuracy, then D for damping. Always tune in this order.
+    </div>
+
+    <h3>Performance Specifications</h3>
+    <div class="two-column">
+        <div>
+            <ul>
+                <li><strong>Rise time (\(t_r\)):</strong> Time from 10% to 90% of final value</li>
+                <li><strong>Overshoot (\(M_p\)):</strong> Peak value above setpoint</li>
+                <li><strong>Settling time (\(t_s\)):</strong> Time to stay within 2% band</li>
+            </ul>
+        </div>
+        <div>
+            <ul>
+                <li><strong>Steady-state error (\(e_{ss}\)):</strong> Final offset from reference</li>
+                <li><strong>Gain margin:</strong> How much gain before instability</li>
+                <li><strong>Phase margin:</strong> Phase shift before instability</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 5: PID LIMITATIONS ===== -->
+<div class="page">
+    <h2>PID Limitations</h2>
+
+    <p>Despite its ubiquity, PID has fundamental limitations that motivate more advanced control methods.</p>
+
+    <h3>1. Integrator Windup</h3>
+    <p>When actuators saturate, the integral term continues accumulating, causing large overshoot when saturation ends.</p>
+    <div class="math">
+        \[ \text{Solution: Anti-windup} \quad \Rightarrow \quad \int_0^t e(\tau)\,d\tau = \text{clamp}\left(\int_0^t e(\tau)\,d\tau,\; I_{\min},\; I_{\max}\right) \]
+    </div>
+
+    <h3>2. Derivative Kick</h3>
+    <p>Step changes in reference cause infinite derivative. Solution: differentiate the process variable instead of error, or use a derivative filter:</p>
+    <div class="math">
+        \[ D(s) = \frac{K_d s}{1 + \frac{s}{N}} \quad \text{(filtered derivative, } N \approx 8\text{-}20\text{)} \]
+    </div>
+
+    <h3>3. No Constraint Handling</h3>
+    <p>PID has no way to <em>anticipate</em> constraints. It can only clip the output after the fact, leading to degraded performance.</p>
+
+    <h3>4. Single-Loop / SISO Only</h3>
+    <p>PID is designed for single-input single-output systems. For a quadrotor with coupled dynamics (4 inputs, 12 states), we need multiple PID loops that can interact poorly.</p>
+
+    <h3>5. No Model Knowledge / Prediction</h3>
+    <p>PID reacts to error -- it cannot <em>predict</em> future behavior or optimize over a horizon.</p>
+
+    <div class="image-container">
+        <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+            <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">PID vs Advanced Control Capability</text>
+            <rect x="50" y="40" width="500" height="200" rx="5" fill="#f9f9f9" stroke="#ddd"/>
+            <!-- Axes -->
+            <text x="300" y="55" text-anchor="middle" font-size="12" fill="#333">Capability Comparison</text>
+            <!-- Bars -->
+            <text x="145" y="80" text-anchor="end" font-size="10">SISO setpoint</text>
+            <rect x="150" y="70" width="350" height="15" rx="3" fill="#667eea" opacity="0.7"/>
+            <rect x="150" y="70" width="360" height="15" rx="3" fill="#4CAF50" opacity="0.3"/>
+            <text x="145" y="105" text-anchor="end" font-size="10">MIMO coupling</text>
+            <rect x="150" y="95" width="100" height="15" rx="3" fill="#667eea" opacity="0.7"/>
+            <rect x="150" y="95" width="340" height="15" rx="3" fill="#4CAF50" opacity="0.3"/>
+            <text x="145" y="130" text-anchor="end" font-size="10">Constraints</text>
+            <rect x="150" y="120" width="50" height="15" rx="3" fill="#667eea" opacity="0.7"/>
+            <rect x="150" y="120" width="350" height="15" rx="3" fill="#4CAF50" opacity="0.3"/>
+            <text x="145" y="155" text-anchor="end" font-size="10">Prediction</text>
+            <rect x="150" y="145" width="30" height="15" rx="3" fill="#667eea" opacity="0.7"/>
+            <rect x="150" y="145" width="330" height="15" rx="3" fill="#4CAF50" opacity="0.3"/>
+            <text x="145" y="180" text-anchor="end" font-size="10">Optimality</text>
+            <rect x="150" y="170" width="20" height="15" rx="3" fill="#667eea" opacity="0.7"/>
+            <rect x="150" y="170" width="300" height="15" rx="3" fill="#4CAF50" opacity="0.3"/>
+            <text x="145" y="205" text-anchor="end" font-size="10">Simplicity</text>
+            <rect x="150" y="195" width="370" height="15" rx="3" fill="#667eea" opacity="0.7"/>
+            <rect x="150" y="195" width="150" height="15" rx="3" fill="#4CAF50" opacity="0.3"/>
+            <rect x="350" y="215" width="15" height="10" fill="#667eea" opacity="0.7"/>
+            <text x="370" y="225" font-size="10">PID</text>
+            <rect x="420" y="215" width="15" height="10" fill="#4CAF50" opacity="0.3"/>
+            <text x="440" y="225" font-size="10">MPC</text>
+        </svg>
+        <div class="image-caption">Figure 5: PID excels at simplicity but lacks constraint handling and prediction</div>
+    </div>
+
+    <div class="warning-box">
+        <h4>When PID Is Not Enough</h4>
+        <p>For drone applications requiring aggressive maneuvers, tight trajectory tracking, or operation near physical limits, we need state-space methods (LQR) or predictive control (MPC).</p>
+    </div>
+</div>
+
+<!-- ===== PAGE 6: STATE-SPACE ===== -->
+<div class="page">
+    <h2>State-Space Representation</h2>
+
+    <p>The state-space approach provides a unified framework for modeling, analysis, and control of multi-variable systems.</p>
+
+    <h3>Continuous-Time State Equations</h3>
+    <div class="math">
+        \[ \dot{\mathbf{x}}(t) = \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t) \]
+        \[ \mathbf{y}(t) = \mathbf{C}\mathbf{x}(t) + \mathbf{D}\mathbf{u}(t) \]
+    </div>
+
+    <p>where:</p>
+    <ul>
+        <li>\(\mathbf{x} \in \mathbb{R}^n\) -- state vector</li>
+        <li>\(\mathbf{u} \in \mathbb{R}^m\) -- input vector</li>
+        <li>\(\mathbf{y} \in \mathbb{R}^p\) -- output vector</li>
+        <li>\(\mathbf{A} \in \mathbb{R}^{n \times n}\) -- system/dynamics matrix</li>
+        <li>\(\mathbf{B} \in \mathbb{R}^{n \times m}\) -- input matrix</li>
+        <li>\(\mathbf{C} \in \mathbb{R}^{p \times n}\) -- output matrix</li>
+        <li>\(\mathbf{D} \in \mathbb{R}^{p \times m}\) -- feedthrough matrix (often zero)</li>
+    </ul>
+
+    <h3>State-Space Block Diagram</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="110" r="15" fill="none" stroke="#333" stroke-width="2"/>
+            <text x="100" y="115" text-anchor="middle" font-size="14">+</text>
+            <text x="30" y="115" font-size="13" font-weight="bold">u</text>
+            <line x1="50" y1="110" x2="85" y2="110" stroke="#333" stroke-width="2"/>
+            <rect x="140" y="90" width="80" height="40" rx="5" fill="#667eea"/>
+            <text x="180" y="115" text-anchor="middle" fill="white" font-size="13">B</text>
+            <line x1="115" y1="110" x2="140" y2="110" stroke="#333" stroke-width="2"/>
+            <circle cx="260" cy="110" r="15" fill="none" stroke="#333" stroke-width="2"/>
+            <text x="260" y="115" text-anchor="middle" font-size="14">+</text>
+            <line x1="220" y1="110" x2="245" y2="110" stroke="#333" stroke-width="2"/>
+            <rect x="300" y="90" width="80" height="40" rx="5" fill="#4CAF50"/>
+            <text x="340" y="112" text-anchor="middle" fill="white" font-size="12">\(\int\)</text>
+            <line x1="275" y1="110" x2="300" y2="110" stroke="#333" stroke-width="2"/>
+            <line x1="380" y1="110" x2="420" y2="110" stroke="#333" stroke-width="2"/>
+            <text x="400" y="100" font-size="12" fill="#764ba2" font-weight="bold">x</text>
+            <rect x="420" y="90" width="80" height="40" rx="5" fill="#764ba2"/>
+            <text x="460" y="115" text-anchor="middle" fill="white" font-size="13">C</text>
+            <line x1="500" y1="110" x2="570" y2="110" stroke="#333" stroke-width="2"/>
+            <text x="575" y="115" font-size="13" font-weight="bold">y</text>
+            <!-- A feedback -->
+            <line x1="400" y1="110" x2="400" y2="190" stroke="#333" stroke-width="2"/>
+            <rect x="220" y="170" width="80" height="40" rx="5" fill="#ff5722"/>
+            <text x="260" y="195" text-anchor="middle" fill="white" font-size="13">A</text>
+            <line x1="400" y1="190" x2="300" y2="190" stroke="#333" stroke-width="2"/>
+            <line x1="220" y1="190" x2="260" y2="190" stroke="#333" stroke-width="1"/>
+            <line x1="260" y1="170" x2="260" y2="125" stroke="#333" stroke-width="2"/>
+        </svg>
+        <div class="image-caption">Figure 6: State-space block diagram showing A, B, C matrices and integrator</div>
+    </div>
+
+    <h3>Controllability and Observability</h3>
+    <div class="two-column">
+        <div class="info-box">
+            <h4>Controllability</h4>
+            <p>Can we drive any state to any other state using inputs?</p>
+            <div class="math">
+                \[ \mathcal{C} = \begin{bmatrix} \mathbf{B} & \mathbf{AB} & \mathbf{A}^2\mathbf{B} & \cdots & \mathbf{A}^{n-1}\mathbf{B} \end{bmatrix} \]
+            </div>
+            <p>Controllable if \(\text{rank}(\mathcal{C}) = n\)</p>
+        </div>
+        <div class="info-box">
+            <h4>Observability</h4>
+            <p>Can we determine all states from outputs?</p>
+            <div class="math">
+                \[ \mathcal{O} = \begin{bmatrix} \mathbf{C} \\ \mathbf{CA} \\ \vdots \\ \mathbf{CA}^{n-1} \end{bmatrix} \]
+            </div>
+            <p>Observable if \(\text{rank}(\mathcal{O}) = n\)</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 7: POLE PLACEMENT ===== -->
+<div class="page">
+    <h2>Pole Placement</h2>
+
+    <p>State feedback \(\mathbf{u} = -\mathbf{K}\mathbf{x}\) can place the closed-loop eigenvalues at any desired locations (if the system is controllable).</p>
+
+    <h3>Closed-Loop Dynamics</h3>
+    <div class="math">
+        \[ \dot{\mathbf{x}} = (\mathbf{A} - \mathbf{B}\mathbf{K})\mathbf{x} = \mathbf{A}_{cl}\mathbf{x} \]
+    </div>
+
+    <p>Choose \(\mathbf{K}\) such that eigenvalues of \(\mathbf{A}_{cl}\) are at desired locations \(\{s_1, s_2, \ldots, s_n\}\).</p>
+
+    <h3>Ackermann's Formula (SISO)</h3>
+    <div class="math">
+        \[ \mathbf{K} = \begin{bmatrix} 0 & 0 & \cdots & 1 \end{bmatrix} \mathcal{C}^{-1} \phi_d(\mathbf{A}) \]
+    </div>
+    <p>where \(\phi_d(s) = (s - s_1)(s - s_2)\cdots(s - s_n)\) is the desired characteristic polynomial evaluated at \(\mathbf{A}\).</p>
+
+    <h3>Design from Specifications</h3>
+    <p>Second-order dominant pole approximation:</p>
+    <div class="math">
+        \[ s_{1,2} = -\zeta\omega_n \pm j\omega_n\sqrt{1 - \zeta^2} \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( s_{1,2} \) — desired closed-loop pole locations</li>
+        <li>\( \zeta \) — damping ratio (controls overshoot)</li>
+        <li>\( \omega_n \) — natural frequency (controls speed of response)</li>
+    </ul>
+
+    <table>
+        <tr><th>Specification</th><th>Relation to \(\zeta, \omega_n\)</th></tr>
+        <tr><td>Settling time \(t_s \approx \frac{4}{\zeta\omega_n}\)</td><td>Determines \(\sigma = \zeta\omega_n\)</td></tr>
+        <tr><td>Overshoot \(M_p = e^{-\pi\zeta/\sqrt{1-\zeta^2}}\)</td><td>Determines \(\zeta\)</td></tr>
+        <tr><td>Rise time \(t_r \approx \frac{1.8}{\omega_n}\)</td><td>Determines \(\omega_n\)</td></tr>
+    </table>
+
+    <h3>Stability Regions in the S-Plane</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="250" height="300" fill="#e8f5e9" opacity="0.5"/>
+            <text x="125" y="20" text-anchor="middle" font-size="12" fill="#4CAF50">Stable Region</text>
+            <rect x="250" y="0" width="250" height="300" fill="#ffebee" opacity="0.5"/>
+            <text x="375" y="20" text-anchor="middle" font-size="12" fill="#f44336">Unstable Region</text>
+            <line x1="250" y1="0" x2="250" y2="300" stroke="#333" stroke-width="2"/>
+            <line x1="0" y1="150" x2="500" y2="150" stroke="#333" stroke-width="1"/>
+            <text x="490" y="145" font-size="11">Re</text>
+            <text x="255" y="15" font-size="11">Im</text>
+            <!-- Constant damping lines -->
+            <line x1="250" y1="150" x2="80" y2="30" stroke="#999" stroke-width="1" stroke-dasharray="4,4"/>
+            <text x="100" y="40" font-size="9" fill="#999">\(\zeta\)=0.5</text>
+            <line x1="250" y1="150" x2="130" y2="30" stroke="#999" stroke-width="1" stroke-dasharray="4,4"/>
+            <text x="148" y="40" font-size="9" fill="#999">\(\zeta\)=0.7</text>
+            <!-- Example poles -->
+            <text x="170" y="120" font-size="20" fill="red">x</text>
+            <text x="170" y="190" font-size="20" fill="red">x</text>
+            <text x="155" y="110" font-size="10">-2+2j</text>
+            <text x="155" y="205" font-size="10">-2-2j</text>
+        </svg>
+        <div class="image-caption">Figure 7: S-plane showing stability boundary, damping ratio lines, and example pole locations</div>
+    </div>
+
+    <div class="activity-box">
+        <h3>Activity 1: Pole Placement Design</h3>
+        <p>Given a double integrator \(\ddot{x} = u\), design state feedback \(u = -\mathbf{K}\mathbf{x}\) to achieve settling time &lt; 2s and overshoot &lt; 10%. What are the desired pole locations? Compute \(\mathbf{K}\).</p>
+        <p><strong>Hint:</strong> \(M_p &lt; 10\% \Rightarrow \zeta &gt; 0.59\), \(t_s &lt; 2\text{s} \Rightarrow \zeta\omega_n &gt; 2\)</p>
+    </div>
+</div>
+
+<!-- ===== PAGE 8: LQR ===== -->
+<div class="page">
+    <h2>Linear Quadratic Regulator (LQR)</h2>
+
+    <p>LQR provides the <strong>optimal</strong> state feedback gain that minimizes a quadratic cost function. It is the most important result in linear optimal control.</p>
+
+    <h3>Cost Function</h3>
+    <div class="math">
+        \[ J = \int_0^{\infty} \left[ \mathbf{x}^T \mathbf{Q} \mathbf{x} + \mathbf{u}^T \mathbf{R} \mathbf{u} \right] dt \]
+    </div>
+    <p>where \(\mathbf{Q} \succeq 0\) penalizes state deviation and \(\mathbf{R} \succ 0\) penalizes control effort.</p>
+
+    <h3>Optimal Control Law</h3>
+    <div class="math">
+        \[ \mathbf{u}^*(t) = -\mathbf{K}\mathbf{x}(t) = -\mathbf{R}^{-1}\mathbf{B}^T\mathbf{P}\mathbf{x}(t) \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( \mathbf{K} \) — optimal state feedback gain matrix</li>
+        <li>\( \mathbf{P} \) — positive-definite solution of the Riccati equation</li>
+        <li>\( \mathbf{A}, \mathbf{B} \) — system and input matrices from the state-space model</li>
+        <li>\( \mathbf{Q} \) — state weighting matrix (penalises state deviation)</li>
+        <li>\( \mathbf{R} \) — input weighting matrix (penalises control effort)</li>
+    </ul>
+
+    <h3>Continuous Algebraic Riccati Equation (CARE)</h3>
+    <p>\(\mathbf{P}\) is found by solving:</p>
+    <div class="math">
+        \[ \mathbf{A}^T\mathbf{P} + \mathbf{P}\mathbf{A} - \mathbf{P}\mathbf{B}\mathbf{R}^{-1}\mathbf{B}^T\mathbf{P} + \mathbf{Q} = \mathbf{0} \]
+    </div>
+
+    <p>The optimal cost from initial state \(\mathbf{x}_0\) is \(J^* = \mathbf{x}_0^T \mathbf{P} \mathbf{x}_0\).</p>
+
+    <h3>Derivation Sketch</h3>
+    <ol>
+        <li>Assume solution has form \(\mathbf{u} = -\mathbf{K}\mathbf{x}\), \(J = \mathbf{x}^T\mathbf{P}\mathbf{x}\)</li>
+        <li>Apply dynamic programming / calculus of variations</li>
+        <li>Hamilton-Jacobi-Bellman equation leads to CARE</li>
+        <li>Optimal gain: \(\mathbf{K} = \mathbf{R}^{-1}\mathbf{B}^T\mathbf{P}\)</li>
+    </ol>
+
+    <h3>Q/R Weight Selection</h3>
+    <div class="two-column">
+        <div class="info-box">
+            <h4>Large Q / Small R</h4>
+            <p>"Aggressive control" -- prioritize fast state convergence at the cost of large control inputs. High bandwidth.</p>
+        </div>
+        <div class="info-box">
+            <h4>Small Q / Large R</h4>
+            <p>"Conservative control" -- minimize actuator usage, accept slower convergence. Energy-efficient.</p>
+        </div>
+    </div>
+
+    <div class="tip">
+        A common starting point: \(Q_{ii} = 1/x_{i,\max}^2\) and \(R_{jj} = 1/u_{j,\max}^2\) where the max values represent acceptable deviations.
+    </div>
+
+    <h3>LQR Robustness Properties (SISO)</h3>
+    <ul>
+        <li><strong>Gain margin:</strong> at least 6 dB (factor of 2 in gain)</li>
+        <li><strong>Phase margin:</strong> at least 60 degrees</li>
+        <li>These are guaranteed for loop transfer recovery (LTR) designs</li>
+    </ul>
+</div>
+
+<!-- ===== PAGE 9: LQR FOR QUADROTORS ===== -->
+<div class="page">
+    <h2>LQR for Quadrotors</h2>
+
+    <h3>Linearized Quadrotor Model at Hover</h3>
+    <p>From Week 6, the 12-state linearized model about hover:</p>
+    <div class="math">
+        \[ \mathbf{x} = \begin{bmatrix} x & y & z & \dot{x} & \dot{y} & \dot{z} & \phi & \theta & \psi & p & q & r \end{bmatrix}^T \]
+    </div>
+    <div class="math">
+        \[ \mathbf{u} = \begin{bmatrix} \delta T & \delta\tau_\phi & \delta\tau_\theta & \delta\tau_\psi \end{bmatrix}^T \]
+    </div>
+
+    <p>Key linearized relationships:</p>
+    <div class="math">
+        \[ \ddot{x} \approx -g\theta, \quad \ddot{y} \approx g\phi, \quad \ddot{z} = \frac{\delta T}{m} \]
+    </div>
+
+    <h3>Q/R Design for Quadrotor</h3>
+    <div class="example-box">
+<pre>
+# Typical Q/R for quadrotor hover LQR
+Q = diag([50, 50, 100,    # position: x, y, z
+           1,  1,  10,    # velocity: vx, vy, vz
+          50, 50,  20,    # angles: phi, theta, psi
+           1,  1,   1])   # rates: p, q, r
+
+R = diag([1.0, 1.0, 1.0, 1.0])  # input costs
+
+# Solve CARE
+P = solve_continuous_are(A, B, Q, R)
+K = inv(R) @ B.T @ P  # 4 x 12 gain matrix
+</pre>
+    </div>
+
+    <h3>Hover Stabilization Results</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+            <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">LQR Quadrotor Hover Response</text>
+            <line x1="60" y1="180" x2="290" y2="180" stroke="#333" stroke-width="1"/>
+            <line x1="60" y1="30" x2="60" y2="180" stroke="#333" stroke-width="1"/>
+            <text x="175" y="198" text-anchor="middle" font-size="10">Time [s]</text>
+            <text x="50" y="105" font-size="10" transform="rotate(-90,50,105)">z [m]</text>
+            <path d="M60,50 C100,50 110,100 140,100 C160,100 170,98 200,100 C230,101 260,100 290,100" fill="none" stroke="#4CAF50" stroke-width="2"/>
+            <line x1="60" y1="100" x2="290" y2="100" stroke="#999" stroke-dasharray="3,3"/>
+            <text x="295" y="103" font-size="9" fill="#999">ref=0</text>
+            <line x1="330" y1="180" x2="560" y2="180" stroke="#333" stroke-width="1"/>
+            <line x1="330" y1="30" x2="330" y2="180" stroke="#333" stroke-width="1"/>
+            <text x="445" y="198" text-anchor="middle" font-size="10">Time [s]</text>
+            <text x="320" y="105" font-size="10" transform="rotate(-90,320,105)">phi [deg]</text>
+            <path d="M330,80 C350,80 360,105 380,100 C400,97 420,101 440,100 C460,99 500,100 560,100" fill="none" stroke="#667eea" stroke-width="2"/>
+            <line x1="330" y1="100" x2="560" y2="100" stroke="#999" stroke-dasharray="3,3"/>
+        </svg>
+        <div class="image-caption">Figure 8: LQR stabilizes quadrotor from perturbed hover -- smooth convergence without overshoot</div>
+    </div>
+
+    <div class="activity-box">
+        <h3>Activity 2: LQR Weight Tuning</h3>
+        <p>For a quadrotor that must hover within 5cm position accuracy but has limited battery (minimize thrust variations):</p>
+        <ol>
+            <li>What should \(Q_{zz}\) be relative to \(R_{TT}\)?</li>
+            <li>If we want fast yaw tracking for a camera drone, which \(Q\) element should be large?</li>
+            <li>For an energy-efficient survey drone, should \(R\) be large or small?</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ===== PAGE 10: LQG ===== -->
+<div class="page">
+    <h2>LQG: LQR + Kalman Filter</h2>
+
+    <p>In practice, we cannot measure all states directly. LQG combines LQR with a Kalman filter (Linear Quadratic Estimator) for output feedback.</p>
+
+    <h3>The Separation Principle</h3>
+    <p>The key result: we can design the controller (LQR) and the estimator (Kalman filter) <strong>independently</strong>, and the combined system is optimal.</p>
+
+    <div class="math">
+        \[ \text{LQG} = \text{LQR (control)} + \text{KF (estimation)} \]
+    </div>
+
+    <h3>Kalman Filter (State Observer)</h3>
+    <div class="math">
+        \[ \dot{\hat{\mathbf{x}}} = \mathbf{A}\hat{\mathbf{x}} + \mathbf{B}\mathbf{u} + \mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}}) \]
+    </div>
+    <p>where \(\mathbf{L}\) is the Kalman gain, found by solving a dual Riccati equation:</p>
+    <div class="math">
+        \[ \mathbf{A}\mathbf{S} + \mathbf{S}\mathbf{A}^T - \mathbf{S}\mathbf{C}^T \mathbf{V}^{-1} \mathbf{C}\mathbf{S} + \mathbf{W} = \mathbf{0} \]
+    </div>
+    <p>where \(\mathbf{W}\) is process noise covariance and \(\mathbf{V}\) is measurement noise covariance.</p>
+
+    <h3>LQG Block Diagram</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 650 280" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="630" height="260" rx="10" fill="#f9f9f9" stroke="#ddd"/>
+            <text x="325" y="35" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">LQG Controller Architecture</text>
+            <!-- Plant -->
+            <rect x="350" y="80" width="120" height="60" rx="8" fill="#4CAF50"/>
+            <text x="410" y="115" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Plant</text>
+            <!-- LQR -->
+            <rect x="160" y="80" width="120" height="60" rx="8" fill="#667eea"/>
+            <text x="220" y="108" text-anchor="middle" fill="white" font-size="13" font-weight="bold">LQR</text>
+            <text x="220" y="125" text-anchor="middle" fill="white" font-size="10">u = -K x_hat</text>
+            <!-- Kalman -->
+            <rect x="250" y="180" width="140" height="60" rx="8" fill="#764ba2"/>
+            <text x="320" y="205" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Kalman Filter</text>
+            <text x="320" y="222" text-anchor="middle" fill="white" font-size="10">x_hat</text>
+            <!-- Connections -->
+            <line x1="280" y1="110" x2="350" y2="110" stroke="#333" stroke-width="2"/>
+            <text x="315" y="100" font-size="11">u</text>
+            <line x1="470" y1="110" x2="560" y2="110" stroke="#333" stroke-width="2"/>
+            <text x="570" y="115" font-size="13" font-weight="bold">y</text>
+            <line x1="520" y1="110" x2="520" y2="210" stroke="#333" stroke-width="2"/>
+            <line x1="520" y1="210" x2="390" y2="210" stroke="#333" stroke-width="2"/>
+            <line x1="250" y1="210" x2="220" y2="210" stroke="#333" stroke-width="2"/>
+            <line x1="220" y1="210" x2="220" y2="140" stroke="#333" stroke-width="2"/>
+            <text x="200" y="180" font-size="11" fill="#764ba2">x_hat</text>
+            <!-- Reference -->
+            <text x="50" y="115" font-size="13" font-weight="bold">r</text>
+            <line x1="70" y1="110" x2="160" y2="110" stroke="#333" stroke-width="2"/>
+            <!-- u to Kalman -->
+            <line x1="315" y1="110" x2="315" y2="180" stroke="#333" stroke-width="1" stroke-dasharray="4,4"/>
+        </svg>
+        <div class="image-caption">Figure 9: LQG combines optimal state feedback (LQR) with optimal state estimation (Kalman Filter)</div>
+    </div>
+
+    <div class="info-box">
+        <h4>LQG for Drone Altitude Control</h4>
+        <p>Sensors: barometer (noisy, ~0.5m accuracy) + accelerometer (drifts). The Kalman filter fuses these to estimate [z, vz] accurately, then LQR computes optimal thrust.</p>
+    </div>
+</div>
+
+<!-- ===== PAGE 11: MPC INTRODUCTION ===== -->
+<div class="page">
+    <h2>Model Predictive Control (MPC) -- Introduction</h2>
+
+    <p>MPC is the most powerful control framework for constrained systems. It solves an optimization problem at each time step, using a model to predict future behavior.</p>
+
+    <h3>Core Idea: Receding Horizon</h3>
+    <ol>
+        <li>At time \(t\), use the model to <strong>predict</strong> future states over horizon \(N\)</li>
+        <li><strong>Optimize</strong> a sequence of future inputs \(\{u_0, u_1, \ldots, u_{N-1}\}\)</li>
+        <li>Apply <strong>only the first input</strong> \(u_0\)</li>
+        <li>Measure new state, <strong>repeat</strong> at next time step</li>
+    </ol>
+
+    <div class="image-container">
+        <svg viewBox="0 0 650 280" xmlns="http://www.w3.org/2000/svg">
+            <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">MPC Receding Horizon Concept</text>
+            <line x1="60" y1="240" x2="620" y2="240" stroke="#333" stroke-width="2"/>
+            <line x1="60" y1="40" x2="60" y2="240" stroke="#333" stroke-width="2"/>
+            <text x="340" y="268" text-anchor="middle" font-size="12">Time step k</text>
+            <text x="40" y="140" font-size="12" transform="rotate(-90,40,140)">State</text>
+            <!-- Reference line -->
+            <line x1="60" y1="100" x2="620" y2="100" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+            <text x="625" y="103" font-size="10" fill="#999">ref</text>
+            <!-- Current time marker -->
+            <line x1="200" y1="240" x2="200" y2="40" stroke="#ff5722" stroke-width="2" stroke-dasharray="3,3"/>
+            <text x="200" y="258" text-anchor="middle" font-size="11" fill="#ff5722">t (now)</text>
+            <!-- Past trajectory -->
+            <path d="M60,200 C100,200 130,170 160,140 C180,120 190,115 200,110" fill="none" stroke="#333" stroke-width="2"/>
+            <text x="120" y="215" font-size="10" fill="#333">Past (measured)</text>
+            <!-- Prediction horizon -->
+            <rect x="200" y="50" width="250" height="190" fill="#667eea" opacity="0.08"/>
+            <text x="325" y="70" text-anchor="middle" font-size="11" fill="#667eea">Prediction Horizon N</text>
+            <!-- Predicted trajectory -->
+            <path d="M200,110 C230,108 260,104 290,102 C320,101 350,100 380,100 C410,100 440,100 450,100" fill="none" stroke="#4CAF50" stroke-width="2.5"/>
+            <text x="350" y="90" font-size="10" fill="#4CAF50">Predicted (optimized)</text>
+            <!-- Control inputs -->
+            <line x1="200" y1="170" x2="230" y2="170" stroke="#667eea" stroke-width="4"/>
+            <line x1="230" y1="165" x2="260" y2="165" stroke="#667eea" stroke-width="4" opacity="0.7"/>
+            <line x1="260" y1="162" x2="290" y2="162" stroke="#667eea" stroke-width="4" opacity="0.5"/>
+            <line x1="290" y1="160" x2="320" y2="160" stroke="#667eea" stroke-width="4" opacity="0.3"/>
+            <text x="260" y="185" font-size="10" fill="#667eea">Optimal inputs (only first applied)</text>
+            <!-- Arrow showing "apply first" -->
+            <path d="M215,168 L215,150 L208,155 M215,150 L222,155" fill="none" stroke="#ff5722" stroke-width="2"/>
+            <text x="215" y="145" text-anchor="middle" font-size="9" fill="#ff5722">Apply u_0</text>
+        </svg>
+        <div class="image-caption">Figure 10: MPC solves an optimization at each step, applying only the first input and re-planning</div>
+    </div>
+
+    <h3>Why MPC?</h3>
+    <div class="two-column">
+        <div class="sensor-card">
+            <h4>Advantages</h4>
+            <ul style="text-align: left;">
+                <li>Handles constraints natively</li>
+                <li>MIMO systems naturally</li>
+                <li>Preview/prediction capability</li>
+                <li>Optimal performance</li>
+                <li>Systematic design procedure</li>
+            </ul>
+        </div>
+        <div class="sensor-card">
+            <h4>Challenges</h4>
+            <ul style="text-align: left;">
+                <li>Computational cost (solve QP each step)</li>
+                <li>Requires accurate model</li>
+                <li>Tuning: Q, R, N, constraints</li>
+                <li>Real-time feasibility</li>
+                <li>Stability guarantees need terminal cost</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 12: MPC FORMULATION ===== -->
+<div class="page">
+    <h2>MPC Formulation</h2>
+
+    <h3>Discrete-Time Prediction Model</h3>
+    <div class="math">
+        \[ \mathbf{x}_{k+1} = \mathbf{A}_d \mathbf{x}_k + \mathbf{B}_d \mathbf{u}_k \]
+    </div>
+
+    <h3>Cost Function</h3>
+    <div class="math">
+        \[ J = \sum_{k=0}^{N-1} \left[ (\mathbf{x}_k - \mathbf{x}_{\text{ref}})^T \mathbf{Q} (\mathbf{x}_k - \mathbf{x}_{\text{ref}}) + \mathbf{u}_k^T \mathbf{R} \mathbf{u}_k \right] + (\mathbf{x}_N - \mathbf{x}_{\text{ref}})^T \mathbf{Q}_f (\mathbf{x}_N - \mathbf{x}_{\text{ref}}) \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( N \) — prediction horizon (number of future steps)</li>
+        <li>\( \mathbf{x}_k \) — predicted state at step \(k\)</li>
+        <li>\( \mathbf{x}_{\text{ref}} \) — reference (desired) state</li>
+        <li>\( \mathbf{u}_k \) — control input at step \(k\)</li>
+        <li>\( \mathbf{Q} \) — state tracking weight matrix</li>
+        <li>\( \mathbf{R} \) — control effort weight matrix</li>
+        <li>\( \mathbf{Q}_f \) — terminal cost weight matrix</li>
+        <li>\( \mathbf{A}_d, \mathbf{B}_d \) — discrete-time system matrices</li>
+    </ul>
+
+    <h3>Constraints</h3>
+    <div class="math">
+        \[ \mathbf{u}_{\min} \leq \mathbf{u}_k \leq \mathbf{u}_{\max}, \quad k = 0, \ldots, N-1 \]
+        \[ \mathbf{x}_{\min} \leq \mathbf{x}_k \leq \mathbf{x}_{\max}, \quad k = 1, \ldots, N \]
+    </div>
+
+    <h3>Quadratic Program (QP) Formulation</h3>
+    <p>The MPC problem can be written as a QP by stacking all decision variables:</p>
+    <div class="math">
+        \[ \min_{\mathbf{U}} \quad \frac{1}{2} \mathbf{U}^T \mathbf{H} \mathbf{U} + \mathbf{f}^T \mathbf{U} \]
+        \[ \text{s.t.} \quad \mathbf{A}_{\text{ineq}} \mathbf{U} \leq \mathbf{b}_{\text{ineq}} \]
+    </div>
+    <p>where \(\mathbf{U} = [u_0^T, u_1^T, \ldots, u_{N-1}^T]^T\) is the stacked input sequence.</p>
+
+    <h3>MPC vs LQR Comparison</h3>
+    <table>
+        <tr><th>Feature</th><th>LQR</th><th>MPC</th></tr>
+        <tr><td>Optimality</td><td>Infinite horizon, unconstrained</td><td>Finite horizon, constrained</td></tr>
+        <tr><td>Constraints</td><td>Cannot handle</td><td>Native support</td></tr>
+        <tr><td>Computation</td><td>Offline (one-time Riccati solve)</td><td>Online (QP at each step)</td></tr>
+        <tr><td>Gain</td><td>Constant K</td><td>Time-varying (implicit)</td></tr>
+        <tr><td>Nonlinear systems</td><td>Linearize once</td><td>Can re-linearize each step</td></tr>
+        <tr><td>Convergence (no constraints)</td><td>\(\equiv\) MPC as N \(\to \infty\)</td><td>Approaches LQR</td></tr>
+    </table>
+
+    <div class="tip">
+        Without constraints, MPC with infinite horizon and terminal cost \(\mathbf{Q}_f = \mathbf{P}\) (Riccati solution) gives exactly the same result as LQR.
+    </div>
+</div>
+
+<!-- ===== PAGE 13: MPC FOR DRONES ===== -->
+<div class="page">
+    <h2>MPC for Drones</h2>
+
+    <h3>Nonlinear MPC (NMPC)</h3>
+    <p>For aggressive maneuvers, the linearized model is insufficient. NMPC uses the full nonlinear model:</p>
+    <div class="math">
+        \[ \min_{\mathbf{U}} \sum_{k=0}^{N-1} \ell(\mathbf{x}_k, \mathbf{u}_k) + V_f(\mathbf{x}_N) \]
+        \[ \text{s.t.} \quad \mathbf{x}_{k+1} = f(\mathbf{x}_k, \mathbf{u}_k) \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( \ell(\mathbf{x}_k, \mathbf{u}_k) \) — stage cost at step \(k\)</li>
+        <li>\( V_f(\mathbf{x}_N) \) — terminal cost ensuring stability</li>
+        <li>\( f(\mathbf{x}_k, \mathbf{u}_k) \) — full nonlinear dynamics model</li>
+    </ul>
+    <p>This is a nonlinear program (NLP), harder to solve but more accurate.</p>
+
+    <h3>Linearized MPC (Practical Approach)</h3>
+    <p>For near-hover operations: linearize about current operating point at each step. This gives a QP that can be solved in real-time.</p>
+
+    <h3>Real-Time Requirements</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="580" height="130" rx="8" fill="#f9f9f9" stroke="#ddd"/>
+            <text x="300" y="35" text-anchor="middle" font-size="13" font-weight="bold">MPC Computation Budget per Control Step</text>
+            <rect x="30" y="55" width="100" height="30" rx="5" fill="#4CAF50"/>
+            <text x="80" y="75" text-anchor="middle" fill="white" font-size="10">Sense (1ms)</text>
+            <rect x="140" y="55" width="250" height="30" rx="5" fill="#ff5722"/>
+            <text x="265" y="75" text-anchor="middle" fill="white" font-size="10">Solve QP (~5-15ms)</text>
+            <rect x="400" y="55" width="80" height="30" rx="5" fill="#667eea"/>
+            <text x="440" y="75" text-anchor="middle" fill="white" font-size="10">Apply (1ms)</text>
+            <rect x="490" y="55" width="80" height="30" rx="5" fill="#ccc"/>
+            <text x="530" y="75" text-anchor="middle" font-size="10">Margin</text>
+            <text x="300" y="115" text-anchor="middle" font-size="11">Total: 20ms control period (50 Hz) for position control</text>
+        </svg>
+        <div class="image-caption">Figure 11: Real-time budget for MPC on a typical drone flight controller</div>
+    </div>
+
+    <h3>Application Examples</h3>
+    <div class="three-column">
+        <div class="sensor-card">
+            <h4>Hover + Disturbance</h4>
+            <p>MPC rejects wind gusts while respecting thrust limits. Anticipates saturation.</p>
+        </div>
+        <div class="sensor-card">
+            <h4>Trajectory Tracking</h4>
+            <p>Follow aggressive 3D paths with preview. MPC "sees" upcoming turns.</p>
+        </div>
+        <div class="sensor-card">
+            <h4>Formation Flight</h4>
+            <p>Multi-drone MPC with collision avoidance constraints between agents.</p>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <h4>Computational Challenge</h4>
+        <p>A 12-state quadrotor with N=20 horizon and 4 inputs requires solving a QP with 80 decision variables and hundreds of constraints every 20ms. Specialized solvers (OSQP, ACADOS) are essential for real-time performance.</p>
+    </div>
+</div>
+
+<!-- ===== PAGE 14: MPC IMPLEMENTATION ===== -->
+<div class="page">
+    <h2>MPC Implementation</h2>
+
+    <h3>Step 1: Discretize the Model</h3>
+    <div class="math">
+        \[ \mathbf{A}_d = e^{\mathbf{A}\Delta t}, \quad \mathbf{B}_d = \int_0^{\Delta t} e^{\mathbf{A}\tau}\mathbf{B}\,d\tau \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( \mathbf{A}_d, \mathbf{B}_d \) — discrete-time system and input matrices</li>
+        <li>\( \mathbf{A}, \mathbf{B} \) — continuous-time system and input matrices</li>
+        <li>\( \Delta t \) — sampling period (control loop interval)</li>
+        <li>\( e^{\mathbf{A}\Delta t} \) — matrix exponential</li>
+    </ul>
+
+    <h3>Step 2: Build Prediction Matrices</h3>
+    <p>From initial state \(\mathbf{x}_0\), predict all future states:</p>
+    <div class="math">
+        \[ \mathbf{x}_k = \mathbf{A}_d^k \mathbf{x}_0 + \sum_{j=0}^{k-1} \mathbf{A}_d^{k-1-j} \mathbf{B}_d \mathbf{u}_j \]
+    </div>
+
+    <h3>Step 3: Solve the Optimization</h3>
+
+    <div class="example-box">
+        <h4>Python MPC Implementation</h4>
+<pre>
+import numpy as np
+from scipy.optimize import minimize
+from scipy.linalg import expm
+
+class MPCController:
+    def __init__(self, Ad, Bd, Q, R, N=10,
+                 u_min=None, u_max=None):
+        self.Ad, self.Bd = Ad, Bd
+        self.Q, self.R = Q, R
+        self.N = N  # prediction horizon
+        self.n = Ad.shape[0]  # states
+        self.m = Bd.shape[1]  # inputs
+        self.u_min = u_min or -np.inf * np.ones(self.m)
+        self.u_max = u_max or  np.inf * np.ones(self.m)
+        self.u_prev = np.zeros(N * self.m)
+
+    def predict(self, x0, u_seq):
+        states = [x0]
+        x = x0.copy()
+        for k in range(self.N):
+            uk = u_seq[k*self.m:(k+1)*self.m]
+            x = self.Ad @ x + self.Bd @ uk
+            states.append(x)
+        return states
+
+    def cost(self, u_seq, x0, x_ref):
+        states = self.predict(x0, u_seq)
+        J = 0
+        for k in range(self.N):
+            dx = states[k+1] - x_ref
+            uk = u_seq[k*self.m:(k+1)*self.m]
+            J += dx @ self.Q @ dx + uk @ self.R @ uk
+        return J
+
+    def solve(self, x, x_ref):
+        bounds = [(self.u_min[j], self.u_max[j])
+                  for _ in range(self.N)
+                  for j in range(self.m)]
+        result = minimize(
+            self.cost, self.u_prev,
+            args=(x, x_ref), method='SLSQP',
+            bounds=bounds,
+            options={'maxiter': 100, 'ftol': 1e-6})
+        self.u_prev = result.x
+        return result.x[:self.m]  # first input only
+</pre>
+    </div>
+
+    <div class="activity-box">
+        <h3>Activity 3: MPC Horizon Tuning</h3>
+        <p>For a quadrotor altitude controller at 50 Hz (dt=0.02s):</p>
+        <ol>
+            <li>If N=5, what is the look-ahead time? Is it sufficient to predict a 2-second maneuver?</li>
+            <li>What happens if N is too small? Too large?</li>
+            <li>How does computation time scale with N?</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ===== PAGE 15: ROBUST CONTROL ===== -->
+<div class="page">
+    <h2>Robust Control Concepts</h2>
+
+    <p>Real systems have uncertainty: unmodeled dynamics, parameter variations, external disturbances. Robust control guarantees performance despite these uncertainties.</p>
+
+    <h3>H-infinity Control</h3>
+    <p>Design a controller that minimizes the worst-case gain from disturbance to error:</p>
+    <div class="math">
+        \[ \min_K \| T_{zw}(s) \|_\infty = \min_K \sup_\omega \bar{\sigma}\left(T_{zw}(j\omega)\right) \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( K \) — controller to be designed</li>
+        <li>\( T_{zw}(s) \) — closed-loop transfer function from disturbance \(w\) to performance output \(z\)</li>
+        <li>\( \bar{\sigma}(\cdot) \) — maximum singular value</li>
+        <li>\( \| \cdot \|_\infty \) — H-infinity norm (peak gain over all frequencies)</li>
+    </ul>
+
+    <h3>Mu-Synthesis</h3>
+    <p>Extends H-infinity by modeling structured uncertainty. The controller accounts for specific parameter variations (mass, inertia) rather than worst-case unstructured uncertainty.</p>
+
+    <h3>Uncertainty Modeling for Drones</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="580" height="160" rx="8" fill="#f9f9f9" stroke="#ddd"/>
+            <text x="300" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">Sources of Uncertainty in Drone Control</text>
+            <rect x="30" y="55" width="130" height="50" rx="5" fill="#667eea"/>
+            <text x="95" y="78" text-anchor="middle" fill="white" font-size="10">Mass variation</text>
+            <text x="95" y="92" text-anchor="middle" fill="white" font-size="9">(payload, battery)</text>
+            <rect x="175" y="55" width="130" height="50" rx="5" fill="#764ba2"/>
+            <text x="240" y="78" text-anchor="middle" fill="white" font-size="10">Aerodynamics</text>
+            <text x="240" y="92" text-anchor="middle" fill="white" font-size="9">(ground effect, drag)</text>
+            <rect x="320" y="55" width="130" height="50" rx="5" fill="#4CAF50"/>
+            <text x="385" y="78" text-anchor="middle" fill="white" font-size="10">Motor dynamics</text>
+            <text x="385" y="92" text-anchor="middle" fill="white" font-size="9">(response time, saturation)</text>
+            <rect x="465" y="55" width="110" height="50" rx="5" fill="#ff5722"/>
+            <text x="520" y="78" text-anchor="middle" fill="white" font-size="10">Wind/turbulence</text>
+            <text x="520" y="92" text-anchor="middle" fill="white" font-size="9">(external disturbance)</text>
+            <text x="300" y="140" text-anchor="middle" font-size="11">Typical total uncertainty: 10-30% in model parameters</text>
+        </svg>
+        <div class="image-caption">Figure 12: Key sources of uncertainty in quadrotor models</div>
+    </div>
+
+    <h3>When Is Robust Control Needed?</h3>
+    <ul>
+        <li><strong>Variable payload:</strong> Delivery drones (mass changes 50%+)</li>
+        <li><strong>Outdoor flight:</strong> Wind gusts up to 10 m/s</li>
+        <li><strong>Aggressive maneuvers:</strong> Model linearization error is large</li>
+        <li><strong>Safety-critical:</strong> Must guarantee stability under all conditions</li>
+    </ul>
+
+    <div class="info-box">
+        <p>In practice, LQR already provides good robustness margins (6 dB gain, 60 deg phase). MPC can be made robust via constraint tightening or min-max formulations.</p>
+    </div>
+</div>
+
+<!-- ===== PAGE 16: ADAPTIVE CONTROL ===== -->
+<div class="page">
+    <h2>Adaptive Control</h2>
+
+    <p>Adaptive controllers adjust their parameters online to handle changing system dynamics.</p>
+
+    <h3>Model Reference Adaptive Control (MRAC)</h3>
+    <p>The controller adapts its gains so the closed-loop system matches a desired reference model:</p>
+    <div class="math">
+        \[ \dot{\mathbf{x}}_m = \mathbf{A}_m \mathbf{x}_m + \mathbf{B}_m r \quad \text{(reference model)} \]
+        \[ u = \hat{\theta}^T \mathbf{x} \quad \text{(adaptive law)} \]
+        \[ \dot{\hat{\theta}} = -\Gamma \mathbf{x} e^T \mathbf{P} \mathbf{B} \quad \text{(adaptation)} \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( \mathbf{A}_m, \mathbf{B}_m \) — desired reference model matrices</li>
+        <li>\( r \) — reference command input</li>
+        <li>\( \hat{\theta} \) — estimated controller parameters</li>
+        <li>\( e = \mathbf{x} - \mathbf{x}_m \) — tracking error between plant and reference model</li>
+        <li>\( \Gamma \) — adaptation rate matrix (positive definite)</li>
+        <li>\( \mathbf{P} \) — solution of the Lyapunov equation for the reference model</li>
+    </ul>
+
+    <h3>L1 Adaptive Control</h3>
+    <p>Provides fast adaptation with guaranteed robustness through a low-pass filter that decouples adaptation rate from robustness.</p>
+
+    <h3>Adaptive Control Architecture</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="580" height="230" rx="8" fill="#f9f9f9" stroke="#ddd"/>
+            <text x="300" y="35" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">MRAC Architecture</text>
+            <!-- Reference model -->
+            <rect x="250" y="50" width="150" height="40" rx="5" fill="#4CAF50"/>
+            <text x="325" y="75" text-anchor="middle" fill="white" font-size="11">Reference Model</text>
+            <!-- Controller -->
+            <rect x="50" y="120" width="130" height="40" rx="5" fill="#667eea"/>
+            <text x="115" y="145" text-anchor="middle" fill="white" font-size="11">Adaptive Controller</text>
+            <!-- Plant -->
+            <rect x="300" y="120" width="130" height="40" rx="5" fill="#764ba2"/>
+            <text x="365" y="145" text-anchor="middle" fill="white" font-size="11">Plant (unknown)</text>
+            <!-- Adaptation -->
+            <rect x="150" y="190" width="150" height="40" rx="5" fill="#ff5722"/>
+            <text x="225" y="215" text-anchor="middle" fill="white" font-size="11">Adaptation Law</text>
+            <!-- Connections -->
+            <line x1="180" y1="140" x2="300" y2="140" stroke="#333" stroke-width="2"/>
+            <text x="240" y="132" font-size="10">u</text>
+            <line x1="430" y1="140" x2="530" y2="140" stroke="#333" stroke-width="2"/>
+            <text x="540" y="145" font-size="12" font-weight="bold">y</text>
+            <line x1="400" y1="70" x2="530" y2="70" stroke="#333" stroke-width="2"/>
+            <text x="540" y="75" font-size="12">y_m</text>
+            <!-- Error comparison -->
+            <line x1="490" y1="70" x2="490" y2="210" stroke="#ff5722" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <line x1="490" y1="140" x2="490" y2="210" stroke="#ff5722" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <line x1="490" y1="210" x2="300" y2="210" stroke="#ff5722" stroke-width="2"/>
+            <text x="480" y="180" font-size="10" fill="#ff5722">e = y - y_m</text>
+            <line x1="150" y1="210" x2="115" y2="210" stroke="#333" stroke-width="2"/>
+            <line x1="115" y1="210" x2="115" y2="160" stroke="#333" stroke-width="2"/>
+        </svg>
+        <div class="image-caption">Figure 13: MRAC adapts controller parameters to match a reference model despite plant uncertainty</div>
+    </div>
+
+    <h3>Parameter Estimation</h3>
+    <p>Online parameter estimation enables the controller to learn the system:</p>
+    <div class="math">
+        \[ \hat{m}(t) = \hat{m}(0) + \gamma \int_0^t e(\tau) \cdot a(\tau)\,d\tau \quad \text{(recursive least squares)} \]
+    </div>
+
+    <div class="info-box">
+        <h4>Adaptive Control in Drones</h4>
+        <ul>
+            <li><strong>PX4 INDI controller:</strong> Uses incremental model (does not need full model)</li>
+            <li><strong>L1 adaptive for payload:</strong> Automatically compensates for unknown payload mass</li>
+            <li><strong>Neural network adaptive:</strong> Learns unmodeled aerodynamics online</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ===== PAGE 17: DRONE RACING CONTROL ===== -->
+<div class="page">
+    <h2>Control for Drone Racing</h2>
+
+    <p>Drone racing pushes control systems to their limits: speeds over 30 m/s, accelerations of 4g, and aggressive maneuvers through gates.</p>
+
+    <h3>Differential Flatness</h3>
+    <p>A quadrotor is differentially flat with flat outputs \([x, y, z, \psi]\). This means we can compute all states and inputs from the trajectory and its derivatives:</p>
+    <div class="math">
+        \[ \text{Given } \sigma(t) = [x(t), y(t), z(t), \psi(t)] \implies \text{all states and inputs computable} \]
+    </div>
+
+    <h3>Incremental Nonlinear Dynamic Inversion (INDI)</h3>
+    <p>INDI computes control increments based on measured accelerations rather than full model knowledge:</p>
+    <div class="math">
+        \[ \delta\mathbf{u} = \mathbf{G}^{-1}(\boldsymbol{\nu}_{\text{des}} - \dot{\boldsymbol{\omega}}_{\text{meas}}) \]
+    </div>
+    <p><strong>where:</strong></p>
+    <ul>
+        <li>\( \delta\mathbf{u} \) — incremental control input</li>
+        <li>\( \mathbf{G} \) — control effectiveness matrix (maps input increments to angular acceleration)</li>
+        <li>\( \boldsymbol{\nu}_{\text{des}} \) — desired angular acceleration from the outer loop</li>
+        <li>\( \dot{\boldsymbol{\omega}}_{\text{meas}} \) — measured angular acceleration (from gyroscope differentiation or accelerometer)</li>
+    </ul>
+
+    <h3>Performance Comparison</h3>
+    <div class="image-container">
+        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+            <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">Controller Performance Comparison for Aggressive Flight</text>
+            <!-- Bar chart -->
+            <line x1="100" y1="180" x2="550" y2="180" stroke="#333" stroke-width="1"/>
+            <line x1="100" y1="40" x2="100" y2="180" stroke="#333" stroke-width="1"/>
+            <text x="325" y="198" text-anchor="middle" font-size="10">Controller Type</text>
+            <text x="60" y="110" font-size="10" transform="rotate(-90,60,110)">Max Speed [m/s]</text>
+            <!-- PID -->
+            <rect x="130" y="130" width="60" height="50" fill="#667eea"/>
+            <text x="160" y="125" text-anchor="middle" font-size="10">PID</text>
+            <text x="160" y="160" text-anchor="middle" fill="white" font-size="11">8</text>
+            <!-- LQR -->
+            <rect x="220" y="95" width="60" height="85" fill="#764ba2"/>
+            <text x="250" y="90" text-anchor="middle" font-size="10">LQR</text>
+            <text x="250" y="140" text-anchor="middle" fill="white" font-size="11">15</text>
+            <!-- MPC -->
+            <rect x="310" y="65" width="60" height="115" fill="#4CAF50"/>
+            <text x="340" y="60" text-anchor="middle" font-size="10">MPC</text>
+            <text x="340" y="125" text-anchor="middle" fill="white" font-size="11">25</text>
+            <!-- INDI -->
+            <rect x="400" y="55" width="60" height="125" fill="#ff5722"/>
+            <text x="430" y="50" text-anchor="middle" font-size="10">INDI</text>
+            <text x="430" y="120" text-anchor="middle" fill="white" font-size="11">30</text>
+            <!-- NMPC -->
+            <rect x="490" y="48" width="60" height="132" fill="#ff9800"/>
+            <text x="520" y="43" text-anchor="middle" font-size="10">NMPC</text>
+            <text x="520" y="115" text-anchor="middle" fill="white" font-size="11">35+</text>
+        </svg>
+        <div class="image-caption">Figure 14: Approximate maximum achievable speeds for different control approaches</div>
+    </div>
+
+    <table>
+        <tr><th>Controller</th><th>Strengths</th><th>Limitations</th><th>Use Case</th></tr>
+        <tr><td>PID</td><td>Simple, fast</td><td>No MIMO, no constraints</td><td>Basic hover</td></tr>
+        <tr><td>LQR</td><td>Optimal, robust margins</td><td>No constraints, linear</td><td>Moderate flight</td></tr>
+        <tr><td>MPC</td><td>Constraints, prediction</td><td>Computation, model needed</td><td>Trajectory tracking</td></tr>
+        <tr><td>INDI</td><td>Model-free, robust</td><td>Needs acceleration sensor</td><td>Aggressive flight</td></tr>
+        <tr><td>NMPC</td><td>Full nonlinear, optimal</td><td>Very expensive</td><td>Racing, acrobatics</td></tr>
+    </table>
+</div>
+
+<!-- ===== PAGE 18: ROS2 INTEGRATION ===== -->
+<div class="page">
+    <h2>ROS2 Control Integration</h2>
+
+    <h3>ros2_control Framework</h3>
+    <p>The <code>ros2_control</code> framework provides a standardized interface for robot controllers in ROS2. Key components:</p>
+
+    <div class="image-container">
+        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="580" height="180" rx="8" fill="#f9f9f9" stroke="#ddd"/>
+            <rect x="30" y="40" width="160" height="50" rx="8" fill="#667eea"/>
+            <text x="110" y="70" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Controller Manager</text>
+            <rect x="220" y="40" width="160" height="50" rx="8" fill="#4CAF50"/>
+            <text x="300" y="65" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Custom Controller</text>
+            <text x="300" y="80" text-anchor="middle" fill="white" font-size="9">(PID/LQR/MPC)</text>
+            <rect x="410" y="40" width="160" height="50" rx="8" fill="#764ba2"/>
+            <text x="490" y="70" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Hardware Interface</text>
+            <line x1="190" y1="65" x2="220" y2="65" stroke="#333" stroke-width="2"/>
+            <line x1="380" y1="65" x2="410" y2="65" stroke="#333" stroke-width="2"/>
+            <rect x="220" y="120" width="160" height="50" rx="8" fill="#ff5722" opacity="0.8"/>
+            <text x="300" y="145" text-anchor="middle" fill="white" font-size="11" font-weight="bold">State Estimator</text>
+            <text x="300" y="158" text-anchor="middle" fill="white" font-size="9">(Kalman Filter)</text>
+            <line x1="300" y1="90" x2="300" y2="120" stroke="#333" stroke-width="2"/>
+        </svg>
+        <div class="image-caption">Figure 15: ros2_control architecture for drone applications</div>
+    </div>
+
+    <h3>Custom MPC Controller Node</h3>
+<pre>
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import PoseStamped, Twist
+from nav_msgs.msg import Odometry
+
+class MPCControllerNode(Node):
+    def __init__(self):
+        super().__init__('mpc_controller')
+        # Subscribers
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, 10)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+        # Publisher
+        self.cmd_pub = self.create_publisher(
+            Twist, '/cmd_vel', 10)
+        # Timer at 50 Hz
+        self.timer = self.create_timer(0.02, self.control_loop)
+        # Initialize MPC
+        self.mpc = MPCController(Ad, Bd, Q, R, N=10,
+                                 u_min=[-5], u_max=[5])
+
+    def control_loop(self):
+        u = self.mpc.solve(self.state, self.reference)
+        cmd = Twist()
+        cmd.linear.z = float(u[0])
+        self.cmd_pub.publish(cmd)
+</pre>
+
+    <h3>Launch File</h3>
+<pre>
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='week_11_control_systems',
+            executable='mpc_controller',
+            name='mpc_controller',
+            parameters=[{
+                'horizon': 10,
+                'dt': 0.02,
+                'q_pos': 100.0,
+                'q_vel': 10.0,
+                'r_input': 1.0,
+            }],
+            output='screen',
+        ),
+    ])
+</pre>
+
+    <div class="activity-box">
+        <h3>Activity 4: Controller Selection</h3>
+        <p>For each scenario, select the most appropriate controller and justify:</p>
+        <ol>
+            <li>Indoor inspection drone hovering at fixed altitude in a warehouse</li>
+            <li>Delivery drone carrying packages of varying weight in windy conditions</li>
+            <li>Racing drone navigating through gates at 20+ m/s</li>
+            <li>Agricultural survey drone following a lawnmower pattern at constant altitude</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ===== PAGE 19: SUMMARY ===== -->
+<div class="page">
+    <h2>Summary &amp; Key Equations</h2>
+
+    <h3>What We Covered</h3>
+    <ul class="checklist">
+        <li>PID control: tuning (Z-N, Cohen-Coon), anti-windup, derivative filtering</li>
+        <li>State-space representation: A, B, C, D matrices, controllability, observability</li>
+        <li>Pole placement: eigenvalue assignment, Ackermann's formula</li>
+        <li>LQR: Riccati equation, optimal gain K, Q/R tuning</li>
+        <li>LQG: separation principle, Kalman filter + LQR</li>
+        <li>MPC: receding horizon, QP formulation, constraint handling</li>
+        <li>Robust and adaptive control concepts</li>
+        <li>ROS2 control integration</li>
+    </ul>
+
+    <h3>Key Equations Card</h3>
+    <div class="diagram">
+        <div class="two-column">
+            <div>
+                <h4>PID</h4>
+                <p>\(u = K_p e + K_i \int e\,dt + K_d \dot{e}\)</p>
+                <h4>State-Space</h4>
+                <p>\(\dot{x} = Ax + Bu\), \(y = Cx + Du\)</p>
+                <h4>LQR Gain</h4>
+                <p>\(K = R^{-1}B^TP\)</p>
+            </div>
+            <div>
+                <h4>Riccati (CARE)</h4>
+                <p>\(A^TP + PA - PBR^{-1}B^TP + Q = 0\)</p>
+                <h4>MPC Cost</h4>
+                <p>\(J = \sum (x-r)^TQ(x-r) + u^TRu\)</p>
+                <h4>Controllability</h4>
+                <p>\(\text{rank}[B, AB, \ldots, A^{n-1}B] = n\)</p>
+            </div>
+        </div>
+    </div>
+
+    <h3>Lab Preview: 7 Tasks</h3>
+    <table>
+        <tr><th>#</th><th>Task</th><th>Focus</th></tr>
+        <tr><td>1</td><td>PID Analysis</td><td>Step response, Z-N tuning, anti-windup</td></tr>
+        <tr><td>2</td><td>State-Space</td><td>Modeling, controllability, discretization</td></tr>
+        <tr><td>3</td><td>Pole Placement</td><td>Ackermann, stability regions</td></tr>
+        <tr><td>4</td><td>LQR</td><td>Riccati, Q/R tuning, quadrotor</td></tr>
+        <tr><td>5</td><td>MPC Basics</td><td>Receding horizon, constraints</td></tr>
+        <tr><td>6</td><td>MPC Drone</td><td>Trajectory tracking, disturbance rejection</td></tr>
+        <tr><td>7</td><td>Full Comparison</td><td>PID vs LQR vs MPC (MPC wins for constraints)</td></tr>
+    </table>
+
+    <h3>Interview Questions</h3>
+    <ol>
+        <li>Explain the difference between pole placement and LQR. When would you prefer each?</li>
+        <li>What is the separation principle in LQG, and why is it important?</li>
+        <li>How does MPC handle constraints compared to PID?</li>
+        <li>What is the receding horizon concept and why is it necessary?</li>
+        <li>Why is a quadrotor differentially flat, and how does this help control design?</li>
+    </ol>
+
+    <div class="info-box">
+        <h3>Next Week: Week 12 -- Full System Integration &amp; Capstone</h3>
+        <p>We will bring everything together: SLAM, path planning, trajectory optimization, and control into a complete autonomous drone system. Final capstone project presentations.</p>
+    </div>
+</div>
+
+</body>
+</html>

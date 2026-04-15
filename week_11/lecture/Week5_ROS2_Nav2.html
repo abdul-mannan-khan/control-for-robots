@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 5: ROS2 Navigation Stack (Nav2) - TC70045E</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .page { width: 21cm; min-height: 29.7cm; padding: 2cm; margin: 20px auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); page-break-after: always; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        h2 { color: #667eea; border-bottom: 3px solid #764ba2; padding-bottom: 10px; margin: 30px 0 20px 0; font-size: 1.8em; }
+        h3 { color: #764ba2; margin: 25px 0 15px 0; font-size: 1.4em; }
+        h4 { color: #667eea; margin: 20px 0 10px 0; font-size: 1.2em; }
+        .info-box { background: #e8f4f8; border-left: 5px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .warning-box { background: #fff4e6; border-left: 5px solid #ff9800; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .activity-box { background: #f0f8ff; border: 3px solid #4CAF50; padding: 25px; margin: 30px 0; border-radius: 10px; }
+        .activity-box h3 { color: #4CAF50; margin-top: 0; }
+        .image-container { text-align: center; margin: 30px 0; }
+        .image-container img { max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .image-caption { font-style: italic; color: #666; margin-top: 10px; font-size: 0.9em; }
+        ul, ol { margin: 15px 0 15px 30px; }
+        li { margin: 8px 0; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .two-column > * { min-width: 0; overflow: hidden; }
+        .three-column { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .three-column > * { min-width: 0; overflow: hidden; }
+        .checklist { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .checklist li { list-style: none; padding: 8px 0; }
+        .checklist li:before { content: "\2713 "; color: #4CAF50; font-weight: bold; margin-right: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; table-layout: fixed; word-wrap: break-word; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #667eea; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        td code { word-break: break-all; }
+        .diagram { border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin: 20px 0; background: white; }
+        .flow-step { background: #667eea; color: white; padding: 15px; margin: 10px 0; border-radius: 8px; text-align: center; font-weight: bold; }
+        .arrow { text-align: center; font-size: 2em; color: #764ba2; margin: 5px 0; }
+        .tip { background: #fffbea; border-left: 5px solid #ffd700; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .tip:before { content: "\1F4A1 TIP: "; font-weight: bold; color: #ff9800; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; word-break: break-all; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-wrap: break-word; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.5; }
+        .example-box { background: #f0fff0; border: 2px dashed #4CAF50; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .math { padding: 15px; margin: 15px 0; border-radius: 5px; overflow-x: auto; max-width: 100%; }
+        .sensor-card { background: white; border: 2px solid #667eea; border-radius: 10px; padding: 20px; text-align: center; }
+        .sensor-card h4 { color: #667eea; margin-bottom: 10px; }
+        img { max-width: 100%; height: auto; }
+        svg { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+
+<!-- ==================== PAGE 1: TITLE ==================== -->
+<div class="page">
+    <div class="header">
+        <h1>ROS2 Navigation Stack (Nav2)</h1>
+        <p>Week 5 - TC70045E Robotics &amp; Drone Engineering</p>
+        <p>Dr. Abdul Manan Khan</p>
+        <p>M.Sc. Robotics &amp; Drone Engineering</p>
+    </div>
+
+    <div style="background:#e8f5e9; border-left:5px solid #388e3c; padding:15px 20px; margin:20px 0; border-radius:6px;">
+        <strong style="color:#1b5e20;">Connection to Week 8 — Nonlinear Control Optimization.</strong>
+        <p style="margin-top:8px;">Nav2 and Week 8 are the same underlying ideas at two levels of abstraction:</p>
+        <ul style="margin-top:6px;">
+            <li><strong>DWA &rarr; NMPC</strong>: Nav2's Dynamic Window Approach is a one-step finite-horizon optimizer. MPPI (Nav2's sampling-based planner) is NMPC by Monte-Carlo. Week 8 §9 formalises the general NMPC / iLQR framework that both approximate.</li>
+            <li><strong>AMCL &rarr; matched estimator</strong>: Week 8 makes explicit that every controller needs a matched state estimator. AMCL is the multimodal-posterior (particle filter) choice for Nav2; Kalman / EKF / UKF cover the unimodal case for NMPC on quadrotors/manipulators.</li>
+            <li><strong>Controller-plugin tuning</strong>: The \(Q, R, N\) weights of Nav2 MPPI or the \(\alpha, \beta, \gamma\) weights of DWA are exactly the decision variables that Week 8 §10 optimises via the same min-max / Bayesian framework.</li>
+        </ul>
+    </div>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop" alt="Autonomous mobile robot navigating an environment">
+        <p class="image-caption">Figure 1.1: Autonomous navigation is the cornerstone of modern mobile robotics</p>
+    </div>
+
+    <div class="info-box">
+        <h3>Week 5 Overview</h3>
+        <p>This week we explore the <strong>ROS2 Navigation Stack (Nav2)</strong> -- the complete framework for autonomous mobile robot navigation. Nav2 provides everything a robot needs to move from point A to point B safely: localization, path planning, obstacle avoidance, and recovery behaviors.</p>
+    </div>
+
+    <h3>What You Will Learn</h3>
+    <div class="two-column">
+        <div>
+            <ul>
+                <li>Nav2 architecture and components</li>
+                <li>Map serving and costmap layers</li>
+                <li>AMCL localization</li>
+                <li>Global and local path planning</li>
+            </ul>
+        </div>
+        <div>
+            <ul>
+                <li>Behavior Trees for navigation</li>
+                <li>Recovery behaviors</li>
+                <li>Waypoint following</li>
+                <li>Tuning and configuration</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <strong>Prerequisites:</strong> Weeks 1-4 (ROS2 basics, topics, services, actions, transforms, URDF, launch files). Familiarity with TurtleBot3 simulation is helpful.
+    </div>
+</div>
+
+<!-- ==================== PAGE 2: WHY NAVIGATION ==================== -->
+<div class="page">
+    <h2>1. Why Autonomous Navigation Matters</h2>
+
+    <h3>Learning Objectives</h3>
+    <ul class="checklist">
+        <li>Understand the Nav2 architecture and how its components interact</li>
+        <li>Configure and use map_server, AMCL, planners, and controllers</li>
+        <li>Explain costmap layers and their role in obstacle avoidance</li>
+        <li>Describe Behavior Trees and their advantage over FSMs</li>
+        <li>Set up Nav2 with TurtleBot3 in Gazebo simulation</li>
+        <li>Tune Nav2 parameters for reliable navigation</li>
+        <li>Implement waypoint-following missions</li>
+    </ul>
+
+    <h3>Real-World Applications</h3>
+    <div class="two-column">
+        <div>
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&h=250&fit=crop" alt="Warehouse automation with autonomous robots">
+                <p class="image-caption">Figure 2.1: Warehouse logistics robots</p>
+            </div>
+            <h4>Warehouse Automation</h4>
+            <p>Amazon deploys over 750,000 mobile robots across its fulfilment centres. Each robot navigates autonomously using map-based localization and dynamic obstacle avoidance -- the same principles Nav2 implements.</p>
+        </div>
+        <div>
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=400&h=250&fit=crop" alt="Hospital delivery robot">
+                <p class="image-caption">Figure 2.2: Hospital delivery robots</p>
+            </div>
+            <h4>Hospital Delivery</h4>
+            <p>Robots deliver medications, samples, and supplies through hospital corridors, navigating around staff, patients, and equipment. Nav2's recovery behaviors handle the unpredictable human environments.</p>
+        </div>
+    </div>
+
+    <div class="two-column">
+        <div>
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?w=400&h=250&fit=crop" alt="Last-mile delivery robot on sidewalk">
+                <p class="image-caption">Figure 2.3: Sidewalk delivery robots</p>
+            </div>
+            <h4>Last-Mile Delivery</h4>
+            <p>Sidewalk delivery robots from companies like Starship Technologies navigate public pavements using GPS, cameras, and lidar -- all coordinated through navigation stacks similar to Nav2.</p>
+        </div>
+        <div>
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1518314916381-77a37c2a49ae?w=400&h=250&fit=crop" alt="Agricultural robot in field">
+                <p class="image-caption">Figure 2.4: Agricultural robots</p>
+            </div>
+            <h4>Agricultural Robotics</h4>
+            <p>Autonomous tractors and crop-monitoring robots navigate fields using pre-planned paths and real-time obstacle detection, enabling precision agriculture at scale.</p>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <strong>Key Insight:</strong> All these applications share the same fundamental challenge: <em>given a map and a goal, move the robot there safely while avoiding obstacles</em>. Nav2 provides a modular, configurable solution to this challenge.
+    </div>
+</div>
+
+<!-- ==================== PAGE 3: NAV2 ARCHITECTURE ==================== -->
+<div class="page">
+    <h2>2. Nav2 Architecture Overview</h2>
+
+    <p>Nav2 is a modular navigation framework built on ROS2 lifecycle nodes. Each component can be configured, replaced, or extended via plugins.</p>
+
+    <div class="diagram">
+        <svg viewBox="0 0 700 520" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <!-- Title -->
+            <text x="350" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#667eea">Nav2 High-Level Architecture</text>
+            <!-- BT Navigator -->
+            <rect x="230" y="40" width="240" height="45" rx="8" fill="#667eea"/>
+            <text x="350" y="68" text-anchor="middle" fill="white" font-size="13" font-weight="bold">BT Navigator Server</text>
+            <!-- Arrow down -->
+            <line x1="350" y1="85" x2="350" y2="110" stroke="#764ba2" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Behavior Tree box -->
+            <rect x="200" y="110" width="300" height="40" rx="8" fill="#764ba2"/>
+            <text x="350" y="135" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Behavior Tree (XML)</text>
+            <!-- Arrows to components -->
+            <line x1="250" y1="150" x2="100" y2="190" stroke="#764ba2" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="350" y1="150" x2="350" y2="190" stroke="#764ba2" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="450" y1="150" x2="600" y2="190" stroke="#764ba2" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Planner Server -->
+            <rect x="20" y="190" width="160" height="45" rx="8" fill="#4CAF50"/>
+            <text x="100" y="218" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Planner Server</text>
+            <!-- Controller Server -->
+            <rect x="270" y="190" width="160" height="45" rx="8" fill="#FF9800"/>
+            <text x="350" y="218" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Controller Server</text>
+            <!-- Recovery Server -->
+            <rect x="520" y="190" width="160" height="45" rx="8" fill="#f44336"/>
+            <text x="600" y="218" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Recovery Server</text>
+            <!-- Arrows down -->
+            <line x1="100" y1="235" x2="100" y2="275" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="350" y1="235" x2="350" y2="275" stroke="#FF9800" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Costmap boxes -->
+            <rect x="20" y="275" width="160" height="40" rx="6" fill="#e8f4f8" stroke="#667eea" stroke-width="2"/>
+            <text x="100" y="300" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Global Costmap</text>
+            <rect x="270" y="275" width="160" height="40" rx="6" fill="#fff4e6" stroke="#FF9800" stroke-width="2"/>
+            <text x="350" y="300" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">Local Costmap</text>
+            <!-- Map Server -->
+            <rect x="20" y="350" width="160" height="45" rx="8" fill="#667eea"/>
+            <text x="100" y="378" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Map Server</text>
+            <line x1="100" y1="315" x2="100" y2="350" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- AMCL -->
+            <rect x="270" y="350" width="160" height="45" rx="8" fill="#9C27B0"/>
+            <text x="350" y="378" text-anchor="middle" fill="white" font-size="12" font-weight="bold">AMCL</text>
+            <line x1="350" y1="315" x2="350" y2="350" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Sensors -->
+            <rect x="520" y="350" width="160" height="45" rx="8" fill="#607D8B"/>
+            <text x="600" y="378" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Sensor Inputs</text>
+            <line x1="600" y1="235" x2="600" y2="350" stroke="#607D8B" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Robot -->
+            <rect x="200" y="440" width="300" height="50" rx="8" fill="#333"/>
+            <text x="350" y="470" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Robot (cmd_vel / odom / tf)</text>
+            <line x1="100" y1="395" x2="250" y2="440" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="350" y1="395" x2="350" y2="440" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="600" y1="395" x2="450" y2="440" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Arrowhead marker -->
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#764ba2"/>
+                </marker>
+            </defs>
+        </svg>
+        <p class="image-caption">Figure 3.1: Nav2 high-level architecture showing the BT Navigator orchestrating planners, controllers, and recovery servers</p>
+    </div>
+
+    <h3>Core Components</h3>
+    <table>
+        <tr><th style="width:30%">Component</th><th>Role</th></tr>
+        <tr><td><strong>BT Navigator</strong></td><td>Orchestrates navigation using a Behavior Tree. Calls planner, controller, and recovery action servers.</td></tr>
+        <tr><td><strong>Planner Server</strong></td><td>Computes a global path from current position to goal using the global costmap.</td></tr>
+        <tr><td><strong>Controller Server</strong></td><td>Follows the global path by computing velocity commands using the local costmap.</td></tr>
+        <tr><td><strong>Recovery Server</strong></td><td>Executes recovery actions (spin, backup, wait) when navigation gets stuck.</td></tr>
+        <tr><td><strong>Map Server</strong></td><td>Loads and serves the static map to costmaps and AMCL.</td></tr>
+        <tr><td><strong>AMCL</strong></td><td>Localizes the robot on the map using a particle filter.</td></tr>
+    </table>
+</div>
+
+<!-- ==================== PAGE 4: LIFECYCLE ==================== -->
+<div class="page">
+    <h2>3. The Navigation Lifecycle</h2>
+
+    <p>Nav2 nodes are <strong>managed lifecycle nodes</strong> (from <code>rclcpp_lifecycle</code>). This provides deterministic startup, ensuring all nodes are properly configured before any navigation begins.</p>
+
+    <div class="diagram">
+        <svg viewBox="0 0 650 350" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="325" y="25" text-anchor="middle" font-size="15" font-weight="bold" fill="#667eea">Lifecycle Node State Machine</text>
+            <!-- States -->
+            <rect x="30" y="60" width="130" height="50" rx="25" fill="#9E9E9E"/>
+            <text x="95" y="90" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Unconfigured</text>
+            <rect x="230" y="60" width="130" height="50" rx="25" fill="#FF9800"/>
+            <text x="295" y="90" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Inactive</text>
+            <rect x="430" y="60" width="130" height="50" rx="25" fill="#4CAF50"/>
+            <text x="495" y="90" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Active</text>
+            <rect x="230" y="230" width="130" height="50" rx="25" fill="#f44336"/>
+            <text x="295" y="260" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Finalized</text>
+            <!-- Transitions -->
+            <line x1="160" y1="85" x2="230" y2="85" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="195" y="78" text-anchor="middle" font-size="10" fill="#667eea" font-weight="bold">configure</text>
+            <line x1="360" y1="75" x2="430" y2="75" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="395" y="68" text-anchor="middle" font-size="10" fill="#667eea" font-weight="bold">activate</text>
+            <line x1="430" y1="95" x2="360" y2="95" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="395" y="108" text-anchor="middle" font-size="10" fill="#764ba2" font-weight="bold">deactivate</text>
+            <line x1="230" y1="110" x2="160" y2="110" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="195" y="125" text-anchor="middle" font-size="10" fill="#764ba2" font-weight="bold">cleanup</text>
+            <line x1="295" y1="110" x2="295" y2="230" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="315" y="175" font-size="10" fill="#f44336" font-weight="bold">shutdown</text>
+            <path d="M95 110 Q95 255 230 255" fill="none" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="130" y="200" font-size="10" fill="#f44336" font-weight="bold">shutdown</text>
+            <path d="M495 110 Q495 255 360 255" fill="none" stroke="#333" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="460" y="200" font-size="10" fill="#f44336" font-weight="bold">shutdown</text>
+            <defs>
+                <marker id="ah2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                </marker>
+            </defs>
+        </svg>
+        <p class="image-caption">Figure 4.1: ROS2 Lifecycle node state transitions used by all Nav2 servers</p>
+    </div>
+
+    <h3>Why Lifecycle Nodes?</h3>
+    <div class="two-column">
+        <div class="info-box">
+            <h4>Without Lifecycle (ROS1)</h4>
+            <ul>
+                <li>Nodes start immediately on launch</li>
+                <li>Race conditions between nodes</li>
+                <li>No guarantee all nodes are ready</li>
+                <li>Difficult to coordinate startup</li>
+            </ul>
+        </div>
+        <div class="info-box">
+            <h4>With Lifecycle (ROS2 Nav2)</h4>
+            <ul>
+                <li>Deterministic configuration phase</li>
+                <li>All resources allocated before activation</li>
+                <li>Lifecycle manager coordinates transitions</li>
+                <li>Graceful shutdown and error handling</li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>The Lifecycle Manager</h3>
+    <p>Nav2 provides a <code>lifecycle_manager</code> node that transitions all navigation nodes through their states in the correct order:</p>
+
+    <div class="flow-step">1. Configure all nodes (load params, allocate memory)</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">2. Activate all nodes (start processing, subscribe to topics)</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">3. Navigation is now ready to receive goals</div>
+
+    <pre><code># Launch snippet for lifecycle_manager
+lifecycle_manager:
+  ros__parameters:
+    autostart: true
+    node_names:
+      - map_server
+      - amcl
+      - planner_server
+      - controller_server
+      - recoveries_server
+      - bt_navigator</code></pre>
+
+    <div class="tip">
+        Set <code>autostart: true</code> during development so nodes transition automatically. In production, you may want manual control for safety checks.
+    </div>
+</div>
+
+<!-- ==================== PAGE 5: MAP SERVER ==================== -->
+<div class="page">
+    <h2>4. Map Server</h2>
+
+    <p>The <code>map_server</code> node loads a pre-built map (typically from SLAM) and serves it to Nav2 components via the <code>/map</code> topic.</p>
+
+    <h3>Map File Format</h3>
+    <p>Maps in ROS2 consist of two files:</p>
+
+    <div class="two-column">
+        <div class="sensor-card">
+            <h4>PGM Image File</h4>
+            <p>Portable Gray Map image where each pixel represents occupancy:</p>
+            <ul style="text-align:left">
+                <li><strong>White (254):</strong> Free space</li>
+                <li><strong>Black (0):</strong> Occupied</li>
+                <li><strong>Grey (205):</strong> Unknown</li>
+            </ul>
+        </div>
+        <div class="sensor-card">
+            <h4>YAML Metadata File</h4>
+            <p>Describes the map properties: resolution, origin, thresholds, and the image file location.</p>
+        </div>
+    </div>
+
+    <h4>Example Map YAML</h4>
+    <pre><code># my_map.yaml
+image: my_map.pgm
+resolution: 0.05          # metres per pixel
+origin: [-10.0, -10.0, 0.0]  # [x, y, yaw] of bottom-left pixel
+negate: 0
+occupied_thresh: 0.65      # pixels above this are occupied
+free_thresh: 0.196         # pixels below this are free
+mode: trinary              # trinary | scale | raw</code></pre>
+
+    <div class="info-box">
+        <strong>Resolution:</strong> A resolution of 0.05 means each pixel represents a 5cm x 5cm area. A 4000x4000 pixel map covers 200m x 200m -- enough for a large warehouse.
+    </div>
+
+    <h3>Map Server Configuration</h3>
+    <pre><code>map_server:
+  ros__parameters:
+    yaml_filename: "/path/to/my_map.yaml"
+    topic_name: "map"
+    frame_id: "map"</code></pre>
+
+    <h3>Saving Maps with map_saver</h3>
+    <pre><code># Save the current map from /map topic
+ros2 run nav2_map_server map_saver_cli -f ~/maps/my_map
+
+# Save with specific threshold
+ros2 run nav2_map_server map_saver_cli -f ~/maps/my_map --occ 0.65 --free 0.196</code></pre>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=300&fit=crop" alt="Robot mapping concept - floor plan representation">
+        <p class="image-caption">Figure 5.1: Occupancy grid maps encode the environment as a grid of free, occupied, and unknown cells</p>
+    </div>
+
+    <div class="warning-box">
+        <strong>Common Mistake:</strong> Ensure your map's <code>origin</code> is correct. The origin specifies the real-world position of the bottom-left pixel. An incorrect origin causes the robot to localize in the wrong location.
+    </div>
+</div>
+
+<!-- ==================== PAGE 6: COSTMAPS ==================== -->
+<div class="page">
+    <h2>5. Costmaps</h2>
+
+    <p>A <strong>costmap</strong> is a grid that assigns a cost value (0-254) to each cell. Nav2 uses two costmaps:</p>
+    <ul>
+        <li><strong>Global Costmap:</strong> Covers the entire map; used by the global planner.</li>
+        <li><strong>Local Costmap:</strong> A rolling window around the robot; used by the local controller.</li>
+    </ul>
+
+    <h3>Costmap Layers</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 650 320" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="325" y="25" text-anchor="middle" font-size="15" font-weight="bold" fill="#667eea">Costmap Layer Composition</text>
+            <!-- Static layer -->
+            <rect x="50" y="220" width="200" height="70" rx="5" fill="#B3E5FC" stroke="#0288D1" stroke-width="2"/>
+            <text x="150" y="250" text-anchor="middle" font-size="12" font-weight="bold" fill="#0288D1">Static Layer</text>
+            <text x="150" y="270" text-anchor="middle" font-size="10" fill="#333">From map_server</text>
+            <!-- Obstacle layer -->
+            <rect x="60" y="170" width="200" height="70" rx="5" fill="#C8E6C9" stroke="#388E3C" stroke-width="2" opacity="0.9"/>
+            <text x="160" y="200" text-anchor="middle" font-size="12" font-weight="bold" fill="#388E3C">Obstacle Layer</text>
+            <text x="160" y="220" text-anchor="middle" font-size="10" fill="#333">From laser/depth sensors</text>
+            <!-- Inflation layer -->
+            <rect x="70" y="120" width="200" height="70" rx="5" fill="#FFE0B2" stroke="#F57C00" stroke-width="2" opacity="0.9"/>
+            <text x="170" y="150" text-anchor="middle" font-size="12" font-weight="bold" fill="#F57C00">Inflation Layer</text>
+            <text x="170" y="170" text-anchor="middle" font-size="10" fill="#333">Buffer around obstacles</text>
+            <!-- Voxel layer (optional) -->
+            <rect x="80" y="70" width="200" height="70" rx="5" fill="#E1BEE7" stroke="#7B1FA2" stroke-width="2" opacity="0.9"/>
+            <text x="180" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#7B1FA2">Voxel Layer (3D)</text>
+            <text x="180" y="120" text-anchor="middle" font-size="10" fill="#333">3D obstacle tracking</text>
+            <!-- Result arrow -->
+            <text x="340" y="170" font-size="30" fill="#764ba2" font-weight="bold">&rarr;</text>
+            <!-- Final costmap -->
+            <rect x="400" y="100" width="220" height="140" rx="10" fill="#667eea" stroke="#764ba2" stroke-width="3"/>
+            <text x="510" y="155" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Final Costmap</text>
+            <text x="510" y="180" text-anchor="middle" fill="white" font-size="11">All layers merged</text>
+            <text x="510" y="200" text-anchor="middle" fill="white" font-size="11">Values: 0 (free) to</text>
+            <text x="510" y="218" text-anchor="middle" fill="white" font-size="11">254 (lethal)</text>
+        </svg>
+        <p class="image-caption">Figure 6.1: Costmap layers are stacked and merged into a single costmap for planning</p>
+    </div>
+
+    <h3>Cost Values</h3>
+    <table>
+        <tr><th style="width:20%">Value</th><th style="width:30%">Name</th><th>Meaning</th></tr>
+        <tr><td>0</td><td>FREE_SPACE</td><td>No obstacle, safe to traverse</td></tr>
+        <tr><td>1-252</td><td>Cost gradient</td><td>Increasing proximity to obstacles</td></tr>
+        <tr><td>253</td><td>INSCRIBED</td><td>Robot centre here causes collision</td></tr>
+        <tr><td>254</td><td>LETHAL</td><td>Definite obstacle</td></tr>
+        <tr><td>255</td><td>NO_INFORMATION</td><td>Unknown / unmapped</td></tr>
+    </table>
+
+    <h3>Inflation Radius Mathematics</h3>
+    <p>The inflation layer applies an <strong>exponential decay</strong> function around obstacles:</p>
+
+    <div class="math">
+        \[ \text{cost}(d) = \begin{cases} 254 & \text{if } d = 0 \text{ (lethal)} \\ 253 & \text{if } d \leq r_{\text{inscribed}} \\ 253 \cdot e^{-\alpha \cdot (d - r_{\text{inscribed}})} & \text{if } d \leq r_{\text{inflation}} \\ 0 & \text{if } d > r_{\text{inflation}} \end{cases} \]
+    </div>
+
+    <p>Where:</p>
+    <ul>
+        <li>\( d \) = distance from nearest obstacle</li>
+        <li>\( r_{\text{inscribed}} \) = inscribed radius of the robot</li>
+        <li>\( r_{\text{inflation}} \) = inflation radius (typically 0.55 - 1.0 m)</li>
+        <li>\( \alpha \) = cost scaling factor (controls decay steepness)</li>
+    </ul>
+
+    <div class="tip">
+        Higher <code>cost_scaling_factor</code> values make the robot hug obstacles more tightly. Lower values produce wider buffers. Start with 3.0 and adjust.
+    </div>
+</div>
+
+<!-- ==================== PAGE 7: COSTMAP CONFIGURATION ==================== -->
+<div class="page">
+    <h2>6. Costmap Configuration</h2>
+
+    <h3>Global Costmap Parameters</h3>
+    <pre><code>global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: true
+      robot_radius: 0.22
+      resolution: 0.05
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+          data_type: "LaserScan"
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.55</code></pre>
+
+    <h3>Robot Footprint</h3>
+    <p>For non-circular robots, use a polygon footprint instead of <code>robot_radius</code>:</p>
+
+    <div class="two-column">
+        <div>
+            <pre><code>robot_radius: 0.22  # For circular
+
+# OR polygon for rectangular:
+footprint: "[[0.25, 0.15],
+             [0.25, -0.15],
+             [-0.25, -0.15],
+             [-0.25, 0.15]]"</code></pre>
+        </div>
+        <div>
+            <svg viewBox="0 0 250 250" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+                <text x="125" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#667eea">Robot Footprint</text>
+                <!-- Grid -->
+                <line x1="25" y1="125" x2="225" y2="125" stroke="#ddd" stroke-width="1"/>
+                <line x1="125" y1="25" x2="125" y2="225" stroke="#ddd" stroke-width="1"/>
+                <!-- Circular -->
+                <circle cx="85" cy="125" r="35" fill="none" stroke="#667eea" stroke-width="2" stroke-dasharray="5,3"/>
+                <circle cx="85" cy="125" r="2" fill="#667eea"/>
+                <text x="85" y="175" text-anchor="middle" font-size="10" fill="#667eea">Circular</text>
+                <!-- Polygon -->
+                <polygon points="145,95 195,95 195,155 145,155" fill="none" stroke="#764ba2" stroke-width="2"/>
+                <circle cx="170" cy="125" r="2" fill="#764ba2"/>
+                <line x1="170" y1="125" x2="195" y2="125" stroke="#764ba2" stroke-width="1" stroke-dasharray="3,2"/>
+                <text x="170" y="175" text-anchor="middle" font-size="10" fill="#764ba2">Polygon</text>
+                <!-- Axes labels -->
+                <text x="225" y="140" font-size="9" fill="#999">x</text>
+                <text x="130" y="35" font-size="9" fill="#999">y</text>
+            </svg>
+        </div>
+    </div>
+
+    <h3>Local Costmap (Rolling Window)</h3>
+    <pre><code>local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.05
+      robot_radius: 0.22
+      plugins: ["voxel_layer", "inflation_layer"]
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: true
+        publish_voxel_map: true
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.55</code></pre>
+
+    <div class="warning-box">
+        <strong>Rolling Window vs Static:</strong> The local costmap uses <code>rolling_window: true</code> with <code>global_frame: odom</code>. The global costmap uses the full map with <code>global_frame: map</code>. Mixing these up is a common source of errors.
+    </div>
+</div>
+
+<!-- ==================== PAGE 8: AMCL ==================== -->
+<div class="page">
+    <h2>7. Localization with AMCL</h2>
+
+    <p><strong>Adaptive Monte Carlo Localization (AMCL)</strong> determines the robot's pose on the map using a <em>particle filter</em>. It answers: "Where am I on this map?"</p>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=250&fit=crop" alt="Localization concept - finding position in an environment">
+        <p class="image-caption">Figure 8.1: Localization is the process of determining the robot's position within a known map</p>
+    </div>
+
+    <h3>Particle Filter Recap</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 650 200" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step boxes -->
+            <rect x="10" y="60" width="130" height="80" rx="8" fill="#667eea"/>
+            <text x="75" y="90" text-anchor="middle" fill="white" font-size="11" font-weight="bold">1. Initialize</text>
+            <text x="75" y="110" text-anchor="middle" fill="white" font-size="9">Spread N particles</text>
+            <text x="75" y="125" text-anchor="middle" fill="white" font-size="9">around estimate</text>
+
+            <text x="155" y="100" text-anchor="middle" font-size="20" fill="#764ba2">&rarr;</text>
+
+            <rect x="170" y="60" width="130" height="80" rx="8" fill="#FF9800"/>
+            <text x="235" y="90" text-anchor="middle" fill="white" font-size="11" font-weight="bold">2. Predict</text>
+            <text x="235" y="110" text-anchor="middle" fill="white" font-size="9">Move particles</text>
+            <text x="235" y="125" text-anchor="middle" fill="white" font-size="9">using odometry</text>
+
+            <text x="315" y="100" text-anchor="middle" font-size="20" fill="#764ba2">&rarr;</text>
+
+            <rect x="330" y="60" width="130" height="80" rx="8" fill="#4CAF50"/>
+            <text x="395" y="90" text-anchor="middle" fill="white" font-size="11" font-weight="bold">3. Update</text>
+            <text x="395" y="110" text-anchor="middle" fill="white" font-size="9">Weight particles</text>
+            <text x="395" y="125" text-anchor="middle" fill="white" font-size="9">by sensor match</text>
+
+            <text x="475" y="100" text-anchor="middle" font-size="20" fill="#764ba2">&rarr;</text>
+
+            <rect x="490" y="60" width="130" height="80" rx="8" fill="#9C27B0"/>
+            <text x="555" y="90" text-anchor="middle" fill="white" font-size="11" font-weight="bold">4. Resample</text>
+            <text x="555" y="110" text-anchor="middle" fill="white" font-size="9">Replace low-weight</text>
+            <text x="555" y="125" text-anchor="middle" fill="white" font-size="9">with high-weight</text>
+
+            <!-- Loop arrow -->
+            <path d="M555 140 Q555 175 395 175 Q235 175 235 140" fill="none" stroke="#764ba2" stroke-width="2" marker-end="url(#ah2)"/>
+            <text x="395" y="190" text-anchor="middle" font-size="10" fill="#764ba2" font-weight="bold">Repeat every sensor update</text>
+        </svg>
+        <p class="image-caption">Figure 8.2: The four stages of particle filter localization</p>
+    </div>
+
+    <h3>Importance Sampling</h3>
+    <p>Each particle is weighted by how well its predicted sensor readings match the actual sensor readings:</p>
+
+    <div class="math">
+        \[ w_i^{(t)} = w_i^{(t-1)} \cdot p(z_t \mid x_i^{(t)}, m) \]
+    </div>
+
+    <p>Where:</p>
+    <ul>
+        <li>\( w_i^{(t)} \) = weight of particle \( i \) at time \( t \)</li>
+        <li>\( z_t \) = sensor observation (laser scan)</li>
+        <li>\( x_i^{(t)} \) = particle's hypothesized pose</li>
+        <li>\( m \) = the map</li>
+    </ul>
+
+    <h3>Particle Cloud Visualization</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 500 250" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="250" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">AMCL Particle Convergence</text>
+            <!-- Map outline -->
+            <rect x="20" y="35" width="200" height="200" rx="5" fill="#f5f5f5" stroke="#999"/>
+            <text x="120" y="55" text-anchor="middle" font-size="10" fill="#666">Initial: Spread out</text>
+            <!-- Scattered particles -->
+            <circle cx="50" cy="80" r="3" fill="#f44336" opacity="0.6"/><circle cx="150" cy="100" r="3" fill="#f44336" opacity="0.6"/>
+            <circle cx="80" cy="180" r="3" fill="#f44336" opacity="0.6"/><circle cx="170" cy="70" r="3" fill="#f44336" opacity="0.6"/>
+            <circle cx="60" cy="150" r="3" fill="#f44336" opacity="0.6"/><circle cx="130" cy="200" r="3" fill="#f44336" opacity="0.6"/>
+            <circle cx="100" cy="120" r="3" fill="#f44336" opacity="0.6"/><circle cx="180" cy="160" r="3" fill="#f44336" opacity="0.6"/>
+            <circle cx="40" cy="210" r="3" fill="#f44336" opacity="0.6"/><circle cx="190" cy="130" r="3" fill="#f44336" opacity="0.6"/>
+            <circle cx="110" cy="80" r="3" fill="#f44336" opacity="0.6"/><circle cx="70" cy="120" r="3" fill="#f44336" opacity="0.6"/>
+            <circle cx="160" cy="190" r="3" fill="#f44336" opacity="0.6"/><circle cx="90" cy="220" r="3" fill="#f44336" opacity="0.6"/>
+
+            <!-- Arrow -->
+            <text x="245" y="145" font-size="24" fill="#764ba2">&rarr;</text>
+
+            <!-- Converged map -->
+            <rect x="280" y="35" width="200" height="200" rx="5" fill="#f5f5f5" stroke="#999"/>
+            <text x="380" y="55" text-anchor="middle" font-size="10" fill="#666">Converged: Clustered</text>
+            <!-- Clustered particles -->
+            <circle cx="380" cy="140" r="3" fill="#4CAF50"/><circle cx="385" cy="135" r="3" fill="#4CAF50"/>
+            <circle cx="375" cy="145" r="3" fill="#4CAF50"/><circle cx="382" cy="138" r="3" fill="#4CAF50"/>
+            <circle cx="378" cy="142" r="3" fill="#4CAF50"/><circle cx="384" cy="148" r="3" fill="#4CAF50"/>
+            <circle cx="376" cy="136" r="3" fill="#4CAF50"/><circle cx="388" cy="140" r="3" fill="#4CAF50"/>
+            <circle cx="372" cy="140" r="3" fill="#4CAF50"/><circle cx="380" cy="150" r="3" fill="#4CAF50"/>
+            <circle cx="386" cy="132" r="3" fill="#4CAF50"/><circle cx="374" cy="148" r="3" fill="#4CAF50"/>
+            <circle cx="390" cy="144" r="3" fill="#4CAF50"/><circle cx="370" cy="138" r="3" fill="#4CAF50"/>
+            <!-- Robot -->
+            <polygon points="380,130 372,145 388,145" fill="#667eea" stroke="#333" stroke-width="1"/>
+        </svg>
+        <p class="image-caption">Figure 8.3: Particles converge from a spread-out distribution to a tight cluster as the robot collects sensor data</p>
+    </div>
+
+    <div class="info-box">
+        <strong>"Adaptive" in AMCL:</strong> AMCL dynamically adjusts the number of particles using KLD-sampling. When the robot is well-localized, fewer particles are needed, saving computation. When uncertainty increases (e.g., the robot is kidnapped), more particles are spawned.
+    </div>
+</div>
+
+<!-- ==================== PAGE 9: AMCL CONFIGURATION ==================== -->
+<div class="page">
+    <h2>8. AMCL Configuration</h2>
+
+    <h3>Full AMCL Parameter Configuration</h3>
+    <pre><code>amcl:
+  ros__parameters:
+    use_sim_time: true
+    alpha1: 0.2           # Rotation noise from rotation
+    alpha2: 0.2           # Rotation noise from translation
+    alpha3: 0.2           # Translation noise from translation
+    alpha4: 0.2           # Translation noise from rotation
+    alpha5: 0.2           # Translation noise (omnidirectional)
+    base_frame_id: "base_footprint"
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beamskip: false
+    global_frame_id: "map"
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 100.0
+    laser_min_range: -1.0
+    laser_model_type: "likelihood_field"
+    max_beams: 60
+    max_particles: 2000
+    min_particles: 500
+    odom_frame_id: "odom"
+    pf_err: 0.05
+    pf_z: 0.99
+    recovery_alpha_fast: 0.0
+    recovery_alpha_slow: 0.0
+    resample_interval: 1
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
+    save_pose_rate: 0.5
+    sigma_hit: 0.2
+    tf_broadcast: true
+    transform_tolerance: 1.0
+    update_min_a: 0.2     # Minimum rotation (rad) before update
+    update_min_d: 0.25    # Minimum translation (m) before update
+    z_hit: 0.5
+    z_max: 0.05
+    z_rand: 0.5
+    z_short: 0.05
+    set_initial_pose: true
+    initial_pose:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      yaw: 0.0</code></pre>
+
+    <h3>Key Parameter Groups</h3>
+    <table>
+        <tr><th style="width:28%">Parameter</th><th style="width:22%">Default</th><th>Purpose</th></tr>
+        <tr><td><code>min_particles</code></td><td>500</td><td>Minimum particle count (KLD lower bound)</td></tr>
+        <tr><td><code>max_particles</code></td><td>2000</td><td>Maximum particle count (KLD upper bound)</td></tr>
+        <tr><td><code>laser_model_type</code></td><td>likelihood_field</td><td>Sensor model: likelihood_field or beam</td></tr>
+        <tr><td><code>robot_model_type</code></td><td>DifferentialMotionModel</td><td>Odometry model for motion prediction</td></tr>
+        <tr><td><code>alpha1-alpha5</code></td><td>0.2</td><td>Odometry noise parameters</td></tr>
+        <tr><td><code>update_min_d</code></td><td>0.25m</td><td>Min distance before filter update</td></tr>
+        <tr><td><code>update_min_a</code></td><td>0.2 rad</td><td>Min rotation before filter update</td></tr>
+    </table>
+
+    <h3>Tuning Tips</h3>
+    <div class="two-column">
+        <div class="tip">
+            <strong>Particles jumping around?</strong> Increase <code>min_particles</code> and decrease <code>alpha1-alpha4</code> noise values. The odometry model may be too noisy.
+        </div>
+        <div class="tip">
+            <strong>Slow localization?</strong> Decrease <code>update_min_d</code> and <code>update_min_a</code> so the filter updates more frequently. Increase <code>max_beams</code> for more sensor data per update.
+        </div>
+    </div>
+
+    <div class="activity-box">
+        <h3>Activity 1: AMCL Visualization</h3>
+        <p><strong>Objective:</strong> Observe AMCL particle convergence in RViz2.</p>
+        <ol>
+            <li>Launch TurtleBot3 navigation: <code>ros2 launch turtlebot3_navigation2 navigation2.launch.py map:=$HOME/maps/my_map.yaml</code></li>
+            <li>In RViz2, add a <strong>PoseArray</strong> display subscribed to <code>/particlecloud</code></li>
+            <li>Use the <strong>2D Pose Estimate</strong> tool to set an initial pose</li>
+            <li>Drive the robot around using teleop and observe particles converging</li>
+            <li>Record: How many iterations until convergence? How does the particle count change?</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ==================== PAGE 10: GLOBAL PLANNING ==================== -->
+<div class="page">
+    <h2>9. Global Path Planning</h2>
+
+    <p>The <strong>Planner Server</strong> computes an optimal (or near-optimal) path from the robot's current position to the goal. Nav2 supports multiple planner plugins.</p>
+
+    <h3>A* Cost Function</h3>
+    <div class="math">
+        \[ f(n) = g(n) + h(n) \]
+    </div>
+    <p>Where:</p>
+    <ul>
+        <li>\( f(n) \) = estimated total cost through node \( n \)</li>
+        <li>\( g(n) \) = actual cost from start to \( n \)</li>
+        <li>\( h(n) \) = heuristic estimate from \( n \) to goal</li>
+    </ul>
+
+    <h3>Planner Comparison</h3>
+    <table>
+        <tr><th style="width:18%">Planner</th><th style="width:22%">Algorithm</th><th style="width:25%">Strengths</th><th>Use Case</th></tr>
+        <tr><td><strong>NavFn</strong></td><td>Dijkstra / A*</td><td>Simple, reliable, fast</td><td>Default; works well in most cases</td></tr>
+        <tr><td><strong>Smac 2D</strong></td><td>A* with 8-connected</td><td>Smoother than NavFn</td><td>Circular robots, open spaces</td></tr>
+        <tr><td><strong>Smac Hybrid-A*</strong></td><td>Hybrid A*</td><td>Kinematically feasible</td><td>Ackermann / car-like robots</td></tr>
+        <tr><td><strong>Smac Lattice</strong></td><td>State Lattice</td><td>Respects full kinematics</td><td>Complex non-holonomic robots</td></tr>
+        <tr><td><strong>Theta*</strong></td><td>Theta* (any-angle)</td><td>Any-angle paths (not grid-aligned)</td><td>Open environments, smooth paths</td></tr>
+    </table>
+
+    <h3>A* Path Search Visualization</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 550 350" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="275" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">A* Grid Search</text>
+            <!-- Grid -->
+            <g stroke="#ddd" stroke-width="1">
+                <line x1="50" y1="40" x2="50" y2="340"/><line x1="100" y1="40" x2="100" y2="340"/>
+                <line x1="150" y1="40" x2="150" y2="340"/><line x1="200" y1="40" x2="200" y2="340"/>
+                <line x1="250" y1="40" x2="250" y2="340"/><line x1="300" y1="40" x2="300" y2="340"/>
+                <line x1="350" y1="40" x2="350" y2="340"/><line x1="400" y1="40" x2="400" y2="340"/>
+                <line x1="450" y1="40" x2="450" y2="340"/><line x1="500" y1="40" x2="500" y2="340"/>
+                <line x1="50" y1="40" x2="500" y2="40"/><line x1="50" y1="90" x2="500" y2="90"/>
+                <line x1="50" y1="140" x2="500" y2="140"/><line x1="50" y1="190" x2="500" y2="190"/>
+                <line x1="50" y1="240" x2="500" y2="240"/><line x1="50" y1="290" x2="500" y2="290"/>
+                <line x1="50" y1="340" x2="500" y2="340"/>
+            </g>
+            <!-- Obstacles -->
+            <rect x="200" y="40" width="50" height="150" fill="#333"/>
+            <rect x="200" y="190" width="50" height="50" fill="#333"/>
+            <rect x="300" y="140" width="50" height="150" fill="#333"/>
+            <!-- Explored cells -->
+            <rect x="100" y="90" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="100" y="140" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="100" y="190" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="150" y="140" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="150" y="190" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="150" y="240" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="200" y="240" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="250" y="190" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="250" y="240" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="250" y="290" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="300" y="290" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="350" y="290" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <rect x="350" y="240" width="50" height="50" fill="#B3E5FC" opacity="0.5"/>
+            <!-- Path -->
+            <polyline points="75,65 125,115 125,165 175,215 225,265 275,315 325,315 375,265 425,215" fill="none" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Start -->
+            <circle cx="75" cy="65" r="12" fill="#4CAF50"/>
+            <text x="75" y="69" text-anchor="middle" fill="white" font-size="10" font-weight="bold">S</text>
+            <!-- Goal -->
+            <circle cx="425" cy="215" r="12" fill="#f44336"/>
+            <text x="425" y="219" text-anchor="middle" fill="white" font-size="10" font-weight="bold">G</text>
+            <!-- Legend -->
+            <rect x="50" y="345" width="15" height="10" fill="#333"/><text x="70" y="355" font-size="9" fill="#333">Obstacle</text>
+            <rect x="140" y="345" width="15" height="10" fill="#B3E5FC"/><text x="160" y="355" font-size="9" fill="#333">Explored</text>
+            <line x1="230" y1="350" x2="260" y2="350" stroke="#4CAF50" stroke-width="3"/><text x="265" y="355" font-size="9" fill="#333">Path</text>
+        </svg>
+        <p class="image-caption">Figure 9.1: A* expands nodes guided by the heuristic, finding an optimal path around obstacles</p>
+    </div>
+
+    <h3>Planner Server Configuration</h3>
+    <pre><code>planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: true
+      allow_unknown: true</code></pre>
+
+    <div class="activity-box">
+        <h3>Activity 2: Compare Planners</h3>
+        <p><strong>Objective:</strong> Compare path quality between NavFn and Smac 2D planners.</p>
+        <ol>
+            <li>Launch Nav2 with NavFn planner (default)</li>
+            <li>Send a goal in RViz2 and observe the planned path</li>
+            <li>Switch to Smac 2D planner in the YAML config</li>
+            <li>Send the same goal and compare path smoothness, length, and planning time</li>
+            <li>Document your observations: which planner produces a shorter/smoother path?</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ==================== PAGE 11: LOCAL CONTROLLER ==================== -->
+<div class="page">
+    <h2>10. Local Planning / Controller</h2>
+
+    <p>The <strong>Controller Server</strong> follows the global path by computing velocity commands (<code>cmd_vel</code>) in real-time. It uses the local costmap for reactive obstacle avoidance.</p>
+
+    <h3>DWA Objective Function</h3>
+    <p>The Dynamic Window Approach (DWA) samples velocity pairs \((v, \omega)\) and scores them:</p>
+
+    <div class="math">
+        \[ G(v, \omega) = \sigma \left( \alpha \cdot \text{heading}(v, \omega) + \beta \cdot \text{dist}(v, \omega) + \gamma \cdot \text{velocity}(v, \omega) \right) \]
+    </div>
+
+    <p>Where:</p>
+    <ul>
+        <li>\(\text{heading}\) = alignment with the goal direction</li>
+        <li>\(\text{dist}\) = distance to the nearest obstacle on the trajectory</li>
+        <li>\(\text{velocity}\) = forward velocity (prefer faster motion)</li>
+        <li>\(\alpha, \beta, \gamma\) = weighting factors</li>
+    </ul>
+
+    <h3>Controller Comparison</h3>
+    <table>
+        <tr><th style="width:22%">Controller</th><th style="width:28%">Method</th><th style="width:25%">Strengths</th><th>Best For</th></tr>
+        <tr><td><strong>DWB</strong></td><td>Dynamic Window</td><td>Simple, fast, well-tested</td><td>Differential drive robots</td></tr>
+        <tr><td><strong>TEB</strong></td><td>Timed Elastic Band</td><td>Time-optimal, smooth</td><td>Tight spaces, dynamic obstacles</td></tr>
+        <tr><td><strong>MPPI</strong></td><td>Model Predictive Path Integral</td><td>Handles complex costs, GPU-friendly</td><td>High-performance, agile robots</td></tr>
+        <tr><td><strong>RPP</strong></td><td>Regulated Pure Pursuit</td><td>Very simple, predictable</td><td>Simple paths, ackermann</td></tr>
+    </table>
+
+    <h3>DWA Velocity Space Sampling</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 500 320" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="250" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">DWA Velocity Space</text>
+            <!-- Axes -->
+            <line x1="80" y1="280" x2="450" y2="280" stroke="#333" stroke-width="2"/>
+            <line x1="80" y1="280" x2="80" y2="40" stroke="#333" stroke-width="2"/>
+            <text x="270" y="310" text-anchor="middle" font-size="11" fill="#333">Linear velocity v (m/s)</text>
+            <text x="30" y="160" text-anchor="middle" font-size="11" fill="#333" transform="rotate(-90,30,160)">Angular velocity w (rad/s)</text>
+            <!-- Velocity limits (full) -->
+            <rect x="100" y="60" width="330" height="200" rx="5" fill="#E3F2FD" stroke="#90CAF9" stroke-width="1" stroke-dasharray="5,3"/>
+            <text x="265" y="80" text-anchor="middle" font-size="9" fill="#90CAF9">Admissible velocities</text>
+            <!-- Dynamic window -->
+            <rect x="180" y="110" width="140" height="120" rx="5" fill="#C8E6C9" stroke="#4CAF50" stroke-width="2"/>
+            <text x="250" y="130" text-anchor="middle" font-size="10" fill="#4CAF50" font-weight="bold">Dynamic Window</text>
+            <!-- Sampled trajectories -->
+            <circle cx="200" cy="150" r="4" fill="#667eea"/><circle cx="230" cy="160" r="4" fill="#667eea"/>
+            <circle cx="260" cy="170" r="4" fill="#667eea"/><circle cx="290" cy="180" r="4" fill="#667eea"/>
+            <circle cx="200" cy="190" r="4" fill="#667eea"/><circle cx="230" cy="200" r="4" fill="#667eea"/>
+            <circle cx="260" cy="150" r="4" fill="#667eea"/><circle cx="290" cy="160" r="4" fill="#667eea"/>
+            <circle cx="220" cy="170" r="4" fill="#667eea"/><circle cx="250" cy="190" r="4" fill="#667eea"/>
+            <circle cx="280" cy="200" r="4" fill="#667eea"/><circle cx="210" cy="210" r="4" fill="#667eea"/>
+            <!-- Best velocity -->
+            <circle cx="260" cy="170" r="8" fill="none" stroke="#f44336" stroke-width="3"/>
+            <text x="280" y="165" font-size="9" fill="#f44336" font-weight="bold">Best (v*, w*)</text>
+            <!-- Current velocity -->
+            <circle cx="240" cy="180" r="5" fill="#FF9800"/>
+            <text x="240" y="210" text-anchor="middle" font-size="9" fill="#FF9800">Current</text>
+            <!-- Axis labels -->
+            <text x="100" y="295" font-size="9" fill="#333">0</text>
+            <text x="430" y="295" font-size="9" fill="#333">v_max</text>
+            <text x="85" y="70" font-size="9" fill="#333">w_max</text>
+            <text x="85" y="275" font-size="9" fill="#333">-w_max</text>
+        </svg>
+        <p class="image-caption">Figure 10.1: DWA samples velocities within the dynamic window (reachable from current velocity) and selects the best scoring pair</p>
+    </div>
+
+    <h3>Controller Server Configuration</h3>
+    <pre><code>controller_server:
+  ros__parameters:
+    controller_frequency: 20.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    controller_plugins: ["FollowPath"]
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: true
+      min_vel_x: 0.0
+      min_vel_y: 0.0
+      max_vel_x: 0.26
+      max_vel_y: 0.0
+      max_vel_theta: 1.0
+      min_speed_xy: 0.0
+      max_speed_xy: 0.26
+      min_speed_theta: 0.0
+      acc_lim_x: 2.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -3.2
+      vx_samples: 20
+      vy_samples: 5
+      vtheta_samples: 20
+      sim_time: 1.7
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: true
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle",
+                "GoalAlign", "PathAlign", "PathDist", "GoalDist"]</code></pre>
+</div>
+
+<!-- ==================== PAGE 12: BEHAVIOR TREES ==================== -->
+<div class="page">
+    <h2>11. Behavior Trees</h2>
+
+    <p>Nav2 uses <strong>Behavior Trees (BTs)</strong> to orchestrate navigation, replacing the finite state machines (FSMs) used in ROS1's move_base.</p>
+
+    <h3>Why Behavior Trees over FSMs?</h3>
+    <div class="two-column">
+        <div class="info-box">
+            <h4>Finite State Machines</h4>
+            <ul>
+                <li>Transitions grow exponentially with states</li>
+                <li>Hard to modify without breaking logic</li>
+                <li>State explosion problem</li>
+                <li>Not modular or reusable</li>
+            </ul>
+        </div>
+        <div class="info-box">
+            <h4>Behavior Trees</h4>
+            <ul>
+                <li>Hierarchical and modular</li>
+                <li>Easy to add/remove behaviors</li>
+                <li>Defined in XML (no recompilation)</li>
+                <li>Reusable sub-trees</li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>BT Node Types</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 650 300" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="325" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">Behavior Tree Node Types</text>
+            <!-- Control nodes -->
+            <text x="100" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#764ba2">Control Nodes</text>
+            <!-- Sequence -->
+            <rect x="30" y="70" width="140" height="45" rx="5" fill="#667eea"/>
+            <text x="100" y="88" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Sequence (&rarr;)</text>
+            <text x="100" y="105" text-anchor="middle" fill="white" font-size="9">All must succeed</text>
+            <!-- Fallback -->
+            <rect x="30" y="125" width="140" height="45" rx="5" fill="#FF9800"/>
+            <text x="100" y="143" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Fallback (?)</text>
+            <text x="100" y="160" text-anchor="middle" fill="white" font-size="9">First to succeed</text>
+
+            <!-- Action nodes -->
+            <text x="325" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#764ba2">Leaf Nodes</text>
+            <!-- Action -->
+            <rect x="240" y="70" width="170" height="45" rx="22" fill="#4CAF50"/>
+            <text x="325" y="95" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Action (execute)</text>
+            <!-- Condition -->
+            <ellipse cx="325" cy="150" rx="85" ry="22" fill="#9C27B0"/>
+            <text x="325" y="155" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Condition (check)</text>
+
+            <!-- Decorator nodes -->
+            <text x="550" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#764ba2">Decorators</text>
+            <!-- Inverter -->
+            <polygon points="550,75 500,120 600,120" fill="#607D8B"/>
+            <text x="550" y="110" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Inverter</text>
+            <!-- Repeat -->
+            <polygon points="550,135 500,180 600,180" fill="#795548"/>
+            <text x="550" y="170" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Repeat</text>
+
+            <!-- Example tree -->
+            <text x="325" y="210" text-anchor="middle" font-size="12" font-weight="bold" fill="#667eea">Example: Simple Navigation</text>
+            <!-- Root Sequence -->
+            <rect x="275" y="220" width="100" height="30" rx="5" fill="#667eea"/>
+            <text x="325" y="240" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Sequence</text>
+            <!-- Children -->
+            <line x1="300" y1="250" x2="175" y2="270" stroke="#333" stroke-width="1.5"/>
+            <line x1="325" y1="250" x2="325" y2="270" stroke="#333" stroke-width="1.5"/>
+            <line x1="350" y1="250" x2="475" y2="270" stroke="#333" stroke-width="1.5"/>
+            <rect x="110" y="270" width="130" height="25" rx="12" fill="#4CAF50"/>
+            <text x="175" y="287" text-anchor="middle" fill="white" font-size="9" font-weight="bold">ComputePath</text>
+            <rect x="260" y="270" width="130" height="25" rx="12" fill="#4CAF50"/>
+            <text x="325" y="287" text-anchor="middle" fill="white" font-size="9" font-weight="bold">FollowPath</text>
+            <ellipse cx="475" cy="282" rx="60" ry="12" fill="#9C27B0"/>
+            <text x="475" y="287" text-anchor="middle" fill="white" font-size="9" font-weight="bold">GoalReached?</text>
+        </svg>
+        <p class="image-caption">Figure 11.1: BT node types and a simple navigation tree example</p>
+    </div>
+
+    <h3>BT Tick Execution</h3>
+    <p>The tree is "ticked" at a regular frequency (typically 10 Hz). Each tick traverses from the root:</p>
+    <ul>
+        <li><strong>SUCCESS:</strong> The node completed its task</li>
+        <li><strong>FAILURE:</strong> The node could not complete its task</li>
+        <li><strong>RUNNING:</strong> The node is still working (e.g., robot is still moving)</li>
+    </ul>
+
+    <div class="info-box">
+        <strong>Sequence Node Logic:</strong> Ticks children left-to-right. If any child returns FAILURE, the Sequence returns FAILURE. If a child returns RUNNING, the Sequence returns RUNNING. Only when ALL children return SUCCESS does the Sequence return SUCCESS.
+    </div>
+
+    <div class="info-box">
+        <strong>Fallback Node Logic:</strong> Ticks children left-to-right. If any child returns SUCCESS, the Fallback returns SUCCESS. If a child returns RUNNING, the Fallback returns RUNNING. Only when ALL children return FAILURE does the Fallback return FAILURE. This is used for recovery: "try plan A, if it fails, try plan B."
+    </div>
+</div>
+
+<!-- ==================== PAGE 13: DEFAULT BT ==================== -->
+<div class="page">
+    <h2>12. Nav2 Default Behavior Tree</h2>
+
+    <p>Nav2's default BT for <code>NavigateToPose</code> combines planning, path following, and recovery in a structured tree.</p>
+
+    <div class="diagram">
+        <svg viewBox="0 0 700 450" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="350" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">Nav2 Default NavigateToPose BT (Simplified)</text>
+            <!-- Root -->
+            <rect x="280" y="35" width="140" height="30" rx="5" fill="#667eea"/>
+            <text x="350" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">NavigateToPose</text>
+            <!-- Pipeline Sequence -->
+            <line x1="350" y1="65" x2="350" y2="85" stroke="#333" stroke-width="1.5"/>
+            <rect x="245" y="85" width="210" height="28" rx="5" fill="#764ba2"/>
+            <text x="350" y="103" text-anchor="middle" fill="white" font-size="10" font-weight="bold">PipelineSequence (main loop)</text>
+            <!-- Recovery Fallback -->
+            <line x1="350" y1="113" x2="350" y2="135" stroke="#333" stroke-width="1.5"/>
+            <rect x="250" y="135" width="200" height="28" rx="5" fill="#FF9800"/>
+            <text x="350" y="153" text-anchor="middle" fill="white" font-size="10" font-weight="bold">RecoveryNode (6 retries)</text>
+            <!-- Two branches -->
+            <line x1="310" y1="163" x2="210" y2="190" stroke="#333" stroke-width="1.5"/>
+            <line x1="390" y1="163" x2="500" y2="190" stroke="#333" stroke-width="1.5"/>
+            <!-- Navigate branch -->
+            <rect x="110" y="190" width="200" height="28" rx="5" fill="#667eea"/>
+            <text x="210" y="208" text-anchor="middle" fill="white" font-size="10" font-weight="bold">PipelineSequence (navigate)</text>
+            <!-- Navigate children -->
+            <line x1="160" y1="218" x2="100" y2="245" stroke="#333" stroke-width="1.5"/>
+            <line x1="210" y1="218" x2="210" y2="245" stroke="#333" stroke-width="1.5"/>
+            <line x1="260" y1="218" x2="320" y2="245" stroke="#333" stroke-width="1.5"/>
+            <!-- ComputePath -->
+            <rect x="35" y="245" width="130" height="25" rx="12" fill="#4CAF50"/>
+            <text x="100" y="261" text-anchor="middle" fill="white" font-size="9" font-weight="bold">ComputePathToPose</text>
+            <!-- Controller -->
+            <rect x="145" y="245" width="130" height="25" rx="12" fill="#4CAF50"/>
+            <text x="210" y="261" text-anchor="middle" fill="white" font-size="9" font-weight="bold">FollowPath</text>
+            <!-- Goal checker -->
+            <ellipse cx="320" cy="257" rx="55" ry="12" fill="#9C27B0"/>
+            <text x="320" y="261" text-anchor="middle" fill="white" font-size="8" font-weight="bold">GoalUpdated?</text>
+
+            <!-- Recovery branch -->
+            <rect x="420" y="190" width="180" height="28" rx="5" fill="#f44336"/>
+            <text x="510" y="208" text-anchor="middle" fill="white" font-size="10" font-weight="bold">RoundRobin (recoveries)</text>
+            <!-- Recovery children -->
+            <line x1="465" y1="218" x2="430" y2="250" stroke="#333" stroke-width="1.5"/>
+            <line x1="510" y1="218" x2="510" y2="250" stroke="#333" stroke-width="1.5"/>
+            <line x1="555" y1="218" x2="590" y2="250" stroke="#333" stroke-width="1.5"/>
+            <!-- Recovery actions -->
+            <rect x="375" y="250" width="110" height="22" rx="11" fill="#f44336"/>
+            <text x="430" y="264" text-anchor="middle" fill="white" font-size="8" font-weight="bold">ClearCostmaps</text>
+            <rect x="455" y="250" width="110" height="22" rx="11" fill="#f44336"/>
+            <text x="510" y="264" text-anchor="middle" fill="white" font-size="8" font-weight="bold">Spin</text>
+            <rect x="535" y="250" width="110" height="22" rx="11" fill="#f44336"/>
+            <text x="590" y="264" text-anchor="middle" fill="white" font-size="8" font-weight="bold">Wait</text>
+
+            <!-- Legend -->
+            <rect x="50" y="310" width="600" height="130" rx="8" fill="#f9f9f9" stroke="#ddd"/>
+            <text x="350" y="330" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">Legend</text>
+            <rect x="70" y="340" width="80" height="18" rx="4" fill="#667eea"/><text x="165" y="354" font-size="9" fill="#333">Sequence / Pipeline</text>
+            <rect x="70" y="365" width="80" height="18" rx="4" fill="#FF9800"/><text x="165" y="379" font-size="9" fill="#333">Recovery Node</text>
+            <rect x="70" y="390" width="80" height="18" rx="4" fill="#f44336"/><text x="165" y="404" font-size="9" fill="#333">Recovery Actions</text>
+            <rect x="330" y="340" width="80" height="18" rx="9" fill="#4CAF50"/><text x="425" y="354" font-size="9" fill="#333">Action Nodes</text>
+            <ellipse cx="370" cy="379" rx="40" ry="9" fill="#9C27B0"/><text x="425" y="383" font-size="9" fill="#333">Condition Nodes</text>
+            <rect x="330" y="395" width="80" height="18" rx="4" fill="#764ba2"/><text x="425" y="409" font-size="9" fill="#333">Control Flow</text>
+        </svg>
+        <p class="image-caption">Figure 12.1: Simplified Nav2 default Behavior Tree for NavigateToPose</p>
+    </div>
+
+    <h3>How the Default BT Works</h3>
+    <ol>
+        <li><strong>PipelineSequence</strong> continuously re-ticks children while RUNNING</li>
+        <li><strong>ComputePathToPose</strong> generates a global path using the Planner Server</li>
+        <li><strong>FollowPath</strong> sends the path to the Controller Server for execution</li>
+        <li><strong>GoalUpdated</strong> checks if a new goal has been received mid-navigation</li>
+        <li>If navigation fails, the <strong>RecoveryNode</strong> triggers recovery behaviors</li>
+        <li>Recoveries cycle through: Clear Costmaps, Spin, Wait (round-robin)</li>
+        <li>After recovery, navigation retries (up to 6 times by default)</li>
+    </ol>
+
+    <h3>Custom BT XML</h3>
+    <pre><code>&lt;root main_tree_to_execute="MainTree"&gt;
+  &lt;BehaviorTree ID="MainTree"&gt;
+    &lt;RecoveryNode number_of_retries="6"&gt;
+      &lt;PipelineSequence&gt;
+        &lt;ComputePathToPose goal="{goal}" path="{path}"
+          planner_id="GridBased"/&gt;
+        &lt;FollowPath path="{path}" controller_id="FollowPath"/&gt;
+      &lt;/PipelineSequence&gt;
+      &lt;RoundRobin&gt;
+        &lt;ClearEntireCostmap name="ClearGlobalCostmap"
+          service_name="/global_costmap/clear_entirely_global_costmap"/&gt;
+        &lt;Spin spin_dist="1.57"/&gt;
+        &lt;Wait wait_duration="5"/&gt;
+      &lt;/RoundRobin&gt;
+    &lt;/RecoveryNode&gt;
+  &lt;/BehaviorTree&gt;
+&lt;/root&gt;</code></pre>
+</div>
+
+<!-- ==================== PAGE 14: RECOVERY BEHAVIORS ==================== -->
+<div class="page">
+    <h2>13. Recovery Behaviors</h2>
+
+    <p>Recovery behaviors are triggered when the planner or controller fails. They attempt to resolve the situation so navigation can retry.</p>
+
+    <h3>Built-in Recovery Plugins</h3>
+    <table>
+        <tr><th style="width:22%">Recovery</th><th style="width:35%">Action</th><th>When Used</th></tr>
+        <tr><td><strong>Spin</strong></td><td>Rotate in place (default 1.57 rad)</td><td>Robot stuck, needs to see surroundings</td></tr>
+        <tr><td><strong>BackUp</strong></td><td>Drive backwards (default 0.15m)</td><td>Robot too close to obstacle ahead</td></tr>
+        <tr><td><strong>Wait</strong></td><td>Stop and wait (default 5s)</td><td>Dynamic obstacle may move away</td></tr>
+        <tr><td><strong>ClearCostmap</strong></td><td>Reset costmap layers</td><td>Stale sensor data blocking path</td></tr>
+    </table>
+
+    <h3>Recovery Sequence Diagram</h3>
+    <div class="diagram">
+        <svg viewBox="0 0 600 380" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <text x="300" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#667eea">Recovery Behavior Sequence</text>
+            <!-- Actors -->
+            <rect x="50" y="35" width="100" height="25" rx="5" fill="#667eea"/>
+            <text x="100" y="52" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Controller</text>
+            <rect x="230" y="35" width="100" height="25" rx="5" fill="#764ba2"/>
+            <text x="280" y="52" text-anchor="middle" fill="white" font-size="10" font-weight="bold">BT Navigator</text>
+            <rect x="410" y="35" width="120" height="25" rx="5" fill="#f44336"/>
+            <text x="470" y="52" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Recovery Server</text>
+            <!-- Lifelines -->
+            <line x1="100" y1="60" x2="100" y2="370" stroke="#667eea" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="280" y1="60" x2="280" y2="370" stroke="#764ba2" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="470" y1="60" x2="470" y2="370" stroke="#f44336" stroke-width="1" stroke-dasharray="4,3"/>
+            <!-- Messages -->
+            <line x1="100" y1="90" x2="280" y2="90" stroke="#333" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="190" y="85" text-anchor="middle" font-size="9" fill="#333">FAILURE (cannot follow path)</text>
+            <line x1="280" y1="120" x2="470" y2="120" stroke="#333" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="375" y="115" text-anchor="middle" font-size="9" fill="#333">ClearCostmap action goal</text>
+            <line x1="470" y1="150" x2="280" y2="150" stroke="#4CAF50" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="375" y="145" text-anchor="middle" font-size="9" fill="#4CAF50">SUCCESS</text>
+            <line x1="280" y1="180" x2="100" y2="180" stroke="#333" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="190" y="175" text-anchor="middle" font-size="9" fill="#333">Retry: FollowPath</text>
+            <line x1="100" y1="210" x2="280" y2="210" stroke="#f44336" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="190" y="205" text-anchor="middle" font-size="9" fill="#f44336">FAILURE (still stuck)</text>
+            <line x1="280" y1="240" x2="470" y2="240" stroke="#333" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="375" y="235" text-anchor="middle" font-size="9" fill="#333">Spin action goal</text>
+            <line x1="470" y1="270" x2="280" y2="270" stroke="#4CAF50" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="375" y="265" text-anchor="middle" font-size="9" fill="#4CAF50">SUCCESS</text>
+            <line x1="280" y1="300" x2="100" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="190" y="295" text-anchor="middle" font-size="9" fill="#333">Retry: FollowPath</text>
+            <line x1="100" y1="330" x2="280" y2="330" stroke="#4CAF50" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="190" y="325" text-anchor="middle" font-size="9" fill="#4CAF50">SUCCESS (navigation complete)</text>
+        </svg>
+        <p class="image-caption">Figure 13.1: Recovery sequence showing how the BT cycles through recoveries when navigation fails</p>
+    </div>
+
+    <h3>Recovery Server Configuration</h3>
+    <pre><code>recoveries_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    recovery_plugins: ["spin", "backup", "wait"]
+    spin:
+      plugin: "nav2_recoveries/Spin"
+    backup:
+      plugin: "nav2_recoveries/BackUp"
+    wait:
+      plugin: "nav2_recoveries/Wait"</code></pre>
+
+    <div class="warning-box">
+        <strong>Safety Note:</strong> The <code>Spin</code> recovery will fail if there is insufficient clearance for the robot to rotate. Always ensure your robot's footprint is correctly configured, or the spin recovery may push the robot into an obstacle.
+    </div>
+</div>
+
+<!-- ==================== PAGE 15: WAYPOINT FOLLOWING ==================== -->
+<div class="page">
+    <h2>14. Waypoint Following &amp; Navigation Through Poses</h2>
+
+    <p>Nav2 supports multi-goal navigation through the <strong>Waypoint Follower</strong> and <strong>NavigateThroughPoses</strong> actions.</p>
+
+    <h3>NavigateToPose vs NavigateThroughPoses</h3>
+    <div class="two-column">
+        <div class="sensor-card">
+            <h4>NavigateToPose</h4>
+            <p>Single goal. Plans and navigates to one pose. Re-plans if blocked.</p>
+        </div>
+        <div class="sensor-card">
+            <h4>NavigateThroughPoses</h4>
+            <p>Multiple intermediate poses. Plans a single path through all poses. Does NOT stop at each pose.</p>
+        </div>
+    </div>
+
+    <h3>Waypoint Follower</h3>
+    <p>The waypoint follower node navigates to a sequence of goals, <strong>stopping at each one</strong> before proceeding to the next. It also supports task execution at each waypoint (e.g., take photo, pick up item).</p>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=250&fit=crop" alt="Robot path following concept">
+        <p class="image-caption">Figure 14.1: Waypoint following enables autonomous multi-stop missions</p>
+    </div>
+
+    <h3>Python Waypoint Following Example</h3>
+    <pre><code>#!/usr/bin/env python3
+"""Send a sequence of waypoints to Nav2 Waypoint Follower."""
+import rclpy
+from rclpy.node import Node
+from nav2_simple_commander.robot_navigator import BasicNavigator
+from geometry_msgs.msg import PoseStamped
+import math
+
+def create_pose(navigator, x, y, yaw):
+    """Create a PoseStamped from x, y, yaw."""
+    pose = PoseStamped()
+    pose.header.frame_id = 'map'
+    pose.header.stamp = navigator.get_clock().now().to_msg()
+    pose.pose.position.x = x
+    pose.pose.position.y = y
+    pose.pose.orientation.z = math.sin(yaw / 2.0)
+    pose.pose.orientation.w = math.cos(yaw / 2.0)
+    return pose
+
+def main():
+    rclpy.init()
+    navigator = BasicNavigator()
+
+    # Set initial pose
+    initial_pose = create_pose(navigator, 0.0, 0.0, 0.0)
+    navigator.setInitialPose(initial_pose)
+    navigator.waitUntilNav2Active()
+
+    # Define waypoints
+    waypoints = [
+        create_pose(navigator, 1.5, 0.0, 0.0),
+        create_pose(navigator, 1.5, 1.5, 1.57),
+        create_pose(navigator, 0.0, 1.5, 3.14),
+        create_pose(navigator, 0.0, 0.0, -1.57),
+    ]
+
+    # Execute waypoint following
+    navigator.followWaypoints(waypoints)
+
+    while not navigator.isTaskComplete():
+        feedback = navigator.getFeedback()
+        if feedback:
+            print(f'Executing waypoint '
+                  f'{feedback.current_waypoint + 1}/'
+                  f'{len(waypoints)}')
+
+    result = navigator.getResult()
+    print(f'Navigation result: {result}')
+
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+
+    <div class="activity-box">
+        <h3>Activity 3: Waypoint Mission</h3>
+        <p><strong>Objective:</strong> Program a multi-waypoint patrol mission for TurtleBot3.</p>
+        <ol>
+            <li>Launch TurtleBot3 navigation in Gazebo world</li>
+            <li>Use the code above as a starting point</li>
+            <li>Define a patrol route with at least 6 waypoints forming a closed loop</li>
+            <li>Add a <code>while True</code> loop to make the robot patrol continuously</li>
+            <li>Add error handling: if a waypoint fails, skip to the next one</li>
+            <li>Record the total time for one complete patrol loop</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ==================== PAGE 16: LAUNCH & CONFIG ==================== -->
+<div class="page">
+    <h2>15. Nav2 Launch &amp; Configuration</h2>
+
+    <h3>Complete Launch File</h3>
+    <pre><code>import os
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+
+def generate_launch_description():
+    nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    nav2_params_file = os.path.join(
+        get_package_share_directory('my_robot_nav'),
+        'config', 'nav2_params.yaml')
+    map_file = os.path.join(
+        get_package_share_directory('my_robot_nav'),
+        'maps', 'my_map.yaml')
+
+    return LaunchDescription([
+        # Nav2 bringup (includes all servers + lifecycle mgr)
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(nav2_bringup_dir, 'launch',
+                             'bringup_launch.py')),
+            launch_arguments={
+                'map': map_file,
+                'params_file': nav2_params_file,
+                'use_sim_time': 'true',
+            }.items(),
+        ),
+        # RViz2
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            arguments=['-d', os.path.join(
+                nav2_bringup_dir, 'rviz',
+                'nav2_default_view.rviz')],
+            parameters=[{'use_sim_time': True}],
+        ),
+    ])</code></pre>
+
+    <h3>Complete Nav2 Parameters (Summary)</h3>
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&h=200&fit=crop" alt="Configuration and code concept">
+        <p class="image-caption">Figure 15.1: A well-organized parameter file is essential for reliable navigation</p>
+    </div>
+
+    <pre><code># nav2_params.yaml - Key sections summary
+bt_navigator:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /odom
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    default_bt_xml_filename: "navigate_to_pose_w_replanning_and_recovery.xml"
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_spin_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_back_up_action_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_bt_node
+      - nav2_recovery_node_bt_node</code></pre>
+
+    <h3>Key ROS2 Commands for Nav2</h3>
+    <table>
+        <tr><th style="width:50%">Command</th><th>Purpose</th></tr>
+        <tr><td><code>ros2 launch nav2_bringup bringup_launch.py</code></td><td>Launch all Nav2 nodes</td></tr>
+        <tr><td><code>ros2 topic echo /plan</code></td><td>View the current global plan</td></tr>
+        <tr><td><code>ros2 topic echo /cmd_vel</code></td><td>View velocity commands</td></tr>
+        <tr><td><code>ros2 service call /global_costmap/clear_entirely_global_costmap</code></td><td>Clear global costmap</td></tr>
+        <tr><td><code>ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose</code></td><td>Send a navigation goal from CLI</td></tr>
+    </table>
+
+    <div class="tip">
+        Use the <code>nav2_simple_commander</code> Python API (as shown on the previous page) instead of raw action clients. It handles all the complexity of goal management, feedback, and result checking.
+    </div>
+</div>
+
+<!-- ==================== PAGE 17: SIMULATION ==================== -->
+<div class="page">
+    <h2>16. Simulation with Gazebo &amp; TurtleBot3</h2>
+
+    <p>The easiest way to learn Nav2 is through simulation with TurtleBot3 in Gazebo.</p>
+
+    <h3>Setup Steps</h3>
+    <div class="flow-step">1. Install TurtleBot3 packages</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">2. Set TURTLEBOT3_MODEL environment variable</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">3. Launch Gazebo world</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">4. Launch Nav2 with map</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">5. Set initial pose in RViz2</div>
+    <div class="arrow">&darr;</div>
+    <div class="flow-step">6. Send navigation goals</div>
+
+    <h3>Key Commands</h3>
+    <pre><code># Install TurtleBot3 (if not already installed)
+sudo apt install ros-humble-turtlebot3*
+sudo apt install ros-humble-nav2-bringup
+
+# Set robot model
+export TURTLEBOT3_MODEL=waffle
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/humble/share/turtlebot3_gazebo/models
+
+# Launch Gazebo with TurtleBot3 world
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+
+# In a new terminal: Launch Nav2
+ros2 launch turtlebot3_navigation2 navigation2.launch.py \
+  use_sim_time:=True \
+  map:=$HOME/maps/map.yaml
+
+# In a new terminal: Teleoperate (for SLAM or manual control)
+ros2 run turtlebot3_teleop teleop_keyboard</code></pre>
+
+    <div class="two-column">
+        <div class="image-container">
+            <img src="https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=400&h=250&fit=crop" alt="3D simulation environment concept">
+            <p class="image-caption">Figure 16.1: Gazebo provides a physics-accurate simulation for testing navigation</p>
+        </div>
+        <div class="image-container">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop" alt="Data visualization and monitoring concept">
+            <p class="image-caption">Figure 16.2: RViz2 displays costmaps, paths, particle clouds, and robot state</p>
+        </div>
+    </div>
+
+    <h3>Creating a Map with SLAM</h3>
+    <p>If you do not have a map yet, use SLAM Toolbox to create one:</p>
+    <pre><code># Launch SLAM (instead of Nav2)
+ros2 launch slam_toolbox online_async_launch.py \
+  use_sim_time:=True
+
+# Drive around with teleop to build the map
+ros2 run turtlebot3_teleop teleop_keyboard
+
+# Save the map when complete
+ros2 run nav2_map_server map_saver_cli -f ~/maps/my_map</code></pre>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=200&fit=crop" alt="Digital mapping and data concept">
+        <p class="image-caption">Figure 16.3: SLAM builds a map incrementally as the robot explores</p>
+    </div>
+
+    <div class="activity-box">
+        <h3>Activity 4: Full Nav2 Setup</h3>
+        <p><strong>Objective:</strong> Set up a complete Nav2 pipeline from scratch.</p>
+        <ol>
+            <li>Launch TurtleBot3 in the Gazebo <code>turtlebot3_world</code></li>
+            <li>Run SLAM Toolbox and create a map by driving the robot around the entire world</li>
+            <li>Save the map to <code>~/maps/tb3_world</code></li>
+            <li>Stop SLAM and launch Nav2 with your saved map</li>
+            <li>Set the initial pose in RViz2 using 2D Pose Estimate</li>
+            <li>Send a navigation goal using 2D Goal Pose and verify the robot reaches it</li>
+            <li>Place a dynamic obstacle (using Gazebo's model inserter) and observe how the controller reacts</li>
+        </ol>
+    </div>
+</div>
+
+<!-- ==================== PAGE 18: TUNING GUIDE ==================== -->
+<div class="page">
+    <h2>17. Nav2 Tuning Guide</h2>
+
+    <p>Tuning Nav2 requires a systematic approach. Follow this order: <strong>costmaps first, then planner, then controller</strong>.</p>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=200&fit=crop" alt="Engineering tuning and optimization concept">
+        <p class="image-caption">Figure 17.1: Systematic tuning ensures reliable navigation performance</p>
+    </div>
+
+    <h3>Step 1: Costmap Tuning</h3>
+    <table>
+        <tr><th style="width:30%">Parameter</th><th style="width:35%">Symptom if Wrong</th><th>Fix</th></tr>
+        <tr><td><code>robot_radius</code></td><td>Robot clips obstacles or plans too far from walls</td><td>Measure accurately; add 2-3cm safety margin</td></tr>
+        <tr><td><code>inflation_radius</code></td><td>Robot gets too close to walls or cannot find paths through doorways</td><td>Set to robot radius + 0.1-0.3m; reduce for narrow spaces</td></tr>
+        <tr><td><code>cost_scaling_factor</code></td><td>Robot hugs walls (too high) or avoids all narrow passages (too low)</td><td>Start at 3.0; increase to allow narrow passage navigation</td></tr>
+        <tr><td><code>resolution</code></td><td>Too coarse: missed obstacles. Too fine: slow updates</td><td>0.05m is standard. Use 0.025m only if needed</td></tr>
+    </table>
+
+    <h3>Step 2: Planner Tuning</h3>
+    <table>
+        <tr><th style="width:30%">Parameter</th><th style="width:35%">Symptom if Wrong</th><th>Fix</th></tr>
+        <tr><td><code>tolerance</code></td><td>Cannot find path to goals near obstacles</td><td>Increase to 0.5-1.0m; allows approximate goals</td></tr>
+        <tr><td><code>use_astar</code></td><td>Slow planning in large maps (Dijkstra)</td><td>Enable A* for faster planning with heuristic</td></tr>
+        <tr><td><code>allow_unknown</code></td><td>Cannot plan through unexplored areas</td><td>Set true if map has unknown regions</td></tr>
+    </table>
+
+    <h3>Step 3: Controller Tuning</h3>
+    <table>
+        <tr><th style="width:30%">Parameter</th><th style="width:35%">Symptom if Wrong</th><th>Fix</th></tr>
+        <tr><td><code>max_vel_x</code></td><td>Robot too slow or overshooting</td><td>Match to robot's actual max velocity</td></tr>
+        <tr><td><code>sim_time</code></td><td>Too short: reactive, jerky. Too long: sluggish</td><td>1.5-2.0s for indoor; 3.0s for outdoor</td></tr>
+        <tr><td><code>vx_samples</code></td><td>Poor trajectory selection</td><td>Increase for better coverage (20-40)</td></tr>
+        <tr><td><code>xy_goal_tolerance</code></td><td>Robot oscillates at goal or stops too far away</td><td>0.15-0.25m for indoor navigation</td></tr>
+    </table>
+
+    <div class="warning-box">
+        <strong>Common Pitfall - TF Timeouts:</strong> If you see <code>Transform timeout</code> errors, check that <code>transform_tolerance</code> is set appropriately (0.5-1.0s in simulation) and that all TF broadcasters are running. Simulation time drift is the most common cause.
+    </div>
+
+    <div class="warning-box">
+        <strong>Common Pitfall - Costmap Not Clearing:</strong> If obstacles remain in the costmap after they have moved, check that <code>clearing: true</code> is set for your observation sources and that <code>raytrace_max_range</code> covers your sensor's actual range.
+    </div>
+
+    <h3>Debugging Tools</h3>
+    <pre><code># Check Nav2 node states
+ros2 lifecycle list /controller_server
+ros2 lifecycle get /planner_server
+
+# View costmap values at a point
+ros2 topic echo /global_costmap/costmap --once
+
+# Monitor controller frequency
+ros2 topic hz /cmd_vel
+
+# Check TF tree
+ros2 run tf2_tools view_frames</code></pre>
+</div>
+
+<!-- ==================== PAGE 19: SUMMARY ==================== -->
+<div class="page">
+    <h2>18. Summary &amp; Lab Preview</h2>
+
+    <h3>Key Concepts Covered</h3>
+    <ul class="checklist">
+        <li>Nav2 is a modular, plugin-based navigation framework for ROS2</li>
+        <li>Lifecycle nodes ensure deterministic startup and shutdown</li>
+        <li>Maps are stored as PGM images with YAML metadata</li>
+        <li>Costmaps combine static, obstacle, and inflation layers</li>
+        <li>AMCL uses a particle filter for map-based localization</li>
+        <li>Global planners (NavFn, Smac, Theta*) find optimal paths</li>
+        <li>Local controllers (DWB, TEB, MPPI, RPP) generate velocity commands</li>
+        <li>Behavior Trees orchestrate planning, control, and recovery</li>
+        <li>Recovery behaviors handle navigation failures automatically</li>
+        <li>Waypoint following enables multi-goal missions</li>
+    </ul>
+
+    <h3>Key Equations</h3>
+    <div class="math">
+        <p><strong>A* Cost Function:</strong> \( f(n) = g(n) + h(n) \)</p>
+        <p><strong>Costmap Inflation:</strong> \( \text{cost}(d) = 253 \cdot e^{-\alpha (d - r_{\text{inscribed}})} \)</p>
+        <p><strong>Particle Weight Update:</strong> \( w_i^{(t)} = w_i^{(t-1)} \cdot p(z_t \mid x_i^{(t)}, m) \)</p>
+        <p><strong>DWA Objective:</strong> \( G(v, \omega) = \alpha \cdot \text{heading} + \beta \cdot \text{dist} + \gamma \cdot \text{vel} \)</p>
+    </div>
+
+    <h3>Week 5 Lab Tasks</h3>
+    <ol>
+        <li><strong>Task 1:</strong> Launch TurtleBot3 in Gazebo and create a SLAM map</li>
+        <li><strong>Task 2:</strong> Configure and launch Nav2 with your saved map</li>
+        <li><strong>Task 3:</strong> Tune AMCL parameters and visualize particle convergence</li>
+        <li><strong>Task 4:</strong> Compare NavFn vs Smac 2D planner path quality</li>
+        <li><strong>Task 5:</strong> Configure costmap inflation radius and observe effects on planning</li>
+        <li><strong>Task 6:</strong> Implement a Python waypoint patrol mission</li>
+        <li><strong>Task 7:</strong> Modify the Behavior Tree XML to add a custom recovery sequence</li>
+    </ol>
+
+    <h3>Interview Questions</h3>
+    <div class="info-box">
+        <ol>
+            <li><strong>Q:</strong> What is the difference between the global and local costmap?<br>
+                <strong>A:</strong> The global costmap covers the entire map and is used by the planner to find a path. The local costmap is a rolling window around the robot used by the controller for reactive obstacle avoidance.</li>
+            <li><strong>Q:</strong> Why does Nav2 use Behavior Trees instead of FSMs?<br>
+                <strong>A:</strong> BTs are modular, hierarchical, and defined in XML. They avoid the state explosion problem of FSMs and allow easy addition/removal of behaviors without modifying code.</li>
+            <li><strong>Q:</strong> How does AMCL handle the "kidnapped robot" problem?<br>
+                <strong>A:</strong> KLD-sampling increases the particle count when uncertainty is high. Additionally, <code>recovery_alpha_fast/slow</code> parameters can inject random particles when sensor likelihood drops, helping the robot re-localize.</li>
+            <li><strong>Q:</strong> What is the inflation layer and why is it important?<br>
+                <strong>A:</strong> The inflation layer adds a cost gradient around obstacles using exponential decay. It ensures the planner keeps the robot at a safe distance from obstacles while still allowing passage through narrow spaces.</li>
+        </ol>
+    </div>
+
+    <div class="image-container">
+        <img src="https://images.unsplash.com/photo-1517433456441-e94c6273a527?w=600&h=200&fit=crop" alt="Path forward concept">
+        <p class="image-caption">Figure 18.1: Next week - Advanced topics including dynamic obstacle avoidance and multi-robot navigation</p>
+    </div>
+
+    <div style="text-align:center; margin-top:30px; padding:20px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:10px; color:white;">
+        <h3 style="color:white; border:none; margin:0;">End of Week 5 Lecture</h3>
+        <p>Dr. Abdul Manan Khan | TC70045E</p>
+    </div>
+</div>
+
+</body>
+</html>

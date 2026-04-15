@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 6: Backstepping Control</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "\2713"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.1em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+        .pseudocode-block { background: #fff8dc; color: #333; padding: 20px; border-radius: 5px; margin: 15px 0; border: 3px solid #daa520; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .pseudocode-header { background: #daa520; color: white; padding: 10px 20px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-weight: bold; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; }
+        .card h4 { color: #2c3e50; margin-top: 0; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.2em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .think-pair-share { background: #fce4ec; border: 2px solid #e91e63; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box { background: #ede7f6; border: 2px solid #7c4dff; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ============================================================ -->
+    <!-- HEADER                                                        -->
+    <!-- ============================================================ -->
+    <div class="header">
+        <h1>Week 6: Backstepping Control</h1>
+        <div class="subtitle">Recursive Lyapunov Design for Nonlinear Systems</div>
+        <div class="meta">
+            M.Sc. Control for Robots &mdash; AY 2025&ndash;26<br>
+            Duration: 3 Hours (Lecture + Hands-on Lab)
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ============================================================ -->
+        <!-- SECTION 0: PREVIOUS WEEK EXAM PRACTICE                       -->
+        <!-- ============================================================ -->
+        <div class="section exam-question">
+            <h2>Section 0 &mdash; Week 5 Recall: Robust Control &mdash; Exam Practice (20 min)</h2>
+
+            <h3>Question 1 &mdash; Robust Sliding-Mode Analysis</h3>
+            <p>Consider a manipulator with model uncertainty:</p>
+            \[
+                M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau + d(t), \qquad \|d(t)\| \le d_{\max}
+            \]
+            <p>The robust controller is:</p>
+            \[
+                \tau = \hat{M}(q)\bigl[\ddot{q}_d + K_D \dot{e} + K_P e\bigr] + \hat{C}\dot{q} + \hat{G} + \tau_{\text{robust}}
+            \]
+            <p>with the robust term</p>
+            \[
+                \tau_{\text{robust}} = \rho(t)\,\frac{s}{\|s\|}, \qquad s = \dot{e} + \Lambda\, e
+            \]
+            <p>where \(e = q_d - q\), \(\dot{e} = \dot{q}_d - \dot{q}\), and \(\Lambda \succ 0\).</p>
+
+            <div class="derivation-box">
+                <h4>Model Answer &mdash; Closed-Loop Error Dynamics</h4>
+
+                <p><strong>Step 1 &mdash; Substitution.</strong> Write the true dynamics as
+                \(M\ddot{q} = \tau + d - C\dot{q} - G\).
+                Substitute the controller:</p>
+                \[
+                    M\ddot{q} = \hat{M}(\ddot{q}_d + K_D\dot{e} + K_P e) + \hat{C}\dot{q} + \hat{G}
+                    + \rho\frac{s}{\|s\|} + d - C\dot{q} - G
+                \]
+                <p>Define the model errors
+                \(\tilde{M} = M - \hat{M}\), \(\tilde{C} = C - \hat{C}\), \(\tilde{G} = G - \hat{G}\),
+                and let the lumped uncertainty be</p>
+                \[
+                    \eta(t) = \tilde{M}\ddot{q} + \tilde{C}\dot{q} + \tilde{G} - d(t)
+                \]
+
+                <p><strong>Step 2 &mdash; Error dynamics.</strong>
+                With \(\ddot{e} = \ddot{q}_d - \ddot{q}\) and after algebraic manipulation:</p>
+                \[
+                    M\ddot{e} + (C + M K_D)\dot{e} + M K_P e = -\eta(t) + \rho\frac{s}{\|s\|}
+                \]
+
+                <p>In terms of the composite variable \(s = \dot{e} + \Lambda e\):</p>
+                \[
+                    M\dot{s} = -Cs + \eta(t) + \rho\frac{s}{\|s\|}
+                \]
+                <p>(using the choice \(K_D = \Lambda\), \(K_P = \dot{\Lambda}\) to simplify).</p>
+
+                <p><strong>Step 3 &mdash; Lyapunov analysis.</strong> Choose
+                \(V = \tfrac{1}{2}\,s^T M\, s\). Then:</p>
+                \[
+                    \dot{V} = s^T M\dot{s} + \tfrac{1}{2}\,s^T\dot{M}\,s
+                    = s^T\!\bigl[-Cs + \eta + \rho\tfrac{s}{\|s\|}\bigr] + \tfrac{1}{2}\,s^T\dot{M}\,s
+                \]
+                <p>Using the skew-symmetry property \(s^T(\dot{M} - 2C)s = 0\):</p>
+                \[
+                    \dot{V} = s^T\eta + \rho\|s\|
+                \]
+                <p>Since \(\tau_{\text{robust}}\) opposes the uncertainty
+                (note the sign convention: \(\rho \frac{s}{\|s\|}\) acts in the direction of \(s\), so the correct robust term to <em>counteract</em> uncertainty is \(\tau_{\text{robust}} = -\rho \frac{s}{\|s\|}\)). Re-doing with the standard sign:</p>
+                \[
+                    \dot{V} = s^T\eta - \rho\|s\| \le \|\eta\|\,\|s\| - \rho\|s\| = (\|\eta\| - \rho)\|s\|
+                \]
+
+                <p><strong>Conclusion:</strong> If \(\rho(t) \ge \|\eta(t)\|\), then \(\dot{V} \le 0\) and the tracking error \(s \to 0\). The sliding variable converges, guaranteeing bounded tracking despite uncertainty. By Barbalat's lemma, \(s(t) \to 0\) asymptotically, which implies \(e(t) \to 0\) exponentially since \(\dot{e} = s - \Lambda e\) is a stable filter.</p>
+            </div>
+
+            <h3>Question 2 &mdash; Robust vs. Adaptive: Mathematical Comparison</h3>
+
+            <div class="derivation-box">
+                <h4>Model Answer</h4>
+
+                <p><strong>Adaptive control</strong> uses an augmented Lyapunov function:</p>
+                \[
+                    V_{\text{adaptive}} = \frac{1}{2}\,s^T M\, s + \frac{1}{2}\,\tilde{\theta}^T \Gamma^{-1} \tilde{\theta}
+                \]
+                <p>where \(\tilde{\theta} = \theta - \hat{\theta}\) is the parameter estimation error
+                and \(\Gamma \succ 0\) is the adaptation gain matrix. The adaptation law
+                \(\dot{\hat{\theta}} = \Gamma\, Y^T s\) is designed so that
+                the cross-term \(s^T Y \tilde{\theta}\) in \(\dot{V}\) cancels exactly with
+                \(\tilde{\theta}^T \Gamma^{-1}\dot{\hat{\theta}}\), yielding:</p>
+                \[
+                    \dot{V}_{\text{adaptive}} = -s^T K_D\, s \le 0
+                \]
+
+                <p><strong>Robust control</strong> uses a simpler Lyapunov function:</p>
+                \[
+                    V_{\text{robust}} = \frac{1}{2}\,s^T M\, s
+                \]
+                <p>No parameter estimation is required because the robust term directly dominates
+                the uncertainty via the bound \(\rho \ge \|\eta\|\):</p>
+                \[
+                    \dot{V}_{\text{robust}} \le -(\rho - \|\eta\|)\|s\| \le 0
+                \]
+
+                <p><strong>Why robust control does not need parameter estimation:</strong>
+                Instead of identifying <em>what</em> the uncertainty is (as adaptive control does), robust control only needs to know <em>how large</em> the uncertainty can be. It overpowers the worst case with a dominating gain \(\rho\).</p>
+
+                <p><strong>Trade-off:</strong></p>
+                <table>
+                    <tr><th>Aspect</th><th>Adaptive Control</th><th>Robust Control</th></tr>
+                    <tr><td>Uncertainty handling</td><td>Estimates and cancels parametric uncertainty</td><td>Overpowers bounded uncertainty without identification</td></tr>
+                    <tr><td>Conservatism</td><td>Low &mdash; adapts to actual parameters</td><td>High &mdash; must use worst-case bound</td></tr>
+                    <tr><td>Control effort</td><td>Decreases as estimates converge</td><td>Remains high (constant worst-case gain)</td></tr>
+                    <tr><td>Chattering</td><td>None (smooth update law)</td><td>Possible with discontinuous sign function</td></tr>
+                    <tr><td>Unstructured uncertainty</td><td>Cannot handle (requires linear parameterisation)</td><td>Handles any bounded disturbance</td></tr>
+                    <tr><td>Convergence</td><td>Asymptotic (with PE: exponential)</td><td>Finite-time to sliding surface</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 1: LEARNING OUTCOMES                                  -->
+        <!-- ============================================================ -->
+        <div class="section objectives">
+            <h2>Section 1 &mdash; Learning Outcomes</h2>
+            <ul>
+                <li>Understand the backstepping design methodology for strict-feedback nonlinear systems</li>
+                <li>Derive a backstepping controller step-by-step using recursive Lyapunov design</li>
+                <li>Apply backstepping to manipulator, mobile robot, and drone systems</li>
+                <li>Implement and simulate backstepping controllers in MATLAB</li>
+                <li>Compare backstepping with computed torque, MPC, adaptive, and robust control</li>
+            </ul>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 2: SESSION ROADMAP                                    -->
+        <!-- ============================================================ -->
+        <div class="section timeline">
+            <h2>Section 2 &mdash; Session Roadmap (3 Hours)</h2>
+
+            <div class="timeline-item">
+                <div class="timeline-time">0:00 &ndash; 0:20</div>
+                <div class="timeline-content">
+                    <h4>Week 5 Recall &mdash; Robust Control Exam Practice</h4>
+                    <p>Solve two exam-style questions on robust control, Lyapunov analysis, and comparison with adaptive control.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-time">0:20 &ndash; 1:00</div>
+                <div class="timeline-content">
+                    <h4>Part 1 &mdash; Backstepping Theory</h4>
+                    <p>Strict-feedback systems, virtual control, recursive Lyapunov design, n-step generalisation.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-time">1:00 &ndash; 1:30</div>
+                <div class="timeline-content">
+                    <h4>Part 2 &mdash; Backstepping for Manipulator</h4>
+                    <p>Convert Euler-Lagrange dynamics to strict-feedback form, design backstepping torque controller, full Lyapunov proof, MATLAB code.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-time">1:30 &ndash; 2:00</div>
+                <div class="timeline-content">
+                    <h4>Part 3 &mdash; Backstepping for Mobile Robot</h4>
+                    <p>Chained-form unicycle model, backstepping position tracking design, MATLAB code.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-time">2:00 &ndash; 2:30</div>
+                <div class="timeline-content">
+                    <h4>Part 4 &mdash; Backstepping for Drone</h4>
+                    <p>Cascade position&ndash;attitude structure, multi-loop backstepping, MATLAB code.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-time">2:30 &ndash; 3:00</div>
+                <div class="timeline-content">
+                    <h4>Hands-on Activities, Quiz &amp; Summary</h4>
+                    <p>Gain tuning experiments, comparative study, quiz, and method comparison table.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 3: PART 1 — BACKSTEPPING THEORY                      -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 3 &mdash; Part 1: Backstepping Theory</h2>
+
+            <h3>3.1 Motivation &mdash; Why Backstepping?</h3>
+            <p>In previous weeks, we studied controllers that either require exact cancellation of nonlinearities
+            (computed torque), predict future behaviour (MPC), estimate unknown parameters on-line (adaptive),
+            or overpower bounded uncertainties (robust). <strong>Backstepping</strong> takes a fundamentally different
+            approach: it exploits the <em>triangular (cascade) structure</em> of the system to build a Lyapunov
+            function and controller <em>one subsystem at a time</em>, recursively.</p>
+
+            <div class="info">
+                <strong>Key Insight:</strong> Many physical systems &mdash; from robotic manipulators to quadrotors &mdash;
+                have a <em>strict-feedback</em> (cascade) structure where one state acts as the "input" to the previous
+                subsystem. Backstepping systematically exploits this structure.
+            </div>
+
+            <!-- SVG DIAGRAM 1: Backstepping Concept – Cascade Structure -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="arr1" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                        </marker>
+                        <marker id="arrLeft1" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="10 0, 0 3.5, 10 7" fill="#1e3c72"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Title -->
+                    <text x="430" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Backstepping: Cascade (Strict-Feedback) Structure</text>
+
+                    <!-- Row of boxes at y=50, h=60 => center at y=80 -->
+                    <!-- Subsystem 1: x=20, w=140 => right edge center (160,80) -->
+                    <rect x="20" y="50" width="140" height="60" rx="10" fill="#667eea"/>
+                    <text x="90" y="75" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Subsystem 1</text>
+                    <text x="90" y="95" text-anchor="middle" font-size="11" fill="#dbeafe">state x&#8321;</text>
+
+                    <!-- Arrow 1->2, horizontal -->
+                    <line x1="160" y1="80" x2="210" y2="80" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                    <text x="185" y="70" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">&#945;&#8321;</text>
+
+                    <!-- Subsystem 2: x=220, w=140 => right edge center (360,80) -->
+                    <rect x="220" y="50" width="140" height="60" rx="10" fill="#4caf50"/>
+                    <text x="290" y="75" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Subsystem 2</text>
+                    <text x="290" y="95" text-anchor="middle" font-size="11" fill="#d4edda">state x&#8322;</text>
+
+                    <!-- Arrow 2->dots, horizontal -->
+                    <line x1="360" y1="80" x2="410" y2="80" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                    <text x="385" y="70" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">&#945;&#8322;</text>
+
+                    <!-- Ellipsis -->
+                    <text x="435" y="86" text-anchor="middle" font-size="26" fill="#555">&#8943;</text>
+
+                    <!-- Arrow dots->n, horizontal -->
+                    <line x1="458" y1="80" x2="508" y2="80" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+
+                    <!-- Subsystem n: x=518, w=140 => right edge center (658,80) -->
+                    <rect x="518" y="50" width="140" height="60" rx="10" fill="#ff9800"/>
+                    <text x="588" y="75" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Subsystem n</text>
+                    <text x="588" y="95" text-anchor="middle" font-size="11" fill="#fff3e0">state x&#8345;</text>
+
+                    <!-- Arrow n->Actuator, horizontal -->
+                    <line x1="658" y1="80" x2="708" y2="80" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                    <text x="683" y="70" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">u</text>
+
+                    <!-- Actuator: x=718, w=120 -->
+                    <rect x="718" y="50" width="120" height="60" rx="10" fill="#e91e63"/>
+                    <text x="778" y="75" text-anchor="middle" font-size="13" fill="white" font-weight="bold">Actuator</text>
+                    <text x="778" y="95" text-anchor="middle" font-size="11" fill="white">&#964; / u</text>
+
+                    <!-- Labels row -->
+                    <rect x="80" y="128" width="160" height="26" rx="6" fill="#e91e63" opacity="0.12"/>
+                    <text x="160" y="146" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">Virtual controls &#945;&#7522;</text>
+                    <rect x="640" y="128" width="140" height="26" rx="6" fill="#e91e63" opacity="0.12"/>
+                    <text x="710" y="146" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">Actual control u</text>
+
+                    <!-- Design direction title -->
+                    <text x="430" y="195" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3c72">Design Direction: "Stepping Back"</text>
+
+                    <!-- Large leftward dashed arrow -->
+                    <line x1="760" y1="215" x2="100" y2="215" stroke="#1e3c72" stroke-width="3" stroke-dasharray="12,6" marker-end="url(#arrLeft1)"/>
+
+                    <!-- Step boxes below the arrow -->
+                    <rect x="620" y="235" width="130" height="42" rx="8" fill="#ff9800" opacity="0.15"/>
+                    <text x="685" y="254" text-anchor="middle" font-size="12" fill="#e65100" font-weight="bold">Step n:</text>
+                    <text x="685" y="270" text-anchor="middle" font-size="11" fill="#e65100">Design u</text>
+
+                    <rect x="370" y="235" width="130" height="42" rx="8" fill="#4caf50" opacity="0.15"/>
+                    <text x="435" y="254" text-anchor="middle" font-size="12" fill="#2e7d32" font-weight="bold">Step 2:</text>
+                    <text x="435" y="270" text-anchor="middle" font-size="11" fill="#2e7d32">Design &#945;&#8322;</text>
+
+                    <rect x="110" y="235" width="130" height="42" rx="8" fill="#667eea" opacity="0.15"/>
+                    <text x="175" y="254" text-anchor="middle" font-size="12" fill="#3949ab" font-weight="bold">Step 1:</text>
+                    <text x="175" y="270" text-anchor="middle" font-size="11" fill="#3949ab">Design &#945;&#8321;</text>
+
+                    <!-- Color-coded subsystem legend -->
+                    <rect x="100" y="300" width="660" height="85" rx="10" fill="#f0f4ff" stroke="#667eea" stroke-width="1"/>
+                    <text x="430" y="325" text-anchor="middle" font-size="12" fill="#333">Each &#945;&#7522; is a <tspan font-weight="bold" fill="#e91e63">virtual control</tspan> -- designed as if x&#7522;&#8330;&#8321; were the real input, then "stepped back."</text>
+                    <!-- Color key -->
+                    <rect x="140" y="340" width="16" height="16" rx="3" fill="#667eea"/>
+                    <text x="164" y="353" font-size="11" fill="#333">Subsystem 1</text>
+                    <rect x="280" y="340" width="16" height="16" rx="3" fill="#4caf50"/>
+                    <text x="304" y="353" font-size="11" fill="#333">Subsystem 2</text>
+                    <rect x="420" y="340" width="16" height="16" rx="3" fill="#ff9800"/>
+                    <text x="444" y="353" font-size="11" fill="#333">Subsystem n</text>
+                    <rect x="560" y="340" width="16" height="16" rx="3" fill="#e91e63"/>
+                    <text x="584" y="353" font-size="11" fill="#333">Actuator</text>
+                    <text x="430" y="376" text-anchor="middle" font-size="11" fill="#1e3c72" font-weight="bold">Backstepping designs from the outermost subsystem back to the actual control input.</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 1:</strong> Backstepping cascade structure. The design proceeds from the outermost subsystem (Step 1) back to the actual control input (Step n).</div>
+            </div>
+
+            <h3>3.2 Strict-Feedback Form</h3>
+            <p>A nonlinear system is in <strong>strict-feedback form</strong> if it can be written as:</p>
+            <div class="math-box">
+                \[
+                \begin{aligned}
+                    \dot{x}_1 &= f_1(x_1) + g_1(x_1)\,x_2 \\
+                    \dot{x}_2 &= f_2(x_1, x_2) + g_2(x_1, x_2)\,x_3 \\
+                    &\;\;\vdots \\
+                    \dot{x}_{n-1} &= f_{n-1}(x_1,\ldots,x_{n-1}) + g_{n-1}(x_1,\ldots,x_{n-1})\,x_n \\
+                    \dot{x}_n &= f_n(x_1,\ldots,x_n) + g_n(x_1,\ldots,x_n)\,u
+                \end{aligned}
+                \]
+            </div>
+            <p>Key properties:</p>
+            <ul>
+                <li>Each equation depends on all previous states plus <em>one</em> new state \(x_{i+1}\).</li>
+                <li>The new state \(x_{i+1}\) enters <em>multiplicatively</em> through \(g_i(\cdot)\).</li>
+                <li>Only the <em>last</em> equation contains the true control input \(u\).</li>
+                <li>\(g_i(\cdot) \neq 0\) everywhere (controllability condition).</li>
+            </ul>
+
+            <!-- SVG DIAGRAM 2: Strict-Feedback Form Visualization -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 820 440" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="depArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#9c27b0"/>
+                        </marker>
+                    </defs>
+                    <text x="410" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Strict-Feedback Form: Triangular Dependency</text>
+
+                    <!-- Column headers -->
+                    <text x="250" y="55" text-anchor="middle" font-size="13" fill="#555" font-weight="bold">Equation</text>
+                    <text x="600" y="55" text-anchor="middle" font-size="13" fill="#555" font-weight="bold">States used</text>
+
+                    <!-- Row 1: equation 1 -->
+                    <rect x="30" y="65" width="440" height="50" rx="8" fill="#667eea" opacity="0.12" stroke="#667eea" stroke-width="1.5"/>
+                    <text x="50" y="95" font-size="15" fill="#1e3c72" font-weight="bold">x&#775;&#8321; = f&#8321;(x&#8321;) + g&#8321;(x&#8321;) &#183; x&#8322;</text>
+                    <!-- State dependency circles -->
+                    <circle cx="530" cy="90" r="15" fill="#667eea"/>
+                    <text x="530" y="95" text-anchor="middle" font-size="12" fill="white" font-weight="bold">x&#8321;</text>
+                    <!-- Arrow from x2 entering this equation -->
+                    <rect x="580" y="78" width="50" height="24" rx="5" fill="#4caf50" opacity="0.25" stroke="#4caf50" stroke-width="1"/>
+                    <text x="605" y="95" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">x&#8322;</text>
+                    <!-- Vertical arrow from row2 circle up to this box -->
+                    <line x1="605" y1="145" x2="605" y2="105" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#depArr)"/>
+
+                    <!-- Row 2: equation 2 -->
+                    <rect x="30" y="130" width="440" height="50" rx="8" fill="#4caf50" opacity="0.12" stroke="#4caf50" stroke-width="1.5"/>
+                    <text x="50" y="160" font-size="15" fill="#2e7d32" font-weight="bold">x&#775;&#8322; = f&#8322;(x&#8321;,x&#8322;) + g&#8322;(x&#8321;,x&#8322;) &#183; x&#8323;</text>
+                    <!-- State dependency circles -->
+                    <circle cx="530" cy="155" r="15" fill="#667eea"/>
+                    <text x="530" y="160" text-anchor="middle" font-size="12" fill="white" font-weight="bold">x&#8321;</text>
+                    <circle cx="565" cy="155" r="15" fill="#4caf50"/>
+                    <text x="565" y="160" text-anchor="middle" font-size="12" fill="white" font-weight="bold">x&#8322;</text>
+                    <rect x="608" y="143" width="50" height="24" rx="5" fill="#2196f3" opacity="0.25" stroke="#2196f3" stroke-width="1"/>
+                    <text x="633" y="160" text-anchor="middle" font-size="11" fill="#1565c0" font-weight="bold">x&#8323;</text>
+                    <line x1="633" y1="210" x2="633" y2="170" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#depArr)"/>
+
+                    <!-- Dots row -->
+                    <text x="250" y="210" text-anchor="middle" font-size="22" fill="#888">&#8942;</text>
+                    <text x="570" y="210" text-anchor="middle" font-size="22" fill="#888">&#8942;</text>
+
+                    <!-- Row n-1 -->
+                    <rect x="30" y="230" width="440" height="50" rx="8" fill="#2196f3" opacity="0.12" stroke="#2196f3" stroke-width="1.5"/>
+                    <text x="50" y="260" font-size="14" fill="#1565c0" font-weight="bold">x&#775;&#8345;&#8331;&#8321; = f&#8345;&#8331;&#8321;(x&#8321;,...,x&#8345;&#8331;&#8321;) + g&#8345;&#8331;&#8321;(...) &#183; x&#8345;</text>
+                    <circle cx="530" cy="255" r="14" fill="#667eea"/>
+                    <text x="530" y="260" text-anchor="middle" font-size="10" fill="white" font-weight="bold">x&#8321;</text>
+                    <circle cx="563" cy="255" r="14" fill="#4caf50"/>
+                    <text x="563" y="260" text-anchor="middle" font-size="10" fill="white" font-weight="bold">x&#8322;</text>
+                    <text x="590" y="260" font-size="12" fill="#888">...</text>
+                    <circle cx="620" cy="255" r="14" fill="#2196f3"/>
+                    <text x="620" y="260" text-anchor="middle" font-size="9" fill="white" font-weight="bold">x&#8345;&#8331;&#8321;</text>
+                    <rect x="650" y="243" width="44" height="24" rx="5" fill="#ff9800" opacity="0.25" stroke="#ff9800" stroke-width="1"/>
+                    <text x="672" y="260" text-anchor="middle" font-size="10" fill="#e65100" font-weight="bold">x&#8345;</text>
+                    <line x1="672" y1="305" x2="672" y2="270" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#depArr)"/>
+
+                    <!-- Row n (final) -->
+                    <rect x="30" y="295" width="440" height="50" rx="8" fill="#ff9800" opacity="0.15" stroke="#ff9800" stroke-width="2"/>
+                    <text x="50" y="325" font-size="14" fill="#e65100" font-weight="bold">x&#775;&#8345; = f&#8345;(x&#8321;,...,x&#8345;) + g&#8345;(...) &#183; u</text>
+                    <circle cx="530" cy="320" r="14" fill="#667eea"/>
+                    <text x="530" y="325" text-anchor="middle" font-size="10" fill="white" font-weight="bold">x&#8321;</text>
+                    <circle cx="563" cy="320" r="14" fill="#4caf50"/>
+                    <text x="563" y="325" text-anchor="middle" font-size="10" fill="white" font-weight="bold">x&#8322;</text>
+                    <text x="590" y="325" font-size="12" fill="#888">...</text>
+                    <circle cx="620" cy="320" r="14" fill="#2196f3"/>
+                    <text x="620" y="325" text-anchor="middle" font-size="9" fill="white" font-weight="bold">x&#8345;&#8331;&#8321;</text>
+                    <circle cx="655" cy="320" r="14" fill="#ff9800"/>
+                    <text x="655" y="325" text-anchor="middle" font-size="10" fill="white" font-weight="bold">x&#8345;</text>
+                    <!-- Actual control u label -->
+                    <rect x="690" y="306" width="80" height="28" rx="6" fill="#e91e63"/>
+                    <text x="730" y="325" text-anchor="middle" font-size="13" fill="white" font-weight="bold">u (input)</text>
+
+                    <!-- Triangular structure bracket (vertical + horizontal L-shaped) -->
+                    <line x1="505" y1="68" x2="505" y2="342" stroke="#9c27b0" stroke-width="2" stroke-dasharray="5,4"/>
+                    <line x1="505" y1="342" x2="770" y2="342" stroke="#9c27b0" stroke-width="2" stroke-dasharray="5,4"/>
+                    <text x="760" y="370" text-anchor="end" font-size="13" fill="#9c27b0" font-weight="bold">Triangular dependency</text>
+
+                    <!-- Key -->
+                    <rect x="30" y="390" width="500" height="40" rx="8" fill="#f8f9fa" stroke="#ccc" stroke-width="1"/>
+                    <text x="45" y="412" font-size="12" fill="#333" font-weight="bold">Key: </text>
+                    <text x="85" y="412" font-size="12" fill="#333">Each equation depends on all <tspan font-weight="bold" fill="#9c27b0">previous states</tspan> + one <tspan font-weight="bold" fill="#ff9800">new state</tspan> (or <tspan font-weight="bold" fill="#e91e63">u</tspan>)</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 2:</strong> Triangular dependency structure of strict-feedback form. Each row depends only on states from current and previous subsystems.</div>
+            </div>
+
+            <h3>3.3 Two-Step Backstepping &mdash; Complete Derivation</h3>
+            <p>Consider the simplest strict-feedback system (two states, one input):</p>
+            <div class="math-box">
+                \[
+                \begin{aligned}
+                    \dot{x}_1 &= f_1(x_1) + g_1(x_1)\,x_2 \\
+                    \dot{x}_2 &= f_2(x_1,x_2) + g_2(x_1,x_2)\,u
+                \end{aligned}
+                \]
+            </div>
+            <p><strong>Goal:</strong> Drive \(x_1 \to x_{1,\text{ref}}\) (a desired reference).</p>
+
+            <div class="derivation-box">
+                <h4>Step 1 &mdash; Stabilise the \(x_1\) Subsystem (Virtual Control Design)</h4>
+
+                <p>Define the tracking error:</p>
+                \[
+                    z_1 = x_1 - x_{1,\text{ref}}
+                \]
+
+                <p>Its dynamics are:</p>
+                \[
+                    \dot{z}_1 = \dot{x}_1 - \dot{x}_{1,\text{ref}} = f_1(x_1) + g_1(x_1)\,x_2 - \dot{x}_{1,\text{ref}}
+                \]
+
+                <p>Imagine that \(x_2\) is a control input that we can freely choose. We call this the
+                <strong>virtual control</strong> and design it as \(x_2 = \alpha_1(x_1)\) such that \(z_1 \to 0\).
+                Choose the Lyapunov function candidate:</p>
+                \[
+                    V_1 = \frac{1}{2}\,z_1^2
+                \]
+
+                <p>Its time derivative is:</p>
+                \[
+                    \dot{V}_1 = z_1\,\dot{z}_1 = z_1\bigl[f_1(x_1) + g_1(x_1)\,x_2 - \dot{x}_{1,\text{ref}}\bigr]
+                \]
+
+                <p>If \(x_2\) were our actual input, we would choose:</p>
+                \[
+                    \alpha_1(x_1) = \frac{1}{g_1(x_1)}\bigl[-f_1(x_1) + \dot{x}_{1,\text{ref}} - k_1\,z_1\bigr], \qquad k_1 > 0
+                \]
+
+                <p>This would give \(\dot{V}_1 = -k_1\,z_1^2 \le 0\). But \(x_2\) is not the actual input &mdash;
+                it is a state. So we define the <strong>backstepping error</strong>:</p>
+                \[
+                    z_2 = x_2 - \alpha_1(x_1)
+                \]
+
+                <p>Substituting \(x_2 = z_2 + \alpha_1\) into \(\dot{V}_1\):</p>
+                \[
+                    \dot{V}_1 = z_1\bigl[f_1 + g_1(z_2 + \alpha_1) - \dot{x}_{1,\text{ref}}\bigr]
+                    = -k_1\,z_1^2 + g_1\,z_1\,z_2
+                \]
+
+                <p>The term \(-k_1 z_1^2\) is stabilising; the coupling term \(g_1 z_1 z_2\) must be handled in Step 2.</p>
+            </div>
+
+            <div class="derivation-box">
+                <h4>Step 2 &mdash; Design the Actual Control \(u\) (Backstep)</h4>
+
+                <p>Now we must drive \(z_2 \to 0\). Compute the dynamics of \(z_2\):</p>
+                \[
+                    \dot{z}_2 = \dot{x}_2 - \dot{\alpha}_1
+                    = f_2(x_1,x_2) + g_2(x_1,x_2)\,u - \frac{\partial \alpha_1}{\partial x_1}\dot{x}_1
+                    - \frac{\partial \alpha_1}{\partial x_{1,\text{ref}}}\dot{x}_{1,\text{ref}}
+                \]
+
+                <p>where we have used the chain rule on \(\alpha_1(x_1, x_{1,\text{ref}})\). Augment the Lyapunov function:</p>
+                \[
+                    V_2 = V_1 + \frac{1}{2}\,z_2^2 = \frac{1}{2}\,z_1^2 + \frac{1}{2}\,z_2^2
+                \]
+
+                <p>Its derivative is:</p>
+                \[
+                    \dot{V}_2 = \dot{V}_1 + z_2\,\dot{z}_2
+                    = -k_1\,z_1^2 + g_1\,z_1\,z_2 + z_2\,\dot{z}_2
+                \]
+
+                <p>We want \(\dot{V}_2 = -k_1\,z_1^2 - k_2\,z_2^2\) for some \(k_2 > 0\). This requires:</p>
+                \[
+                    z_2\bigl[g_1\,z_1 + \dot{z}_2\bigr] = -k_2\,z_2^2
+                \]
+                \[
+                    g_1\,z_1 + f_2 + g_2\,u - \dot{\alpha}_1 = -k_2\,z_2
+                \]
+
+                <p>Solving for the control input:</p>
+
+                <div class="formula-box">
+                    \[
+                        u = \frac{1}{g_2(x_1,x_2)}\left[-f_2(x_1,x_2) + \dot{\alpha}_1
+                        - g_1(x_1)\,z_1 - k_2\,z_2\right]
+                    \]
+                </div>
+
+                <p><strong>Result:</strong> With this control law,</p>
+                \[
+                    \dot{V}_2 = -k_1\,z_1^2 - k_2\,z_2^2 \le 0
+                \]
+                <p>which guarantees global asymptotic stability of \((z_1, z_2) = (0,0)\) by Lyapunov's theorem.</p>
+            </div>
+
+            <h3>3.4 Generalisation to \(n\)-Step Backstepping</h3>
+            <p>For an \(n\)-dimensional strict-feedback system, the procedure generalises recursively:</p>
+            <div class="pseudocode-block">
+                <div class="pseudocode-header">Algorithm: n-Step Backstepping</div>
+For i = 1, 2, ..., n:
+
+  1. Define error:     z_i = x_i - alpha_{i-1}    (where alpha_0 = x_{1,ref})
+
+  2. Compute dynamics: dz_i/dt = f_i + g_i * x_{i+1} - d(alpha_{i-1})/dt
+
+  3. Augment Lyapunov: V_i = V_{i-1} + (1/2) * z_i^2
+
+  4. Compute dV_i/dt and choose:
+     - If i < n:  alpha_i (virtual control) to make:
+                  dV_i/dt = -k_1*z_1^2 - ... - k_i*z_i^2 + g_i*z_i*z_{i+1}
+     - If i = n:  u (actual control) to make:
+                  dV_n/dt = -k_1*z_1^2 - ... - k_n*z_n^2
+
+Result: Global asymptotic stability with V_n as Lyapunov function.
+            </div>
+
+            <!-- SVG DIAGRAM 3: Step-by-Step Backstepping Design Flowchart -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 820 500" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="flowArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/>
+                        </marker>
+                    </defs>
+                    <text x="410" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Recursive Backstepping Design Flowchart</text>
+
+                    <!-- Step 1 box -->
+                    <rect x="110" y="45" width="600" height="80" rx="10" fill="#667eea" opacity="0.12" stroke="#667eea" stroke-width="2"/>
+                    <rect x="118" y="52" width="64" height="24" rx="6" fill="#667eea"/>
+                    <text x="150" y="70" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Step 1</text>
+                    <text x="200" y="70" font-size="13" fill="#1e3c72" font-weight="bold">Define</text>
+                    <text x="248" y="70" font-size="13" fill="#333">z&#8321; = x&#8321; - x_d</text>
+                    <text x="200" y="90" font-size="13" fill="#1e3c72" font-weight="bold">Choose</text>
+                    <text x="260" y="90" font-size="13" fill="#333">V&#8321; = &#189; z&#8321;&#178;</text>
+                    <text x="200" y="112" font-size="13" fill="#1e3c72" font-weight="bold">Design</text>
+                    <text x="262" y="112" font-size="13" fill="#e91e63" font-weight="bold">&#945;&#8321;(x&#8321;)</text>
+                    <text x="400" y="112" font-size="12" fill="#555">so that V&#775;&#8321; = -k&#8321;z&#8321;&#178; + g&#8321;z&#8321;z&#8322;</text>
+
+                    <!-- Vertical arrow Step1 -> Step2 -->
+                    <line x1="410" y1="125" x2="410" y2="155" stroke="#1e3c72" stroke-width="2" marker-end="url(#flowArr)"/>
+
+                    <!-- Step 2 box -->
+                    <rect x="110" y="160" width="600" height="80" rx="10" fill="#4caf50" opacity="0.12" stroke="#4caf50" stroke-width="2"/>
+                    <rect x="118" y="167" width="64" height="24" rx="6" fill="#4caf50"/>
+                    <text x="150" y="185" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Step 2</text>
+                    <text x="200" y="185" font-size="13" fill="#2e7d32" font-weight="bold">Define</text>
+                    <text x="248" y="185" font-size="13" fill="#333">z&#8322; = x&#8322; - &#945;&#8321;</text>
+                    <text x="200" y="205" font-size="13" fill="#2e7d32" font-weight="bold">Augment</text>
+                    <text x="272" y="205" font-size="13" fill="#333">V&#8322; = V&#8321; + &#189; z&#8322;&#178;</text>
+                    <text x="200" y="227" font-size="13" fill="#2e7d32" font-weight="bold">Design</text>
+                    <text x="262" y="227" font-size="13" fill="#e91e63" font-weight="bold">&#945;&#8322;(x&#8321;,x&#8322;)</text>
+                    <text x="420" y="227" font-size="12" fill="#555">so that V&#775;&#8322; = -k&#8321;z&#8321;&#178; - k&#8322;z&#8322;&#178; + g&#8322;z&#8322;z&#8323;</text>
+
+                    <!-- Vertical arrow Step2 -> dots -->
+                    <line x1="410" y1="240" x2="410" y2="270" stroke="#1e3c72" stroke-width="2" marker-end="url(#flowArr)"/>
+
+                    <!-- Dots -->
+                    <text x="410" y="296" text-anchor="middle" font-size="28" fill="#888">&#8942;</text>
+
+                    <!-- Vertical arrow dots -> Step n -->
+                    <line x1="410" y1="308" x2="410" y2="338" stroke="#1e3c72" stroke-width="2" marker-end="url(#flowArr)"/>
+
+                    <!-- Step n box -->
+                    <rect x="110" y="343" width="600" height="80" rx="10" fill="#ff9800" opacity="0.12" stroke="#ff9800" stroke-width="2"/>
+                    <rect x="118" y="350" width="68" height="24" rx="6" fill="#ff9800"/>
+                    <text x="152" y="368" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Step n</text>
+                    <text x="200" y="368" font-size="13" fill="#e65100" font-weight="bold">Define</text>
+                    <text x="248" y="368" font-size="13" fill="#333">z&#8345; = x&#8345; - &#945;&#8345;&#8331;&#8321;</text>
+                    <text x="200" y="388" font-size="13" fill="#e65100" font-weight="bold">Final</text>
+                    <text x="240" y="388" font-size="13" fill="#333">V&#8345; = V&#8345;&#8331;&#8321; + &#189; z&#8345;&#178;</text>
+                    <text x="200" y="410" font-size="13" fill="#e65100" font-weight="bold">Compute</text>
+                    <text x="280" y="410" font-size="13" fill="#e91e63" font-weight="bold">actual u</text>
+                    <text x="388" y="410" font-size="12" fill="#555">so that V&#775;&#8345; = -&#8721; k&#7522;z&#7522;&#178;</text>
+
+                    <!-- Vertical arrow Step n -> Result -->
+                    <line x1="410" y1="423" x2="410" y2="453" stroke="#1e3c72" stroke-width="2" marker-end="url(#flowArr)"/>
+
+                    <!-- Result box -->
+                    <rect x="130" y="458" width="560" height="36" rx="10" fill="#1e3c72"/>
+                    <text x="410" y="482" text-anchor="middle" font-size="14" fill="white" font-weight="bold">V&#775; &#8804; -k&#8321;z&#8321;&#178; - k&#8322;z&#8322;&#178; - ... - k&#8345;z&#8345;&#178;  &#8658;  Global Asymptotic Stability</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 3:</strong> Step-by-step backstepping design flowchart. Each step defines an error, augments the Lyapunov function, and designs a (virtual) control.</div>
+            </div>
+
+            <h3>3.5 Why Backstepping Works &mdash; Intuition</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Recursive Lyapunov Construction</h4>
+                    <p>At each step, we extend the Lyapunov function by adding \(\frac{1}{2}z_i^2\).
+                    Each new virtual control is designed to make the new terms in \(\dot{V}\) negative definite
+                    while leaving the previously designed terms unchanged.</p>
+                </div>
+                <div class="card">
+                    <h4>"Backstepping" the Control</h4>
+                    <p>The name comes from the fact that we start from the outermost subsystem (where the reference
+                    lives) and "step back" through the cascade, designing one layer at a time until we reach the
+                    actual control input.</p>
+                </div>
+                <div class="card">
+                    <h4>No Cancellation Required</h4>
+                    <p>Unlike feedback linearisation, backstepping does not cancel all nonlinearities. It only
+                    cancels what is needed and uses the remaining structure constructively. This gives better
+                    robustness and avoids wasting control effort.</p>
+                </div>
+                <div class="card">
+                    <h4>Guaranteed Stability</h4>
+                    <p>The final Lyapunov function \(V_n = \sum_{i=1}^n \frac{1}{2}z_i^2\) with
+                    \(\dot{V}_n = -\sum_{i=1}^n k_i z_i^2\) provides a <em>constructive</em> proof of
+                    global asymptotic stability.</p>
+                </div>
+            </div>
+
+            <!-- SVG DIAGRAM 5: Lyapunov Function Augmentation -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 840 400" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="augArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/>
+                        </marker>
+                        <radialGradient id="bwl1" cx="50%" cy="60%" r="50%">
+                            <stop offset="0%" stop-color="#667eea" stop-opacity="0.55"/>
+                            <stop offset="100%" stop-color="#667eea" stop-opacity="0.03"/>
+                        </radialGradient>
+                        <radialGradient id="bwl2" cx="50%" cy="60%" r="50%">
+                            <stop offset="0%" stop-color="#4caf50" stop-opacity="0.45"/>
+                            <stop offset="100%" stop-color="#4caf50" stop-opacity="0.03"/>
+                        </radialGradient>
+                        <radialGradient id="bwl3" cx="50%" cy="60%" r="50%">
+                            <stop offset="0%" stop-color="#ff9800" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="#ff9800" stop-opacity="0.03"/>
+                        </radialGradient>
+                    </defs>
+                    <text x="420" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Lyapunov Function Augmentation: Incremental Construction</text>
+
+                    <!-- V1: small nested circles/ellipses -->
+                    <ellipse cx="130" cy="180" rx="85" ry="68" fill="url(#bwl1)" stroke="#667eea" stroke-width="2"/>
+                    <ellipse cx="130" cy="180" rx="52" ry="40" fill="none" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <ellipse cx="130" cy="180" rx="24" ry="18" fill="none" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <circle cx="130" cy="180" r="4" fill="#667eea"/>
+                    <text x="130" y="268" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">V&#8321; = &#189; z&#8321;&#178;</text>
+                    <text x="130" y="288" text-anchor="middle" font-size="11" fill="#555">1 variable (z&#8321;)</text>
+                    <text x="130" y="306" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">V&#775;&#8321; &#8804; -k&#8321;z&#8321;&#178;</text>
+
+                    <!-- Horizontal arrow V1 -> V2 -->
+                    <line x1="220" y1="180" x2="278" y2="180" stroke="#1e3c72" stroke-width="2" marker-end="url(#augArr)"/>
+                    <text x="249" y="168" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">+ &#189;z&#8322;&#178;</text>
+
+                    <!-- V2: medium nested circles (V1 visible inside) -->
+                    <ellipse cx="410" cy="180" rx="110" ry="88" fill="url(#bwl2)" stroke="#4caf50" stroke-width="2"/>
+                    <ellipse cx="410" cy="180" rx="70" ry="55" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <ellipse cx="410" cy="180" rx="38" ry="28" fill="none" stroke="#667eea" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <ellipse cx="410" cy="180" rx="16" ry="11" fill="none" stroke="#667eea" stroke-width="1.5"/>
+                    <circle cx="410" cy="180" r="4" fill="#4caf50"/>
+                    <text x="410" y="280" text-anchor="middle" font-size="14" font-weight="bold" fill="#4caf50">V&#8322; = V&#8321; + &#189; z&#8322;&#178;</text>
+                    <text x="410" y="300" text-anchor="middle" font-size="11" fill="#555">2 variables (z&#8321;, z&#8322;)</text>
+                    <text x="410" y="318" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">V&#775;&#8322; &#8804; -k&#8321;z&#8321;&#178; - k&#8322;z&#8322;&#178;</text>
+
+                    <!-- Horizontal arrow V2 -> V3 -->
+                    <line x1="525" y1="180" x2="563" y2="180" stroke="#1e3c72" stroke-width="2" marker-end="url(#augArr)"/>
+                    <text x="544" y="168" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">+ &#189;z&#8323;&#178;</text>
+
+                    <!-- V3: large nested circles (V1, V2 visible inside) -->
+                    <ellipse cx="700" cy="180" rx="125" ry="100" fill="url(#bwl3)" stroke="#ff9800" stroke-width="2"/>
+                    <ellipse cx="700" cy="180" rx="88" ry="70" fill="none" stroke="#ff9800" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <ellipse cx="700" cy="180" rx="55" ry="42" fill="none" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <ellipse cx="700" cy="180" rx="28" ry="20" fill="none" stroke="#667eea" stroke-width="1.5"/>
+                    <circle cx="700" cy="180" r="4" fill="#ff9800"/>
+                    <text x="700" y="295" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff9800">V&#8323; = V&#8322; + &#189; z&#8323;&#178;</text>
+                    <text x="700" y="315" text-anchor="middle" font-size="11" fill="#555">3 variables (z&#8321;, z&#8322;, z&#8323;)</text>
+                    <text x="700" y="333" text-anchor="middle" font-size="12" fill="#ff9800" font-weight="bold">V&#775;&#8323; &#8804; -&#8721;k&#7522;z&#7522;&#178;</text>
+
+                    <!-- Bottom annotation -->
+                    <rect x="150" y="360" width="540" height="30" rx="8" fill="#1e3c72" opacity="0.08"/>
+                    <text x="420" y="381" text-anchor="middle" font-size="13" fill="#1e3c72" font-weight="bold">At each step, V&#775; &lt; 0 is guaranteed -- stability is preserved and extended</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 5:</strong> Lyapunov function augmentation. Each step adds a new error term, growing the "bowl" in state space while maintaining negative definiteness of V&#775;.</div>
+            </div>
+
+            <div class="think-pair-share">
+                <h4>Think-Pair-Share (3 min)</h4>
+                <p><strong>Question:</strong> Why can't we just use feedback linearisation for all nonlinear systems?
+                When does backstepping have an advantage?</p>
+                <p><strong>Discussion points:</strong></p>
+                <ul>
+                    <li>Feedback linearisation requires an <em>exact</em> model to cancel all nonlinearities &mdash;
+                    any mismatch creates uncompensated dynamics.</li>
+                    <li>Feedback linearisation may cancel <em>useful</em> nonlinearities (e.g., natural damping).</li>
+                    <li>Some systems are not feedback-linearisable (the relative degree conditions fail).</li>
+                    <li>Backstepping provides a Lyapunov function at every step &mdash; we can prove stability even
+                    with partial model knowledge.</li>
+                    <li>Backstepping can be combined with adaptation (adaptive backstepping) to handle unknown
+                    parameters in the strict-feedback structure.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 4: PART 2 — BACKSTEPPING FOR MANIPULATOR             -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 4 &mdash; Part 2: Backstepping for Robot Manipulator</h2>
+
+            <h3>4.1 Strict-Feedback Form of Manipulator Dynamics</h3>
+            <p>The standard Euler-Lagrange dynamics of an \(n\)-DOF manipulator are:</p>
+            \[
+                M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau
+            \]
+            <p>Define the states \(x_1 = q\) (joint positions) and \(x_2 = \dot{q}\) (joint velocities). Then:</p>
+            <div class="math-box">
+                \[
+                \begin{aligned}
+                    \dot{x}_1 &= x_2 \\
+                    \dot{x}_2 &= M^{-1}(x_1)\bigl[\tau - C(x_1,x_2)\,x_2 - G(x_1)\bigr]
+                \end{aligned}
+                \]
+            </div>
+            <p>This is a strict-feedback system with \(f_1 = 0\), \(g_1 = I\),
+            \(f_2 = -M^{-1}(C x_2 + G)\), and \(g_2 = M^{-1}\).</p>
+
+            <!-- SVG DIAGRAM 4: 2-DOF Planar Manipulator -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 860 420" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="armArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+                        </marker>
+                        <marker id="gravArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#e91e63"/>
+                        </marker>
+                    </defs>
+                    <text x="230" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">2-DOF Planar Manipulator</text>
+
+                    <!-- Ground / Base -->
+                    <rect x="85" y="310" width="80" height="15" rx="3" fill="#888"/>
+                    <line x1="90" y1="325" x2="80" y2="340" stroke="#888" stroke-width="2"/>
+                    <line x1="105" y1="325" x2="95" y2="340" stroke="#888" stroke-width="2"/>
+                    <line x1="120" y1="325" x2="110" y2="340" stroke="#888" stroke-width="2"/>
+                    <line x1="135" y1="325" x2="125" y2="340" stroke="#888" stroke-width="2"/>
+                    <line x1="150" y1="325" x2="140" y2="340" stroke="#888" stroke-width="2"/>
+                    <line x1="165" y1="325" x2="155" y2="340" stroke="#888" stroke-width="2"/>
+
+                    <!-- Joint 1 (base) -->
+                    <circle cx="125" cy="300" r="14" fill="#1e3c72" stroke="#0d2240" stroke-width="2"/>
+                    <text x="125" y="305" text-anchor="middle" font-size="10" fill="white" font-weight="bold">J1</text>
+
+                    <!-- Link 1 -->
+                    <line x1="125" y1="300" x2="265" y2="180" stroke="#667eea" stroke-width="10" stroke-linecap="round"/>
+                    <line x1="125" y1="300" x2="265" y2="180" stroke="#4a6cd4" stroke-width="6" stroke-linecap="round"/>
+                    <!-- l1 label -->
+                    <text x="175" y="225" text-anchor="middle" font-size="14" fill="#667eea" font-weight="bold" transform="rotate(-40, 175, 225)">l&#8321;</text>
+                    <!-- m1 label -->
+                    <circle cx="195" cy="240" r="10" fill="#667eea" opacity="0.7"/>
+                    <text x="195" y="244" text-anchor="middle" font-size="9" fill="white" font-weight="bold">m&#8321;</text>
+
+                    <!-- theta1 arc -->
+                    <path d="M 125,275 A 25,25 0 0,1 145,265" fill="none" stroke="#ff9800" stroke-width="2"/>
+                    <text x="152" y="275" font-size="13" fill="#ff9800" font-weight="bold">&#952;&#8321;</text>
+
+                    <!-- Joint 2 -->
+                    <circle cx="265" cy="180" r="12" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="265" y="185" text-anchor="middle" font-size="10" fill="white" font-weight="bold">J2</text>
+
+                    <!-- Link 2 -->
+                    <line x1="265" y1="180" x2="395" y2="110" stroke="#4caf50" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="265" y1="180" x2="395" y2="110" stroke="#388e3c" stroke-width="5" stroke-linecap="round"/>
+                    <!-- l2 label -->
+                    <text x="315" y="130" text-anchor="middle" font-size="14" fill="#4caf50" font-weight="bold" transform="rotate(-28, 315, 130)">l&#8322;</text>
+                    <!-- m2 label -->
+                    <circle cx="330" cy="145" r="10" fill="#4caf50" opacity="0.7"/>
+                    <text x="330" y="149" text-anchor="middle" font-size="9" fill="white" font-weight="bold">m&#8322;</text>
+
+                    <!-- theta2 arc -->
+                    <path d="M 265,157 A 23,23 0 0,1 283,162" fill="none" stroke="#ff9800" stroke-width="2"/>
+                    <text x="292" y="157" font-size="13" fill="#ff9800" font-weight="bold">&#952;&#8322;</text>
+
+                    <!-- End-effector -->
+                    <circle cx="395" cy="110" r="8" fill="#e91e63"/>
+                    <text x="410" y="100" font-size="12" fill="#e91e63" font-weight="bold">End-effector</text>
+
+                    <!-- Gravity arrow (vertical) -->
+                    <line x1="55" y1="120" x2="55" y2="200" stroke="#e91e63" stroke-width="3" marker-end="url(#gravArr)"/>
+                    <text x="55" y="112" text-anchor="middle" font-size="14" fill="#e91e63" font-weight="bold">g</text>
+
+                    <!-- Right side: subsystem decomposition -->
+                    <!-- Position Subsystem box -->
+                    <rect x="480" y="50" width="350" height="150" rx="10" fill="#667eea" opacity="0.08" stroke="#667eea" stroke-width="1.5"/>
+                    <text x="655" y="75" text-anchor="middle" font-size="15" font-weight="bold" fill="#667eea">Position Subsystem</text>
+                    <text x="655" y="98" text-anchor="middle" font-size="13" fill="#333">x&#8321; = q = [&#952;&#8321;, &#952;&#8322;]&#7488;</text>
+                    <text x="655" y="118" text-anchor="middle" font-size="13" fill="#333">x&#775;&#8321; = x&#8322;</text>
+                    <text x="655" y="142" text-anchor="middle" font-size="13" fill="#e91e63" font-weight="bold">Virtual control: &#945;&#8321; = q&#775;_d - K&#8321;z&#8321;</text>
+                    <text x="655" y="162" text-anchor="middle" font-size="12" fill="#667eea">(desired joint velocities)</text>
+                    <text x="655" y="188" text-anchor="middle" font-size="12" fill="#555">V&#8321; = &#189; z&#8321;&#7488;z&#8321;,  z&#8321; = q - q_d</text>
+
+                    <!-- Vertical arrow Position -> Velocity -->
+                    <line x1="655" y1="200" x2="655" y2="230" stroke="#1e3c72" stroke-width="2" marker-end="url(#armArr)"/>
+
+                    <!-- Velocity Subsystem box -->
+                    <rect x="480" y="235" width="350" height="155" rx="10" fill="#ff9800" opacity="0.08" stroke="#ff9800" stroke-width="1.5"/>
+                    <text x="655" y="260" text-anchor="middle" font-size="15" font-weight="bold" fill="#ff9800">Velocity Subsystem</text>
+                    <text x="655" y="283" text-anchor="middle" font-size="13" fill="#333">x&#8322; = q&#775; = [&#952;&#775;&#8321;, &#952;&#775;&#8322;]&#7488;</text>
+                    <text x="655" y="303" text-anchor="middle" font-size="13" fill="#333">x&#775;&#8322; = M&#8315;&#185;(&#964; - Cq&#775; - G)</text>
+                    <text x="655" y="330" text-anchor="middle" font-size="13" fill="#e91e63" font-weight="bold">Actual control: &#964; (joint torques)</text>
+                    <text x="655" y="355" text-anchor="middle" font-size="12" fill="#ff9800">(drives velocity to track &#945;&#8321;)</text>
+                    <text x="655" y="378" text-anchor="middle" font-size="12" fill="#555">V&#8322; = V&#8321; + &#189; z&#8322;&#7488;Mz&#8322;,  z&#8322; = q&#775; - &#945;&#8321;</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 4:</strong> 2-DOF planar manipulator and its decomposition into position and velocity subsystems for backstepping design.</div>
+            </div>
+
+            <div class="derivation-box">
+                <h4>Step 1 &mdash; Virtual Control for Position Subsystem</h4>
+
+                <p>Define the position error:</p>
+                \[
+                    z_1 = x_1 - q_d = q - q_d
+                \]
+
+                <p>The dynamics of \(z_1\) are:</p>
+                \[
+                    \dot{z}_1 = \dot{q} - \dot{q}_d = x_2 - \dot{q}_d
+                \]
+
+                <p>Choose the Lyapunov function \(V_1 = \frac{1}{2}\,z_1^T z_1\). Its derivative:</p>
+                \[
+                    \dot{V}_1 = z_1^T \dot{z}_1 = z_1^T(x_2 - \dot{q}_d)
+                \]
+
+                <p>Design the virtual control \(\alpha_1\) (the desired velocity) so that if \(x_2 = \alpha_1\), then \(\dot{V}_1 < 0\):</p>
+                \[
+                    \alpha_1 = \dot{q}_d - K_1\,z_1, \qquad K_1 = k_1 I \succ 0
+                \]
+
+                <p>This gives \(\dot{V}_1 = -z_1^T K_1 z_1 + z_1^T z_2\) where \(z_2 = x_2 - \alpha_1 = \dot{q} - \dot{q}_d + K_1 z_1\).</p>
+            </div>
+
+            <div class="derivation-box">
+                <h4>Step 2 &mdash; Torque Control for Velocity Subsystem</h4>
+
+                <p>Define the velocity error:</p>
+                \[
+                    z_2 = x_2 - \alpha_1 = \dot{q} - \dot{q}_d + K_1(q - q_d)
+                \]
+
+                <p>Compute its dynamics:</p>
+                \[
+                    \dot{z}_2 = \ddot{q} - \ddot{q}_d + K_1\dot{z}_1
+                    = M^{-1}(\tau - C\dot{q} - G) - \ddot{q}_d + K_1(\dot{q} - \dot{q}_d)
+                \]
+
+                <p>Augment the Lyapunov function (using the inertia matrix for natural energy weighting):</p>
+                \[
+                    V_2 = \frac{1}{2}\,z_1^T z_1 + \frac{1}{2}\,z_2^T M(q)\,z_2
+                \]
+
+                <p>The derivative of \(V_2\) is:</p>
+                \[
+                    \dot{V}_2 = z_1^T\dot{z}_1 + z_2^T M\dot{z}_2 + \frac{1}{2}\,z_2^T\dot{M}\,z_2
+                \]
+
+                <p>Substituting and using the skew-symmetry property \(z_2^T(\dot{M} - 2C)z_2 = 0\):</p>
+                \[
+                    \dot{V}_2 = -z_1^T K_1\,z_1 + z_1^T z_2 + z_2^T\bigl[\tau - C\dot{q} - G
+                    - M(\ddot{q}_d - K_1\dot{z}_1)\bigr] + \frac{1}{2}\,z_2^T\dot{M}\,z_2
+                \]
+
+                <p>Using the skew-symmetry property and simplifying:</p>
+                \[
+                    \dot{V}_2 = -z_1^T K_1\,z_1 + z_1^T z_2 + z_2^T\bigl[\tau - C\alpha_1 - G
+                    - M(\ddot{q}_d - K_1\dot{z}_1)\bigr]
+                \]
+
+                <p>To achieve \(\dot{V}_2 = -z_1^T K_1 z_1 - z_2^T K_2 z_2\), choose:</p>
+
+                <div class="formula-box">
+                    <strong>Backstepping Torque Control Law:</strong><br><br>
+                    \[
+                        \tau = M(q)\bigl[\ddot{q}_d - K_1\dot{z}_1 - K_2 z_2\bigr]
+                        + C(q,\dot{q})\,\alpha_1 + G(q) - z_1
+                    \]
+                </div>
+
+                <p>where \(K_2 = k_2 I \succ 0\). Expanding the terms:</p>
+                \[
+                    \tau = M(q)\bigl[\ddot{q}_d - K_1(\dot{q} - \dot{q}_d) - K_2(\dot{q} - \dot{q}_d + K_1(q-q_d))\bigr]
+                    + C(q,\dot{q})(\dot{q}_d - K_1(q-q_d)) + G(q) - (q - q_d)
+                \]
+
+                <p><strong>Stability result:</strong></p>
+                \[
+                    \dot{V}_2 = -z_1^T K_1\,z_1 - z_2^T K_2\,z_2 \le 0
+                \]
+                <p>Both \(z_1 \to 0\) and \(z_2 \to 0\) asymptotically, which means \(q \to q_d\) and \(\dot{q} \to \dot{q}_d\).</p>
+            </div>
+
+            <h3>4.2 MATLAB Implementation</h3>
+            <div class="code-block">% Backstepping controller for 2-DOF manipulator
+function tau = backstepping_manipulator(t, q, dq, params)
+    % Desired trajectory
+    qd   = [0.5*sin(t); 0.5*cos(t)];
+    dqd  = [0.5*cos(t); -0.5*sin(t)];
+    ddqd = [-0.5*sin(t); -0.5*cos(t)];
+
+    % Errors
+    z1 = q - qd;                          % Position error
+    dz1 = dq - dqd;                       % Velocity of position error
+    alpha1 = dqd - params.k1 * z1;        % Virtual control (desired velocity)
+    z2 = dq - alpha1;                      % Velocity error (= dz1 + k1*z1)
+
+    % Dynamics matrices
+    [M, C, G] = manipulator_dynamics_matrices(q, dq, params);
+
+    % Backstepping control law
+    tau = M * (ddqd - params.k1*dz1 - params.k2*z2) ...
+        + C * alpha1 + G - z1;
+end</div>
+
+            <div class="info">
+                <strong>Implementation note:</strong> The term \(-z_1\) in the control law is the
+                "cross-coupling cancellation" term that arises from the backstepping procedure.
+                Without it, the position and velocity errors would remain coupled and stability
+                cannot be guaranteed by our Lyapunov function.
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 5: PART 3 — BACKSTEPPING FOR MOBILE ROBOT            -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 5 &mdash; Part 3: Backstepping for Mobile Robot</h2>
+
+            <h3>5.1 Unicycle Model and Error Coordinates</h3>
+            <p>The unicycle (differential-drive) mobile robot has the kinematic model:</p>
+            <div class="math-box">
+                \[
+                \begin{aligned}
+                    \dot{x} &= v\cos\theta \\
+                    \dot{y} &= v\sin\theta \\
+                    \dot{\theta} &= \omega
+                \end{aligned}
+                \]
+            </div>
+            <p>where \(v\) is the linear velocity and \(\omega\) is the angular velocity (our two control inputs).</p>
+
+            <p>Given a reference trajectory \((x_r(t), y_r(t), \theta_r(t))\) generated by
+            \(\dot{x}_r = v_r\cos\theta_r\), \(\dot{y}_r = v_r\sin\theta_r\), \(\dot{\theta}_r = \omega_r\),
+            define the <strong>body-frame error</strong>:</p>
+            <div class="math-box">
+                \[
+                \begin{bmatrix} e_1 \\ e_2 \\ e_3 \end{bmatrix}
+                = \begin{bmatrix} \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                \begin{bmatrix} x_r - x \\ y_r - y \\ \theta_r - \theta \end{bmatrix}
+                \]
+            </div>
+            <p>The error dynamics are:</p>
+            <div class="math-box">
+                \[
+                \begin{aligned}
+                    \dot{e}_1 &= \omega\, e_2 - v + v_r\cos e_3 \\
+                    \dot{e}_2 &= -\omega\, e_1 + v_r\sin e_3 \\
+                    \dot{e}_3 &= \omega_r - \omega
+                \end{aligned}
+                \]
+            </div>
+
+            <!-- SVG DIAGRAM 6: Mobile Robot Backstepping -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 870 440" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="mobArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+                        </marker>
+                        <marker id="trajArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+                        </marker>
+                        <marker id="errArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#e91e63"/>
+                        </marker>
+                        <marker id="cascArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/>
+                        </marker>
+                    </defs>
+                    <text x="230" y="25" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e3c72">Mobile Robot: Top-Down View</text>
+                    <text x="660" y="25" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e3c72">Backstepping Cascade</text>
+
+                    <!-- LEFT: Grid background -->
+                    <rect x="20" y="40" width="420" height="380" rx="8" fill="#fafafa" stroke="#ddd"/>
+                    <line x1="20" y1="110" x2="440" y2="110" stroke="#eee" stroke-width="1"/>
+                    <line x1="20" y1="180" x2="440" y2="180" stroke="#eee" stroke-width="1"/>
+                    <line x1="20" y1="250" x2="440" y2="250" stroke="#eee" stroke-width="1"/>
+                    <line x1="20" y1="320" x2="440" y2="320" stroke="#eee" stroke-width="1"/>
+                    <line x1="90" y1="40" x2="90" y2="420" stroke="#eee" stroke-width="1"/>
+                    <line x1="160" y1="40" x2="160" y2="420" stroke="#eee" stroke-width="1"/>
+                    <line x1="230" y1="40" x2="230" y2="420" stroke="#eee" stroke-width="1"/>
+                    <line x1="300" y1="40" x2="300" y2="420" stroke="#eee" stroke-width="1"/>
+                    <line x1="370" y1="40" x2="370" y2="420" stroke="#eee" stroke-width="1"/>
+
+                    <!-- Reference trajectory (curved path) -->
+                    <path d="M 80,350 C 120,280 180,200 230,180 C 280,160 330,170 370,130 C 400,100 410,75 420,60" fill="none" stroke="#4caf50" stroke-width="3" stroke-dasharray="8,5"/>
+                    <text x="410" y="55" font-size="11" fill="#4caf50" font-weight="bold">Ref trajectory</text>
+
+                    <!-- Reference robot (ghost) -->
+                    <g transform="translate(280,158) rotate(-20)">
+                        <rect x="-18" y="-12" width="36" height="24" rx="4" fill="#4caf50" opacity="0.3" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="3,2"/>
+                        <circle cx="-18" cy="-10" r="5" fill="#4caf50" opacity="0.35"/>
+                        <circle cx="-18" cy="10" r="5" fill="#4caf50" opacity="0.35"/>
+                        <line x1="18" y1="0" x2="30" y2="0" stroke="#4caf50" stroke-width="2" opacity="0.4" marker-end="url(#trajArr)"/>
+                        <text x="0" y="4" text-anchor="middle" font-size="8" fill="#2e7d32" font-weight="bold">REF</text>
+                    </g>
+
+                    <!-- Actual robot -->
+                    <g transform="translate(220,220) rotate(-5)">
+                        <rect x="-22" y="-15" width="44" height="30" rx="5" fill="#1e3c72" stroke="#0d2240" stroke-width="2"/>
+                        <rect x="-26" y="-17" width="6" height="10" rx="2" fill="#333"/>
+                        <rect x="-26" y="7" width="6" height="10" rx="2" fill="#333"/>
+                        <line x1="22" y1="0" x2="42" y2="0" stroke="#ff9800" stroke-width="2.5" marker-end="url(#mobArr)"/>
+                        <text x="0" y="4" text-anchor="middle" font-size="8" fill="white" font-weight="bold">BOT</text>
+                    </g>
+
+                    <!-- Error vectors -->
+                    <line x1="230" y1="218" x2="265" y2="175" stroke="#e91e63" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#errArr)"/>
+                    <text x="260" y="200" font-size="11" fill="#e91e63" font-weight="bold">e&#8321;</text>
+                    <line x1="230" y1="218" x2="250" y2="230" stroke="#9c27b0" stroke-width="2" stroke-dasharray="4,3"/>
+                    <text x="252" y="242" font-size="11" fill="#9c27b0" font-weight="bold">e&#8322;</text>
+                    <path d="M 245,210 A 20,20 0 0,1 257,196" fill="none" stroke="#ff9800" stroke-width="2"/>
+                    <text x="262" y="195" font-size="11" fill="#ff9800" font-weight="bold">e&#8323;</text>
+
+                    <!-- Position labels -->
+                    <text x="195" y="260" font-size="11" fill="#1e3c72" font-weight="bold">(x, y, &#952;)</text>
+                    <text x="290" y="142" font-size="11" fill="#4caf50" font-weight="bold">(x_r, y_r, &#952;_r)</text>
+                    <text x="70" y="400" font-size="11" fill="#333">Controls: <tspan font-weight="bold">v</tspan> (linear vel.), <tspan font-weight="bold">&#969;</tspan> (angular vel.)</text>
+
+                    <!-- RIGHT: Three-level cascade (orthogonal vertical arrows only) -->
+                    <!-- Level 1: Position Error (Outer) -->
+                    <rect x="475" y="50" width="370" height="90" rx="10" fill="#e91e63" opacity="0.1" stroke="#e91e63" stroke-width="1.5"/>
+                    <text x="470" y="90" text-anchor="end" font-size="11" fill="#e91e63" font-weight="bold">Outer</text>
+                    <text x="660" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#e91e63">Position Error (e&#8321;, e&#8322;)</text>
+                    <text x="660" y="95" text-anchor="middle" font-size="12" fill="#555">Longitudinal and lateral tracking error</text>
+                    <text x="660" y="115" text-anchor="middle" font-size="12" fill="#555">Virtual control: e&#8323;* = arctan(-k&#8323;e&#8322;)</text>
+                    <text x="660" y="133" text-anchor="middle" font-size="11" fill="#9c27b0" font-weight="bold">e&#8323; acts as input to steer e&#8322;</text>
+
+                    <!-- Vertical arrow Level1 -> Level2 -->
+                    <line x1="660" y1="140" x2="660" y2="170" stroke="#1e3c72" stroke-width="2" marker-end="url(#cascArr)"/>
+
+                    <!-- Level 2: Heading Control (Middle) -->
+                    <rect x="475" y="175" width="370" height="85" rx="10" fill="#ff9800" opacity="0.1" stroke="#ff9800" stroke-width="1.5"/>
+                    <text x="470" y="215" text-anchor="end" font-size="11" fill="#ff9800" font-weight="bold">Middle</text>
+                    <text x="660" y="198" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff9800">Heading Control (e&#8323;)</text>
+                    <text x="660" y="218" text-anchor="middle" font-size="12" fill="#555">Drives heading to desired value</text>
+                    <text x="660" y="240" text-anchor="middle" font-size="12" fill="#e91e63" font-weight="bold">&#969; = &#969;_r + k&#8322;v_r e&#8322; + k&#8323; sin(e&#8323;)</text>
+
+                    <!-- Vertical arrow Level2 -> Level3 -->
+                    <line x1="660" y1="260" x2="660" y2="290" stroke="#1e3c72" stroke-width="2" marker-end="url(#cascArr)"/>
+
+                    <!-- Level 3: Velocity Control (Inner) -->
+                    <rect x="475" y="295" width="370" height="85" rx="10" fill="#667eea" opacity="0.1" stroke="#667eea" stroke-width="1.5"/>
+                    <text x="470" y="335" text-anchor="end" font-size="11" fill="#667eea" font-weight="bold">Inner</text>
+                    <text x="660" y="318" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">Velocity Control (v, &#969;)</text>
+                    <text x="660" y="338" text-anchor="middle" font-size="12" fill="#555">Actual control inputs to the robot</text>
+                    <text x="660" y="358" text-anchor="middle" font-size="12" fill="#667eea" font-weight="bold">v = v_r cos(e&#8323;) + k&#8321; e&#8321;</text>
+                    <text x="660" y="375" text-anchor="middle" font-size="11" fill="#555">Wheel speeds: v_L, v_R</text>
+
+                    <!-- Bottom note -->
+                    <rect x="475" y="400" width="370" height="28" rx="6" fill="#1e3c72" opacity="0.07"/>
+                    <text x="660" y="420" text-anchor="middle" font-size="12" fill="#1e3c72" font-weight="bold">Heading e&#8323; acts as virtual control for lateral error e&#8322;</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 6:</strong> Differential-drive mobile robot (top-down view) with body-frame errors and the backstepping cascade: position error drives heading control, which drives velocity control.</div>
+            </div>
+
+            <h3>5.2 Backstepping Design</h3>
+
+            <div class="derivation-box">
+                <h4>Step 1 &mdash; Stabilise the Lateral/Heading Subsystem</h4>
+
+                <p>Consider the \((e_2, e_3)\) subsystem first. Note that \(e_2\) is driven by \(v_r \sin e_3\).
+                Think of \(e_3\) as a virtual input to steer \(e_2\). If \(e_3\) could be freely chosen, pick:</p>
+                \[
+                    e_3^* = \arctan(-k_3\, e_2)
+                \]
+                <p>(This makes \(v_r \sin e_3^* \approx -k_3 v_r e_2\) for small \(e_2\), driving \(e_2 \to 0\).)</p>
+
+                <p>However, \(e_3\) is a state, not an input. Define the backstepping error:</p>
+                \[
+                    \bar{e}_3 = e_3 - e_3^*
+                \]
+            </div>
+
+            <div class="derivation-box">
+                <h4>Step 2 &mdash; Design the Control Inputs \((v, \omega)\)</h4>
+
+                <p>Choose the Lyapunov function:</p>
+                \[
+                    V = \frac{1}{2}e_1^2 + \frac{1}{2}e_2^2 + \frac{1}{2}\bar{e}_3^2
+                \]
+
+                <p>For the longitudinal error \(e_1\), choose the linear velocity:</p>
+                \[
+                    v = v_r\cos e_3 + k_1\,e_1
+                \]
+                <p>This gives \(\dot{e}_1 = -k_1 e_1 + \omega e_2\).</p>
+
+                <p>For the angular velocity, we need \(\omega\) to simultaneously:
+                (a) cancel the coupling \(\omega e_2\) term in \(\dot{e}_1\),
+                (b) drive \(\bar{e}_3 \to 0\), and
+                (c) handle the \(e_2\) dynamics.</p>
+
+                <p>The full angular velocity controller is:</p>
+                \[
+                    \omega = \omega_r + k_2\,v_r\,e_2 + k_3\,\bar{e}_3
+                \]
+
+                <p>where \(k_2\) handles the lateral error coupling with \(v_r \sin e_3\), and \(k_3\) drives the heading backstepping error to zero.</p>
+
+                <div class="formula-box">
+                    <strong>Backstepping Mobile Robot Controller:</strong><br><br>
+                    \[
+                        v = v_r \cos e_3 + k_1\,e_1
+                    \]
+                    \[
+                        \omega = \omega_r + k_2\,v_r\,e_2 + k_3\,\sin e_3
+                    \]
+                </div>
+
+                <p><strong>Stability analysis.</strong> With this controller and \(V = \frac{1}{2}(e_1^2 + e_2^2 + e_3^2)\):</p>
+                \[
+                    \dot{V} = e_1\dot{e}_1 + e_2\dot{e}_2 + e_3\dot{e}_3
+                \]
+                \[
+                    = e_1(-k_1 e_1 + \omega e_2) + e_2(-\omega e_1 + v_r \sin e_3)
+                    + e_3(\omega_r - \omega)
+                \]
+                <p>The cross-terms \(e_1 \omega e_2\) and \(-e_2 \omega e_1\) cancel. Substituting the controller:</p>
+                \[
+                    \dot{V} = -k_1 e_1^2 + e_2 v_r \sin e_3 + e_3(\omega_r - \omega_r - k_2 v_r e_2 - k_3 \sin e_3)
+                \]
+                \[
+                    = -k_1 e_1^2 + v_r e_2 \sin e_3 - k_2 v_r e_2 e_3 - k_3 e_3 \sin e_3
+                \]
+                <p>For \(v_r > 0\) and using the fact that \(\frac{\sin e_3}{e_3}\) is bounded, with appropriate choice of \(k_2\), we get \(\dot{V} \le -k_1 e_1^2 - k_3 e_3 \sin e_3 \le 0\). Convergence of all errors follows by Barbalat's lemma (since \(v_r(t) > 0\)).</p>
+            </div>
+
+            <h3>5.3 MATLAB Implementation</h3>
+            <div class="code-block">% Backstepping controller for unicycle mobile robot
+function [v, omega] = backstepping_mobile_robot(e1, e2, e3, v_r, omega_r, params)
+    % e1: longitudinal error (body frame)
+    % e2: lateral error (body frame)
+    % e3: heading error
+
+    v     = v_r * cos(e3) + params.k1 * e1;
+    omega = omega_r + params.k2 * v_r * e2 + params.k3 * sin(e3);
+end</div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 6: PART 4 — BACKSTEPPING FOR DRONE                   -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 6 &mdash; Part 4: Backstepping for Quadrotor Drone</h2>
+
+            <h3>6.1 Quadrotor Cascade Structure</h3>
+            <p>The quadrotor has a natural four-level cascade:</p>
+            <div class="math-box">
+                \[
+                    \underbrace{\text{Position}}_{\text{Level 1}}
+                    \;\xrightarrow{\text{desired accel.}}\;
+                    \underbrace{\text{Velocity}}_{\text{Level 2}}
+                    \;\xrightarrow{\text{desired angles}}\;
+                    \underbrace{\text{Orientation}}_{\text{Level 3}}
+                    \;\xrightarrow{\text{desired rates}}\;
+                    \underbrace{\text{Angular Rate}}_{\text{Level 4}}
+                    \;\xrightarrow{\quad}\;
+                    (T, \boldsymbol{\tau})
+                \]
+            </div>
+
+            <p>The simplified quadrotor dynamics (with rotation matrix \(R\)):</p>
+            <div class="math-box">
+                \[
+                \begin{aligned}
+                    \dot{\mathbf{p}} &= \mathbf{v} \\[4pt]
+                    m\dot{\mathbf{v}} &= -mg\,\mathbf{e}_3 + T\,R\,\mathbf{e}_3 \\[4pt]
+                    \dot{R} &= R\,[\boldsymbol{\omega}]_\times \\[4pt]
+                    J\dot{\boldsymbol{\omega}} &= -\boldsymbol{\omega} \times J\boldsymbol{\omega} + \boldsymbol{\tau}_b
+                \end{aligned}
+                \]
+            </div>
+            <p>where \(\mathbf{p} = [x,y,z]^T\) is position, \(\mathbf{v}\) is velocity, \(T\) is total thrust,
+            \(R \in SO(3)\) is the rotation matrix, \(\boldsymbol{\omega}\) is the body angular velocity,
+            \(J\) is the inertia tensor, and \(\boldsymbol{\tau}_b\) are the body torques.</p>
+
+            <!-- SVG DIAGRAM 7: Quadrotor Backstepping Architecture -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 870 440" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="qArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#1e3c72"/>
+                        </marker>
+                    </defs>
+                    <text x="435" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Quadrotor Backstepping: Natural Cascade Architecture</text>
+
+                    <!-- LEFT: Quadrotor top-down view -->
+                    <rect x="20" y="45" width="310" height="300" rx="10" fill="#f8f9fa" stroke="#ddd"/>
+                    <text x="175" y="68" text-anchor="middle" font-size="14" font-weight="bold" fill="#555">Quadrotor (Top View)</text>
+
+                    <!-- Body center -->
+                    <circle cx="175" cy="200" r="20" fill="#1e3c72" opacity="0.8"/>
+                    <text x="175" y="205" text-anchor="middle" font-size="10" fill="white" font-weight="bold">COM</text>
+
+                    <!-- Arms (diagonal lines -- these are physical arms, not signal connections) -->
+                    <line x1="175" y1="200" x2="85" y2="125" stroke="#667eea" stroke-width="4"/>
+                    <line x1="175" y1="200" x2="265" y2="125" stroke="#667eea" stroke-width="4"/>
+                    <line x1="175" y1="200" x2="85" y2="275" stroke="#667eea" stroke-width="4"/>
+                    <line x1="175" y1="200" x2="265" y2="275" stroke="#667eea" stroke-width="4"/>
+
+                    <!-- Motor 1 (front-left) -->
+                    <circle cx="85" cy="125" r="22" fill="#4caf50" opacity="0.2" stroke="#4caf50" stroke-width="1.5"/>
+                    <circle cx="85" cy="125" r="8" fill="#4caf50"/>
+                    <text x="85" y="129" text-anchor="middle" font-size="8" fill="white" font-weight="bold">M1</text>
+                    <text x="60" y="108" font-size="10" fill="#4caf50">T&#8321;</text>
+
+                    <!-- Motor 2 (front-right) -->
+                    <circle cx="265" cy="125" r="22" fill="#ff9800" opacity="0.2" stroke="#ff9800" stroke-width="1.5"/>
+                    <circle cx="265" cy="125" r="8" fill="#ff9800"/>
+                    <text x="265" y="129" text-anchor="middle" font-size="8" fill="white" font-weight="bold">M2</text>
+                    <text x="283" y="108" font-size="10" fill="#ff9800">T&#8322;</text>
+
+                    <!-- Motor 3 (back-right) -->
+                    <circle cx="265" cy="275" r="22" fill="#4caf50" opacity="0.2" stroke="#4caf50" stroke-width="1.5"/>
+                    <circle cx="265" cy="275" r="8" fill="#4caf50"/>
+                    <text x="265" y="279" text-anchor="middle" font-size="8" fill="white" font-weight="bold">M3</text>
+                    <text x="283" y="298" font-size="10" fill="#4caf50">T&#8323;</text>
+
+                    <!-- Motor 4 (back-left) -->
+                    <circle cx="85" cy="275" r="22" fill="#ff9800" opacity="0.2" stroke="#ff9800" stroke-width="1.5"/>
+                    <circle cx="85" cy="275" r="8" fill="#ff9800"/>
+                    <text x="85" y="279" text-anchor="middle" font-size="8" fill="white" font-weight="bold">M4</text>
+                    <text x="60" y="298" font-size="10" fill="#ff9800">T&#8324;</text>
+
+                    <!-- Heading arrow (vertical, upward) -->
+                    <line x1="175" y1="180" x2="175" y2="92" stroke="#e91e63" stroke-width="2.5" marker-end="url(#qArr)"/>
+                    <text x="190" y="95" font-size="11" fill="#e91e63" font-weight="bold">Front</text>
+
+                    <!-- RIGHT: Four-level vertical cascade -->
+                    <!-- Level 1: Position Controller -->
+                    <rect x="380" y="48" width="460" height="70" rx="10" fill="#667eea" opacity="0.12" stroke="#667eea" stroke-width="2"/>
+                    <rect x="386" y="53" width="90" height="22" rx="5" fill="#667eea"/>
+                    <text x="431" y="69" text-anchor="middle" font-size="11" fill="white" font-weight="bold">LEVEL 1</text>
+                    <text x="610" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="#667eea">Position Controller</text>
+                    <text x="610" y="92" text-anchor="middle" font-size="12" fill="#333">z&#8321; = p - p_d  |  V&#8321; = &#189;||z&#8321;||&#178;</text>
+                    <text x="610" y="110" text-anchor="middle" font-size="11" fill="#555">Output: desired velocity &#945;&#8321; (virtual control)</text>
+
+                    <!-- Vertical arrow L1 -> L2 -->
+                    <line x1="610" y1="118" x2="610" y2="148" stroke="#1e3c72" stroke-width="2" marker-end="url(#qArr)"/>
+                    <text x="628" y="138" font-size="10" fill="#e91e63" font-weight="bold">&#945;&#8321;</text>
+
+                    <!-- Level 2: Velocity Controller -->
+                    <rect x="380" y="153" width="460" height="70" rx="10" fill="#4caf50" opacity="0.12" stroke="#4caf50" stroke-width="2"/>
+                    <rect x="386" y="158" width="90" height="22" rx="5" fill="#4caf50"/>
+                    <text x="431" y="174" text-anchor="middle" font-size="11" fill="white" font-weight="bold">LEVEL 2</text>
+                    <text x="610" y="177" text-anchor="middle" font-size="14" font-weight="bold" fill="#4caf50">Velocity Controller</text>
+                    <text x="610" y="197" text-anchor="middle" font-size="12" fill="#333">z&#8322; = v - &#945;&#8321;  |  V&#8322; = V&#8321; + &#189;||z&#8322;||&#178;</text>
+                    <text x="610" y="215" text-anchor="middle" font-size="11" fill="#e91e63" font-weight="bold">Output: T (thrust) and R_des (virtual control)</text>
+
+                    <!-- Vertical arrow L2 -> L3 -->
+                    <line x1="610" y1="223" x2="610" y2="253" stroke="#1e3c72" stroke-width="2" marker-end="url(#qArr)"/>
+                    <text x="628" y="243" font-size="10" fill="#e91e63" font-weight="bold">R_des</text>
+
+                    <!-- Level 3: Attitude Controller -->
+                    <rect x="380" y="258" width="460" height="70" rx="10" fill="#ff9800" opacity="0.12" stroke="#ff9800" stroke-width="2"/>
+                    <rect x="386" y="263" width="90" height="22" rx="5" fill="#ff9800"/>
+                    <text x="431" y="279" text-anchor="middle" font-size="11" fill="white" font-weight="bold">LEVEL 3</text>
+                    <text x="610" y="282" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff9800">Attitude Controller</text>
+                    <text x="610" y="302" text-anchor="middle" font-size="12" fill="#333">z&#8323; = &#934; - &#934;_des  |  V&#8323; = V&#8322; + &#189;||z&#8323;||&#178;</text>
+                    <text x="610" y="320" text-anchor="middle" font-size="11" fill="#555">Output: desired angular rate &#945;&#8323; (virtual control)</text>
+
+                    <!-- Vertical arrow L3 -> L4 -->
+                    <line x1="610" y1="328" x2="610" y2="358" stroke="#1e3c72" stroke-width="2" marker-end="url(#qArr)"/>
+                    <text x="628" y="348" font-size="10" fill="#e91e63" font-weight="bold">&#945;&#8323;</text>
+
+                    <!-- Level 4: Angular Rate / Motor Commands -->
+                    <rect x="380" y="363" width="460" height="65" rx="10" fill="#e91e63" opacity="0.12" stroke="#e91e63" stroke-width="2"/>
+                    <rect x="386" y="368" width="90" height="22" rx="5" fill="#e91e63"/>
+                    <text x="431" y="384" text-anchor="middle" font-size="11" fill="white" font-weight="bold">LEVEL 4</text>
+                    <text x="610" y="387" text-anchor="middle" font-size="14" font-weight="bold" fill="#e91e63">Angular Rate Controller</text>
+                    <text x="610" y="407" text-anchor="middle" font-size="12" fill="#333">z&#8324; = &#969; - &#945;&#8323;  |  &#964;_b = J[&#945;&#775;&#8323; - K&#8324;z&#8324;] + &#969; x J&#969; - z&#8323;</text>
+                    <text x="610" y="423" text-anchor="middle" font-size="11" fill="#e91e63" font-weight="bold">Actual control: T, &#964;_b --> motor speeds [&#937;&#8321;, &#937;&#8322;, &#937;&#8323;, &#937;&#8324;]</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 7:</strong> Quadrotor cascade backstepping architecture. The position controller generates a desired attitude (virtual control); the attitude controller generates the actual motor commands.</div>
+            </div>
+
+            <h3>6.2 Backstepping Design &mdash; Outer Loop (Position Control)</h3>
+
+            <div class="derivation-box">
+                <h4>Step 1 &mdash; Position Error</h4>
+
+                <p>Define position error \(z_1 = \mathbf{p} - \mathbf{p}_d\). Then \(\dot{z}_1 = \mathbf{v} - \dot{\mathbf{p}}_d\).</p>
+
+                <p>Virtual control (desired velocity):</p>
+                \[
+                    \boldsymbol{\alpha}_1 = \dot{\mathbf{p}}_d - K_{p1}\,z_1, \qquad K_{p1} = k_{p1}\,I_3 \succ 0
+                \]
+            </div>
+
+            <div class="derivation-box">
+                <h4>Step 2 &mdash; Velocity Error</h4>
+
+                <p>Define velocity error \(z_2 = \mathbf{v} - \boldsymbol{\alpha}_1\). Its dynamics:</p>
+                \[
+                    \dot{z}_2 = \dot{\mathbf{v}} - \dot{\boldsymbol{\alpha}}_1
+                    = -g\mathbf{e}_3 + \frac{T}{m}R\mathbf{e}_3 - \ddot{\mathbf{p}}_d + K_{p1}\dot{z}_1
+                \]
+
+                <p>Choose the Lyapunov function \(V = \frac{1}{2}z_1^T z_1 + \frac{1}{2}z_2^T z_2\).
+                To make \(\dot{V} = -k_{p1}\|z_1\|^2 - k_{p2}\|z_2\|^2\), we need the
+                <strong>desired acceleration vector</strong>:</p>
+                \[
+                    \mathbf{a}_{\text{des}} = \ddot{\mathbf{p}}_d - K_{p1}\dot{z}_1 - z_1 - K_{p2}\,z_2 + g\mathbf{e}_3
+                \]
+
+                <p>The thrust magnitude and desired orientation are extracted from \(\mathbf{a}_{\text{des}}\):</p>
+                \[
+                    T = m\,\|\mathbf{a}_{\text{des}}\|
+                \]
+                \[
+                    \mathbf{z}_{B,\text{des}} = \frac{\mathbf{a}_{\text{des}}}{\|\mathbf{a}_{\text{des}}\|}
+                    \quad \Longrightarrow \quad
+                    R_{\text{des}} \text{ constructed from } \mathbf{z}_{B,\text{des}} \text{ and desired yaw}
+                \]
+            </div>
+
+            <h3>6.3 Backstepping Design &mdash; Inner Loop (Attitude Control)</h3>
+
+            <div class="derivation-box">
+                <h4>Step 3 &mdash; Attitude Error</h4>
+
+                <p>Using Euler angles \((\phi, \theta, \psi)\) for a simplified treatment, define:</p>
+                \[
+                    z_3 = \boldsymbol{\Phi} - \boldsymbol{\Phi}_{\text{des}}
+                    = \begin{bmatrix} \phi - \phi_d \\ \theta - \theta_d \\ \psi - \psi_d \end{bmatrix}
+                \]
+
+                <p>Virtual control (desired angular rate):</p>
+                \[
+                    \boldsymbol{\alpha}_3 = \dot{\boldsymbol{\Phi}}_{\text{des}} - K_{a1}\,z_3
+                \]
+            </div>
+
+            <div class="derivation-box">
+                <h4>Step 4 &mdash; Angular Rate Error and Torque Design</h4>
+
+                <p>Define \(z_4 = \boldsymbol{\omega} - \boldsymbol{\alpha}_3\). Using the Euler equation
+                \(J\dot{\boldsymbol{\omega}} = -\boldsymbol{\omega} \times J\boldsymbol{\omega} + \boldsymbol{\tau}_b\):</p>
+
+                <div class="formula-box">
+                    <strong>Backstepping Attitude Torque:</strong><br><br>
+                    \[
+                        \boldsymbol{\tau}_b = J\bigl[\dot{\boldsymbol{\alpha}}_3 - K_{a2}\,z_4\bigr]
+                        + \boldsymbol{\omega} \times J\boldsymbol{\omega} - z_3
+                    \]
+                </div>
+
+                <p>This yields the overall Lyapunov function:</p>
+                \[
+                    V = \frac{1}{2}\bigl(\|z_1\|^2 + \|z_2\|^2 + \|z_3\|^2 + z_4^T J\,z_4\bigr)
+                \]
+                \[
+                    \dot{V} = -k_{p1}\|z_1\|^2 - k_{p2}\|z_2\|^2 - k_{a1}\|z_3\|^2 - k_{a2}\,z_4^T K_{a2}\,z_4 \le 0
+                \]
+            </div>
+
+            <h3>6.4 MATLAB Implementation</h3>
+            <div class="code-block">% Backstepping controller for quadrotor
+function [T, tau_b] = backstepping_quadrotor(state, ref, params)
+    % State: [x y z vx vy vz phi theta psi p q r]
+    pos = state(1:3);  vel = state(4:6);
+    phi = state(7); theta = state(8); psi = state(9);
+    omega_b = state(10:12);
+
+    % Reference
+    pos_d = ref.pos;  vel_d = ref.vel;  acc_d = ref.acc;  psi_d = ref.psi;
+
+    % --- Outer loop: Position backstepping ---
+    z1 = pos - pos_d;
+    dz1 = vel - vel_d;
+    alpha1 = vel_d - params.kp1 * z1;         % Virtual velocity
+    z2 = vel - alpha1;                          % Velocity error
+
+    % Desired acceleration
+    a_des = acc_d - params.kp1*dz1 - z1 - params.kp2*z2 + [0;0;params.g];
+
+    % Thrust
+    T = params.m * norm(a_des);
+
+    % Desired orientation from a_des
+    z_B_des = a_des / norm(a_des);
+    phi_d   = asin(z_B_des(1)*sin(psi_d) - z_B_des(2)*cos(psi_d));
+    theta_d = atan2(z_B_des(1)*cos(psi_d)+z_B_des(2)*sin(psi_d), z_B_des(3));
+
+    % --- Inner loop: Attitude backstepping ---
+    Phi = [phi; theta; psi];
+    Phi_d = [phi_d; theta_d; psi_d];
+    z3 = Phi - Phi_d;
+    alpha3 = -params.ka1 * z3;                 % Desired angular rate
+    z4 = omega_b - alpha3;
+
+    % Body torques
+    J = diag([params.Ixx, params.Iyy, params.Izz]);
+    tau_b = J * (-params.ka1*(-params.ka1*z3 - z4*0) - params.ka2*z4) ...
+          + cross(omega_b, J*omega_b) - z3;
+end</div>
+
+            <div class="warning">
+                <strong>Practical note:</strong> In real implementations, the desired angles \((\phi_d, \theta_d)\)
+                must be saturated (typically to \(\pm 30^\circ\)) to prevent aggressive manoeuvres.
+                The thrust \(T\) must also be clamped to \([0, T_{\max}]\).
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 7: ACTIVITIES                                         -->
+        <!-- ============================================================ -->
+        <div class="section activity">
+            <h2>Section 7 &mdash; Hands-on Activities &amp; Quiz</h2>
+
+            <h3>Activity 1: Gain Tuning for Manipulator Backstepping (10 min)</h3>
+            <p>Run <code>backstepping_control_simulation.m</code> and observe the manipulator plots.
+            Then modify the gains and re-run:</p>
+            <ol>
+                <li>Set \(k_1 = 50, \; k_2 = 5\) (position gain much larger than velocity gain).</li>
+                <li>Set \(k_1 = 5, \; k_2 = 50\) (velocity gain much larger than position gain).</li>
+                <li>Set \(k_1 = k_2 = 25\) (balanced gains).</li>
+            </ol>
+
+            <div class="info">
+                <strong>Expected observations:</strong>
+                <ul>
+                    <li><strong>\(k_1 \gg k_2\):</strong> Aggressive position correction generates large desired velocity changes.
+                    The velocity loop cannot track them fast enough, causing oscillatory or even unstable behaviour.
+                    The virtual control \(\alpha_1\) demands more than the torque loop can deliver.</li>
+                    <li><strong>\(k_2 \gg k_1\):</strong> The velocity error \(z_2\) converges quickly, but the position
+                    error \(z_1\) converges slowly because \(k_1\) is small. The system is overdamped
+                    with sluggish position tracking.</li>
+                    <li><strong>\(k_1 \approx k_2\):</strong> Balanced convergence rates for both loops. This is
+                    generally the best choice for smooth, fast tracking.</li>
+                </ul>
+            </div>
+
+            <h3>Activity 2: Comparative Study (15 min)</h3>
+            <p>The MATLAB file includes a comparison of backstepping vs. computed torque vs. robust control
+            on the manipulator with model uncertainty (20% mass error). Observe:</p>
+            <ul>
+                <li>Which controller has the smallest steady-state error?</li>
+                <li>Which controller has the smoothest control signal?</li>
+                <li>Which controller uses the least energy (smallest \(\int \|\tau\|^2 \, dt\))?</li>
+            </ul>
+
+            <div class="quiz-box">
+                <h4>Quiz &mdash; Virtual Control Design</h4>
+
+                <p><strong>Q1:</strong> Given the system \(\dot{x}_1 = x_1^2 + x_2\), \(\dot{x}_2 = x_2 + u\),
+                design a backstepping controller to stabilise \(x_1 = 0\).</p>
+
+                <p><em>Answer sketch:</em></p>
+                <ul>
+                    <li>Step 1: \(z_1 = x_1\), \(\dot{z}_1 = x_1^2 + x_2\).
+                    Choose \(\alpha_1 = -x_1^2 - k_1 x_1\) so that \(\dot{V}_1 = -k_1 x_1^2 + x_1 z_2\).</li>
+                    <li>Step 2: \(z_2 = x_2 - \alpha_1\), \(\dot{z}_2 = x_2 + u - (2x_1)(x_1^2 + x_2) + k_1(x_1^2 + x_2)\).
+                    Choose \(u = -x_2 + \dot{\alpha}_1 - x_1 - k_2 z_2\).</li>
+                </ul>
+
+                <p><strong>Q2:</strong> In the two-step backstepping controller, what happens if we omit the
+                cross-coupling term \(-z_1\) from the torque law? Is stability still guaranteed?</p>
+
+                <p><em>Answer:</em> Without \(-z_1\), the Lyapunov derivative becomes
+                \(\dot{V}_2 = -k_1 z_1^2 - k_2 z_2^2 + z_1^T z_2\). The cross-term \(z_1^T z_2\) can be
+                positive, so \(\dot{V}_2\) is not guaranteed negative semi-definite. Stability is only ensured
+                if \(k_1 k_2 > \frac{1}{4}\) (by Young's inequality), but the stability margin is reduced.
+                The systematic backstepping design avoids this issue entirely.</p>
+
+                <p><strong>Q3:</strong> Why does the quadrotor need four backstepping steps while the
+                manipulator only needs two?</p>
+
+                <p><em>Answer:</em> The quadrotor has a four-level cascade:
+                position &rarr; velocity &rarr; orientation &rarr; angular rate, each acting as a virtual control
+                for the previous level. The manipulator only has two levels (position &rarr; velocity) because
+                the torque directly enters the velocity dynamics via \(M^{-1}\tau\). The number of backstepping
+                steps equals the relative degree from the output to the input.</p>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 8: SUMMARY COMPARISON TABLE                           -->
+        <!-- ============================================================ -->
+        <div class="section">
+            <h2>Section 8 &mdash; Summary: Comparison of All Five Control Methods</h2>
+
+            <table>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Computed Torque (Wk1)</th>
+                    <th>MPC (Wk2)</th>
+                    <th>Adaptive (Wk3)</th>
+                    <th>Robust (Wk4)</th>
+                    <th>Backstepping (Wk5)</th>
+                </tr>
+                <tr>
+                    <td><strong>Core idea</strong></td>
+                    <td>Cancel nonlinearity, impose linear error dynamics</td>
+                    <td>Optimise predicted trajectory over finite horizon</td>
+                    <td>On-line parameter estimation + control</td>
+                    <td>Dominate worst-case bounded uncertainty</td>
+                    <td>Recursive Lyapunov design through cascade structure</td>
+                </tr>
+                <tr>
+                    <td><strong>Model requirement</strong></td>
+                    <td>Exact model needed</td>
+                    <td>Prediction model needed</td>
+                    <td>Structure known, parameters unknown</td>
+                    <td>Nominal model + uncertainty bound</td>
+                    <td>Strict-feedback structure required</td>
+                </tr>
+                <tr>
+                    <td><strong>Lyapunov function</strong></td>
+                    <td>Implicit (linear closed-loop)</td>
+                    <td>Cost function (not standard Lyapunov)</td>
+                    <td>\(V = \frac{1}{2}s^T M s + \frac{1}{2}\tilde{\theta}^T\Gamma^{-1}\tilde{\theta}\)</td>
+                    <td>\(V = \frac{1}{2}s^T M s\)</td>
+                    <td>\(V = \sum \frac{1}{2}z_i^T W_i z_i\) (constructed step-by-step)</td>
+                </tr>
+                <tr>
+                    <td><strong>Handles constraints</strong></td>
+                    <td>No</td>
+                    <td>Yes (core feature)</td>
+                    <td>No (standard form)</td>
+                    <td>No</td>
+                    <td>No (standard form)</td>
+                </tr>
+                <tr>
+                    <td><strong>Robustness</strong></td>
+                    <td>Poor (sensitive to model errors)</td>
+                    <td>Moderate (depends on model accuracy)</td>
+                    <td>Good (adapts to parametric uncertainty)</td>
+                    <td>Excellent (designed for uncertainty)</td>
+                    <td>Good (Lyapunov-guaranteed; can add adaptation)</td>
+                </tr>
+                <tr>
+                    <td><strong>Computation</strong></td>
+                    <td>Low (closed-form)</td>
+                    <td>High (on-line optimisation)</td>
+                    <td>Moderate (adaptation law update)</td>
+                    <td>Low (closed-form)</td>
+                    <td>Moderate (derivatives of virtual controls)</td>
+                </tr>
+                <tr>
+                    <td><strong>Key advantage</strong></td>
+                    <td>Simple, well-understood</td>
+                    <td>Handles constraints and preview</td>
+                    <td>Self-tuning for unknown parameters</td>
+                    <td>Guaranteed performance under uncertainty</td>
+                    <td>Systematic design with constructive stability proof</td>
+                </tr>
+                <tr>
+                    <td><strong>Key limitation</strong></td>
+                    <td>No robustness to model error</td>
+                    <td>Computational cost, model dependence</td>
+                    <td>Needs persistent excitation, structured uncertainty</td>
+                    <td>Conservative (worst-case design), chattering</td>
+                    <td>Complexity explosion in \(\dot{\alpha}_i\) for high-order systems</td>
+                </tr>
+                <tr>
+                    <td><strong>Control law form</strong></td>
+                    <td>\(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\)</td>
+                    <td>\(u^* = \arg\min_{u} \sum_{k} \|x_k - x_r\|^2_Q + \|u_k\|^2_R\)</td>
+                    <td>\(\tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\hat{\theta} - K_D s\)</td>
+                    <td>\(\tau = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K_D s + \rho\frac{s}{\|s\|}\)</td>
+                    <td>\(\tau = M[\ddot{q}_d - K_1\dot{z}_1 - K_2 z_2] + C\alpha_1 + G - z_1\)</td>
+                </tr>
+            </table>
+
+            <!-- SVG DIAGRAM 8: Comparison – Backstepping vs Feedback Linearization -->
+            <div style="text-align:center; margin:20px 0;">
+                <svg width="100%" style="max-width:800px" viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+                    <defs>
+                        <marker id="cmpArr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+                        </marker>
+                    </defs>
+                    <text x="440" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Backstepping vs Feedback Linearization</text>
+
+                    <!-- LEFT PANEL: Feedback Linearization -->
+                    <rect x="15" y="42" width="410" height="385" rx="12" fill="#e91e63" opacity="0.05" stroke="#e91e63" stroke-width="2"/>
+                    <rect x="90" y="48" width="260" height="28" rx="8" fill="#e91e63"/>
+                    <text x="220" y="68" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Feedback Linearization</text>
+
+                    <!-- FL block diagram: three boxes connected horizontally -->
+                    <rect x="40" y="95" width="100" height="50" rx="8" fill="#667eea" opacity="0.15" stroke="#667eea"/>
+                    <text x="90" y="117" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Nonlinear</text>
+                    <text x="90" y="133" text-anchor="middle" font-size="11" fill="#333">Plant</text>
+
+                    <!-- Horizontal arrow -->
+                    <line x1="140" y1="120" x2="168" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#cmpArr)"/>
+
+                    <rect x="178" y="95" width="110" height="50" rx="8" fill="#e91e63" opacity="0.2" stroke="#e91e63"/>
+                    <text x="233" y="117" text-anchor="middle" font-size="11" fill="#c2185b" font-weight="bold">Cancel ALL</text>
+                    <text x="233" y="133" text-anchor="middle" font-size="11" fill="#c2185b">nonlinearities</text>
+
+                    <!-- Red X over cancel box -->
+                    <line x1="185" y1="100" x2="282" y2="140" stroke="#e91e63" stroke-width="3" opacity="0.5"/>
+                    <line x1="185" y1="140" x2="282" y2="100" stroke="#e91e63" stroke-width="3" opacity="0.5"/>
+
+                    <!-- Horizontal arrow -->
+                    <line x1="288" y1="120" x2="316" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#cmpArr)"/>
+
+                    <rect x="326" y="95" width="80" height="50" rx="8" fill="#4caf50" opacity="0.15" stroke="#4caf50"/>
+                    <text x="366" y="117" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Linear</text>
+                    <text x="366" y="133" text-anchor="middle" font-size="11" fill="#333">system</text>
+
+                    <!-- FL characteristics -->
+                    <rect x="35" y="160" width="370" height="115" rx="8" fill="white" stroke="#ddd"/>
+                    <text x="220" y="180" text-anchor="middle" font-size="13" fill="#e91e63" font-weight="bold">Characteristics</text>
+                    <text x="50" y="200" font-size="12" fill="#333">&#8226; Requires <tspan font-weight="bold">exact model</tspan> of all nonlinearities</text>
+                    <text x="50" y="220" font-size="12" fill="#333">&#8226; Cancels <tspan font-weight="bold">everything</tspan> (even beneficial terms)</text>
+                    <text x="50" y="240" font-size="12" fill="#333">&#8226; Needs system to be feedback-linearizable</text>
+                    <text x="50" y="260" font-size="12" fill="#333">&#8226; No constructive Lyapunov function</text>
+
+                    <!-- FL Pros box -->
+                    <rect x="35" y="290" width="175" height="80" rx="8" fill="#d4edda" stroke="#28a745"/>
+                    <text x="122" y="310" text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">Pros</text>
+                    <text x="45" y="328" font-size="11" fill="#333">&#10003; Simple linear design</text>
+                    <text x="45" y="346" font-size="11" fill="#333">&#10003; Well-understood theory</text>
+                    <text x="45" y="362" font-size="11" fill="#333">&#10003; Exact tracking (ideal)</text>
+
+                    <!-- FL Cons box -->
+                    <rect x="225" y="290" width="180" height="80" rx="8" fill="#f8d7da" stroke="#dc3545"/>
+                    <text x="315" y="310" text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold">Cons</text>
+                    <text x="235" y="328" font-size="11" fill="#333">&#10007; Fragile to model errors</text>
+                    <text x="235" y="346" font-size="11" fill="#333">&#10007; Wastes control effort</text>
+                    <text x="235" y="362" font-size="11" fill="#333">&#10007; Not always possible</text>
+
+                    <!-- VS divider -->
+                    <rect x="420" y="195" width="40" height="40" rx="20" fill="#1e3c72"/>
+                    <text x="440" y="221" text-anchor="middle" font-size="15" fill="white" font-weight="bold">vs</text>
+
+                    <!-- RIGHT PANEL: Backstepping -->
+                    <rect x="455" y="42" width="410" height="385" rx="12" fill="#4caf50" opacity="0.05" stroke="#4caf50" stroke-width="2"/>
+                    <rect x="530" y="48" width="260" height="28" rx="8" fill="#4caf50"/>
+                    <text x="660" y="68" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Backstepping Control</text>
+
+                    <!-- BS block diagram: three boxes connected horizontally -->
+                    <rect x="480" y="95" width="100" height="50" rx="8" fill="#667eea" opacity="0.15" stroke="#667eea"/>
+                    <text x="530" y="117" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Nonlinear</text>
+                    <text x="530" y="133" text-anchor="middle" font-size="11" fill="#333">Plant</text>
+
+                    <!-- Horizontal arrow -->
+                    <line x1="580" y1="120" x2="608" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#cmpArr)"/>
+
+                    <rect x="618" y="95" width="110" height="50" rx="8" fill="#4caf50" opacity="0.2" stroke="#4caf50"/>
+                    <text x="673" y="117" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">Exploit useful</text>
+                    <text x="673" y="133" text-anchor="middle" font-size="11" fill="#2e7d32">nonlinearities</text>
+
+                    <!-- Green check over exploit box -->
+                    <text x="673" y="90" text-anchor="middle" font-size="24" fill="#4caf50">&#10003;</text>
+
+                    <!-- Horizontal arrow -->
+                    <line x1="728" y1="120" x2="756" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#cmpArr)"/>
+
+                    <rect x="766" y="95" width="80" height="50" rx="8" fill="#ff9800" opacity="0.15" stroke="#ff9800"/>
+                    <text x="806" y="117" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Stable</text>
+                    <text x="806" y="133" text-anchor="middle" font-size="11" fill="#333">nonlinear</text>
+
+                    <!-- BS characteristics -->
+                    <rect x="475" y="160" width="370" height="115" rx="8" fill="white" stroke="#ddd"/>
+                    <text x="660" y="180" text-anchor="middle" font-size="13" fill="#4caf50" font-weight="bold">Characteristics</text>
+                    <text x="490" y="200" font-size="12" fill="#333">&#8226; Only needs <tspan font-weight="bold">strict-feedback structure</tspan></text>
+                    <text x="490" y="220" font-size="12" fill="#333">&#8226; <tspan font-weight="bold">Keeps</tspan> beneficial nonlinearities (damping)</text>
+                    <text x="490" y="240" font-size="12" fill="#333">&#8226; Constructive Lyapunov proof at every step</text>
+                    <text x="490" y="260" font-size="12" fill="#333">&#8226; Can combine with adaptation</text>
+
+                    <!-- BS Pros box -->
+                    <rect x="475" y="290" width="180" height="80" rx="8" fill="#d4edda" stroke="#28a745"/>
+                    <text x="565" y="310" text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">Pros</text>
+                    <text x="485" y="328" font-size="11" fill="#333">&#10003; Robust to partial errors</text>
+                    <text x="485" y="346" font-size="11" fill="#333">&#10003; Guaranteed stability</text>
+                    <text x="485" y="362" font-size="11" fill="#333">&#10003; Flexible, modular design</text>
+
+                    <!-- BS Cons box -->
+                    <rect x="670" y="290" width="175" height="80" rx="8" fill="#f8d7da" stroke="#dc3545"/>
+                    <text x="757" y="310" text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold">Cons</text>
+                    <text x="680" y="328" font-size="11" fill="#333">&#10007; Complexity explosion</text>
+                    <text x="680" y="346" font-size="11" fill="#333">&#10007; Needs cascade form</text>
+                    <text x="680" y="362" font-size="11" fill="#333">&#10007; More derivatives needed</text>
+
+                    <!-- Bottom summary -->
+                    <rect x="100" y="400" width="680" height="28" rx="8" fill="#1e3c72" opacity="0.08"/>
+                    <text x="440" y="420" text-anchor="middle" font-size="13" fill="#1e3c72" font-weight="bold">Backstepping is more flexible and robust; Feedback Linearization is simpler but more fragile</text>
+                </svg>
+                <div style="font-size:0.95em; color:#555; margin-top:6px;"><strong>Figure 8:</strong> Side-by-side comparison of feedback linearization (cancels all nonlinearities) versus backstepping (exploits useful nonlinearities with constructive Lyapunov guarantees).</div>
+            </div>
+
+            <div class="success">
+                <strong>Key takeaway:</strong> Backstepping provides a <em>systematic, constructive</em> methodology
+                for designing stabilising controllers for nonlinear systems in strict-feedback form.
+                Unlike computed torque, it does not blindly cancel all nonlinearities.
+                Unlike robust control, it does not require conservative worst-case bounds.
+                Its main challenge &mdash; the "explosion of terms" as \(\dot{\alpha}_i\) grows with each step
+                &mdash; can be addressed using <strong>dynamic surface control</strong> (a first-order filter on
+                each virtual control), which we may explore in future weeks.
+            </div>
+        </div>
+
+    </div><!-- end .content -->
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                        -->
+    <!-- ============================================================ -->
+    <div class="footer">
+        <p><strong>M.Sc. Control for Robots</strong> &mdash; AY 2025&ndash;26</p>
+        <p>Week 5: Backstepping Control &mdash; Lecture Notes</p>
+        <p style="margin-top: 10px; opacity: 0.7;">These notes are for educational purposes.
+        Students are encouraged to verify all derivations independently.</p>
+    </div>
+
+</div><!-- end .container -->
+</body>
+</html>

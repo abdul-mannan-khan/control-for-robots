@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 9: ROS2 Control Implementation</title>
+    <script>
+        MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], tags: 'ams' }, svg: { fontCache: 'global' } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .header .meta { margin-top: 20px; font-size: 0.95em; opacity: 0.8; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; padding: 30px; background: #f8f9fa; border-radius: 10px; border-left: 5px solid #667eea; }
+        .section h2 { color: #2c3e50; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
+        .section h3 { color: #34495e; font-size: 1.4em; margin-top: 25px; margin-bottom: 15px; }
+        .section h4 { color: #555; font-size: 1.2em; margin-top: 20px; margin-bottom: 10px; }
+        .section ul { list-style-type: disc; padding-left: 25px; margin: 10px 0; }
+        .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 8px 0; line-height: 1.6; }
+        .section p { margin: 10px 0; }
+        .objectives { background: #e3f2fd; border-left-color: #2196f3; }
+        .objectives ul { list-style: none; padding-left: 0; }
+        .objectives li { padding: 10px; margin: 8px 0; background: white; border-radius: 5px; position: relative; padding-left: 40px; }
+        .objectives li:before { content: "\2713"; position: absolute; left: 15px; color: #2196f3; font-weight: bold; font-size: 1.2em; }
+        .timeline { background: #fff3e0; border-left-color: #ff9800; }
+        .timeline-item { display: flex; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timeline-time { flex: 0 0 120px; font-weight: bold; color: #ff9800; font-size: 1.1em; }
+        .timeline-content { flex: 1; }
+        .timeline-content h4 { margin-top: 0; color: #2c3e50; }
+        .activity { background: #e8f5e9; border-left-color: #4caf50; }
+        .code-block { background: #263238; color: #aed581; padding: 20px; border-radius: 5px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto; }
+        .pseudocode-block { background: #fff8dc; color: #333; padding: 20px; border-radius: 5px; margin: 15px 0; border: 3px solid #daa520; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .pseudocode-header { background: #daa520; color: white; padding: 10px 20px; margin: -20px -20px 15px -20px; border-radius: 5px 5px 0 0; font-weight: bold; }
+        .warning { background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .info { background: #d1ecf1; border: 2px solid #17a2b8; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        .danger { background: #f8d7da; border: 2px solid #dc3545; border-radius: 5px; padding: 15px; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background: #1e3c72; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; }
+        .card h4 { color: #2c3e50; margin-top: 0; }
+        .formula-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 1.2em; }
+        .math-box { background: #fafbff; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; }
+        .derivation-box { background: #f0f4ff; border-left: 4px solid #3f51b5; padding: 20px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .derivation-box h4 { color: #3f51b5; margin-top: 0; }
+        .exam-question { background: #fff3e0; border: 3px solid #ff6f00; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .exam-question h4 { color: #e65100; margin-top: 0; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .think-pair-share { background: #fce4ec; border: 2px solid #e91e63; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .think-pair-share h4 { color: #c2185b; margin-top: 0; }
+        .quiz-box { background: #ede7f6; border: 2px solid #7c4dff; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .quiz-box h4 { color: #512da8; margin-top: 0; }
+        mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+        @media print { @page { size: A4; margin: 12mm; } body { background: white !important; padding: 0 !important; } .container { box-shadow: none !important; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+        .company-brief { background: #fff0f5; border-left: 5px solid #e91e63; border-radius: 10px; padding: 30px; margin-bottom: 40px; }
+        .company-brief h2 { color: #c2185b; border-bottom-color: #e91e63; }
+        .deliverable-list { list-style: none; padding-left: 0; }
+        .deliverable-list li { padding: 12px 15px; margin: 8px 0; background: white; border-radius: 5px; border-left: 4px solid #e91e63; }
+        .deliverable-list li:before { content: "\25B6"; color: #e91e63; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header" style="background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);">
+            <h1>SkyDynamics Robotics &mdash; Control Engineer Technical Challenge</h1>
+            <div class="subtitle">Implement PID, LQR, and MPC Controllers from Sensor Bag Data</div>
+            <div class="meta">
+                Position: Control Engineer &bull; Team: Flight Control Systems<br>
+                Pre-Interview Technical Assessment &bull; Estimated Time: 3 Hours
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- ============================================================ -->
+            <!-- SECTION 0: COMPANY BRIEF -->
+            <!-- ============================================================ -->
+            <div class="company-brief">
+                <h2>Company Brief: SkyDynamics Robotics</h2>
+                <p><strong>Scenario:</strong> SkyDynamics Robotics is developing a next-generation autonomous ground robot platform for warehouse logistics. Your team has collected 30 seconds of sensor data (odometry, IMU, and reference trajectory) from a prototype run. As part of this technical challenge, you will implement three control strategies as ROS2 nodes and compare their performance on the recorded data.</p>
+
+                <h3>Provided Bag Data</h3>
+                <table>
+                    <tr><th>Topic</th><th>Message Type</th><th>Rate</th><th>Description</th></tr>
+                    <tr><td><code>/odom</code></td><td>nav_msgs/Odometry</td><td>50 Hz</td><td>Robot odometry (position, orientation, velocity)</td></tr>
+                    <tr><td><code>/imu</code></td><td>sensor_msgs/Imu</td><td>200 Hz</td><td>Inertial measurement unit data</td></tr>
+                    <tr><td><code>/reference_trajectory</code></td><td>geometry_msgs/PoseStamped</td><td>50 Hz</td><td>Desired waypoint trajectory</td></tr>
+                </table>
+
+                <h3>Deliverables</h3>
+                <ul class="deliverable-list">
+                    <li>A PID controller ROS2 node with anti-windup and runtime-tunable gains</li>
+                    <li>An LQR controller ROS2 node using scipy Riccati solver with state-space model</li>
+                    <li>An MPC controller ROS2 node with horizon-based trajectory optimisation</li>
+                    <li>A launch file that replays bag data and runs all three controllers simultaneously</li>
+                    <li>A quantitative comparison: rise time, overshoot, steady-state error, and computation time</li>
+                </ul>
+
+                <h3>Evaluation Criteria</h3>
+                <ul>
+                    <li><strong>Code Quality:</strong> Clean ROS2 node structure, proper QoS configuration, parameter declarations</li>
+                    <li><strong>Control Theory:</strong> Correct discrete-time implementation, stability analysis, gain tuning rationale</li>
+                    <li><strong>Systems Thinking:</strong> Modular architecture, proper topic naming, error handling</li>
+                    <li><strong>Communication:</strong> Ability to explain design decisions and trade-offs during the follow-up interview</li>
+                </ul>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 1: LEARNING OUTCOMES -->
+            <!-- ============================================================ -->
+            <div class="section objectives">
+                <h2>Skills You Will Demonstrate</h2>
+                <ul>
+                    <li>Explain the architecture of a ROS2 control node, including publishers, subscribers, timers, and parameter servers, and describe how they map to classical control-loop components.</li>
+                    <li>Implement PID, LQR, and MPC controllers as standalone ROS2 Python nodes that subscribe to odometry and publish velocity commands.</li>
+                    <li>Describe the <code>ros2_control</code> framework and its layered architecture: hardware interface, controller manager, and controller plugins.</li>
+                    <li>Configure Quality of Service (QoS) policies for control topics, choosing appropriate reliability and deadline settings for real-time performance.</li>
+                    <li>Compare and contrast MATLAB/Simulink and ROS2 implementations of the same control algorithm, identifying trade-offs in prototyping speed, real-time guarantees, and deployment readiness.</li>
+                    <li>Use ROS2 parameters and launch files to switch between controller types and tune gains at runtime without recompilation.</li>
+                    <li>Record, replay, and analyse control performance data using <code>rosbag2</code>, extracting metrics such as rise time, overshoot, and steady-state error.</li>
+                    <li>Design a modular ROS2 control architecture that separates state estimation, controller logic, and actuation into distinct nodes communicating over well-defined topics.</li>
+                </ul>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 2: SESSION ROADMAP -->
+            <!-- ============================================================ -->
+            <div class="section timeline">
+                <h2>Recommended Approach (3-hour session)</h2>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">0:00 &ndash; 0:20</div>
+                    <div class="timeline-content">
+                        <h4>Week 8 Exam Recall</h4>
+                        <p>Review nonlinear control optimization: Pontryagin's Minimum Principle, iLQR/DDP, and nonlinear MPC for robotic systems. Discuss how the optimized controller gains from Week 8 (for SMC, adaptive, robust, backstepping, NMPC) translate to real ROS2 nodes. Warm-up Q&amp;A.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">0:20 &ndash; 0:50</div>
+                    <div class="timeline-content">
+                        <h4>Part 1: Why ROS2 for Control Engineers?</h4>
+                        <p>ROS2 vs ROS1, DDS middleware, ros2_control framework overview, the control loop in ROS2, industry adoption.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">0:50 &ndash; 1:15</div>
+                    <div class="timeline-content">
+                        <h4>Part 2: Implementing PID as a ROS2 Node</h4>
+                        <p>PID theory recap, full Python node implementation, anti-windup, QoS configuration, runtime parameter tuning.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">1:15 &ndash; 1:40</div>
+                    <div class="timeline-content">
+                        <h4>Part 3: Implementing LQR as a ROS2 Node</h4>
+                        <p>LQR theory recap, Riccati solver in Python, state-space model from odometry, full working node.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">1:40 &ndash; 1:50</div>
+                    <div class="timeline-content">
+                        <h4>Break</h4>
+                        <p>10-minute break.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">1:50 &ndash; 2:20</div>
+                    <div class="timeline-content">
+                        <h4>Part 4: Implementing MPC as a ROS2 Node</h4>
+                        <p>MPC theory recap, QP formulation, scipy solver, predicted trajectory publishing for RViz, full working node.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">2:20 &ndash; 2:40</div>
+                    <div class="timeline-content">
+                        <h4>Part 5: Extending to All 7 Controllers</h4>
+                        <p>Brief implementation guide for Computed Torque, Adaptive, Robust, Backstepping, and SMC as ROS2 nodes. Unified launch file.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">2:40 &ndash; 2:55</div>
+                    <div class="timeline-content">
+                        <h4>Part 6: Comparison Lab</h4>
+                        <p>Hands-on activities: implement, compare PID vs LQR vs MPC on TurtleBot3 simulation. Record rosbag data and plot metrics.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">2:55 &ndash; 3:00</div>
+                    <div class="timeline-content">
+                        <h4>Wrap-Up &amp; Quiz</h4>
+                        <p>Key takeaways, quick quiz, preview of Week 10 topics.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 3: PART 1 - WHY ROS2 FOR CONTROL ENGINEERS? -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 1: Why ROS2 for Control Engineers?</h2>
+
+                <h3>1.1 ROS2 vs ROS1 for Real-Time Control</h3>
+
+                <p>ROS1 was built on a custom TCP/UDP transport layer with a single-master architecture. While revolutionary for robotics research, it lacked deterministic communication, had no built-in lifecycle management, and was unsuitable for safety-critical or real-time control. ROS2 addresses every one of these shortcomings:</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>DDS Middleware</h4>
+                        <p>ROS2 uses the Data Distribution Service (DDS) standard, an industrial-strength publish-subscribe middleware. DDS provides configurable Quality of Service (QoS) policies including <strong>reliability</strong> (best-effort vs reliable), <strong>durability</strong>, <strong>deadline</strong>, and <strong>liveliness</strong> &mdash; critical for control loops that must meet timing guarantees.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lifecycle Nodes</h4>
+                        <p>Managed lifecycle nodes (unconfigured &rarr; inactive &rarr; active &rarr; finalized) allow orderly startup and shutdown of controller nodes. This prevents the common ROS1 problem of a controller publishing commands before the state estimator is ready.</p>
+                    </div>
+                    <div class="card">
+                        <h4>QoS Policies for Control</h4>
+                        <p>For a 50 Hz control loop, set <code>deadline=20ms</code> and <code>reliability=BEST_EFFORT</code> to ensure the controller always has the freshest data. For parameter updates, use <code>reliability=RELIABLE</code> to guarantee delivery.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Real-Time Executor</h4>
+                        <p>ROS2 supports custom executors, including the <code>StaticSingleThreadedExecutor</code> for deterministic callback scheduling. Combined with Linux RT-PREEMPT patches, sub-millisecond jitter is achievable.</p>
+                    </div>
+                </div>
+
+                <h3>1.2 The ros2_control Framework</h3>
+                <p>The <code>ros2_control</code> framework provides a standardised architecture for robot control. It separates the concerns of hardware abstraction, controller logic, and controller lifecycle management:</p>
+
+                <ul>
+                    <li><strong>Hardware Interface:</strong> Abstracts the physical robot. Provides <code>state_interfaces</code> (e.g., joint position, velocity) and <code>command_interfaces</code> (e.g., effort, velocity). Plugins exist for many robots (UR, Franka, TurtleBot3).</li>
+                    <li><strong>Controller Manager:</strong> A central node that loads, configures, activates, and deactivates controller plugins at runtime. Manages the real-time control loop (typically 500&ndash;1000 Hz).</li>
+                    <li><strong>Controller Plugins:</strong> Implement specific control algorithms (e.g., <code>joint_trajectory_controller</code>, <code>diff_drive_controller</code>, <code>pid_controller</code>). Custom controllers can be written as plugins.</li>
+                </ul>
+
+                <h3>1.3 Industry Adoption</h3>
+                <p>Every major robotics company uses ROS2 in production or development: Boston Dynamics (for internal tooling), Open Robotics (reference implementation), Universal Robots (ROS2 driver), NVIDIA Isaac (ROS2 integration), Amazon (warehouse robots), and countless startups. Understanding ROS2 is now a <strong>mandatory skill</strong> for control engineers working in robotics.</p>
+
+                <h3>1.4 The Control Loop in ROS2</h3>
+                <p>A typical ROS2 control loop consists of the following components, mapped to classical control theory concepts:</p>
+                <ul>
+                    <li><strong>Timer callback</strong> at fixed rate (e.g., 50 Hz) &mdash; the sampling period \(T_s\)</li>
+                    <li><strong>Subscriber to <code>/odom</code></strong> &mdash; state measurement \(y_k\) (or \(\hat{x}_k\) from state estimator)</li>
+                    <li><strong>Subscriber to <code>/reference_trajectory</code></strong> &mdash; reference signal \(r_k\)</li>
+                    <li><strong>Error computation</strong> inside the callback &mdash; \(e_k = r_k - y_k\)</li>
+                    <li><strong>Controller algorithm</strong> &mdash; computes \(u_k = f(e_k, e_{k-1}, \ldots)\)</li>
+                    <li><strong>Publisher to <code>/cmd_vel</code></strong> &mdash; actuator command \(u_k\)</li>
+                </ul>
+
+                <div class="info">
+                    <strong>Cross-Reference:</strong> The ROS2 robotics course in <code>src/ros2_robotics_course/week_11/</code> contains complete exercise nodes for PID (exercise1_node.py), LQR (exercise2_node.py), and MPC (exercise3_node.py). This week bridges the control theory from Weeks 1&ndash;8 with those practical ROS2 implementations. <strong>New in this version:</strong> an NMPC node (<code>w11_exercises/task_nmpc_node.py</code>) using an iLQR back-end consistent with Week 8 §9 is provided as the nonlinear counterpart to the LQR node.
+                </div>
+
+                <!-- SVG: ROS2 Control Node Architecture -->
+                <h3>1.5 ROS2 Control Architecture Diagram</h3>
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="fig1-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M0,0 L20,5 L0,10 Z" fill="#1e3c72"/>
+                        </marker>
+                        <marker id="fig1-arrow-green" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M0,0 L20,5 L0,10 Z" fill="#4caf50"/>
+                        </marker>
+                        <marker id="fig1-arrow-orange" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M0,0 L20,5 L0,10 Z" fill="#ff9800"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Sensor Nodes -->
+                    <rect x="40" y="160" width="130" height="60" rx="8" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+                    <text x="105" y="185" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3c72">Sensor Nodes</text>
+                    <text x="105" y="205" text-anchor="middle" font-size="11" fill="#555">/odom, /imu, /scan</text>
+
+                    <!-- State Estimator -->
+                    <rect x="240" y="160" width="130" height="60" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+                    <text x="305" y="185" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3c72">State Estimator</text>
+                    <text x="305" y="205" text-anchor="middle" font-size="11" fill="#555">Kalman Filter</text>
+
+                    <!-- Controller Node -->
+                    <rect x="440" y="160" width="130" height="60" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                    <text x="505" y="185" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3c72">Controller Node</text>
+                    <text x="505" y="205" text-anchor="middle" font-size="11" fill="#555">PID / LQR / MPC</text>
+
+                    <!-- Actuator Node -->
+                    <rect x="640" y="160" width="120" height="60" rx="8" fill="#fce4ec" stroke="#e91e63" stroke-width="2"/>
+                    <text x="700" y="185" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3c72">Actuator Node</text>
+                    <text x="700" y="205" text-anchor="middle" font-size="11" fill="#555">/cmd_vel</text>
+
+                    <!-- Forward arrows: Sensor -> Estimator -> Controller -> Actuator -->
+                    <line x1="170" y1="190" x2="240" y2="190" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+                    <text x="205" y="182" text-anchor="middle" font-size="10" fill="#667eea">topic</text>
+
+                    <line x1="370" y1="190" x2="440" y2="190" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+                    <text x="405" y="182" text-anchor="middle" font-size="10" fill="#667eea">topic</text>
+
+                    <line x1="570" y1="190" x2="640" y2="190" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig1-arrow)"/>
+                    <text x="605" y="182" text-anchor="middle" font-size="10" fill="#667eea">topic</text>
+
+                    <!-- Feedback path: Actuator -> down -> left -> up -> Sensor -->
+                    <line x1="700" y1="220" x2="700" y2="350" stroke="#4caf50" stroke-width="2" stroke-dasharray="6,3"/>
+                    <line x1="700" y1="350" x2="105" y2="350" stroke="#4caf50" stroke-width="2" stroke-dasharray="6,3"/>
+                    <line x1="105" y1="350" x2="105" y2="220" stroke="#4caf50" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#fig1-arrow-green)"/>
+                    <text x="400" y="370" text-anchor="middle" font-size="11" fill="#4caf50" font-style="italic">Feedback path (physical plant)</text>
+
+                    <!-- Parameter Server -->
+                    <rect x="380" y="40" width="140" height="55" rx="8" fill="#ede7f6" stroke="#7c4dff" stroke-width="2"/>
+                    <text x="450" y="62" text-anchor="middle" font-size="13" font-weight="bold" fill="#512da8">Parameter</text>
+                    <text x="450" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#512da8">Server</text>
+
+                    <!-- Service arrow: Parameter Server -> Controller -->
+                    <line x1="450" y1="95" x2="450" y2="160" stroke="#ff9800" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#fig1-arrow-orange)"/>
+                    <text x="470" y="130" font-size="10" fill="#ff9800">service</text>
+
+                    <!-- ros2_control Manager -->
+                    <rect x="120" y="40" width="180" height="55" rx="8" fill="#e3f2fd" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="210" y="62" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3c72">ros2_control</text>
+                    <text x="210" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3c72">Manager</text>
+
+                    <!-- Dashed oversight lines from Manager to nodes -->
+                    <line x1="210" y1="95" x2="210" y2="130" stroke="#1e3c72" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <line x1="210" y1="130" x2="305" y2="130" stroke="#1e3c72" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <line x1="305" y1="130" x2="305" y2="160" stroke="#1e3c72" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fig1-arrow)"/>
+                    <line x1="305" y1="130" x2="505" y2="130" stroke="#1e3c72" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <line x1="505" y1="130" x2="505" y2="160" stroke="#1e3c72" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fig1-arrow)"/>
+                    <text x="400" y="125" text-anchor="middle" font-size="10" fill="#1e3c72">lifecycle management</text>
+
+                    <!-- Legend -->
+                    <rect x="40" y="390" width="720" height="25" rx="4" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+                    <line x1="60" y1="402" x2="90" y2="402" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="95" y="407" font-size="10" fill="#333">Topic</text>
+                    <line x1="170" y1="402" x2="200" y2="402" stroke="#ff9800" stroke-width="2" stroke-dasharray="4,4"/>
+                    <text x="205" y="407" font-size="10" fill="#333">Service</text>
+                    <line x1="290" y1="402" x2="320" y2="402" stroke="#4caf50" stroke-width="2" stroke-dasharray="6,3"/>
+                    <text x="325" y="407" font-size="10" fill="#333">Feedback</text>
+                    <line x1="420" y1="402" x2="450" y2="402" stroke="#1e3c72" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="455" y="407" font-size="10" fill="#333">Lifecycle</text>
+                </svg>
+
+
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 4: PART 2 - PID CONTROLLER AS ROS2 NODE -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 2: Implementing PID Controller as a ROS2 Node</h2>
+
+                <h3>2.1 Theory Recap</h3>
+
+                <p>The continuous-time PID control law is:</p>
+                <div class="formula-box">
+                    \( u(t) = K_p\,e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d\,\dot{e}(t) \)
+                </div>
+
+                <p>For digital implementation at sample rate \(T_s\), we use the discrete approximation:</p>
+                <div class="math-box">
+                    \[
+                        u_k = K_p\,e_k + K_i\,T_s \sum_{j=0}^{k} e_j + K_d\,\frac{e_k - e_{k-1}}{T_s}
+                    \]
+                </div>
+
+                <p><strong>Anti-windup</strong> is essential for any practical PID implementation. When the actuator saturates, the integral term continues to accumulate error, causing large overshoot when the error sign changes. The simplest anti-windup strategy is <em>conditional integration</em>: clamp the integral accumulator to a fixed range (e.g., \(\pm 10\)).</p>
+
+                <h3>2.2 ROS2 Implementation</h3>
+
+                <p>The following is a complete PID controller node for mobile robot position tracking. It subscribes to <code>/odom</code> for current state and publishes <code>/cmd_vel</code> for velocity commands:</p>
+
+                <div class="code-block">#!/usr/bin/env python3
+"""PID Controller Node for position tracking.
+Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
+Publishes:  /cmd_vel (geometry_msgs/Twist)
+"""
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Odometry
+import numpy as np
+import math
+
+
+class PIDControllerNode(Node):
+    def __init__(self):
+        super().__init__('pid_controller')
+
+        # Declare parameters (tunable at runtime via ros2 param set)
+        self.declare_parameter('kp', 1.0)
+        self.declare_parameter('ki', 0.1)
+        self.declare_parameter('kd', 0.5)
+        self.declare_parameter('control_rate', 50.0)
+        self.declare_parameter('max_linear_vel', 1.0)
+        self.declare_parameter('max_angular_vel', 1.0)
+        self.declare_parameter('integral_clamp', 10.0)
+
+        # Get parameters
+        self.kp = self.get_parameter('kp').value
+        self.ki = self.get_parameter('ki').value
+        self.kd = self.get_parameter('kd').value
+        rate = self.get_parameter('control_rate').value
+        self.max_lin = self.get_parameter('max_linear_vel').value
+        self.max_ang = self.get_parameter('max_angular_vel').value
+        self.int_clamp = self.get_parameter('integral_clamp').value
+
+        # State variables
+        self.error_integral = np.zeros(2)
+        self.prev_error = np.zeros(2)
+        self.current_pose = None
+        self.current_yaw = 0.0
+        self.reference = np.array([2.0, 1.0])  # default target [x, y]
+
+        # QoS for control: best-effort for low latency
+        control_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
+        # Publishers and subscribers
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, control_qos)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+
+        # Control timer
+        self.dt = 1.0 / rate
+        self.timer = self.create_timer(self.dt, self.control_loop)
+        self.get_logger().info(
+            f'PID Controller initialized: Kp={self.kp}, Ki={self.ki}, '
+            f'Kd={self.kd}, rate={rate}Hz')
+
+    def quaternion_to_yaw(self, q):
+        """Extract yaw angle from quaternion."""
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        return math.atan2(siny_cosp, cosy_cosp)
+
+    def ref_callback(self, msg):
+        """Update reference position from incoming message."""
+        self.reference = np.array([
+            msg.pose.position.x, msg.pose.position.y])
+
+    def odom_callback(self, msg):
+        """Update current pose from odometry."""
+        self.current_pose = np.array([
+            msg.pose.pose.position.x,
+            msg.pose.pose.position.y])
+        self.current_yaw = self.quaternion_to_yaw(
+            msg.pose.pose.orientation)
+
+    def control_loop(self):
+        """Timer callback: compute PID output and publish cmd_vel."""
+        if self.current_pose is None:
+            return
+
+        # Compute error
+        error = self.reference - self.current_pose
+
+        # Integral with anti-windup (clamping)
+        self.error_integral += error * self.dt
+        self.error_integral = np.clip(
+            self.error_integral, -self.int_clamp, self.int_clamp)
+
+        # Derivative (backward difference)
+        error_derivative = (error - self.prev_error) / self.dt
+
+        # PID output
+        control = (self.kp * error
+                   + self.ki * self.error_integral
+                   + self.kd * error_derivative)
+
+        # Transform to robot frame (body-frame velocities)
+        cos_yaw = math.cos(self.current_yaw)
+        sin_yaw = math.sin(self.current_yaw)
+        v_x = cos_yaw * control[0] + sin_yaw * control[1]
+        omega = -sin_yaw * control[0] + cos_yaw * control[1]
+
+        # Publish command with saturation
+        cmd = Twist()
+        cmd.linear.x = float(np.clip(v_x, -self.max_lin, self.max_lin))
+        cmd.angular.z = float(np.clip(omega, -self.max_ang, self.max_ang))
+        self.cmd_pub.publish(cmd)
+
+        # Update previous error
+        self.prev_error = error.copy()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = PIDControllerNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()</div>
+
+                <h3>2.3 Real-Time Considerations</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>QoS for Control Topics</h4>
+                        <p>Use <code>BEST_EFFORT</code> reliability on <code>/odom</code> subscription to minimise latency &mdash; in control, a late measurement is worse than a dropped one. Use <code>KEEP_LAST</code> with depth 1 so the controller always processes the most recent data.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Timer vs Subscriber-Driven</h4>
+                        <p>The timer-based approach guarantees a fixed control rate regardless of sensor rate. Alternatively, compute control in the <code>odom_callback</code> directly for event-driven control, but beware of variable \(\Delta t\).</p>
+                    </div>
+                    <div class="card">
+                        <h4>Runtime Parameter Tuning</h4>
+                        <p>Use <code>ros2 param set /pid_controller kp 2.0</code> to adjust gains without restarting the node. Add a <code>ParameterEventHandler</code> callback to update gains dynamically.</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Common Pitfall:</strong> Forgetting to initialise <code>prev_error</code> causes a large derivative spike on the first control step. Always set <code>prev_error = error</code> (not zero) at the start, or skip the derivative term on the first iteration.
+                </div>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 5: PART 3 - LQR CONTROLLER AS ROS2 NODE -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 3: Implementing LQR Controller as a ROS2 Node</h2>
+
+                <h3>3.1 Theory Recap</h3>
+
+                <p>The Linear Quadratic Regulator minimises the infinite-horizon cost:</p>
+                <div class="math-box">
+                    \[
+                        J = \int_0^{\infty} \bigl(x^T Q\,x + u^T R\,u\bigr)\,dt
+                    \]
+                </div>
+                <p>The optimal control law is \(u = -Kx\), where \(K = R^{-1}B^T P\) and \(P\) solves the CARE derived in the exam recall above.</p>
+
+                <p>For discrete-time implementation:</p>
+                <div class="math-box">
+                    \[
+                        K = (R + B_d^T P B_d)^{-1} B_d^T P A_d
+                    \]
+                    <p>where \(P\) solves the Discrete Algebraic Riccati Equation (DARE):</p>
+                    \[
+                        P = A_d^T P A_d - A_d^T P B_d (R + B_d^T P B_d)^{-1} B_d^T P A_d + Q
+                    \]
+                </div>
+
+                <p>In Python, we use <code>scipy.linalg.solve_continuous_are</code> (for CARE) or <code>scipy.linalg.solve_discrete_are</code> (for DARE).</p>
+
+                <h3>3.2 ROS2 Implementation</h3>
+
+                <div class="code-block">#!/usr/bin/env python3
+"""LQR Controller Node for state-space position/velocity tracking.
+Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
+Publishes:  /cmd_vel (geometry_msgs/Twist), /lqr_gain (std_msgs/Float64MultiArray)
+
+State vector: [x, y, theta, v_x, omega]
+"""
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Float64MultiArray
+import numpy as np
+import math
+
+try:
+    from scipy.linalg import solve_continuous_are, solve_discrete_are
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+
+
+class LQRControllerNode(Node):
+    def __init__(self):
+        super().__init__('lqr_controller')
+
+        # Parameters
+        self.declare_parameter('Q_diag', [10.0, 10.0, 5.0, 1.0, 1.0])
+        self.declare_parameter('R_diag', [1.0, 1.0])
+        self.declare_parameter('control_rate', 50.0)
+        self.declare_parameter('max_linear_vel', 1.0)
+        self.declare_parameter('max_angular_vel', 1.5)
+        self.declare_parameter('dt', 0.02)
+
+        Q_diag = self.get_parameter('Q_diag').value
+        R_diag = self.get_parameter('R_diag').value
+        rate = self.get_parameter('control_rate').value
+        self.max_lin = self.get_parameter('max_linear_vel').value
+        self.max_ang = self.get_parameter('max_angular_vel').value
+        self.dt = self.get_parameter('dt').value
+
+        self.n_states = 5   # [x, y, theta, v_x, omega]
+        self.n_inputs = 2   # [linear_accel, angular_accel]
+        self.Q = np.diag(Q_diag)
+        self.R = np.diag(R_diag)
+
+        # Compute LQR gain at operating point (linearised unicycle)
+        self.K = self._compute_lqr_gain()
+
+        # State and reference
+        self.state = np.zeros(self.n_states)
+        self.ref_state = np.zeros(self.n_states)
+        self.prev_pos = None
+        self.prev_yaw = None
+        self.prev_time = None
+
+        # ROS2 interfaces
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.gain_pub = self.create_publisher(
+            Float64MultiArray, '/lqr_gain', 10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, 10)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+
+        # Control timer
+        self.timer = self.create_timer(1.0 / rate, self.control_loop)
+        self.get_logger().info(
+            f'LQR Controller started (scipy={HAS_SCIPY})')
+        self.get_logger().info(f'Gain K:\n{self.K}')
+
+    def _compute_lqr_gain(self):
+        """Compute LQR gain by linearising about v0, omega0 = 0."""
+        if not HAS_SCIPY:
+            self.get_logger().warn(
+                'scipy not available; using zero gain')
+            return np.zeros((self.n_inputs, self.n_states))
+
+        # Linearised unicycle model about (v0=0, omega0=0, theta0=0)
+        #   dx = v*cos(theta)  ->  linearised: dx = v
+        #   dy = v*sin(theta)  ->  linearised: dy = v*theta
+        #   dtheta = omega
+        #   dv = u1 (linear accel)
+        #   domega = u2 (angular accel)
+        v0 = 0.5  # nominal forward speed
+        A_c = np.array([
+            [0, 0, 0,    1,  0],   # dx/dt ~ v
+            [0, 0, v0,   0,  0],   # dy/dt ~ v0*theta
+            [0, 0, 0,    0,  1],   # dtheta/dt = omega
+            [0, 0, 0,    0,  0],   # dv/dt = u1
+            [0, 0, 0,    0,  0],   # domega/dt = u2
+        ])
+        B_c = np.array([
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [1, 0],
+            [0, 1],
+        ])
+
+        # Solve CARE
+        P = solve_continuous_are(A_c, B_c, self.Q, self.R)
+        K = np.linalg.inv(self.R) @ B_c.T @ P
+        return K
+
+    def quaternion_to_yaw(self, q):
+        siny = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        return math.atan2(siny, cosy)
+
+    def ref_callback(self, msg):
+        self.ref_state[0] = msg.pose.position.x
+        self.ref_state[1] = msg.pose.position.y
+        self.ref_state[2] = self.quaternion_to_yaw(msg.pose.orientation)
+
+    def odom_callback(self, msg):
+        """Extract full state [x, y, theta, v_x, omega] from odom."""
+        x = msg.pose.pose.position.x
+        y = msg.pose.pose.position.y
+        yaw = self.quaternion_to_yaw(msg.pose.pose.orientation)
+        vx = msg.twist.twist.linear.x
+        omega = msg.twist.twist.angular.z
+
+        self.state = np.array([x, y, yaw, vx, omega])
+
+    def control_loop(self):
+        """Compute u = -K @ (state - ref_state) and publish."""
+        error_state = self.state - self.ref_state
+
+        # Wrap angle error to [-pi, pi]
+        error_state[2] = math.atan2(
+            math.sin(error_state[2]), math.cos(error_state[2]))
+
+        u = -self.K @ error_state
+
+        cmd = Twist()
+        cmd.linear.x = float(np.clip(u[0], -self.max_lin, self.max_lin))
+        cmd.angular.z = float(np.clip(u[1], -self.max_ang, self.max_ang))
+        self.cmd_pub.publish(cmd)
+
+        # Publish gain for monitoring
+        gain_msg = Float64MultiArray()
+        gain_msg.data = self.K.flatten().tolist()
+        self.gain_pub.publish(gain_msg)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = LQRControllerNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()</div>
+
+                <h3>3.3 PID vs LQR Comparison</h3>
+
+                <table>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>PID</th>
+                        <th>LQR</th>
+                    </tr>
+                    <tr>
+                        <td>Tuning Parameters</td>
+                        <td>3 gains (\(K_p, K_i, K_d\)) per axis, often heuristic</td>
+                        <td>Weight matrices \(Q, R\) &mdash; principled, physically interpretable</td>
+                    </tr>
+                    <tr>
+                        <td>Stability Guarantees</td>
+                        <td>No formal guarantee; depends on tuning and plant</td>
+                        <td>Guaranteed stability if \((A,B)\) controllable and \(Q \succeq 0, R \succ 0\)</td>
+                    </tr>
+                    <tr>
+                        <td>Model Requirement</td>
+                        <td>None (model-free)</td>
+                        <td>Requires state-space model \((A, B)\)</td>
+                    </tr>
+                    <tr>
+                        <td>MIMO Systems</td>
+                        <td>Separate SISO loops; cross-coupling ignored</td>
+                        <td>Naturally handles multi-input multi-output systems</td>
+                    </tr>
+                    <tr>
+                        <td>Robustness</td>
+                        <td>Sensitive to parameter changes; no formal margins</td>
+                        <td>At least 60&deg; phase margin, infinite gain margin</td>
+                    </tr>
+                    <tr>
+                        <td>Computational Cost</td>
+                        <td>Negligible (3 multiplications per axis)</td>
+                        <td>One matrix multiply per step (Riccati solved offline)</td>
+                    </tr>
+                    <tr>
+                        <td>ROS2 Node Complexity</td>
+                        <td>~60 lines</td>
+                        <td>~100 lines (includes scipy dependency)</td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 6: PART 4 - MPC CONTROLLER AS ROS2 NODE -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 4: Implementing MPC Controller as a ROS2 Node</h2>
+
+                <h3>4.1 Theory Recap</h3>
+
+                <p>Model Predictive Control (MPC) solves an optimisation problem at each time step, computing the optimal control sequence over a prediction horizon \(N\):</p>
+
+                <div class="formula-box">
+                    \( J = \sum_{k=0}^{N-1}\bigl[x_k^T Q\,x_k + u_k^T R\,u_k\bigr] + x_N^T P_f\,x_N \)
+                </div>
+
+                <p>subject to system dynamics \(x_{k+1} = A_d\,x_k + B_d\,u_k\) and constraints:</p>
+                <div class="math-box">
+                    \[
+                        u_{\min} \leq u_k \leq u_{\max}, \qquad x_{\min} \leq x_k \leq x_{\max}
+                    \]
+                </div>
+
+                <p>The key MPC principle is <strong>receding horizon</strong>: solve the optimisation, apply only the first control input \(u_0^*\), then re-solve at the next time step with updated state.</p>
+
+                <p>For unconstrained linear MPC, the solution is equivalent to time-varying LQR. For constrained problems, we must solve a Quadratic Program (QP) at each step using <code>scipy.optimize.minimize</code> or a dedicated QP solver like <code>cvxpy</code>.</p>
+
+                <h3>4.2 ROS2 Implementation</h3>
+
+                <div class="code-block">#!/usr/bin/env python3
+"""MPC Controller Node with predicted trajectory visualisation.
+Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
+Publishes:  /cmd_vel (geometry_msgs/Twist),
+            /predicted_trajectory (nav_msgs/Path),
+            /mpc_cost (std_msgs/Float64)
+
+State: [x, y, vx, vy]   Input: [ax, ay]
+"""
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Odometry, Path
+from std_msgs.msg import Float64
+import numpy as np
+import math
+import time as pytime
+
+try:
+    from scipy.optimize import minimize
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+
+
+class MPCControllerNode(Node):
+    def __init__(self):
+        super().__init__('mpc_controller')
+
+        # Parameters
+        self.declare_parameter('horizon_N', 10)
+        self.declare_parameter('dt', 0.1)
+        self.declare_parameter('Q_diag', [10.0, 10.0, 1.0, 1.0])
+        self.declare_parameter('R_diag', [0.1, 0.1])
+        self.declare_parameter('Qf_multiplier', 10.0)
+        self.declare_parameter('u_min', -2.0)
+        self.declare_parameter('u_max', 2.0)
+        self.declare_parameter('max_linear_vel', 1.0)
+        self.declare_parameter('control_rate', 20.0)
+
+        self.N = self.get_parameter('horizon_N').value
+        self.dt = self.get_parameter('dt').value
+        Q_diag = self.get_parameter('Q_diag').value
+        R_diag = self.get_parameter('R_diag').value
+        Qf_mult = self.get_parameter('Qf_multiplier').value
+        self.u_min = self.get_parameter('u_min').value
+        self.u_max = self.get_parameter('u_max').value
+        self.max_lin = self.get_parameter('max_linear_vel').value
+        rate = self.get_parameter('control_rate').value
+
+        self.n_states = 4  # [x, y, vx, vy]
+        self.n_inputs = 2  # [ax, ay]
+        self.Q = np.diag(Q_diag)
+        self.R = np.diag(R_diag)
+        self.Qf = Qf_mult * self.Q  # terminal cost
+
+        # Discrete double-integrator model
+        # x_{k+1} = A_d * x_k + B_d * u_k
+        self.A_d = np.array([
+            [1, 0, self.dt, 0      ],
+            [0, 1, 0,       self.dt],
+            [0, 0, 1,       0      ],
+            [0, 0, 0,       1      ],
+        ])
+        self.B_d = np.array([
+            [0.5*self.dt**2, 0              ],
+            [0,              0.5*self.dt**2 ],
+            [self.dt,        0              ],
+            [0,              self.dt         ],
+        ])
+
+        # State and reference
+        self.state = np.zeros(self.n_states)
+        self.ref_state = np.zeros(self.n_states)
+        self.prev_pos = None
+        self.prev_time = None
+
+        # ROS2 interfaces
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.path_pub = self.create_publisher(
+            Path, '/predicted_trajectory', 10)
+        self.cost_pub = self.create_publisher(Float64, '/mpc_cost', 10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, 10)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+
+        # Control timer
+        self.timer = self.create_timer(1.0 / rate, self.control_loop)
+        self.get_logger().info(
+            f'MPC Controller: N={self.N}, dt={self.dt}, '
+            f'rate={rate}Hz, scipy={HAS_SCIPY}')
+
+    def ref_callback(self, msg):
+        self.ref_state[0] = msg.pose.position.x
+        self.ref_state[1] = msg.pose.position.y
+
+    def odom_callback(self, msg):
+        pos = np.array([msg.pose.pose.position.x,
+                        msg.pose.pose.position.y])
+        vx = msg.twist.twist.linear.x
+        yaw_q = msg.pose.pose.orientation
+        siny = 2.0 * (yaw_q.w * yaw_q.z + yaw_q.x * yaw_q.y)
+        cosy = 1.0 - 2.0 * (yaw_q.y**2 + yaw_q.z**2)
+        yaw = math.atan2(siny, cosy)
+        self.state = np.array([
+            pos[0], pos[1],
+            vx * math.cos(yaw), vx * math.sin(yaw)])
+
+    def dynamics(self, x, u):
+        """Discrete dynamics: x_{k+1} = A_d x_k + B_d u_k."""
+        return self.A_d @ x + self.B_d @ u
+
+    def mpc_cost_fn(self, u_flat):
+        """Cost function for scipy.optimize.minimize."""
+        U = u_flat.reshape(self.N, self.n_inputs)
+        x = self.state.copy()
+        cost = 0.0
+        for k in range(self.N):
+            e = x - self.ref_state
+            cost += e @ self.Q @ e + U[k] @ self.R @ U[k]
+            x = self.dynamics(x, U[k])
+        # Terminal cost
+        e_f = x - self.ref_state
+        cost += e_f @ self.Qf @ e_f
+        return cost
+
+    def solve_mpc(self):
+        """Solve the MPC optimisation problem."""
+        if not HAS_SCIPY:
+            return np.zeros(self.n_inputs), 0.0, []
+
+        u0 = np.zeros(self.N * self.n_inputs)
+        bounds = [(self.u_min, self.u_max)] * (self.N * self.n_inputs)
+
+        result = minimize(
+            self.mpc_cost_fn, u0,
+            method='SLSQP', bounds=bounds,
+            options={'maxiter': 50, 'ftol': 1e-6})
+
+        U_opt = result.x.reshape(self.N, self.n_inputs)
+
+        # Compute predicted trajectory for visualisation
+        predicted = []
+        x = self.state.copy()
+        for k in range(self.N):
+            x = self.dynamics(x, U_opt[k])
+            predicted.append(x[:2].copy())
+
+        return U_opt[0], result.fun, predicted
+
+    def control_loop(self):
+        """Timer callback: solve MPC and publish."""
+        t_start = pytime.monotonic()
+        u_opt, cost, predicted = self.solve_mpc()
+        solve_time = (pytime.monotonic() - t_start) * 1000
+
+        # Publish velocity command
+        cmd = Twist()
+        # Convert acceleration to velocity increment
+        vx_cmd = self.state[2] + u_opt[0] * self.dt
+        vy_cmd = self.state[3] + u_opt[1] * self.dt
+        speed = math.sqrt(vx_cmd**2 + vy_cmd**2)
+        heading = math.atan2(vy_cmd, vx_cmd)
+
+        cmd.linear.x = float(np.clip(speed, -self.max_lin, self.max_lin))
+        cmd.angular.z = float(np.clip(heading, -math.pi, math.pi))
+        self.cmd_pub.publish(cmd)
+
+        # Publish cost
+        cost_msg = Float64()
+        cost_msg.data = cost
+        self.cost_pub.publish(cost_msg)
+
+        # Publish predicted trajectory for RViz
+        if predicted:
+            path_msg = Path()
+            path_msg.header.stamp = self.get_clock().now().to_msg()
+            path_msg.header.frame_id = 'odom'
+            for pt in predicted:
+                pose = PoseStamped()
+                pose.header = path_msg.header
+                pose.pose.position.x = float(pt[0])
+                pose.pose.position.y = float(pt[1])
+                path_msg.poses.append(pose)
+            self.path_pub.publish(path_msg)
+
+        self.get_logger().debug(
+            f'MPC solved in {solve_time:.1f}ms, cost={cost:.3f}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = MPCControllerNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()</div>
+
+                <h3>4.3 MPC Node Internal Loop</h3>
+
+                <!-- SVG: MPC Internal Loop -->
+                <svg width="100%" style="max-width:800px" viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="fig2-arrow" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M0,0 L20,5 L0,10 Z" fill="#1e3c72"/>
+                        </marker>
+                        <marker id="fig2-arrow-orange" viewBox="0 0 20 10" refX="10" refY="5" markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M0,0 L20,5 L0,10 Z" fill="#ff9800"/>
+                        </marker>
+                    </defs>
+
+                    <!-- Box 1: Read State -->
+                    <rect x="30" y="80" width="100" height="50" rx="6" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+                    <text x="80" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">Read</text>
+                    <text x="80" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">State</text>
+
+                    <!-- Box 2: Linearize Model -->
+                    <rect x="170" y="80" width="100" height="50" rx="6" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+                    <text x="220" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">Linearize</text>
+                    <text x="220" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">Model</text>
+
+                    <!-- Box 3: Build QP -->
+                    <rect x="310" y="80" width="100" height="50" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                    <text x="360" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">Build</text>
+                    <text x="360" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">QP</text>
+
+                    <!-- Box 4: Solve QP -->
+                    <rect x="450" y="80" width="100" height="50" rx="6" fill="#fce4ec" stroke="#e91e63" stroke-width="2"/>
+                    <text x="500" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">Solve</text>
+                    <text x="500" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">QP</text>
+
+                    <!-- Box 5: Extract u*_0 -->
+                    <rect x="590" y="80" width="100" height="50" rx="6" fill="#ede7f6" stroke="#7c4dff" stroke-width="2"/>
+                    <text x="640" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#512da8">Extract</text>
+                    <text x="640" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#512da8">u*_0</text>
+
+                    <!-- Box 6: Publish cmd_vel -->
+                    <rect x="590" y="180" width="100" height="50" rx="6" fill="#e3f2fd" stroke="#1e3c72" stroke-width="2"/>
+                    <text x="640" y="200" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">Publish</text>
+                    <text x="640" y="215" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3c72">/cmd_vel</text>
+
+                    <!-- Forward arrows between boxes -->
+                    <line x1="130" y1="105" x2="170" y2="105" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+                    <line x1="270" y1="105" x2="310" y2="105" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+                    <line x1="410" y1="105" x2="450" y2="105" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+                    <line x1="550" y1="105" x2="590" y2="105" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+
+                    <!-- Arrow down from Extract to Publish -->
+                    <line x1="640" y1="130" x2="640" y2="180" stroke="#1e3c72" stroke-width="2" marker-end="url(#fig2-arrow)"/>
+
+                    <!-- Feedback path: Publish -> left -> up -> Read State -->
+                    <line x1="590" y1="205" x2="80" y2="205" stroke="#ff9800" stroke-width="2" stroke-dasharray="6,3"/>
+                    <line x1="80" y1="205" x2="80" y2="130" stroke="#ff9800" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#fig2-arrow-orange)"/>
+
+                    <!-- Label on feedback path -->
+                    <rect x="240" y="192" width="180" height="22" rx="4" fill="white" stroke="#ff9800" stroke-width="1"/>
+                    <text x="330" y="207" text-anchor="middle" font-size="11" fill="#ff9800" font-weight="bold">Timer callback (20 Hz)</text>
+
+                    <!-- Title -->
+                    <text x="400" y="45" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3c72">MPC Node Internal Processing Loop</text>
+                </svg>
+
+                <h3>4.4 Discussion: Computation Time vs Horizon Length</h3>
+                <p>The MPC solver's computation time grows with the prediction horizon \(N\). For a 4-state, 2-input system using <code>scipy.optimize.minimize</code> with SLSQP:</p>
+                <table>
+                    <tr>
+                        <th>Horizon \(N\)</th>
+                        <th>Decision Variables</th>
+                        <th>Typical Solve Time</th>
+                        <th>Max Control Rate</th>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>10</td>
+                        <td>~0.5 ms</td>
+                        <td>~2000 Hz</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>20</td>
+                        <td>~2 ms</td>
+                        <td>~500 Hz</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>40</td>
+                        <td>~8 ms</td>
+                        <td>~125 Hz</td>
+                    </tr>
+                    <tr>
+                        <td>50</td>
+                        <td>100</td>
+                        <td>~50 ms</td>
+                        <td>~20 Hz</td>
+                    </tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Real-Time Warning:</strong> For production use, replace <code>scipy.optimize.minimize</code> with a dedicated QP solver such as <strong>OSQP</strong> or <strong>qpOASES</strong>, which offer 10&ndash;100x speed improvements. The <code>cvxpy</code> library with OSQP backend is recommended for rapid prototyping with near-production performance.
+                </div>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 6.5: PART 4B - NMPC/iLQR NODE (Week 8 connection) -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 4b: NMPC via iLQR as a ROS2 Node &mdash; Week 8 Integration</h2>
+
+                <p>The MPC node in Part 4 solves a linearized quadratic program at each step &mdash; the classical linear MPC. Week 8 extended this to <strong>nonlinear MPC (NMPC)</strong> using an <strong>iLQR</strong> (iterative LQR) back-end that handles the full nonlinear robot dynamics with a Gauss-Newton Riccati backward pass.</p>
+
+                <div class="info">
+                    <p><strong>Why NMPC here?</strong> The unicycle mobile robot is nonlinear (trig in the kinematics, nonholonomic constraint). Linear MPC requires a fresh linearisation per step and still misses large-angle manoeuvres. iLQR operates directly on the nonlinear model and gives a local feedback policy as well as an open-loop plan &mdash; exactly matching the Week 8 §9 derivation.</p>
+                </div>
+
+                <h3>4b.1 NMPC Node Structure</h3>
+                <p>The provided file <code>w11_exercises/task_nmpc_node.py</code> is a minimal NMPC node for the unicycle:</p>
+                <ul>
+                    <li>Subscribes to <code>/odom</code> (current pose).</li>
+                    <li>Every 100 ms (10 Hz), rolls out a short nominal trajectory using the current warm-start control sequence.</li>
+                    <li>Runs <strong>3&ndash;5 iLQR iterations</strong> with line search on \(\alpha\).</li>
+                    <li>Publishes only the first optimal control \(u_0^\star = [v^\star, \omega^\star]\) as a <code>geometry_msgs/Twist</code> on <code>/cmd_vel</code>.</li>
+                    <li>Shifts the solution for the next sample (warm-start).</li>
+                </ul>
+
+                <h3>4b.2 Running the NMPC Node</h3>
+                <div class="code-block">cd /home/it-services/auto_control_ws
+source /opt/ros/jazzy/setup.bash
+colcon build --packages-select week_11_control_systems
+source install/setup.bash
+
+# Launch TurtleBot3 sim (Gazebo or Webots), then:
+ros2 run week_11_control_systems task_nmpc_node
+
+# Observe /cmd_vel at 10 Hz; iLQR convergence logged to stderr</div>
+
+                <h3>4b.3 Mapping to Week 8 §9 Derivation</h3>
+                <table>
+                    <tr><th>Week 8 §9 symbol</th><th>Python variable in <code>task_nmpc_node.py</code></th><th>Meaning</th></tr>
+                    <tr><td>\(N\)</td><td><code>self.N = 15</code></td><td>prediction horizon (steps)</td></tr>
+                    <tr><td>\(\Delta t\)</td><td><code>self.dt = 0.1</code></td><td>sample / prediction step (s)</td></tr>
+                    <tr><td>\(\bar u_k\)</td><td><code>self.U_warm[k,:]</code></td><td>warm-start control sequence</td></tr>
+                    <tr><td>\(A_k, B_k\)</td><td><code>A, B</code> in <code>linearize()</code></td><td>finite-difference Jacobians</td></tr>
+                    <tr><td>\(Q_{uu}, Q_{ux}, Q_u\)</td><td><code>Quu, Qux, Qu</code></td><td>Q-function blocks</td></tr>
+                    <tr><td>\(k_k, K_k\)</td><td><code>k_ff[k], K_fb[k]</code></td><td>feedforward + feedback</td></tr>
+                    <tr><td>\(\alpha\)</td><td><code>alpha</code> in line-search loop</td><td>step size</td></tr>
+                    <tr><td>\(\mu\)</td><td><code>self.mu</code></td><td>LM regularisation</td></tr>
+                </table>
+
+                <div class="warning">
+                    <p><strong>Real-time note:</strong> For the 3-state unicycle with N=15 horizon, one iLQR iteration takes ~2&ndash;5 ms in pure Python. With warm-starting, 2&ndash;3 iterations per sample suffice &mdash; the 100 ms control period leaves ample margin. Higher-dimensional plants (e.g., the 12-state drone) need CasADi/acados for real-time operation.</p>
+                </div>
+
+                <h3>4b.4 Simulation results</h3>
+                <p>An offline closed-loop simulation of the node's iLQR logic is provided in <code>week_09/sims/nmpc_unicycle_sim.py</code>. It starts the unicycle off the reference circle at \((0.5, -0.2, 0)\), runs 200 control samples (20 s at 10 Hz), and produces three figures. Final metrics on the last verification run:</p>
+                <div class="success">
+                    Final position error: <strong>1.7 mm</strong>.&nbsp;
+                    Final heading error: <strong>0.013 rad</strong> (0.8°).&nbsp;
+                    Mean \(|v|\): <strong>0.331 m/s</strong> (reference \(v_{ref} = 0.3\) m/s).&nbsp;
+                    Mean \(|\omega|\): <strong>0.379 rad/s</strong>.
+                </div>
+
+                <div class="sim-figure" style="text-align:center; margin:20px 0;">
+                    <img src="sims/figures/nmpc_unicycle_trajectory.png" alt="NMPC trajectory" style="max-width:560px; border:1px solid #999; border-radius:6px; box-shadow:0 3px 10px rgba(0,0,0,0.15);">
+                    <div style="margin-top:8px; color:#555; font-size:0.95em; font-style:italic;">Figure 4b.1 — Closed-loop XY trajectory. Green circle = start; red triangle = end; black dashed = reference; blue = NMPC-controlled path. The iLQR policy converges from the off-circle start onto the 1 m reference circle within ~2 s and tracks with sub-cm steady-state error.</div>
+                </div>
+
+                <div class="sim-figure" style="text-align:center; margin:20px 0;">
+                    <img src="sims/figures/nmpc_unicycle_commands.png" alt="NMPC commands" style="max-width:720px; border:1px solid #999; border-radius:6px; box-shadow:0 3px 10px rgba(0,0,0,0.15);">
+                    <div style="margin-top:8px; color:#555; font-size:0.95em; font-style:italic;">Figure 4b.2 — Control commands \(v(t), \omega(t)\). The iLQR saturates briefly at the \(\pm\)1.5 m/s and \(\pm\)2.0 rad/s clamps during the transient, then settles to the reference feedforward \(v_r = 0.3\) m/s, \(\omega_r = 0.3\) rad/s.</div>
+                </div>
+
+                <div class="sim-figure" style="text-align:center; margin:20px 0;">
+                    <img src="sims/figures/nmpc_unicycle_errors.png" alt="NMPC errors" style="max-width:720px; border:1px solid #999; border-radius:6px; box-shadow:0 3px 10px rgba(0,0,0,0.15);">
+                    <div style="margin-top:8px; color:#555; font-size:0.95em; font-style:italic;">Figure 4b.3 — Position error \(\|e_p\|\) and heading error \(|e_\theta|\) vs time. Exponential decay with a long-tail artefact as the circle phase aligns — characteristic of tracking problems where the heading must continually rotate at \(v_{ref}/r\) rad/s.</div>
+                </div>
+
+                <p>To regenerate: <code>python3 week_09/sims/nmpc_unicycle_sim.py</code> &mdash; plots land in <code>week_09/sims/figures/</code>. This is the non-ROS counterpart of the Week 8 lab structure (compare <code>week_08/sims/sim_nmpc.m</code>).</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 7: PART 5 - EXTENDING TO ALL 7 CONTROLLERS -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 5: Extending to All 7 Controllers as ROS2 Nodes</h2>
+
+                <p>Weeks 1&ndash;8 covered seven advanced control techniques in MATLAB. Each can be implemented as a ROS2 node. Below is a brief guide for the remaining controllers not yet shown (Computed Torque, Adaptive, Robust, Backstepping, SMC):</p>
+
+                <h3>5.1 Implementation Guides</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Computed Torque Control (Week 1)</h4>
+                        <p><strong>Key idea:</strong> Cancel nonlinearities with \(\tau = M(q)[\ddot{q}_d + K_d\dot{e} + K_pe] + C(q,\dot{q})\dot{q} + G(q)\).</p>
+                        <p><strong>ROS2 approach:</strong> Requires joint-level access via <code>ros2_control</code>'s <code>joint_trajectory_controller</code>. Create a model computation node that subscribes to <code>/joint_states</code> and publishes <code>/effort_controller/commands</code>. The dynamics model \(M(q), C(q,\dot{q}), G(q)\) can come from URDF+KDL or a precomputed lookup table.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Adaptive Control (Week 4)</h4>
+                        <p><strong>Key idea:</strong> Update unknown parameters online: \(\dot{\hat{\theta}} = -\Gamma Y^T s\).</p>
+                        <p><strong>ROS2 approach:</strong> The adaptation law runs inside the timer callback alongside the control law. Store \(\hat{\theta}\) as internal node state. Publish estimated parameters on a diagnostic topic for monitoring. Key: the adaptation gain \(\Gamma\) becomes a ROS2 parameter for tuning.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Robust Control / H-infinity (Week 5)</h4>
+                        <p><strong>Key idea:</strong> Add robust compensator \(\tau_r = -\rho \frac{s}{\|s\| + \epsilon}\) to the computed torque law.</p>
+                        <p><strong>ROS2 approach:</strong> Similar to computed torque but with an additional robust term. The uncertainty bound \(\rho\) and boundary layer \(\epsilon\) become ROS2 parameters. The core computation is identical; only the control law changes.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Backstepping Control (Week 6)</h4>
+                        <p><strong>Key idea:</strong> Cascaded virtual control design for strict-feedback systems.</p>
+                        <p><strong>ROS2 approach:</strong> Implement as two cascaded nodes: an <em>outer loop</em> node (position &rarr; desired velocity) and an <em>inner loop</em> node (velocity &rarr; actuator command). The outer loop publishes to a <code>/desired_velocity</code> topic that the inner loop subscribes to. This mirrors the cascaded Lyapunov design.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Sliding Mode Control (Week 7)</h4>
+                        <p><strong>Key idea:</strong> Drive state to sliding surface \(s = \dot{e} + \Lambda e\), then apply discontinuous control \(u = u_{eq} - \eta\,\text{sgn}(s)\).</p>
+                        <p><strong>ROS2 approach:</strong> Compute the sliding surface from the error and its derivative. Replace <code>sgn(s)</code> with a saturation function \(\text{sat}(s/\phi)\) (boundary layer) to avoid chattering. The boundary layer width \(\phi\) and reaching gain \(\eta\) become ROS2 parameters.</p>
+                    </div>
+                </div>
+
+                <h3>5.2 Controller Complexity Comparison</h3>
+
+                <table>
+                    <tr>
+                        <th>Controller</th>
+                        <th>Week</th>
+                        <th>Model Required?</th>
+                        <th>Online Computation</th>
+                        <th>ROS2 Lines (est.)</th>
+                        <th>Dependencies</th>
+                    </tr>
+                    <tr>
+                        <td>PID</td>
+                        <td>9</td>
+                        <td>No</td>
+                        <td>3 multiplies + sum</td>
+                        <td>~60</td>
+                        <td>numpy</td>
+                    </tr>
+                    <tr>
+                        <td>Computed Torque</td>
+                        <td>1</td>
+                        <td>Full dynamics</td>
+                        <td>Matrix inversion + multiply</td>
+                        <td>~120</td>
+                        <td>numpy, KDL</td>
+                    </tr>
+                    <tr>
+                        <td>MPC</td>
+                        <td>3</td>
+                        <td>Linear/linearised</td>
+                        <td>QP solve each step</td>
+                        <td>~130</td>
+                        <td>scipy / cvxpy</td>
+                    </tr>
+                    <tr>
+                        <td>Adaptive</td>
+                        <td>4</td>
+                        <td>Structured (regressor)</td>
+                        <td>Parameter update + control</td>
+                        <td>~100</td>
+                        <td>numpy</td>
+                    </tr>
+                    <tr>
+                        <td>Robust / H-inf</td>
+                        <td>5</td>
+                        <td>Full + uncertainty bound</td>
+                        <td>Computed torque + robust term</td>
+                        <td>~110</td>
+                        <td>numpy, KDL</td>
+                    </tr>
+                    <tr>
+                        <td>Backstepping</td>
+                        <td>6</td>
+                        <td>Strict-feedback form</td>
+                        <td>Cascaded Lyapunov computation</td>
+                        <td>~140 (2 nodes)</td>
+                        <td>numpy</td>
+                    </tr>
+                    <tr>
+                        <td>SMC</td>
+                        <td>7</td>
+                        <td>Partial (bounds)</td>
+                        <td>Surface + switching law</td>
+                        <td>~90</td>
+                        <td>numpy</td>
+                    </tr>
+                    <tr>
+                        <td>LQR</td>
+                        <td>8</td>
+                        <td>Linear state-space</td>
+                        <td>1 matrix multiply</td>
+                        <td>~100</td>
+                        <td>numpy, scipy</td>
+                    </tr>
+                </table>
+
+                <h3>5.3 Unified Launch File</h3>
+
+                <p>The following launch file allows switching between controllers using a command-line argument:</p>
+
+                <div class="pseudocode-block">
+                    <div class="pseudocode-header">Launch File: controller_selector.launch.py</div>
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def launch_controller(context):
+    controller_type = LaunchConfiguration('controller').perform(context)
+
+    controller_map = {
+        'pid': 'pid_controller_node',
+        'lqr': 'lqr_controller_node',
+        'mpc': 'mpc_controller_node',
+        'smc': 'smc_controller_node',
+        'adaptive': 'adaptive_controller_node',
+        'backstepping': 'backstepping_controller_node',
+        'computed_torque': 'computed_torque_node',
+    }
+
+    node_name = controller_map.get(controller_type, 'pid_controller_node')
+
+    return [
+        Node(
+            package='control_nodes',
+            executable=node_name,
+            name='active_controller',
+            output='screen',
+            parameters=[{
+                'control_rate': 50.0,
+                'max_linear_vel': 1.0,
+                'max_angular_vel': 1.5,
+            }],
+            remappings=[
+                ('/odom', '/robot/odom'),
+                ('/cmd_vel', '/robot/cmd_vel'),
+            ],
+        )
+    ]
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'controller', default_value='pid',
+            description='Controller type: pid, lqr, mpc, smc, '
+                        'adaptive, backstepping, computed_torque'),
+        OpaqueFunction(function=launch_controller),
+    ])
+
+# Usage:
+#   ros2 launch control_nodes controller_selector.launch.py controller:=lqr
+#   ros2 launch control_nodes controller_selector.launch.py controller:=mpc</div>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 8: PART 6 - ROS2 LAB EXERCISES -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Part 6: ROS2 Lab Exercises</h2>
+
+                <p>This section references the lab exercises from <code>src/ros2_robotics_course/week_11/</code>, which provide hands-on practice with the control algorithms discussed in this lecture. The exercises are divided into two categories: <strong>MATLAB-style analysis tasks</strong> (in <code>lab_exercises/</code>) and <strong>ROS2 node exercises</strong> (in <code>w11_exercises/</code>).</p>
+
+                <h3>6.1 Lab Analysis Tasks (Python/MATLAB-style)</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Lab 1: PID Controller Design and Tuning</h4>
+                        <p><strong>File:</strong> <code>task1_pid_analysis.py</code></p>
+                        <p>Students implement PID step response analysis for a second-order plant \(G(s) = \omega_n^2 / (s^2 + 2\zeta\omega_n s + \omega_n^2)\). They compare P-only, PI, and PID controllers, implement Ziegler-Nichols tuning, analyse frequency response, and add anti-windup with derivative filtering.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lab 2: State-Space System Models</h4>
+                        <p><strong>File:</strong> <code>task2_state_space.py</code></p>
+                        <p>Students build state-space models from physical systems (mass-spring-damper, DC motor, linearised quadrotor). They check controllability and observability matrices, simulate open-loop responses, and convert between transfer function and state-space representations.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lab 3: Pole Placement Design</h4>
+                        <p><strong>File:</strong> <code>task3_pole_placement.py</code></p>
+                        <p>Students apply Ackermann's formula and <code>scipy.signal.place_poles</code> to assign closed-loop eigenvalues. They design controllers meeting transient specifications (settling time, overshoot) and explore stability regions in the complex plane.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lab 4: LQR Optimal Control</h4>
+                        <p><strong>File:</strong> <code>task4_lqr.py</code></p>
+                        <p>Students solve the continuous algebraic Riccati equation using <code>scipy.linalg.solve_continuous_are</code>, design LQR controllers with different \(Q/R\) weight ratios, and apply LQR to quadrotor hover stabilisation. They verify the optimal cost \(J^* = x_0^T P x_0\) and compare with pole placement.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lab 5: LQG Stochastic Control</h4>
+                        <p><strong>File:</strong> <code>task5_mpc_basics.py</code> (MPC formulation section)</p>
+                        <p>Students formulate the MPC optimisation problem for a double integrator, implement receding-horizon control, and compare unconstrained MPC (which recovers LQR) with constrained MPC. They observe how the prediction horizon \(N\) affects tracking performance and stability.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lab 6: MPC Formulation</h4>
+                        <p><strong>File:</strong> <code>task6_mpc_drone.py</code></p>
+                        <p>Students apply MPC to quadrotor trajectory tracking, handling thrust and angle constraints. They track time-varying references (circular and figure-8 trajectories) and evaluate real-time feasibility by measuring solver computation time at each step.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Lab 7: Advanced Control Comparison</h4>
+                        <p><strong>File:</strong> <code>task7_full_comparison.py</code></p>
+                        <p>Students compare PID, LQR, and MPC on identical quadrotor tasks: hover stabilisation, sinusoidal tracking, constrained operation, and disturbance rejection. They compute performance metrics (RMSE, maximum error, total control effort, computation time) and produce a comprehensive comparison table.</p>
+                    </div>
+                </div>
+
+                <h3>6.2 ROS2 Applied Exercises</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>Exercise 1: PID Controller Node</h4>
+                        <p><strong>File:</strong> <code>w11_exercises/exercise1_node.py</code></p>
+                        <p>Students implement a 3-axis PID position controller node. The node subscribes to <code>/odom</code> (Odometry) and <code>/reference_trajectory</code> (PoseStamped), computes PID control with anti-windup for each axis, and publishes <code>/cmd_thrust_attitude</code> (Wrench) and <code>/tracking_error</code> (Vector3). Students must complete the <code>PIDController.compute()</code> method with proportional, integral (with clamping), and derivative terms.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Exercise 2: LQR Controller Implementation</h4>
+                        <p><strong>File:</strong> <code>w11_exercises/exercise2_node.py</code></p>
+                        <p>Students implement an LQR controller node for a linearised double-integrator model (6 states: position and velocity in 3D). They must linearise the dynamics about hover, discretise using Euler method (\(A_d = I + A_c \Delta t\)), solve the DARE using <code>scipy.linalg.solve_discrete_are</code>, and compute the optimal gain \(K\). The node publishes the gain matrix on <code>/lqr_gain</code> for monitoring.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Exercise 3: MPC-Based Trajectory Tracking</h4>
+                        <p><strong>File:</strong> <code>w11_exercises/exercise3_node.py</code></p>
+                        <p>Students implement an MPC controller node with configurable prediction horizon \(N\), cost weights \(Q\) and \(R\), and input constraints. They must implement the discrete dynamics function, the MPC cost function (summing stage and terminal costs over the horizon), and call <code>scipy.optimize.minimize</code> to solve the constrained optimisation. The node publishes the predicted trajectory on <code>/predicted_trajectory</code> (Path) and the MPC cost on <code>/mpc_cost</code> (Float64) for RViz visualisation.</p>
+                    </div>
+                </div>
+
+                <div class="info">
+                    <strong>Getting Started:</strong> Launch the exercise nodes with their corresponding launch files in <code>w11_exercises/launch/</code>. For example:<br>
+                    <code>ros2 launch week_11_control_systems exercise1.launch.py</code><br>
+                    Configuration parameters are in <code>w11_exercises/config/params.yaml</code>.
+                </div>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SECTION 9: HANDS-ON ACTIVITIES -->
+            <!-- ============================================================ -->
+            <div class="section activity">
+                <h2>Hands-On Activities</h2>
+
+                <h3>Activity 1: PID on TurtleBot3 Simulation</h3>
+                <p><strong>Objective:</strong> Implement PID position control and evaluate tracking performance.</p>
+                <ol>
+                    <li>Launch TurtleBot3 in Gazebo: <code>ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py</code></li>
+                    <li>Run the PID controller node from Section 4 (or Exercise 1).</li>
+                    <li>Set a target position: <code>ros2 topic pub /reference geometry_msgs/PoseStamped "{pose: {position: {x: 3.0, y: 2.0}}}" --once</code></li>
+                    <li>Record a rosbag: <code>ros2 bag record /odom /cmd_vel /reference -o pid_test</code></li>
+                    <li>Plot the tracking error (\(e_x, e_y\) vs time) and the control effort (\(v_x, \omega_z\) vs time).</li>
+                    <li>Experiment with different \(K_p, K_i, K_d\) values using <code>ros2 param set</code>.</li>
+                </ol>
+                <p><strong>Deliverable:</strong> A plot showing position tracking error for at least 3 different gain settings, with RMSE values annotated.</p>
+            </div>
+
+            <div class="section activity">
+                <h3>Activity 2: LQR with Different Q/R Matrices</h3>
+                <p><strong>Objective:</strong> Compare LQR performance under different cost weightings.</p>
+                <ol>
+                    <li>Run the LQR controller node from Section 5 (or Exercise 2).</li>
+                    <li>Test with three \(Q/R\) configurations:
+                        <ul>
+                            <li><strong>Conservative:</strong> \(Q = \text{diag}(1,1,1,1,1)\), \(R = \text{diag}(10,10)\) &mdash; penalise control effort</li>
+                            <li><strong>Balanced:</strong> \(Q = \text{diag}(10,10,5,1,1)\), \(R = \text{diag}(1,1)\)</li>
+                            <li><strong>Aggressive:</strong> \(Q = \text{diag}(100,100,50,10,10)\), \(R = \text{diag}(0.1,0.1)\) &mdash; penalise state error</li>
+                        </ul>
+                    </li>
+                    <li>For each, record rosbag data and compute: rise time, settling time, overshoot, steady-state error, total control effort \(\int u^T R\,u\,dt\).</li>
+                    <li>Compare the step response with PID from Activity 1.</li>
+                </ol>
+                <p><strong>Deliverable:</strong> A comparison table of performance metrics for all 3 LQR configurations and the best PID result.</p>
+            </div>
+
+            <div class="section activity">
+                <h3>Activity 3: MPC Horizon Study</h3>
+                <p><strong>Objective:</strong> Investigate the trade-off between prediction horizon and computation time.</p>
+                <ol>
+                    <li>Run the MPC controller node from Section 6 (or Exercise 3).</li>
+                    <li>Test with three horizon lengths: \(N = 10\), \(N = 20\), \(N = 50\).</li>
+                    <li>For each horizon, measure:
+                        <ul>
+                            <li>Average solve time per step (subscribe to a timing diagnostic topic or use <code>ros2 topic echo /mpc_cost</code>)</li>
+                            <li>Tracking RMSE on a circular reference trajectory</li>
+                            <li>Whether the control rate deadline (50 ms for 20 Hz) is consistently met</li>
+                        </ul>
+                    </li>
+                    <li>Compare the best MPC result with PID and LQR from Activities 1 and 2.</li>
+                    <li>Visualise the predicted trajectory in RViz by subscribing to <code>/predicted_trajectory</code>.</li>
+                </ol>
+                <p><strong>Deliverable:</strong> A three-panel figure showing (a) tracking performance, (b) control effort, and (c) computation time for each \(N\), with comparison to PID and LQR overlaid.</p>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- QUICK QUIZ -->
+            <!-- ============================================================ -->
+            <div class="quiz-box">
+                <h4>Quick Quiz: ROS2 Control Implementation</h4>
+                <ol>
+                    <li><strong>Q1:</strong> In a ROS2 PID controller node, why should you use <code>BEST_EFFORT</code> QoS for the <code>/odom</code> subscription rather than <code>RELIABLE</code>?
+                        <br><em>A:</em> In real-time control, latency matters more than guaranteed delivery. <code>BEST_EFFORT</code> avoids the overhead of acknowledgement and retransmission, ensuring the controller always processes the most recent sensor data rather than waiting for old messages to be retransmitted.</li>
+                    <li><strong>Q2:</strong> What is the key advantage of computing the LQR gain matrix \(K\) once at initialisation rather than re-solving the Riccati equation at every control step?
+                        <br><em>A:</em> For a time-invariant system, \(K\) does not change, so solving CARE/DARE once at startup saves significant computation. The online cost is reduced to a single matrix-vector multiplication \(u = -Kx\), which is O(n^2) instead of the O(n^3) Riccati solve.</li>
+                    <li><strong>Q3:</strong> In the MPC node, why do we publish the predicted trajectory on a separate topic?
+                        <br><em>A:</em> The predicted trajectory (a <code>nav_msgs/Path</code> message) allows visualisation in RViz to debug the MPC's lookahead behaviour. It also enables logging and post-hoc analysis of how the predictions evolve over time, which is invaluable for tuning horizon length and cost weights.</li>
+                    <li><strong>Q4:</strong> Explain the receding-horizon principle in one sentence. Why does MPC re-solve at every step instead of applying the full optimal sequence?
+                        <br><em>A:</em> MPC applies only the first control input and re-solves because the actual state will deviate from the predicted trajectory due to model mismatch, disturbances, and discretisation errors; re-solving provides feedback and robustness.</li>
+                    <li><strong>Q5:</strong> A student's PID node works in simulation but exhibits violent oscillations on a real robot. Name two likely causes related to the ROS2 implementation (not the gains).
+                        <br><em>A:</em> (1) Variable or excessive latency in the <code>/odom</code> topic causing stale state estimates, leading to instability at the chosen gains. (2) The <code>dt</code> used in the discrete PID formula is assumed constant but the actual callback interval varies, causing incorrect derivative and integral computation. Using timestamps from the message header (not wall-clock time) and the timer-based approach helps.</li>
+                </ol>
+            </div>
+
+
+            <!-- ============================================================ -->
+            <!-- SUMMARY -->
+            <!-- ============================================================ -->
+            <div class="section">
+                <h2>Summary</h2>
+
+                <h3>Key Takeaways</h3>
+                <ul>
+                    <li><strong>ROS2 is the bridge from theory to deployment.</strong> The control algorithms you designed in MATLAB during Weeks 1&ndash;8 (PID, Computed Torque, MPC, Adaptive, Robust, Backstepping, SMC, LQR/LQG) can all be implemented as ROS2 nodes using Python and standard libraries (NumPy, SciPy).</li>
+                    <li><strong>The ROS2 control node pattern is consistent:</strong> Declare parameters &rarr; subscribe to state &rarr; subscribe to reference &rarr; compute control law in timer callback &rarr; publish command. This pattern applies to every controller type.</li>
+                    <li><strong>Real-time considerations are paramount.</strong> QoS policies, timer-based control loops, and careful management of computational budget (especially for MPC) are what separate a working simulation from a deployable system.</li>
+                    <li><strong>MATLAB vs ROS2 is not either/or:</strong> Use MATLAB/Simulink for rapid prototyping and analysis (transfer functions, root locus, Bode plots). Use ROS2 for integration testing, hardware deployment, and multi-node systems. Many teams generate C code from Simulink and wrap it in a ROS2 node.</li>
+                    <li><strong>The <code>ros2_control</code> framework</strong> provides a production-grade architecture for hardware abstraction and controller lifecycle management. For research, custom nodes (as shown today) offer more flexibility.</li>
+                    <li><strong>rosbag2 is your best friend for analysis.</strong> Record <code>/odom</code>, <code>/cmd_vel</code>, and <code>/reference</code> during experiments. Replay and analyse offline to compute performance metrics without re-running experiments.</li>
+                </ul>
+
+                <h3>MATLAB vs ROS2: When to Use Which</h3>
+                <table>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>MATLAB/Simulink</th>
+                        <th>ROS2</th>
+                    </tr>
+                    <tr>
+                        <td>Prototyping speed</td>
+                        <td>Very fast (built-in toolboxes)</td>
+                        <td>Moderate (manual implementation)</td>
+                    </tr>
+                    <tr>
+                        <td>Analysis tools</td>
+                        <td>Bode, root locus, Nyquist built-in</td>
+                        <td>matplotlib, custom scripts</td>
+                    </tr>
+                    <tr>
+                        <td>Hardware integration</td>
+                        <td>Limited (Simulink Real-Time)</td>
+                        <td>Excellent (drivers for all major robots)</td>
+                    </tr>
+                    <tr>
+                        <td>Multi-robot systems</td>
+                        <td>Difficult</td>
+                        <td>Native support (namespaces, DDS)</td>
+                    </tr>
+                    <tr>
+                        <td>Real-time performance</td>
+                        <td>Simulink Coder generates RT code</td>
+                        <td>RT-PREEMPT + custom executor</td>
+                    </tr>
+                    <tr>
+                        <td>Cost</td>
+                        <td>Expensive licence</td>
+                        <td>Free and open source</td>
+                    </tr>
+                    <tr>
+                        <td>Industry standard</td>
+                        <td>Automotive, aerospace</td>
+                        <td>Robotics, drones, warehouse automation</td>
+                    </tr>
+                </table>
+
+                <div class="success">
+                    <strong>Looking Ahead &mdash; Week 10:</strong> We will extend these ROS2 controller nodes to work with Gazebo simulation of a multi-DOF robot arm. We will implement computed torque and adaptive control at the joint level, using the <code>ros2_control</code> effort interface and URDF-derived dynamics models.
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- RUNNING THE ROS2 DEMO -->
+            <!-- ============================================================ -->
+            <div class="section activity">
+                <h2>Running the ROS2 Demo</h2>
+
+                <h3>Build and Source</h3>
+                <div class="code-block">cd ~/auto_control_ws
+colcon build --packages-select week_11_control_systems
+source install/setup.bash</div>
+
+                <h3>Launch the Demo</h3>
+                <div class="code-block">ros2 launch week_11_control_systems demo.launch.py</div>
+                <p>This command replays the recorded bag data at 2x speed, starts three solution nodes (PID, LQR, MPC), and opens RViz2 with a preconfigured layout.</p>
+
+                <h3>ROS2 Topics</h3>
+                <table>
+                    <tr><th>Topic</th><th>Type</th><th>Source</th><th>Description</th></tr>
+                    <tr><td><code>/odom</code></td><td>nav_msgs/Odometry</td><td>Bag</td><td>Robot odometry at 50 Hz</td></tr>
+                    <tr><td><code>/imu</code></td><td>sensor_msgs/Imu</td><td>Bag</td><td>IMU data at 200 Hz</td></tr>
+                    <tr><td><code>/reference_trajectory</code></td><td>geometry_msgs/PoseStamped</td><td>Bag</td><td>Desired trajectory at 50 Hz</td></tr>
+                    <tr><td><code>/cmd_vel</code></td><td>geometry_msgs/Twist</td><td>Nodes</td><td>Controller velocity commands</td></tr>
+                </table>
+
+                <h3>Expected RViz2 Output</h3>
+                <p>RViz2 will display the robot's odometry path (white), the reference trajectory (green), and the controller command markers. You should see the robot following the reference trajectory with the three controllers producing slightly different tracking behaviour.</p>
+
+                <h3>Troubleshooting</h3>
+                <div class="warning">
+                    <ul>
+                        <li><strong>RViz2 crashes on launch:</strong> The launch file filters <code>snap</code> paths from <code>LD_LIBRARY_PATH</code> automatically. If RViz2 still crashes, try: <code>export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | grep -v snap | tr '\n' ':')</code></li>
+                        <li><strong>No data visible:</strong> Ensure the bag file exists at <code>w11_exercises/bag_data/synthetic_control/</code>. Re-run <code>colcon build</code> if needed.</li>
+                        <li><strong>QoS mismatch warnings:</strong> The bag uses default QoS. If your subscriber uses <code>BEST_EFFORT</code>, switch to <code>RELIABLE</code> or use <code>--qos-profile-overrides-path</code>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- APPENDIX: REVIEW MATERIAL -->
+            <!-- ============================================================ -->
+            <div class="section exam-question">
+                <h2>Appendix: Review Material &mdash; LQR/LQG Optimal Control</h2>
+
+                <h4>Question 1 &mdash; Derivation of the Continuous Algebraic Riccati Equation (25 marks)</h4>
+                <p>Consider a linear time-invariant system:</p>
+                \[
+                    \dot{x} = Ax + Bu, \qquad x(0) = x_0
+                \]
+                <p>with the infinite-horizon quadratic cost:</p>
+                \[
+                    J = \int_0^{\infty} \bigl(x^T Q\,x + u^T R\,u\bigr)\,dt
+                \]
+                <p>where \(Q \succeq 0\) and \(R \succ 0\).</p>
+
+                <p><strong>(a)</strong> Starting from the Hamilton&ndash;Jacobi&ndash;Bellman (HJB) equation with value function \(V(x) = x^T P\,x\), derive the continuous algebraic Riccati equation (CARE). Show every step of the derivation. (15 marks)</p>
+
+                <p><strong>(b)</strong> Explain how the weighting matrices \(Q\) and \(R\) affect the closed-loop pole locations. In particular, describe what happens as \(R \to 0\) and as \(Q \to 0\). (10 marks)</p>
+
+                <div class="derivation-box">
+                    <h4>Model Answer (a) &mdash; CARE Derivation</h4>
+                    <p><strong>Step 1:</strong> Assume the optimal value function takes the quadratic form \(V^*(x) = x^T P\,x\) where \(P = P^T \succ 0\). The HJB equation for the infinite-horizon problem is:</p>
+                    \[
+                        0 = \min_{u}\Bigl\{x^T Q\,x + u^T R\,u + \frac{\partial V^*}{\partial x}^T(Ax + Bu)\Bigr\}
+                    \]
+
+                    <p><strong>Step 2:</strong> Compute the gradient: \(\frac{\partial V^*}{\partial x} = 2Px\). Substituting:</p>
+                    \[
+                        0 = \min_{u}\bigl\{x^T Q\,x + u^T R\,u + 2x^T P(Ax + Bu)\bigr\}
+                    \]
+
+                    <p><strong>Step 3:</strong> Minimise with respect to \(u\). Taking the derivative and setting to zero:</p>
+                    \[
+                        \frac{\partial}{\partial u}\bigl[u^T R\,u + 2x^T P B\,u\bigr] = 2R\,u + 2B^T P\,x = 0
+                    \]
+                    \[
+                        \implies u^* = -R^{-1}B^T P\,x
+                    \]
+
+                    <p><strong>Step 4:</strong> Substitute \(u^*\) back into the HJB equation:</p>
+                    \[
+                        0 = x^T Q\,x + x^T P B R^{-1} R\, R^{-1} B^T P\,x - 2x^T P B R^{-1} B^T P\,x + 2x^T P A\,x
+                    \]
+                    \[
+                        0 = x^T\!\bigl[Q + PA + A^T P - PBR^{-1}B^T P\bigr]x
+                    \]
+
+                    <p><strong>Step 5:</strong> Since this must hold for all \(x\), we obtain the <strong>CARE</strong>:</p>
+                    \[
+                        \boxed{A^T P + PA - PBR^{-1}B^T P + Q = 0}
+                    \]
+                    <p>The optimal state-feedback gain is \(K = R^{-1}B^T P\), yielding \(u^* = -Kx\).</p>
+                </div>
+
+                <div class="derivation-box">
+                    <h4>Model Answer (b) &mdash; Effect of Q and R on Closed-Loop Poles</h4>
+                    <p>The closed-loop system is \(\dot{x} = (A - BK)x\), where \(K = R^{-1}B^T P\). The poles are the eigenvalues of \(A_{cl} = A - BK\).</p>
+                    <ul>
+                        <li><strong>As \(R \to 0\):</strong> The control cost vanishes, so the controller uses arbitrarily large inputs. The gain \(K\) grows without bound, and the closed-loop poles move far into the left-half plane (very fast response). In the limit, the LQR poles approach the transmission zeros of the system or recede to infinity along Butterworth patterns.</li>
+                        <li><strong>As \(Q \to 0\):</strong> The state penalty vanishes, so there is no incentive to drive the state to zero. The gain \(K \to 0\), and the closed-loop poles approach the open-loop poles of the plant. The system behaves almost as if there is no feedback.</li>
+                        <li><strong>Increasing \(Q/R\) ratio:</strong> Moves poles further into the LHP (faster, more aggressive control, higher bandwidth). Decreasing \(Q/R\) moves poles closer to the imaginary axis (slower, more conservative, less control effort).</li>
+                    </ul>
+                    <p>A key property of LQR is that all closed-loop poles are guaranteed to lie in the open left-half plane (stability) and the system has at least 60&deg; phase margin and infinite gain margin (robustness).</p>
+                </div>
+
+                <h4>Question 2 &mdash; The Separation Principle in LQG (25 marks)</h4>
+                <p>Consider a stochastic LTI system with process noise \(w\) and measurement noise \(v\):</p>
+                \[
+                    \dot{x} = Ax + Bu + w, \qquad y = Cx + v
+                \]
+                <p>where \(w \sim \mathcal{N}(0, W)\) and \(v \sim \mathcal{N}(0, V)\).</p>
+
+                <p><strong>(a)</strong> State the <em>separation principle</em> (also called the <em>certainty-equivalence principle</em>) for LQG control. Explain why it allows the state estimator (Kalman filter) and the state-feedback controller (LQR) to be designed independently. (15 marks)</p>
+
+                <p><strong>(b)</strong> Discuss scenarios where you would use LQG instead of LQR. What are the practical limitations of LQG? (10 marks)</p>
+
+                <div class="derivation-box">
+                    <h4>Model Answer (a) &mdash; The Separation Principle</h4>
+                    <p><strong>Statement:</strong> For a linear system with Gaussian noise and a quadratic cost, the optimal controller consists of two independent components:</p>
+                    <ol>
+                        <li><strong>Kalman filter (state estimator):</strong> Computes the optimal state estimate \(\hat{x}\) using the system model and noisy measurements:
+                        \[
+                            \dot{\hat{x}} = A\hat{x} + Bu + L(y - C\hat{x}), \qquad L = \Sigma C^T V^{-1}
+                        \]
+                        where \(\Sigma\) solves the <em>filter</em> algebraic Riccati equation: \(A\Sigma + \Sigma A^T - \Sigma C^T V^{-1} C\Sigma + W = 0\).
+                        </li>
+                        <li><strong>LQR gain:</strong> Computes the optimal feedback \(u = -K\hat{x}\), where \(K = R^{-1}B^T P\) and \(P\) solves the standard CARE.</li>
+                    </ol>
+                    <p><strong>Why independent design works:</strong> The estimation error \(\tilde{x} = x - \hat{x}\) evolves as \(\dot{\tilde{x}} = (A - LC)\tilde{x} + w - Lv\), which is independent of the control input \(u\). The closed-loop eigenvalues are the union of the LQR poles (eigenvalues of \(A - BK\)) and the Kalman filter poles (eigenvalues of \(A - LC\)). Since these sets are decoupled, each component can be designed without knowledge of the other.</p>
+                </div>
+
+                <div class="derivation-box">
+                    <h4>Model Answer (b) &mdash; When to Use LQG over LQR</h4>
+                    <ul>
+                        <li><strong>Noisy measurements:</strong> When sensor data is corrupted by significant noise (e.g., IMU drift, lidar noise), LQR alone would amplify noise through the feedback gain. The Kalman filter in LQG provides optimal noise filtering.</li>
+                        <li><strong>Incomplete state measurement:</strong> When not all states are directly measurable (e.g., velocity must be estimated from position), the Kalman filter reconstructs unmeasured states.</li>
+                        <li><strong>Process disturbances:</strong> When the system is subject to stochastic disturbances (wind gusts, ground vibration), LQG accounts for these statistically through the process noise covariance \(W\).</li>
+                    </ul>
+                    <p><strong>Practical limitations of LQG:</strong></p>
+                    <ul>
+                        <li><strong>No guaranteed robustness margins:</strong> Unlike LQR, LQG does <em>not</em> have guaranteed gain/phase margins. The Loop Transfer Recovery (LTR) technique can partially restore robustness.</li>
+                        <li><strong>Model accuracy:</strong> Performance degrades significantly if the system model or noise covariances \(W, V\) are inaccurate.</li>
+                        <li><strong>Linearity assumption:</strong> LQG is optimal only for linear systems with Gaussian noise. For nonlinear systems, Extended Kalman Filters (EKF) or Unscented Kalman Filters (UKF) are needed, but optimality guarantees are lost.</li>
+                        <li><strong>Computational cost:</strong> Requires solving two Riccati equations and running the Kalman filter in real time, though this is typically manageable for modern hardware.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer" style="background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);">
+            <p><strong>SkyDynamics Robotics</strong> &mdash; Control Engineer Technical Challenge</p>
+            <p>Pre-Interview Assessment &bull; Flight Control Systems Team</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Confidential &mdash; Do not distribute without authorization</p>
+        </div>
+    </div>
+</body>
+</html>
