@@ -904,7 +904,7 @@ zOpt = fminsearch(@(z) ada_manip_cost(z, p_nom, p_true, q_des, T, dt), z0);</div
                         \dot V \leq -\rho\sum_i |s_i| + D'\sum_i |s_i| = -(\rho - D')\|s\|_1
                     \]
                 </div>
-                <p>Choosing \(\rho > D'\) guarantees \(\dot V < 0\) outside a boundary layer of thickness \(O(\varepsilon)\) around \(s=0\). Inside the layer, \(s\) is ultimately bounded by \(O(\varepsilon)\), and the tracking error \(|e_{ss}| \leq \varepsilon/\lambda_{\min}(\Lambda)\) &mdash; the same result as Week 7 SMC.</p>
+                <p>Choosing \(\rho > D'\) guarantees \(\dot V < 0\) outside a boundary layer of thickness \(O(\varepsilon)\) around \(s=0\). Inside the layer, \(s\) is ultimately bounded by \(O(\varepsilon)\), and the tracking error \(|e_{ss}| \leq \varepsilon/\lambda_{\min}(\Lambda)\) &mdash; the same result as Week 6 SMC.</p>
 
                 <div class="info">
                     <p><strong>Design rule:</strong> choose \(\rho \gtrsim 1.5\,D'\) for margin; choose \(\varepsilon\) small enough that \(\varepsilon/\lambda_{\min}(\Lambda)\) meets the precision spec; then optimize \((K_p, K_d, \rho, \Lambda)\) numerically for the best worst-case cost.</p>
@@ -1558,7 +1558,7 @@ sim_nmpc         % nonlinear MPC</div>
             </div>
 
             <!-- ============================================================ -->
-            <!-- SECTION 12: Appendix - Week 7 SMC exam recall -->
+            <!-- SECTION 12: Appendix - Week 6 SMC exam recall -->
             <!-- ============================================================ -->
             <div class="section exam-question">
                 <h2>Appendix: Week 7 Recall &mdash; Sliding Mode Control (Exam Practice)</h2>
@@ -1609,8 +1609,8 @@ sim_nmpc         % nonlinear MPC</div>
                     <div class="card" style="border-color: #e91e63;"><h4>Weeks 1&ndash;3: MPC</h4><p>Prediction + optimization. Set the stage for NMPC.</p></div>
                     <div class="card" style="border-color: #2196f3;"><h4>Week 4: Adaptive</h4><p>Online parameter learning with Lyapunov certificates.</p></div>
                     <div class="card" style="border-color: #00bcd4;"><h4>Week 5: Robust</h4><p>Fixed controller for worst-case plant.</p></div>
-                    <div class="card" style="border-color: #4caf50;"><h4>Week 6: Backstepping</h4><p>Recursive CLF design for strict-feedback systems.</p></div>
-                    <div class="card" style="border-color: #ff9800;"><h4>Week 7: SMC</h4><p>Variable structure, discontinuous robustness.</p></div>
+                    <div class="card" style="border-color: #4caf50;"><h4>Week 7: Backstepping</h4><p>Recursive CLF design for strict-feedback systems.</p></div>
+                    <div class="card" style="border-color: #ff9800;"><h4>Week 6: SMC</h4><p>Variable structure, discontinuous robustness.</p></div>
                     <div class="card" style="border-color: #3f51b5;"><h4>Week 8 (this): Optimization of all of the above</h4><p>Every controller has free parameters; every choice of parameters is an optimization.</p></div>
                 </div>
 

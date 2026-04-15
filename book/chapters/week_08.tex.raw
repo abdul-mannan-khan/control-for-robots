@@ -3,7 +3,7 @@
 
 From Pontryagin \& HJB to Optimized SMC, Adaptive, Robust, Backstepping, and NMPC
 
-M.Sc. Control for Robots --- University of West London --- AY 2025--26\\
+M.Sc. Control for Robots --- AY 2025--26\\
 Week 8 of 12 (Control Theory Block) • Lecture + MATLAB Lab
 
 \hypertarget{section-1-learning-outcomes}{%
@@ -1070,7 +1070,7 @@ For \textbackslash(\textbar s\_i\textbar{} \textbackslash gg \textbackslash vare
 \textbackslash dot V \textbackslash leq -\textbackslash rho\textbackslash sum\_i \textbar s\_i\textbar{} + D\textquotesingle\textbackslash sum\_i \textbar s\_i\textbar{} = -(\textbackslash rho - D\textquotesingle)\textbackslash\textbar s\textbackslash\textbar\_1
 \textbackslash{]}
 
-Choosing \textbackslash(\textbackslash rho \textgreater{} D\textquotesingle\textbackslash) guarantees \textbackslash(\textbackslash dot V \textless{} 0\textbackslash) outside a boundary layer of thickness \textbackslash(O(\textbackslash varepsilon)\textbackslash) around \textbackslash(s=0\textbackslash). Inside the layer, \textbackslash(s\textbackslash) is ultimately bounded by \textbackslash(O(\textbackslash varepsilon)\textbackslash), and the tracking error \textbackslash(\textbar e\_\{ss\}\textbar{} \textbackslash leq \textbackslash varepsilon/\textbackslash lambda\_\{\textbackslash min\}(\textbackslash Lambda)\textbackslash) --- the same result as Week 7 SMC.
+Choosing \textbackslash(\textbackslash rho \textgreater{} D\textquotesingle\textbackslash) guarantees \textbackslash(\textbackslash dot V \textless{} 0\textbackslash) outside a boundary layer of thickness \textbackslash(O(\textbackslash varepsilon)\textbackslash) around \textbackslash(s=0\textbackslash). Inside the layer, \textbackslash(s\textbackslash) is ultimately bounded by \textbackslash(O(\textbackslash varepsilon)\textbackslash), and the tracking error \textbackslash(\textbar e\_\{ss\}\textbar{} \textbackslash leq \textbackslash varepsilon/\textbackslash lambda\_\{\textbackslash min\}(\textbackslash Lambda)\textbackslash) --- the same result as Week 6 SMC.
 
 \textbf{Design rule:} choose \textbackslash(\textbackslash rho \textbackslash gtrsim 1.5\textbackslash,D\textquotesingle\textbackslash) for margin; choose \textbackslash(\textbackslash varepsilon\textbackslash) small enough that \textbackslash(\textbackslash varepsilon/\textbackslash lambda\_\{\textbackslash min\}(\textbackslash Lambda)\textbackslash) meets the precision spec; then optimize \textbackslash((K\_p, K\_d, \textbackslash rho, \textbackslash Lambda)\textbackslash) numerically for the best worst-case cost.
 
@@ -1925,13 +1925,13 @@ Online parameter learning with Lyapunov certificates.
 
 Fixed controller for worst-case plant.
 
-\hypertarget{week-6-backstepping}{%
-\paragraph{Week 6: Backstepping}\label{week-6-backstepping}}
+\hypertarget{week-7-backstepping}{%
+\paragraph{Week 7: Backstepping}\label{week-7-backstepping}}
 
 Recursive CLF design for strict-feedback systems.
 
-\hypertarget{week-7-smc}{%
-\paragraph{Week 7: SMC}\label{week-7-smc}}
+\hypertarget{week-6-smc}{%
+\paragraph{Week 6: SMC}\label{week-6-smc}}
 
 Variable structure, discontinuous robustness.
 
@@ -1962,6 +1962,6 @@ Weeks 9--12 shift from control theory to deployment: state machines, ROS 2 integ
 
 \textbf{Control for Robots --- M.Sc. Programme}
 
-University of West London • AY 2025--26
+Advanced Robotics Programme • AY 2025--26
 
 Week 8: Nonlinear Control Optimization for Robotic Systems

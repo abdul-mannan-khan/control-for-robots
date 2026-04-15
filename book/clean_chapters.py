@@ -23,7 +23,10 @@ import subprocess
 from pathlib import Path
 
 BOOK = Path("/home/it-services/control-for-robots/book")
-SRC_WS = Path("/home/it-services/auto_control_ws")
+# Read the lecture HTMLs from the PUBLIC repo (the parent of book/) so that
+# swaps and renumbering applied to the public content automatically flow
+# into the book when chapters are regenerated.
+SRC_WS = BOOK.parent
 
 TITLES = {
     "week_01": "Manipulator Dynamics and Computed-Torque Control (Week 1)",
@@ -31,8 +34,12 @@ TITLES = {
     "week_03": "Model Predictive Control --- Design and Simulation (Week 3)",
     "week_04": "Adaptive Control (Week 4)",
     "week_05": "Robust Control (Week 5)",
-    "week_06": "Backstepping Control (Week 6)",
-    "week_07": "Sliding Mode Control (Week 7)",
+    # Sliding Mode Control and Backstepping swapped (2026-04-15): SMC is
+    # now course Week 6 (was Week 7), Backstepping is course Week 7 (was
+    # Week 6). Both the (Week N) suffix and the pandoc source reflect the
+    # new numbering.
+    "week_06": "Sliding Mode Control (Week 6)",
+    "week_07": "Backstepping Control (Week 7)",
     "week_08": "Nonlinear Control Optimization for Robotic Systems (Week 8)",
     "week_09": "ROS\\,2 Control Implementation (Week 9)",
     "week_10": "ROS\\,2 Quadrotor Control (Week 10)",

@@ -1,962 +1,973 @@
 % ----- auto-generated from week_07/Week*.html via pandoc -----
 \setchapterimage[6cm]{}
 \setchapterpreamble[u]{\margintoc}
-\chapter{Sliding Mode Control (Week 7)}
+\chapter{Backstepping Control (Week 7)}
 \labch{week_07}
 
 
 
-Variable Structure Control --- Robust Tracking Under Uncertainty
+Recursive Lyapunov Design for Nonlinear Systems
 
-M.Sc. Control for Robots • University of West London • AY 2025--26\\
-Week 7 of 12 • Lecture + Hands-on MATLAB Lab
+M.Sc. Control for Robots --- AY 2025--26\\
+Duration: 3 Hours (Lecture + Hands-on Lab)
 
 \section{Overview}
 
-\subsection{Week 6 Recall: Backstepping Control --- Exam Practice}
+\subsection{Week 5 Recall: Robust Control --- Exam Practice (20 min)}
 
-\subsection{Question 1 --- Scalar Strict-Feedback System}
+\subsection{Question 1 --- Robust Sliding-Mode Analysis}
 
-Consider the strict-feedback system:
-
-\textbackslash{[}
-\textbackslash dot\{x\}\_1 = x\_2 + x\_1\^{}2, \textbackslash qquad \textbackslash dot\{x\}\_2 = u.
-\textbackslash{]}
-
-\subsubsection{Step 1 --- Virtual Control Design}
-
-Define the first error variable:
-
-\textbackslash{[} z\_1 = x\_1. \textbackslash{]}
-
-Choose the first Lyapunov function:
-
-\textbackslash{[} V\_1 = \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_1\^{}2. \textbackslash{]}
-
-Its time derivative is:
+Consider a manipulator with model uncertainty:
 
 \textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1\textbackslash,\textbackslash dot\{z\}\_1 = z\_1\textbackslash bigl(x\_2 + x\_1\^{}2\textbackslash bigr).
+M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau + d(t), \textbackslash qquad \textbackslash\textbar d(t)\textbackslash\textbar{} \textbackslash le d\_\{\textbackslash max\}
 \textbackslash{]}
 
-We want \textbackslash(\textbackslash dot\{V\}\_1 = -k\_1 z\_1\^{}2\textbackslash) when \textbackslash(x\_2\textbackslash) equals a virtual control \textbackslash(\textbackslash alpha\_1(x\_1)\textbackslash). Setting
+The robust controller is:
 
 \textbackslash{[}
-z\_1\textbackslash bigl(\textbackslash alpha\_1 + x\_1\^{}2\textbackslash bigr) = -k\_1 z\_1\^{}2
-\textbackslash quad\textbackslash Longrightarrow\textbackslash quad
-\textbackslash alpha\_1(x\_1) = -k\_1 x\_1 - x\_1\^{}2.
+\textbackslash tau = \textbackslash hat\{M\}(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D \textbackslash dot\{e\} + K\_P e\textbackslash bigr{]} + \textbackslash hat\{C\}\textbackslash dot\{q\} + \textbackslash hat\{G\} + \textbackslash tau\_\{\textbackslash text\{robust\}\}
 \textbackslash{]}
 
-\subsubsection{Step 2 --- Actual Control Design}
-
-Define the second error variable:
-
-\textbackslash{[} z\_2 = x\_2 - \textbackslash alpha\_1(x\_1). \textbackslash{]}
-
-Note that \textbackslash(x\_2 = z\_2 + \textbackslash alpha\_1\textbackslash), so
+with the robust term
 
 \textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1(z\_2 + \textbackslash alpha\_1 + x\_1\^{}2) = -k\_1 z\_1\^{}2 + z\_1 z\_2.
+\textbackslash tau\_\{\textbackslash text\{robust\}\} = \textbackslash rho(t)\textbackslash,\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}, \textbackslash qquad s = \textbackslash dot\{e\} + \textbackslash Lambda\textbackslash, e
 \textbackslash{]}
 
-Augment the Lyapunov function:
+where \textbackslash(e = q\_d - q\textbackslash), \textbackslash(\textbackslash dot\{e\} = \textbackslash dot\{q\}\_d - \textbackslash dot\{q\}\textbackslash), and \textbackslash(\textbackslash Lambda \textbackslash succ 0\textbackslash).
 
-\textbackslash{[} V\_2 = V\_1 + \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_2\^{}2 = \textbackslash tfrac\{1\}\{2\}z\_1\^{}2 + \textbackslash tfrac\{1\}\{2\}z\_2\^{}2. \textbackslash{]}
+\subsubsection{Model Answer --- Closed-Loop Error Dynamics}
 
-Differentiate \textbackslash(z\_2\textbackslash):
+\textbf{Step 1 --- Substitution.} Write the true dynamics as
+\textbackslash(M\textbackslash ddot\{q\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G\textbackslash).
+Substitute the controller:
 
 \textbackslash{[}
-\textbackslash dot\{z\}\_2 = \textbackslash dot\{x\}\_2 - \textbackslash dot\{\textbackslash alpha\}\_1
-= u - \textbackslash frac\{\textbackslash partial \textbackslash alpha\_1\}\{\textbackslash partial x\_1\}\textbackslash dot\{x\}\_1
-= u - (-k\_1 - 2x\_1)(x\_2 + x\_1\^{}2).
+M\textbackslash ddot\{q\} = \textbackslash hat\{M\}(\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e) + \textbackslash hat\{C\}\textbackslash dot\{q\} + \textbackslash hat\{G\}
++ \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\} + d - C\textbackslash dot\{q\} - G
 \textbackslash{]}
 
-Compute \textbackslash(\textbackslash dot\{V\}\_2\textbackslash):
+Define the model errors
+\textbackslash(\textbackslash tilde\{M\} = M - \textbackslash hat\{M\}\textbackslash), \textbackslash(\textbackslash tilde\{C\} = C - \textbackslash hat\{C\}\textbackslash), \textbackslash(\textbackslash tilde\{G\} = G - \textbackslash hat\{G\}\textbackslash),
+and let the lumped uncertainty be
 
 \textbackslash{[}
-\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 + z\_1 z\_2 + z\_2\textbackslash dot\{z\}\_2
-= -k\_1 z\_1\^{}2 + z\_2\textbackslash bigl{[}z\_1 + u + (k\_1 + 2x\_1)(x\_2 + x\_1\^{}2)\textbackslash bigr{]}.
+\textbackslash eta(t) = \textbackslash tilde\{M\}\textbackslash ddot\{q\} + \textbackslash tilde\{C\}\textbackslash dot\{q\} + \textbackslash tilde\{G\} - d(t)
 \textbackslash{]}
 
-To obtain \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2\textbackslash), choose:
+\textbf{Step 2 --- Error dynamics.}
+With \textbackslash(\textbackslash ddot\{e\} = \textbackslash ddot\{q\}\_d - \textbackslash ddot\{q\}\textbackslash) and after algebraic manipulation:
 
 \textbackslash{[}
-u = -z\_1 - k\_2 z\_2 - (k\_1 + 2x\_1)(x\_2 + x\_1\^{}2).
+M\textbackslash ddot\{e\} + (C + M K\_D)\textbackslash dot\{e\} + M K\_P e = -\textbackslash eta(t) + \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}
 \textbackslash{]}
 
-This yields \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2 \textbackslash le 0\textbackslash), guaranteeing global asymptotic stability.
-
-\subsection{Question 2 --- 2-DOF Manipulator Backstepping}
-
-Given the manipulator dynamics \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau\textbackslash), define:
+In terms of the composite variable \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash):
 
 \textbackslash{[}
-z\_1 = q - q\_d, \textbackslash qquad
-\textbackslash alpha\_1 = \textbackslash dot\{q\}\_d - K\_1 z\_1, \textbackslash qquad
-z\_2 = \textbackslash dot\{q\} - \textbackslash alpha\_1.
+M\textbackslash dot\{s\} = -Cs + \textbackslash eta(t) + \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}
 \textbackslash{]}
 
-Choose the composite Lyapunov function:
+(using the choice \textbackslash(K\_D = \textbackslash Lambda\textbackslash), \textbackslash(K\_P = \textbackslash dot\{\textbackslash Lambda\}\textbackslash) to simplify).
+
+\textbf{Step 3 --- Lyapunov analysis.} Choose
+\textbackslash(V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M\textbackslash, s\textbackslash). Then:
 
 \textbackslash{[}
-V\_2 = \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_1\^{}T z\_1 + \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_2\^{}T M(q)\textbackslash,z\_2.
+\textbackslash dot\{V\} = s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T\textbackslash dot\{M\}\textbackslash,s
+= s\^{}T\textbackslash!\textbackslash bigl{[}-Cs + \textbackslash eta + \textbackslash rho\textbackslash tfrac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash bigr{]} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T\textbackslash dot\{M\}\textbackslash,s
 \textbackslash{]}
 
-Differentiate:
+Using the skew-symmetry property \textbackslash(s\^{}T(\textbackslash dot\{M\} - 2C)s = 0\textbackslash):
 
 \textbackslash{[}
-\textbackslash dot\{V\}\_2 = z\_1\^{}T \textbackslash dot\{z\}\_1 + z\_2\^{}T M(q)\textbackslash dot\{z\}\_2 + \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_2\^{}T \textbackslash dot\{M\}(q)\textbackslash,z\_2.
+\textbackslash dot\{V\} = s\^{}T\textbackslash eta + \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{}
 \textbackslash{]}
 
-Since \textbackslash(\textbackslash dot\{z\}\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d = z\_2 + \textbackslash alpha\_1 - \textbackslash dot\{q\}\_d = z\_2 - K\_1 z\_1\textbackslash), we get:
+Since \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\}\textbackslash) opposes the uncertainty
+(note the sign convention: \textbackslash(\textbackslash rho \textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash) acts in the direction of \textbackslash(s\textbackslash), so the correct robust term to \emph{counteract} uncertainty is \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\} = -\textbackslash rho \textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash)). Re-doing with the standard sign:
 
 \textbackslash{[}
-z\_1\^{}T \textbackslash dot\{z\}\_1 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2.
+\textbackslash dot\{V\} = s\^{}T\textbackslash eta - \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{} \textbackslash le \textbackslash\textbar\textbackslash eta\textbackslash\textbar\textbackslash,\textbackslash\textbar s\textbackslash\textbar{} - \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{} = (\textbackslash\textbar\textbackslash eta\textbackslash\textbar{} - \textbackslash rho)\textbackslash\textbar s\textbackslash\textbar{}
 \textbackslash{]}
 
-For the second term, note \textbackslash(\textbackslash dot\{z\}\_2 = \textbackslash ddot\{q\} - \textbackslash dot\{\textbackslash alpha\}\_1\textbackslash), and from the dynamics \textbackslash(M\textbackslash ddot\{q\} = \textbackslash tau - C\textbackslash dot\{q\} - G\textbackslash), so:
+\textbf{Conclusion:} If \textbackslash(\textbackslash rho(t) \textbackslash ge \textbackslash\textbar\textbackslash eta(t)\textbackslash\textbar\textbackslash), then \textbackslash(\textbackslash dot\{V\} \textbackslash le 0\textbackslash) and the tracking error \textbackslash(s \textbackslash to 0\textbackslash). The sliding variable converges, guaranteeing bounded tracking despite uncertainty. By Barbalat\textquotesingle s lemma, \textbackslash(s(t) \textbackslash to 0\textbackslash) asymptotically, which implies \textbackslash(e(t) \textbackslash to 0\textbackslash) exponentially since \textbackslash(\textbackslash dot\{e\} = s - \textbackslash Lambda e\textbackslash) is a stable filter.
+
+\subsection{Question 2 --- Robust vs. Adaptive: Mathematical Comparison}
+
+\subsubsection{Model Answer}
+
+\textbf{Adaptive control} uses an augmented Lyapunov function:
 
 \textbackslash{[}
-M\textbackslash dot\{z\}\_2 = \textbackslash tau - C\textbackslash dot\{q\} - G - M\textbackslash dot\{\textbackslash alpha\}\_1.
+V\_\{\textbackslash text\{adaptive\}\} = \textbackslash frac\{1\}\{2\}\textbackslash,s\^{}T M\textbackslash, s + \textbackslash frac\{1\}\{2\}\textbackslash,\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\^{}\{-1\} \textbackslash tilde\{\textbackslash theta\}
 \textbackslash{]}
 
-Using the skew-symmetry property \textbackslash(z\_2\^{}T(\textbackslash dot\{M\} - 2C)z\_2 = 0\textbackslash):
+where \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}\textbackslash) is the parameter estimation error
+and \textbackslash(\textbackslash Gamma \textbackslash succ 0\textbackslash) is the adaptation gain matrix. The adaptation law
+\textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\textbackslash, Y\^{}T s\textbackslash) is designed so that
+the cross-term \textbackslash(s\^{}T Y \textbackslash tilde\{\textbackslash theta\}\textbackslash) in \textbackslash(\textbackslash dot\{V\}\textbackslash) cancels exactly with
+\textbackslash(\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\^{}\{-1\}\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash), yielding:
 
 \textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2 + z\_2\^{}T\textbackslash bigl{[}\textbackslash tau - C\textbackslash dot\{q\} - G - M\textbackslash dot\{\textbackslash alpha\}\_1 + C z\_2\textbackslash bigr{]}.
+\textbackslash dot\{V\}\_\{\textbackslash text\{adaptive\}\} = -s\^{}T K\_D\textbackslash, s \textbackslash le 0
 \textbackslash{]}
 
-Simplifying \textbackslash(-C\textbackslash dot\{q\} + Cz\_2 = -C(\textbackslash dot\{q\} - z\_2) = -C\textbackslash alpha\_1\textbackslash), so:
+\textbf{Robust control} uses a simpler Lyapunov function:
 
 \textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 + z\_2\^{}T\textbackslash bigl{[}z\_1 + \textbackslash tau - C\textbackslash alpha\_1 - G - M\textbackslash dot\{\textbackslash alpha\}\_1\textbackslash bigr{]}.
+V\_\{\textbackslash text\{robust\}\} = \textbackslash frac\{1\}\{2\}\textbackslash,s\^{}T M\textbackslash, s
 \textbackslash{]}
 
-Choose the backstepping torque:
+No parameter estimation is required because the robust term directly dominates
+the uncertainty via the bound \textbackslash(\textbackslash rho \textbackslash ge \textbackslash\textbar\textbackslash eta\textbackslash\textbar\textbackslash):
 
 \textbackslash{[}
-\textbackslash tau = M\textbackslash dot\{\textbackslash alpha\}\_1 + C\textbackslash alpha\_1 + G - z\_1 - K\_2 z\_2
+\textbackslash dot\{V\}\_\{\textbackslash text\{robust\}\} \textbackslash le -(\textbackslash rho - \textbackslash\textbar\textbackslash eta\textbackslash\textbar)\textbackslash\textbar s\textbackslash\textbar{} \textbackslash le 0
 \textbackslash{]}
 
-which yields \textbackslash(\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 - z\_2\^{}T K\_2 z\_2 \textbackslash le 0\textbackslash).
+\textbf{Why robust control does not need parameter estimation:}
+Instead of identifying \emph{what} the uncertainty is (as adaptive control does), robust control only needs to know \emph{how large} the uncertainty can be. It overpowers the worst case with a dominating gain \textbackslash(\textbackslash rho\textbackslash).
+
+\textbf{Trade-off:}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Aspect & Adaptive Control & Robust Control \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Uncertainty handling & Estimates and cancels parametric uncertainty & Overpowers bounded uncertainty without identification \\
+Conservatism & Low --- adapts to actual parameters & High --- must use worst-case bound \\
+Control effort & Decreases as estimates converge & Remains high (constant worst-case gain) \\
+Chattering & None (smooth update law) & Possible with discontinuous sign function \\
+Unstructured uncertainty & Cannot handle (requires linear parameterisation) & Handles any bounded disturbance \\
+Convergence & Asymptotic (with PE: exponential) & Finite-time to sliding surface \\
+\end{longtable}
 
 \subsection{Learning Outcomes}
 
 \begin{itemize}
 \tightlist
 \item
-  Understand the two phases of sliding mode control: the \textbf{reaching phase} (driving the state to the sliding surface) and the \textbf{sliding phase} (reduced-order dynamics on \textbackslash(s=0\textbackslash)); derive the \textbf{equivalent control}.
+  Understand the backstepping design methodology for strict-feedback nonlinear systems
 \item
-  Design \textbf{sliding surfaces} for second-order systems and multi-DOF robots: choose surface parameters \textbackslash(\textbackslash lambda\textbackslash) or \textbackslash(\textbackslash Lambda\textbackslash) to assign desired closed-loop error dynamics.
+  Derive a backstepping controller step-by-step using recursive Lyapunov design
 \item
-  Derive complete SMC laws for three robotic platforms: \textbf{manipulator}, \textbf{mobile robot}, and \textbf{quadrotor drone}.
+  Apply backstepping to manipulator, mobile robot, and drone systems
 \item
-  Analyse and mitigate the \textbf{chattering problem} using the boundary layer approach (\textbackslash(\textbackslash operatorname\{sat\}(s/\textbackslash varphi)\textbackslash)), and the \textbf{super-twisting algorithm}.
+  Implement and simulate backstepping controllers in MATLAB
 \item
-  Implement SMC in \textbf{MATLAB/Simulink}, inject disturbances, and compare performance against computed torque, robust control, and backstepping.
+  Compare backstepping with computed torque, MPC, adaptive, and robust control
 \end{itemize}
 
-\subsection{Session Roadmap}
+\subsection{Session Roadmap (3 Hours)}
 
-0:00 -- 0:15
+0:00 -- 0:20
 
-\subsubsection{Week 6 Recall --- Backstepping Exam Practice}
+\subsubsection{Week 5 Recall --- Robust Control Exam Practice}
 
-Two worked exam questions on backstepping control. Students attempt before solutions are revealed.
+Solve two exam-style questions on robust control, Lyapunov analysis, and comparison with adaptive control.
 
-0:15 -- 0:55
+0:20 -- 1:00
 
-\subsubsection{Sliding Mode Control Theory}
+\subsubsection{Backstepping Theory}
 
-Reaching phase, sliding phase, sliding surface design, reaching law, control law decomposition (equivalent + switching), existence condition, chattering, super-twisting algorithm. Full Lyapunov stability proof.
+Strict-feedback systems, virtual control, recursive Lyapunov design, n-step generalisation.
 
-0:55 -- 1:15
+1:00 -- 1:30
 
-\subsubsection{SMC for Robot Manipulator}
+\subsubsection{Backstepping for Manipulator}
 
-Sliding surface for joint-space tracking, equivalent control, switching control, Lyapunov proof, and MATLAB implementation.
+Convert Euler-Lagrange dynamics to strict-feedback form, design backstepping torque controller, full Lyapunov proof, MATLAB code.
 
-1:15 -- 1:35
+1:30 -- 2:00
 
-\subsubsection{SMC for Mobile Robot}
+\subsubsection{Backstepping for Mobile Robot}
 
-Unicycle kinematics, position-tracking sliding surface, SMC law, MATLAB code.
+Chained-form unicycle model, backstepping position tracking design, MATLAB code.
 
-1:35 -- 1:55
+2:00 -- 2:30
 
-\subsubsection{SMC for Quadrotor Drone}
+\subsubsection{Backstepping for Drone}
 
-Hierarchical SMC: position loop (outer) and attitude loop (inner), sliding surfaces, control allocation, MATLAB code.
+Cascade position--attitude structure, multi-loop backstepping, MATLAB code.
 
-1:55 -- 2:30
+2:30 -- 3:00
 
-\subsubsection{Activities \& Lab}
+\subsubsection{Hands-on Activities, Quiz \& Summary}
 
-Activity 1: Chattering observation with sign vs sat. Activity 2: Disturbance rejection comparison. Activity 3: Super-twisting implementation.
+Gain tuning experiments, comparative study, quiz, and method comparison table.
 
-2:30 -- 2:45
+\section{Backstepping Theory}
 
-\subsubsection{Summary \& Six-Method Comparison}
+\subsection{Motivation --- Why Backstepping?}
 
-Consolidated table comparing all six control methods studied in Weeks 1--6.
+In previous weeks, we studied controllers that either require exact cancellation of nonlinearities
+(computed torque), predict future behaviour (MPC), estimate unknown parameters on-line (adaptive),
+or overpower bounded uncertainties (robust). \textbf{Backstepping} takes a fundamentally different
+approach: it exploits the \emph{triangular (cascade) structure} of the system to build a Lyapunov
+function and controller \emph{one subsystem at a time}, recursively.
 
-\section{Sliding Mode Control Theory}
+\textbf{Key Insight:} Many physical systems --- from robotic manipulators to quadrotors ---
+have a \emph{strict-feedback} (cascade) structure where one state acts as the "input" to the previous
+subsystem. Backstepping systematically exploits this structure.
 
-\subsection{1.1 ~ Motivation and Core Idea}
+\textbf{Figure 1:} Backstepping cascade structure. The design proceeds from the outermost subsystem (Step 1) back to the actual control input (Step n).
 
-Sliding mode control (SMC) is a \textbf{variable structure control} method. The controller switches between two or more structures depending on which side of a chosen surface the state currently lies. The key benefit is \textbf{invariance}: once the state reaches the sliding surface, the closed-loop dynamics become completely independent of matched uncertainties and disturbances.
+\subsection{Strict-Feedback Form}
 
-\textbf{Key Insight:} SMC decomposes the control problem into two sub-problems: (1) design a surface on which the error dynamics are desirable, and (2) design a control law that drives the state to that surface in finite time.
-
-\textbf{Figure 1:} Phase portrait of sliding mode control showing two phases. Blue trajectories approach the sliding surface (reaching phase), then follow it toward the origin (sliding phase, green). The red line is the sliding surface s = 0.
-
-\subsection{1.2 ~ Two Phases of SMC}
-
-\subsubsection{Phase 1: Reaching Phase}
-
-The controller drives the system state from any initial condition to the sliding surface \textbackslash(s = 0\textbackslash). During this phase the system is sensitive to uncertainties. The reaching phase ends in \textbf{finite time} thanks to the discontinuous switching term.
-
-\subsubsection{Phase 2: Sliding Phase}
-
-Once \textbackslash(s = 0\textbackslash), the state is constrained to the surface. The system dynamics reduce in order by the number of sliding variables. The resulting motion is governed entirely by the surface parameters, not the plant model.
-
-\subsection{1.3 ~ Sliding Surface Design}
-
-Consider a second-order system with tracking error \textbackslash(e = x - x\_d\textbackslash). Define the sliding surface:
+A nonlinear system is in \textbf{strict-feedback form} if it can be written as:
 
 \textbackslash{[}
-s = \textbackslash dot\{e\} + \textbackslash lambda\textbackslash, e, \textbackslash qquad \textbackslash lambda \textgreater{} 0.
+\textbackslash begin\{aligned\}
+\textbackslash dot\{x\}\_1 \&= f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 \textbackslash\textbackslash{}
+\textbackslash dot\{x\}\_2 \&= f\_2(x\_1, x\_2) + g\_2(x\_1, x\_2)\textbackslash,x\_3 \textbackslash\textbackslash{}
+\&\textbackslash;\textbackslash;\textbackslash vdots \textbackslash\textbackslash{}
+\textbackslash dot\{x\}\_\{n-1\} \&= f\_\{n-1\}(x\_1,\textbackslash ldots,x\_\{n-1\}) + g\_\{n-1\}(x\_1,\textbackslash ldots,x\_\{n-1\})\textbackslash,x\_n \textbackslash\textbackslash{}
+\textbackslash dot\{x\}\_n \&= f\_n(x\_1,\textbackslash ldots,x\_n) + g\_n(x\_1,\textbackslash ldots,x\_n)\textbackslash,u
+\textbackslash end\{aligned\}
 \textbackslash{]}
 
-When the state is on the surface (\textbackslash(s = 0\textbackslash)), the error dynamics become:
-
-\textbackslash{[}
-\textbackslash dot\{e\} = -\textbackslash lambda\textbackslash, e \textbackslash quad\textbackslash Longrightarrow\textbackslash quad e(t) = e(0)\textbackslash,e\^{}\{-\textbackslash lambda t\}.
-\textbackslash{]}
-
-The error converges exponentially with time constant \textbackslash(\textbackslash tau = 1/\textbackslash lambda\textbackslash). For an \textbackslash(n\textbackslash)-th order system, we generalise to:
-
-\textbackslash{[}
-s = \textbackslash left(\textbackslash frac\{d\}\{dt\} + \textbackslash lambda\textbackslash right)\^{}\{n-1\} e.
-\textbackslash{]}
-
-For example, for a third-order system (\textbackslash(n=3\textbackslash)):
-
-\textbackslash{[}
-s = \textbackslash ddot\{e\} + 2\textbackslash lambda\textbackslash dot\{e\} + \textbackslash lambda\^{}2 e.
-\textbackslash{]}
-
-\subsection{1.4 ~ Reaching Law}
-
-To drive \textbackslash(s \textbackslash to 0\textbackslash) in finite time, we impose a reaching law on \textbackslash(\textbackslash dot\{s\}\textbackslash). A common choice is the \textbf{constant + proportional reaching law}:
-
-\textbackslash{[}
-\textbackslash dot\{s\} = -\textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) - k\textbackslash,s, \textbackslash qquad \textbackslash eta \textgreater{} 0,\textbackslash; k \textgreater{} 0,
-\textbackslash{]}
-
-where
-
-\textbackslash{[}
-\textbackslash operatorname\{sign\}(s) = \textbackslash begin\{cases\} +1 \& s \textgreater{} 0 \textbackslash\textbackslash{} 0 \& s = 0 \textbackslash\textbackslash{} -1 \& s \textless{} 0 \textbackslash end\{cases\}.
-\textbackslash{]}
-
-The term \textbackslash(-\textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s)\textbackslash) guarantees finite-time reaching, while \textbackslash(-k\textbackslash,s\textbackslash) speeds up convergence when \textbackslash(\textbar s\textbar\textbackslash) is large.
-
-\textbf{Figure 2:} Reaching law comparison. (a) Constant rate: s decreases linearly. (b) Exponential + constant: faster initial approach, then finite-time reaching. (c) Power rate: accelerates convergence near the surface for smoother arrival.
-
-\subsection{1.5 ~ Control Law Decomposition}
-
-Consider a general second-order uncertain system:
-
-\textbackslash{[}
-\textbackslash ddot\{x\} = f(x, \textbackslash dot\{x\}) + b(x)\textbackslash,u + d(t),
-\textbackslash{]}
-
-where \textbackslash(f\textbackslash) contains known/nominal dynamics, \textbackslash(b\textbackslash) is the input gain, and \textbackslash(d(t)\textbackslash) is a bounded matched disturbance with \textbackslash(\textbar d(t)\textbar{} \textbackslash le D\textbackslash).
-
-With \textbackslash(s = \textbackslash dot\{e\} + \textbackslash lambda e\textbackslash), differentiate:
-
-\textbackslash{[}
-\textbackslash dot\{s\} = \textbackslash ddot\{e\} + \textbackslash lambda\textbackslash dot\{e\} = \textbackslash ddot\{x\} - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\} = f + b\textbackslash,u + d - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\}.
-\textbackslash{]}
-
-The control law is decomposed as:
-
-\textbackslash{[}
-u = u\_\{\textbackslash text\{eq\}\} + u\_\{\textbackslash text\{sw\}\}
-\textbackslash{]}
-
-\paragraph{Equivalent Control \textbackslash(u\_\{\textbackslash text\{eq\}\}\textbackslash)}}
-
-\subsubsection{Derivation}
-
-The equivalent control is obtained by setting \textbackslash(\textbackslash dot\{s\} = 0\textbackslash) and \textbackslash(d = 0\textbackslash) (nominal conditions):
-
-\textbackslash{[}
-0 = f + b\textbackslash,u\_\{\textbackslash text\{eq\}\} - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\}
-\textbackslash{]}
-\textbackslash{[}
-u\_\{\textbackslash text\{eq\}\} = \textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash ddot\{x\}\_d - \textbackslash lambda\textbackslash dot\{e\} - f\textbackslash bigr).
-\textbackslash{]}
-
-This term cancels the known dynamics and commands the desired trajectory --- it is the smooth, model-based part of the control.
-
-\paragraph{Switching Control \textbackslash(u\_\{\textbackslash text\{sw\}\}\textbackslash)}}
-
-\subsubsection{Derivation}
-
-The switching control handles uncertainties and disturbances:
-
-\textbackslash{[}
-u\_\{\textbackslash text\{sw\}\} = -\textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) + k\textbackslash,s\textbackslash bigr), \textbackslash qquad \textbackslash eta \textgreater{} D.
-\textbackslash{]}
-
-The gain \textbackslash(\textbackslash eta\textbackslash) must exceed the disturbance bound \textbackslash(D\textbackslash) to guarantee reaching.
-
-The complete SMC law is therefore:
-
-\textbackslash{[}
-u = \textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash ddot\{x\}\_d - \textbackslash lambda\textbackslash dot\{e\} - f - \textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) - k\textbackslash,s\textbackslash bigr).
-\textbackslash{]}
-
-\textbf{Figure 3:} SMC block diagram. The controller decomposes into equivalent control u\_eq (model-based, maintains system on surface) and switching control u\_sw (drives system to surface and rejects disturbances). The sliding variable s is computed from state feedback.
-
-\subsection{1.6 ~ Existence Condition (Reaching Condition)}
-
-For the state to reach and remain on the surface, we need:
-
-\textbackslash{[}
-s\textbackslash,\textbackslash dot\{s\} \textless{} 0 \textbackslash qquad \textbackslash forall\textbackslash; s \textbackslash neq 0.
-\textbackslash{]}
-
-This is equivalent to requiring that \textbackslash(s\textbackslash) decreases in magnitude regardless of its sign. Using a Lyapunov approach, choose \textbackslash(V = \textbackslash tfrac\{1\}\{2\}s\^{}2\textbackslash):
-
-\textbackslash{[}
-\textbackslash dot\{V\} = s\textbackslash,\textbackslash dot\{s\} \textless{} 0.
-\textbackslash{]}
-
-\subsubsection{Lyapunov Stability Proof}
-
-Substituting the full control into \textbackslash(\textbackslash dot\{s\}\textbackslash):
-
-\textbackslash{[}
-\textbackslash dot\{s\} = f + b(u\_\{\textbackslash text\{eq\}\} + u\_\{\textbackslash text\{sw\}\}) + d - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\}.
-\textbackslash{]}
-
-The equivalent control cancels nominal terms:
-
-\textbackslash{[}
-\textbackslash dot\{s\} = d - \textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) - k\textbackslash,s.
-\textbackslash{]}
-
-Now compute \textbackslash(s\textbackslash,\textbackslash dot\{s\}\textbackslash):
-
-\textbackslash{[}
-s\textbackslash,\textbackslash dot\{s\} = s\textbackslash,d - \textbackslash eta\textbackslash,\textbar s\textbar{} - k\textbackslash,s\^{}2 \textbackslash le \textbar s\textbar\textbackslash,D - \textbackslash eta\textbackslash,\textbar s\textbar{} - k\textbackslash,s\^{}2 = -(\textbackslash eta - D)\textbar s\textbar{} - k\textbackslash,s\^{}2.
-\textbackslash{]}
-
-Since \textbackslash(\textbackslash eta \textgreater{} D\textbackslash) and \textbackslash(k \textgreater{} 0\textbackslash), we have \textbackslash(s\textbackslash,\textbackslash dot\{s\} \textless{} 0\textbackslash) for all \textbackslash(s \textbackslash neq 0\textbackslash). This proves:
-
-\begin{enumerate}
-\tightlist
-\item
-  The sliding surface is reached in finite time.
-\item
-  Once reached, the state cannot leave the surface.
-\end{enumerate}
-
-\textbf{Finite reaching time:} With \textbackslash(k = 0\textbackslash) (pure sign), \textbackslash(\textbackslash dot\{V\} = s\textbackslash dot\{s\} \textbackslash le -(\textbackslash eta - D)\textbar s\textbar\textbackslash). Since \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}2\textbackslash), we get \textbackslash(\textbar s\textbar{} = \textbackslash sqrt\{2V\}\textbackslash), so \textbackslash(\textbackslash dot\{V\} \textbackslash le -(\textbackslash eta - D)\textbackslash sqrt\{2V\}\textbackslash). Solving this differential inequality gives:
-
-\textbackslash{[}
-t\_\{\textbackslash text\{reach\}\} \textbackslash le \textbackslash frac\{\textbar s(0)\textbar\}\{\textbackslash eta - D\}.
-\textbackslash{]}
-
-\subsection{1.7 ~ The Chattering Problem}
-
-The discontinuous \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) function causes the control to switch at infinite frequency near \textbackslash(s = 0\textbackslash). In practice, actuator bandwidth is finite, producing \textbf{chattering} --- high-frequency oscillations around the sliding surface.
-
-\textbf{Why chattering is harmful:} It excites unmodelled high-frequency plant dynamics, causes mechanical wear, increases energy consumption, and can destabilise the system.
-
-\textbf{Figure 4:} Chattering problem visualization. Left: ideal SMC with infinite switching frequency -\/- trajectory reaches and stays on the surface. Right: practical SMC with finite actuation bandwidth -\/- trajectory oscillates around the surface, producing high-frequency control chatter that causes actuator wear.
-
-\subsubsection{Solution 1: Boundary Layer (Saturation Function)}
-
-Replace \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) with a continuous approximation inside a boundary layer of width \textbackslash(\textbackslash varphi\textbackslash):
-
-\textbackslash{[}
-\textbackslash operatorname\{sat\}\textbackslash!\textbackslash left(\textbackslash frac\{s\}\{\textbackslash varphi\}\textbackslash right) = \textbackslash begin\{cases\}
-\textbackslash displaystyle\textbackslash frac\{s\}\{\textbackslash varphi\} \& \textbar s\textbar{} \textbackslash le \textbackslash varphi \textbackslash\textbackslash{[}6pt{]}
-\textbackslash operatorname\{sign\}(s) \& \textbar s\textbar{} \textgreater{} \textbackslash varphi
-\textbackslash end\{cases\}
-\textbackslash{]}
-
-Inside the boundary layer \textbackslash(\textbar s\textbar{} \textbackslash le \textbackslash varphi\textbackslash), the control becomes a high-gain linear controller. This eliminates chattering but introduces a \textbf{steady-state error} proportional to \textbackslash(\textbackslash varphi\textbackslash). The trade-off is:
+Key properties:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Small \textbackslash(\textbackslash varphi\textbackslash)}: less steady-state error, more chattering.
+  Each equation depends on all previous states plus \emph{one} new state \textbackslash(x\_\{i+1\}\textbackslash).
 \item
-  \textbf{Large \textbackslash(\textbackslash varphi\textbackslash)}: no chattering, larger steady-state error.
+  The new state \textbackslash(x\_\{i+1\}\textbackslash) enters \emph{multiplicatively} through \textbackslash(g\_i(\textbackslash cdot)\textbackslash).
+\item
+  Only the \emph{last} equation contains the true control input \textbackslash(u\textbackslash).
+\item
+  \textbackslash(g\_i(\textbackslash cdot) \textbackslash neq 0\textbackslash) everywhere (controllability condition).
 \end{itemize}
 
-\textbf{Figure 5:} Boundary layer approach for chattering mitigation. Left: phase plane showing the boundary layer band (orange) around the sliding surface (red). Outside the boundary, discontinuous sign(s) is used; inside, smooth sat(s/phi) provides linear control. Right: comparison of sign(s) (discontinuous) vs sat(s/phi) (continuous).
+\textbf{Figure 2:} Triangular dependency structure of strict-feedback form. Each row depends only on states from current and previous subsystems.
 
-\subsubsection{Solution 2: Super-Twisting Algorithm}
+\subsection{Two-Step Backstepping --- Complete Derivation}
 
-The super-twisting algorithm achieves finite-time convergence to \textbackslash(s = 0\textbackslash) with a \textbf{continuous} control signal (no chattering). It uses an integral of the sign function:
-
-\textbackslash{[}
-\textbackslash dot\{s\} = -k\_1\textbackslash,\textbar s\textbar\^{}\{1/2\}\textbackslash,\textbackslash operatorname\{sign\}(s) + v, \textbackslash qquad \textbackslash dot\{v\} = -k\_2\textbackslash,\textbackslash operatorname\{sign\}(s).
-\textbackslash{]}
-
-Equivalently, the switching control becomes:
+Consider the simplest strict-feedback system (two states, one input):
 
 \textbackslash{[}
-u\_\{\textbackslash text\{sw\}\} = -\textbackslash frac\{1\}\{b\}\textbackslash Bigl(k\_1\textbackslash,\textbar s\textbar\^{}\{1/2\}\textbackslash,\textbackslash operatorname\{sign\}(s) + k\_2\textbackslash!\textbackslash int\_0\^{}t \textbackslash operatorname\{sign\}(s)\textbackslash,d\textbackslash tau\textbackslash Bigr).
+\textbackslash begin\{aligned\}
+\textbackslash dot\{x\}\_1 \&= f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 \textbackslash\textbackslash{}
+\textbackslash dot\{x\}\_2 \&= f\_2(x\_1,x\_2) + g\_2(x\_1,x\_2)\textbackslash,u
+\textbackslash end\{aligned\}
 \textbackslash{]}
 
-The discontinuity is hidden inside the integrator, so the actual control \textbackslash(u\textbackslash) is continuous. Sufficient conditions for convergence are \textbackslash(k\_1 \textgreater{} 0\textbackslash) and \textbackslash(k\_2 \textgreater{} k\_1 D / (k\_1 - D)\textbackslash) (with appropriate scaling).
+\textbf{Goal:} Drive \textbackslash(x\_1 \textbackslash to x\_\{1,\textbackslash text\{ref\}\}\textbackslash) (a desired reference).
 
-\textbf{Figure 6:} Super-twisting algorithm comparison. Left: standard SMC produces chattering at the surface with discontinuous control. Right: super-twisting achieves finite-time spiral convergence to the origin with a fully continuous control signal, eliminating chattering completely.
+\subsubsection{Step 1 --- Stabilise the \textbackslash(x\_1\textbackslash) Subsystem (Virtual Control Design)}
 
-\subsubsection{Think-Pair-Share}
-
-\textbf{Question:} Why does \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) cause chattering? Draw the phase portrait of a second-order system under SMC with \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash), showing the trajectories switching direction across \textbackslash(s = 0\textbackslash). How does the boundary layer modify this portrait?
-
-\textbf{Discuss (2 min):} In the phase plane \textbackslash((e, \textbackslash dot\{e\})\textbackslash), the sliding surface is a line. Trajectories approach from both sides and, due to finite sampling/actuation delay, overshoot repeatedly. With the boundary layer, trajectories enter the band \textbackslash(\textbar s\textbar{} \textless{} \textbackslash varphi\textbackslash) and glide smoothly to the origin along a thickened corridor.
-
-\subsection{1.8 ~ Multi-Variable Extension}
-
-For an \textbackslash(n\textbackslash)-DOF system with error \textbackslash(\textbackslash mathbf\{e\} \textbackslash in \textbackslash mathbb\{R\}\^{}n\textbackslash), define the sliding surface vector:
+Define the tracking error:
 
 \textbackslash{[}
-\textbackslash mathbf\{s\} = \textbackslash dot\{\textbackslash mathbf\{e\}\} + \textbackslash Lambda\textbackslash,\textbackslash mathbf\{e\}, \textbackslash qquad \textbackslash Lambda = \textbackslash operatorname\{diag\}(\textbackslash lambda\_1, \textbackslash dots, \textbackslash lambda\_n),\textbackslash; \textbackslash lambda\_i \textgreater{} 0.
+z\_1 = x\_1 - x\_\{1,\textbackslash text\{ref\}\}
 \textbackslash{]}
 
-The Lyapunov function becomes:
+Its dynamics are:
 
 \textbackslash{[}
-V = \textbackslash tfrac\{1\}\{2\}\textbackslash,\textbackslash mathbf\{s\}\^{}T \textbackslash mathbf\{s\},
+\textbackslash dot\{z\}\_1 = \textbackslash dot\{x\}\_1 - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\} = f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}
 \textbackslash{]}
 
-and the reaching condition generalises to:
+Imagine that \textbackslash(x\_2\textbackslash) is a control input that we can freely choose. We call this the
+\textbf{virtual control} and design it as \textbackslash(x\_2 = \textbackslash alpha\_1(x\_1)\textbackslash) such that \textbackslash(z\_1 \textbackslash to 0\textbackslash).
+Choose the Lyapunov function candidate:
 
 \textbackslash{[}
-\textbackslash dot\{V\} = \textbackslash mathbf\{s\}\^{}T \textbackslash dot\{\textbackslash mathbf\{s\}\} \textless{} 0.
+V\_1 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}2
 \textbackslash{]}
 
-\section{SMC for Robot Manipulator}
-
-\subsection{2.1 ~ System Model}
-
-The \textbackslash(n\textbackslash)-DOF rigid-body manipulator dynamics:
+Its time derivative is:
 
 \textbackslash{[}
-M(q)\textbackslash,\textbackslash ddot\{q\} + C(q, \textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + G(q) = \textbackslash tau + d(t),
+\textbackslash dot\{V\}\_1 = z\_1\textbackslash,\textbackslash dot\{z\}\_1 = z\_1\textbackslash bigl{[}f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}\textbackslash bigr{]}
 \textbackslash{]}
 
-where \textbackslash(d(t)\textbackslash) is a bounded disturbance torque with \textbackslash(\textbackslash\textbar d(t)\textbackslash\textbar{} \textbackslash le D\textbackslash). We have nominal estimates \textbackslash(\textbackslash hat\{M\}, \textbackslash hat\{C\}, \textbackslash hat\{G\}\textbackslash) and bounded modelling errors:
+If \textbackslash(x\_2\textbackslash) were our actual input, we would choose:
 
 \textbackslash{[}
-\textbackslash Delta M = M - \textbackslash hat\{M\}, \textbackslash quad \textbackslash Delta C = C - \textbackslash hat\{C\}, \textbackslash quad \textbackslash Delta G = G - \textbackslash hat\{G\}.
+\textbackslash alpha\_1(x\_1) = \textbackslash frac\{1\}\{g\_1(x\_1)\}\textbackslash bigl{[}-f\_1(x\_1) + \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\} - k\_1\textbackslash,z\_1\textbackslash bigr{]}, \textbackslash qquad k\_1 \textgreater{} 0
 \textbackslash{]}
 
-\textbf{Figure 7:} 2-DOF planar manipulator schematic. Joint angles theta\_1, theta\_2 are controlled by torques tau\_1, tau\_2. Link parameters (m\_1, l\_1, m\_2, l\_2) are subject to uncertainty (dashed clouds). Gravity g acts downward, and external disturbances d(t) affect the end-effector.
-
-\subsection{2.2 ~ Sliding Surface}
-
-Define the joint tracking error and sliding surface:
+This would give \textbackslash(\textbackslash dot\{V\}\_1 = -k\_1\textbackslash,z\_1\^{}2 \textbackslash le 0\textbackslash). But \textbackslash(x\_2\textbackslash) is not the actual input ---
+it is a state. So we define the \textbf{backstepping error}:
 
 \textbackslash{[}
-e = q - q\_d, \textbackslash qquad s = \textbackslash dot\{e\} + \textbackslash Lambda\textbackslash,e = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_r,
+z\_2 = x\_2 - \textbackslash alpha\_1(x\_1)
 \textbackslash{]}
 
-where the \textbf{reference velocity} is defined as:
+Substituting \textbackslash(x\_2 = z\_2 + \textbackslash alpha\_1\textbackslash) into \textbackslash(\textbackslash dot\{V\}\_1\textbackslash):
 
 \textbackslash{[}
-\textbackslash dot\{q\}\_r \textbackslash triangleq \textbackslash dot\{q\}\_d - \textbackslash Lambda\textbackslash,e.
+\textbackslash dot\{V\}\_1 = z\_1\textbackslash bigl{[}f\_1 + g\_1(z\_2 + \textbackslash alpha\_1) - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}\textbackslash bigr{]}
+= -k\_1\textbackslash,z\_1\^{}2 + g\_1\textbackslash,z\_1\textbackslash,z\_2
 \textbackslash{]}
 
-This notation simplifies the derivation considerably. Note also:
+The term \textbackslash(-k\_1 z\_1\^{}2\textbackslash) is stabilising; the coupling term \textbackslash(g\_1 z\_1 z\_2\textbackslash) must be handled in Step 2.
+
+\subsubsection{Step 2 --- Design the Actual Control \textbackslash(u\textbackslash) (Backstep)}
+
+Now we must drive \textbackslash(z\_2 \textbackslash to 0\textbackslash). Compute the dynamics of \textbackslash(z\_2\textbackslash):
 
 \textbackslash{[}
-\textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash,\textbackslash dot\{e\}.
+\textbackslash dot\{z\}\_2 = \textbackslash dot\{x\}\_2 - \textbackslash dot\{\textbackslash alpha\}\_1
+= f\_2(x\_1,x\_2) + g\_2(x\_1,x\_2)\textbackslash,u - \textbackslash frac\{\textbackslash partial \textbackslash alpha\_1\}\{\textbackslash partial x\_1\}\textbackslash dot\{x\}\_1
+- \textbackslash frac\{\textbackslash partial \textbackslash alpha\_1\}\{\textbackslash partial x\_\{1,\textbackslash text\{ref\}\}\}\textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}
 \textbackslash{]}
 
-\subsection{2.3 ~ Control Law Derivation}
-
-\subsubsection{Full Derivation}
-
-\textbf{Step 1:} Differentiate \textbackslash(s\textbackslash):
+where we have used the chain rule on \textbackslash(\textbackslash alpha\_1(x\_1, x\_\{1,\textbackslash text\{ref\}\})\textbackslash). Augment the Lyapunov function:
 
 \textbackslash{[}
-\textbackslash dot\{s\} = \textbackslash ddot\{q\} - \textbackslash ddot\{q\}\_r.
+V\_2 = V\_1 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}2 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}2 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}2
 \textbackslash{]}
 
-From the dynamics: \textbackslash(\textbackslash ddot\{q\} = M\^{}\{-1\}(\textbackslash tau + d - C\textbackslash dot\{q\} - G)\textbackslash), so:
+Its derivative is:
 
 \textbackslash{[}
-M\textbackslash dot\{s\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G - M\textbackslash ddot\{q\}\_r.
+\textbackslash dot\{V\}\_2 = \textbackslash dot\{V\}\_1 + z\_2\textbackslash,\textbackslash dot\{z\}\_2
+= -k\_1\textbackslash,z\_1\^{}2 + g\_1\textbackslash,z\_1\textbackslash,z\_2 + z\_2\textbackslash,\textbackslash dot\{z\}\_2
 \textbackslash{]}
 
-\textbf{Step 2:} Rewrite using \textbackslash(\textbackslash dot\{q\} = s + \textbackslash dot\{q\}\_r\textbackslash):
+We want \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1\textbackslash,z\_1\^{}2 - k\_2\textbackslash,z\_2\^{}2\textbackslash) for some \textbackslash(k\_2 \textgreater{} 0\textbackslash). This requires:
 
 \textbackslash{[}
-M\textbackslash dot\{s\} = \textbackslash tau + d - C(s + \textbackslash dot\{q\}\_r) - G - M\textbackslash ddot\{q\}\_r
-= \textbackslash tau - M\textbackslash ddot\{q\}\_r - C\textbackslash dot\{q\}\_r - G - Cs + d.
+z\_2\textbackslash bigl{[}g\_1\textbackslash,z\_1 + \textbackslash dot\{z\}\_2\textbackslash bigr{]} = -k\_2\textbackslash,z\_2\^{}2
+\textbackslash{]}
+\textbackslash{[}
+g\_1\textbackslash,z\_1 + f\_2 + g\_2\textbackslash,u - \textbackslash dot\{\textbackslash alpha\}\_1 = -k\_2\textbackslash,z\_2
 \textbackslash{]}
 
-\textbf{Step 3:} The equivalent control (using nominal estimates, \textbackslash(d=0\textbackslash), \textbackslash(\textbackslash dot\{s\}=0\textbackslash)):
+Solving for the control input:
 
 \textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{eq\}\} = \textbackslash hat\{M\}(q)\textbackslash,\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\}\_r + \textbackslash hat\{G\}(q).
+u = \textbackslash frac\{1\}\{g\_2(x\_1,x\_2)\}\textbackslash left{[}-f\_2(x\_1,x\_2) + \textbackslash dot\{\textbackslash alpha\}\_1
+- g\_1(x\_1)\textbackslash,z\_1 - k\_2\textbackslash,z\_2\textbackslash right{]}
 \textbackslash{]}
 
-Expanding \textbackslash(\textbackslash ddot\{q\}\_r\textbackslash) and \textbackslash(\textbackslash dot\{q\}\_r\textbackslash):
+\textbf{Result:} With this control law,
 
 \textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{eq\}\} = \textbackslash hat\{M\}(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash dot\{e\}\textbackslash bigr{]} + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash bigl{[}\textbackslash dot\{q\}\_d - \textbackslash Lambda e\textbackslash bigr{]} + \textbackslash hat\{G\}(q).
+\textbackslash dot\{V\}\_2 = -k\_1\textbackslash,z\_1\^{}2 - k\_2\textbackslash,z\_2\^{}2 \textbackslash le 0
 \textbackslash{]}
 
-\textbf{Step 4:} The switching control:
+which guarantees global asymptotic stability of \textbackslash((z\_1, z\_2) = (0,0)\textbackslash) by Lyapunov\textquotesingle s theorem.
+
+\subsection{Generalisation to \textbackslash(n\textbackslash)-Step Backstepping}
+
+For an \textbackslash(n\textbackslash)-dimensional strict-feedback system, the procedure generalises recursively:
+
+Algorithm: n-Step Backstepping
+
+For i = 1, 2, ..., n:
+1. Define error: z\_i = x\_i - alpha\_\{i-1\} (where alpha\_0 = x\_\{1,ref\})
+2. Compute dynamics: dz\_i/dt = f\_i + g\_i * x\_\{i+1\} - d(alpha\_\{i-1\})/dt
+3. Augment Lyapunov: V\_i = V\_\{i-1\} + (1/2) * z\_i\^{}2
+4. Compute dV\_i/dt and choose:
+- If i \textless{} n: alpha\_i (virtual control) to make:
+dV\_i/dt = -k\_1*z\_1\^{}2 - ... - k\_i*z\_i\^{}2 + g\_i*z\_i*z\_\{i+1\}
+- If i = n: u (actual control) to make:
+dV\_n/dt = -k\_1*z\_1\^{}2 - ... - k\_n*z\_n\^{}2
+Result: Global asymptotic stability with V\_n as Lyapunov function.
+
+\textbf{Figure 3:} Step-by-step backstepping design flowchart. Each step defines an error, augments the Lyapunov function, and designs a (virtual) control.
+
+\subsection{Why Backstepping Works --- Intuition}
+
+\subsubsection{Recursive Lyapunov Construction}
+
+At each step, we extend the Lyapunov function by adding \textbackslash(\textbackslash frac\{1\}\{2\}z\_i\^{}2\textbackslash).
+Each new virtual control is designed to make the new terms in \textbackslash(\textbackslash dot\{V\}\textbackslash) negative definite
+while leaving the previously designed terms unchanged.
+
+\subsubsection{"Backstepping" the Control}
+
+The name comes from the fact that we start from the outermost subsystem (where the reference
+lives) and "step back" through the cascade, designing one layer at a time until we reach the
+actual control input.
+
+\subsubsection{No Cancellation Required}
+
+Unlike feedback linearisation, backstepping does not cancel all nonlinearities. It only
+cancels what is needed and uses the remaining structure constructively. This gives better
+robustness and avoids wasting control effort.
+
+\subsubsection{Guaranteed Stability}
+
+The final Lyapunov function \textbackslash(V\_n = \textbackslash sum\_\{i=1\}\^{}n \textbackslash frac\{1\}\{2\}z\_i\^{}2\textbackslash) with
+\textbackslash(\textbackslash dot\{V\}\_n = -\textbackslash sum\_\{i=1\}\^{}n k\_i z\_i\^{}2\textbackslash) provides a \emph{constructive} proof of
+global asymptotic stability.
+
+\textbf{Figure 5:} Lyapunov function augmentation. Each step adds a new error term, growing the "bowl" in state space while maintaining negative definiteness of V̇.
+
+\subsubsection{Think-Pair-Share (3 min)}
+
+\textbf{Question:} Why can\textquotesingle t we just use feedback linearisation for all nonlinear systems?
+When does backstepping have an advantage?
+
+\textbf{Discussion points:}
+
+\begin{itemize}
+\tightlist
+\item
+  Feedback linearisation requires an \emph{exact} model to cancel all nonlinearities ---
+  any mismatch creates uncompensated dynamics.
+\item
+  Feedback linearisation may cancel \emph{useful} nonlinearities (e.g., natural damping).
+\item
+  Some systems are not feedback-linearisable (the relative degree conditions fail).
+\item
+  Backstepping provides a Lyapunov function at every step --- we can prove stability even
+  with partial model knowledge.
+\item
+  Backstepping can be combined with adaptation (adaptive backstepping) to handle unknown
+  parameters in the strict-feedback structure.
+\end{itemize}
+
+\section{Backstepping for Robot Manipulator}
+
+\subsection{Strict-Feedback Form of Manipulator Dynamics}
+
+The standard Euler-Lagrange dynamics of an \textbackslash(n\textbackslash)-DOF manipulator are:
 
 \textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{sw\}\} = -K\textbackslash,\textbackslash operatorname\{sign\}(s),
+M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau
 \textbackslash{]}
 
-where \textbackslash(K = \textbackslash operatorname\{diag\}(K\_1, \textbackslash dots, K\_n)\textbackslash) with each \textbackslash(K\_i\textbackslash) large enough to overcome uncertainty bounds.
-
-\textbf{Step 5:} Complete SMC torque:
+Define the states \textbackslash(x\_1 = q\textbackslash) (joint positions) and \textbackslash(x\_2 = \textbackslash dot\{q\}\textbackslash) (joint velocities). Then:
 
 \textbackslash{[}
-\textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash,\textbackslash operatorname\{sign\}(s)
+\textbackslash begin\{aligned\}
+\textbackslash dot\{x\}\_1 \&= x\_2 \textbackslash\textbackslash{}
+\textbackslash dot\{x\}\_2 \&= M\^{}\{-1\}(x\_1)\textbackslash bigl{[}\textbackslash tau - C(x\_1,x\_2)\textbackslash,x\_2 - G(x\_1)\textbackslash bigr{]}
+\textbackslash end\{aligned\}
 \textbackslash{]}
 
-Or with the boundary layer:
+This is a strict-feedback system with \textbackslash(f\_1 = 0\textbackslash), \textbackslash(g\_1 = I\textbackslash),
+\textbackslash(f\_2 = -M\^{}\{-1\}(C x\_2 + G)\textbackslash), and \textbackslash(g\_2 = M\^{}\{-1\}\textbackslash).
+
+\textbf{Figure 4:} 2-DOF planar manipulator and its decomposition into position and velocity subsystems for backstepping design.
+
+\subsubsection{Step 1 --- Virtual Control for Position Subsystem}
+
+Define the position error:
 
 \textbackslash{[}
-\textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash,\textbackslash operatorname\{sat\}\textbackslash!\textbackslash left(\textbackslash frac\{s\}\{\textbackslash varphi\}\textbackslash right)
+z\_1 = x\_1 - q\_d = q - q\_d
 \textbackslash{]}
 
-\subsection{2.4 ~ Lyapunov Stability Proof}
-
-\subsubsection{Proof of Finite-Time Reaching}
-
-Choose \textbackslash(V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M(q)\textbackslash,s\textbackslash). Note \textbackslash(V \textgreater{} 0\textbackslash) since \textbackslash(M\textbackslash) is positive definite. Differentiate:
+The dynamics of \textbackslash(z\_1\textbackslash) are:
 
 \textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T \textbackslash dot\{M\}\textbackslash,s.
+\textbackslash dot\{z\}\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d = x\_2 - \textbackslash dot\{q\}\_d
 \textbackslash{]}
 
-Substituting \textbackslash(M\textbackslash dot\{s\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G - M\textbackslash ddot\{q\}\_r\textbackslash) and the control law:
+Choose the Lyapunov function \textbackslash(V\_1 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}T z\_1\textbackslash). Its derivative:
 
 \textbackslash{[}
-M\textbackslash dot\{s\} = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash operatorname\{sign\}(s) + d - C\textbackslash dot\{q\} - G - M\textbackslash ddot\{q\}\_r.
+\textbackslash dot\{V\}\_1 = z\_1\^{}T \textbackslash dot\{z\}\_1 = z\_1\^{}T(x\_2 - \textbackslash dot\{q\}\_d)
 \textbackslash{]}
 
-Grouping terms:
+Design the virtual control \textbackslash(\textbackslash alpha\_1\textbackslash) (the desired velocity) so that if \textbackslash(x\_2 = \textbackslash alpha\_1\textbackslash), then \textbackslash(\textbackslash dot\{V\}\_1 \textless{} 0\textbackslash):
 
 \textbackslash{[}
-M\textbackslash dot\{s\} = -\textbackslash Delta M\textbackslash ddot\{q\}\_r - \textbackslash Delta C\textbackslash dot\{q\}\_r - \textbackslash Delta G - Cs + d - K\textbackslash operatorname\{sign\}(s),
+\textbackslash alpha\_1 = \textbackslash dot\{q\}\_d - K\_1\textbackslash,z\_1, \textbackslash qquad K\_1 = k\_1 I \textbackslash succ 0
 \textbackslash{]}
 
-where we used \textbackslash(C\textbackslash dot\{q\} = C(s + \textbackslash dot\{q\}\_r) = Cs + C\textbackslash dot\{q\}\_r\textbackslash). Therefore:
+This gives \textbackslash(\textbackslash dot\{V\}\_1 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2\textbackslash) where \textbackslash(z\_2 = x\_2 - \textbackslash alpha\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1 z\_1\textbackslash).
+
+\subsubsection{Step 2 --- Torque Control for Velocity Subsystem}
+
+Define the velocity error:
 
 \textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T\textbackslash bigl{[}-\textbackslash Delta M\textbackslash ddot\{q\}\_r - \textbackslash Delta C\textbackslash dot\{q\}\_r - \textbackslash Delta G + d - K\textbackslash operatorname\{sign\}(s)\textbackslash bigr{]} + s\^{}T(-Cs) + \textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s.
+z\_2 = x\_2 - \textbackslash alpha\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1(q - q\_d)
 \textbackslash{]}
 
-By the skew-symmetry property \textbackslash(s\^{}T(\textbackslash dot\{M\} - 2C)s = 0\textbackslash), the last two terms cancel:
+Compute its dynamics:
 
 \textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T\textbackslash bigl{[}\textbackslash underbrace\{-\textbackslash Delta M\textbackslash ddot\{q\}\_r - \textbackslash Delta C\textbackslash dot\{q\}\_r - \textbackslash Delta G + d\}\_\{\textbackslash text\{lumped uncertainty \} \textbackslash delta\} - K\textbackslash operatorname\{sign\}(s)\textbackslash bigr{]}.
+\textbackslash dot\{z\}\_2 = \textbackslash ddot\{q\} - \textbackslash ddot\{q\}\_d + K\_1\textbackslash dot\{z\}\_1
+= M\^{}\{-1\}(\textbackslash tau - C\textbackslash dot\{q\} - G) - \textbackslash ddot\{q\}\_d + K\_1(\textbackslash dot\{q\} - \textbackslash dot\{q\}\_d)
 \textbackslash{]}
 
-Let \textbackslash(\textbar\textbackslash delta\_i\textbar{} \textbackslash le \textbackslash rho\_i\textbackslash) (component-wise bound). Then choosing \textbackslash(K\_i \textgreater{} \textbackslash rho\_i\textbackslash):
+Augment the Lyapunov function (using the inertia matrix for natural energy weighting):
 
 \textbackslash{[}
-\textbackslash dot\{V\} \textbackslash le -\textbackslash sum\_\{i=1\}\^{}\{n\} (K\_i - \textbackslash rho\_i)\textbar s\_i\textbar{} \textless{} 0, \textbackslash qquad \textbackslash forall\textbackslash; s \textbackslash neq 0.
+V\_2 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}T z\_1 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}T M(q)\textbackslash,z\_2
 \textbackslash{]}
 
-This guarantees finite-time reaching and invariance of the sliding surface.
+The derivative of \textbackslash(V\_2\textbackslash) is:
 
-\subsection{2.5 ~ MATLAB Implementation --- 2-DOF Manipulator SMC}
+\textbackslash{[}
+\textbackslash dot\{V\}\_2 = z\_1\^{}T\textbackslash dot\{z\}\_1 + z\_2\^{}T M\textbackslash dot\{z\}\_2 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}T\textbackslash dot\{M\}\textbackslash,z\_2
+\textbackslash{]}
 
-\%\% SMC for 2-DOF Manipulator
-\% Parameters
-m1 = 1; m2 = 1; l1 = 1; l2 = 1; g = 9.81;
-Lambda = diag({[}10, 10{]}); \% sliding surface gain
-K\_smc = diag({[}20, 20{]}); \% switching gain
-phi = 0.05; \% boundary layer width
-use\_sat = true; \% true = sat(), false = sign()
+Substituting and using the skew-symmetry property \textbackslash(z\_2\^{}T(\textbackslash dot\{M\} - 2C)z\_2 = 0\textbackslash):
+
+\textbackslash{[}
+\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1\textbackslash,z\_1 + z\_1\^{}T z\_2 + z\_2\^{}T\textbackslash bigl{[}\textbackslash tau - C\textbackslash dot\{q\} - G
+- M(\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1)\textbackslash bigr{]} + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}T\textbackslash dot\{M\}\textbackslash,z\_2
+\textbackslash{]}
+
+Using the skew-symmetry property and simplifying:
+
+\textbackslash{[}
+\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1\textbackslash,z\_1 + z\_1\^{}T z\_2 + z\_2\^{}T\textbackslash bigl{[}\textbackslash tau - C\textbackslash alpha\_1 - G
+- M(\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1)\textbackslash bigr{]}
+\textbackslash{]}
+
+To achieve \textbackslash(\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 - z\_2\^{}T K\_2 z\_2\textbackslash), choose:
+
+\textbf{Backstepping Torque Control Law:}\\
+\strut \\
+\textbackslash{[}
+\textbackslash tau = M(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1 - K\_2 z\_2\textbackslash bigr{]}
++ C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash alpha\_1 + G(q) - z\_1
+\textbackslash{]}
+
+where \textbackslash(K\_2 = k\_2 I \textbackslash succ 0\textbackslash). Expanding the terms:
+
+\textbackslash{[}
+\textbackslash tau = M(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d - K\_1(\textbackslash dot\{q\} - \textbackslash dot\{q\}\_d) - K\_2(\textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1(q-q\_d))\textbackslash bigr{]}
++ C(q,\textbackslash dot\{q\})(\textbackslash dot\{q\}\_d - K\_1(q-q\_d)) + G(q) - (q - q\_d)
+\textbackslash{]}
+
+\textbf{Stability result:}
+
+\textbackslash{[}
+\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1\textbackslash,z\_1 - z\_2\^{}T K\_2\textbackslash,z\_2 \textbackslash le 0
+\textbackslash{]}
+
+Both \textbackslash(z\_1 \textbackslash to 0\textbackslash) and \textbackslash(z\_2 \textbackslash to 0\textbackslash) asymptotically, which means \textbackslash(q \textbackslash to q\_d\textbackslash) and \textbackslash(\textbackslash dot\{q\} \textbackslash to \textbackslash dot\{q\}\_d\textbackslash).
+
+\subsection{MATLAB Implementation}
+
+\% Backstepping controller for 2-DOF manipulator
+function tau = backstepping\_manipulator(t, q, dq, params)
 \% Desired trajectory
-qd = @(t) {[}sin(t); cos(t){]};
-qd\_d = @(t) {[}cos(t); -sin(t){]};
-qd\_dd= @(t) {[}-sin(t); -cos(t){]};
-\% Dynamics (inline for ODE)
-function {[}M, C, G\_vec{]} = manipulator\_dynamics(q, qd\_vec, m1, m2, l1, l2, g)
-c2 = cos(q(2)); s2 = sin(q(2));
-h = m2*l1*l2*c2;
-M = {[}m1*l1\^{}2 + m2*(l1\^{}2+l2\^{}2+2*l1*l2*c2), m2*(l2\^{}2+l1*l2*c2);
-m2*(l2\^{}2+l1*l2*c2), m2*l2\^{}2{]};
-C = {[}-m2*l1*l2*s2*qd\_vec(2), -m2*l1*l2*s2*(qd\_vec(1)+qd\_vec(2));
-m2*l1*l2*s2*qd\_vec(1), 0{]};
-G\_vec = {[}m1*g*l1*cos(q(1)) + m2*g*(l1*cos(q(1))+l2*cos(q(1)+q(2)));
-m2*g*l2*cos(q(1)+q(2)){]};
+qd = {[}0.5*sin(t); 0.5*cos(t){]};
+dqd = {[}0.5*cos(t); -0.5*sin(t){]};
+ddqd = {[}-0.5*sin(t); -0.5*cos(t){]};
+\% Errors
+z1 = q - qd; \% Position error
+dz1 = dq - dqd; \% Velocity of position error
+alpha1 = dqd - params.k1 * z1; \% Virtual control (desired velocity)
+z2 = dq - alpha1; \% Velocity error (= dz1 + k1*z1)
+\% Dynamics matrices
+{[}M, C, G{]} = manipulator\_dynamics\_matrices(q, dq, params);
+\% Backstepping control law
+tau = M * (ddqd - params.k1*dz1 - params.k2*z2) ...
++ C * alpha1 + G - z1;
 end
-\% ODE function
-odefun = @(t, x) smc\_manipulator\_ode(t, x, ...
-m1, m2, l1, l2, g, Lambda, K\_smc, phi, use\_sat, qd, qd\_d, qd\_dd);
-{[}T, X{]} = ode45(odefun, {[}0, 10{]}, {[}0.5; -0.5; 0; 0{]});
-\% Plot results
-figure;
-subplot(2,1,1); plot(T, X(:,1:2)); legend(\textquotesingle q\_1\textquotesingle,\textquotesingle q\_2\textquotesingle); title(\textquotesingle Joint Angles\textquotesingle);
-subplot(2,1,2); plot(T, X(:,3:4)); legend(\textquotesingle dq\_1\textquotesingle,\textquotesingle dq\_2\textquotesingle); title(\textquotesingle Joint Velocities\textquotesingle);
 
-\textbf{Note:} The complete ODE function \texttt{smc\_manipulator\_ode()} with all sub-functions is provided in the companion file \texttt{smc\_control\_simulation.m}.
+\textbf{Implementation note:} The term \textbackslash(-z\_1\textbackslash) in the control law is the
+"cross-coupling cancellation" term that arises from the backstepping procedure.
+Without it, the position and velocity errors would remain coupled and stability
+cannot be guaranteed by our Lyapunov function.
 
-\section{SMC for Mobile Robot}
+\section{Backstepping for Mobile Robot}
 
-\subsection{3.1 ~ Unicycle Kinematic Model}
+\subsection{Unicycle Model and Error Coordinates}
 
-The unicycle model for a differential-drive mobile robot:
+The unicycle (differential-drive) mobile robot has the kinematic model:
 
 \textbackslash{[}
-\textbackslash dot\{x\} = v\textbackslash cos\textbackslash theta, \textbackslash qquad \textbackslash dot\{y\} = v\textbackslash sin\textbackslash theta, \textbackslash qquad \textbackslash dot\{\textbackslash theta\} = \textbackslash omega,
+\textbackslash begin\{aligned\}
+\textbackslash dot\{x\} \&= v\textbackslash cos\textbackslash theta \textbackslash\textbackslash{}
+\textbackslash dot\{y\} \&= v\textbackslash sin\textbackslash theta \textbackslash\textbackslash{}
+\textbackslash dot\{\textbackslash theta\} \&= \textbackslash omega
+\textbackslash end\{aligned\}
 \textbackslash{]}
 
-where \textbackslash(v\textbackslash) is the linear velocity and \textbackslash(\textbackslash omega\textbackslash) is the angular velocity. The control inputs are \textbackslash(u = {[}v,\textbackslash; \textbackslash omega{]}\^{}T\textbackslash).
+where \textbackslash(v\textbackslash) is the linear velocity and \textbackslash(\textbackslash omega\textbackslash) is the angular velocity (our two control inputs).
 
-\textbf{Figure 8:} Mobile robot SMC tracking. Left: top-down view showing the differential-drive robot tracking a reference trajectory, with tracking errors (e\_x, e\_y) and polar error rho. Right: sliding manifold in error space showing trajectories converging to the sliding surface then sliding to the origin.
-
-\subsection{3.2 ~ Position Tracking Formulation}
-
-Define the tracking errors in the body frame. Let \textbackslash((x\_d(t), y\_d(t), \textbackslash theta\_d(t))\textbackslash) be the desired trajectory. The position errors in the world frame are:
-
-\textbackslash{[}
-e\_x = x\_d - x, \textbackslash qquad e\_y = y\_d - y.
-\textbackslash{]}
-
-Transform to the robot body frame:
+Given a reference trajectory \textbackslash((x\_r(t), y\_r(t), \textbackslash theta\_r(t))\textbackslash) generated by
+\textbackslash(\textbackslash dot\{x\}\_r = v\_r\textbackslash cos\textbackslash theta\_r\textbackslash), \textbackslash(\textbackslash dot\{y\}\_r = v\_r\textbackslash sin\textbackslash theta\_r\textbackslash), \textbackslash(\textbackslash dot\{\textbackslash theta\}\_r = \textbackslash omega\_r\textbackslash),
+define the \textbf{body-frame error}:
 
 \textbackslash{[}
 \textbackslash begin\{bmatrix\} e\_1 \textbackslash\textbackslash{} e\_2 \textbackslash\textbackslash{} e\_3 \textbackslash end\{bmatrix\}
 = \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash theta \& \textbackslash sin\textbackslash theta \& 0 \textbackslash\textbackslash{} -\textbackslash sin\textbackslash theta \& \textbackslash cos\textbackslash theta \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 1 \textbackslash end\{bmatrix\}
-\textbackslash begin\{bmatrix\} e\_x \textbackslash\textbackslash{} e\_y \textbackslash\textbackslash{} \textbackslash theta\_d - \textbackslash theta \textbackslash end\{bmatrix\}.
+\textbackslash begin\{bmatrix\} x\_r - x \textbackslash\textbackslash{} y\_r - y \textbackslash\textbackslash{} \textbackslash theta\_r - \textbackslash theta \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{3.3 ~ Sliding Surface Design}
-
-For position tracking, define two sliding surfaces:
+The error dynamics are:
 
 \textbackslash{[}
-s\_1 = \textbackslash dot\{e\}\_1 + \textbackslash lambda\_1 e\_1, \textbackslash qquad s\_2 = \textbackslash dot\{e\}\_2 + \textbackslash lambda\_2 e\_2.
+\textbackslash begin\{aligned\}
+\textbackslash dot\{e\}\_1 \&= \textbackslash omega\textbackslash, e\_2 - v + v\_r\textbackslash cos e\_3 \textbackslash\textbackslash{}
+\textbackslash dot\{e\}\_2 \&= -\textbackslash omega\textbackslash, e\_1 + v\_r\textbackslash sin e\_3 \textbackslash\textbackslash{}
+\textbackslash dot\{e\}\_3 \&= \textbackslash omega\_r - \textbackslash omega
+\textbackslash end\{aligned\}
 \textbackslash{]}
 
-An alternative approach for the unicycle (which is non-holonomic and cannot track \textbackslash(e\_2\textbackslash) independently) is to use a \textbf{polar coordinate} formulation. Define:
+\textbf{Figure 6:} Differential-drive mobile robot (top-down view) with body-frame errors and the backstepping cascade: position error drives heading control, which drives velocity control.
+
+\subsection{Backstepping Design}
+
+\subsubsection{Step 1 --- Stabilise the Lateral/Heading Subsystem}
+
+Consider the \textbackslash((e\_2, e\_3)\textbackslash) subsystem first. Note that \textbackslash(e\_2\textbackslash) is driven by \textbackslash(v\_r \textbackslash sin e\_3\textbackslash).
+Think of \textbackslash(e\_3\textbackslash) as a virtual input to steer \textbackslash(e\_2\textbackslash). If \textbackslash(e\_3\textbackslash) could be freely chosen, pick:
 
 \textbackslash{[}
-\textbackslash rho = \textbackslash sqrt\{e\_x\^{}2 + e\_y\^{}2\}, \textbackslash qquad \textbackslash alpha = \textbackslash operatorname\{atan2\}(e\_y, e\_x) - \textbackslash theta, \textbackslash qquad \textbackslash beta = -\textbackslash theta - \textbackslash alpha.
+e\_3\^{}* = \textbackslash arctan(-k\_3\textbackslash, e\_2)
 \textbackslash{]}
 
-Then define sliding surfaces:
+(This makes \textbackslash(v\_r \textbackslash sin e\_3\^{}* \textbackslash approx -k\_3 v\_r e\_2\textbackslash) for small \textbackslash(e\_2\textbackslash), driving \textbackslash(e\_2 \textbackslash to 0\textbackslash).)
+
+However, \textbackslash(e\_3\textbackslash) is a state, not an input. Define the backstepping error:
 
 \textbackslash{[}
-s\_v = \textbackslash dot\{\textbackslash rho\} + \textbackslash lambda\_v \textbackslash rho, \textbackslash qquad s\_\textbackslash omega = \textbackslash dot\{\textbackslash alpha\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha.
+\textbackslash bar\{e\}\_3 = e\_3 - e\_3\^{}*
 \textbackslash{]}
 
-\subsection{3.4 ~ SMC Control Law}
+\subsubsection{Step 2 --- Design the Control Inputs \textbackslash((v, \textbackslash omega)\textbackslash)}
 
-Using the body-frame error dynamics and the reaching law, the SMC control inputs become:
-
-\subsubsection{Derivation}
-
-The error dynamics in polar coordinates are:
+Choose the Lyapunov function:
 
 \textbackslash{[}
-\textbackslash dot\{\textbackslash rho\} = -v\textbackslash cos\textbackslash alpha, \textbackslash qquad \textbackslash dot\{\textbackslash alpha\} = -\textbackslash omega + \textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\}, \textbackslash qquad \textbackslash dot\{\textbackslash beta\} = -\textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\}.
+V = \textbackslash frac\{1\}\{2\}e\_1\^{}2 + \textbackslash frac\{1\}\{2\}e\_2\^{}2 + \textbackslash frac\{1\}\{2\}\textbackslash bar\{e\}\_3\^{}2
 \textbackslash{]}
 
-For \textbackslash(s\_v = \textbackslash dot\{\textbackslash rho\} + \textbackslash lambda\_v \textbackslash rho\textbackslash): set \textbackslash(\textbackslash dot\{s\}\_v = -\textbackslash eta\_v \textbackslash operatorname\{sign\}(s\_v)\textbackslash):
+For the longitudinal error \textbackslash(e\_1\textbackslash), choose the linear velocity:
 
 \textbackslash{[}
-v\_\{\textbackslash text\{eq\}\} = \textbackslash frac\{\textbackslash lambda\_v \textbackslash rho\}\{\textbackslash cos\textbackslash alpha\}, \textbackslash qquad v\_\{\textbackslash text\{sw\}\} = \textbackslash frac\{\textbackslash eta\_v \textbackslash operatorname\{sign\}(s\_v)\}\{\textbackslash cos\textbackslash alpha\}.
+v = v\_r\textbackslash cos e\_3 + k\_1\textbackslash,e\_1
 \textbackslash{]}
 
-For \textbackslash(s\_\textbackslash omega = \textbackslash dot\{\textbackslash alpha\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha\textbackslash): set \textbackslash(\textbackslash dot\{s\}\_\textbackslash omega = -\textbackslash eta\_\textbackslash omega \textbackslash operatorname\{sign\}(s\_\textbackslash omega)\textbackslash):
+This gives \textbackslash(\textbackslash dot\{e\}\_1 = -k\_1 e\_1 + \textbackslash omega e\_2\textbackslash).
+
+For the angular velocity, we need \textbackslash(\textbackslash omega\textbackslash) to simultaneously:
+(a) cancel the coupling \textbackslash(\textbackslash omega e\_2\textbackslash) term in \textbackslash(\textbackslash dot\{e\}\_1\textbackslash),
+(b) drive \textbackslash(\textbackslash bar\{e\}\_3 \textbackslash to 0\textbackslash), and
+(c) handle the \textbackslash(e\_2\textbackslash) dynamics.
+
+The full angular velocity controller is:
 
 \textbackslash{[}
-\textbackslash omega = \textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha + \textbackslash eta\_\textbackslash omega \textbackslash operatorname\{sign\}(s\_\textbackslash omega).
+\textbackslash omega = \textbackslash omega\_r + k\_2\textbackslash,v\_r\textbackslash,e\_2 + k\_3\textbackslash,\textbackslash bar\{e\}\_3
 \textbackslash{]}
 
+where \textbackslash(k\_2\textbackslash) handles the lateral error coupling with \textbackslash(v\_r \textbackslash sin e\_3\textbackslash), and \textbackslash(k\_3\textbackslash) drives the heading backstepping error to zero.
+
+\textbf{Backstepping Mobile Robot Controller:}\\
+\strut \\
 \textbackslash{[}
-v = \textbackslash frac\{\textbackslash lambda\_v \textbackslash rho + \textbackslash eta\_v \textbackslash operatorname\{sat\}(s\_v / \textbackslash varphi\_v)\}\{\textbackslash cos\textbackslash alpha\}, \textbackslash qquad
-\textbackslash omega = \textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha + \textbackslash eta\_\textbackslash omega \textbackslash operatorname\{sat\}(s\_\textbackslash omega / \textbackslash varphi\_\textbackslash omega).
-\textbackslash{]}
-
-\textbf{Singularity:} When \textbackslash(\textbackslash alpha = \textbackslash pm\textbackslash pi/2\textbackslash) (goal directly to the side), \textbackslash(\textbackslash cos\textbackslash alpha = 0\textbackslash). In practice, clamp \textbackslash(\textbar\textbackslash alpha\textbar{} \textless{} \textbackslash pi/2 - \textbackslash epsilon\textbackslash) or switch to a Cartesian controller near the singularity.
-
-\subsection{3.5 ~ MATLAB Implementation}
-
-\%\% SMC for Mobile Robot (Unicycle)
-lambda\_v = 1.0; lambda\_w = 2.0;
-eta\_v = 0.5; eta\_w = 1.0;
-phi\_v = 0.05; phi\_w = 0.05;
-\% Desired circular trajectory
-xd = @(t) 2*cos(0.3*t); yd = @(t) 2*sin(0.3*t);
-xd\_d = @(t) -0.6*sin(0.3*t); yd\_d = @(t) 0.6*cos(0.3*t);
-odefun = @(t, x) smc\_mobile\_ode(t, x, lambda\_v, lambda\_w, ...
-eta\_v, eta\_w, phi\_v, phi\_w, xd, yd, xd\_d, yd\_d);
-{[}T, X{]} = ode45(odefun, {[}0 30{]}, {[}0; 0; pi/4{]});
-figure;
-plot(X(:,1), X(:,2), \textquotesingle b-\textquotesingle, arrayfun(xd,T), arrayfun(yd,T), \textquotesingle r-\/-\textquotesingle);
-legend(\textquotesingle Actual\textquotesingle,\textquotesingle Desired\textquotesingle); title(\textquotesingle Mobile Robot SMC Tracking\textquotesingle);
-axis equal; grid on;
-
-\section{SMC for Quadrotor Drone}
-
-\subsection{4.1 ~ Quadrotor Dynamic Model}
-
-The 6-DOF quadrotor dynamics separate into translational and rotational subsystems. The position dynamics in the world frame:
-
-\textbackslash{[}
-m\textbackslash ddot\{x\} = (\textbackslash cos\textbackslash psi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash phi + \textbackslash sin\textbackslash psi\textbackslash sin\textbackslash phi)\textbackslash,U\_1 + d\_x,
+v = v\_r \textbackslash cos e\_3 + k\_1\textbackslash,e\_1
 \textbackslash{]}
 \textbackslash{[}
-m\textbackslash ddot\{y\} = (\textbackslash sin\textbackslash psi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash phi - \textbackslash cos\textbackslash psi\textbackslash sin\textbackslash phi)\textbackslash,U\_1 + d\_y,
-\textbackslash{]}
-\textbackslash{[}
-m\textbackslash ddot\{z\} = (\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi)\textbackslash,U\_1 - mg + d\_z,
+\textbackslash omega = \textbackslash omega\_r + k\_2\textbackslash,v\_r\textbackslash,e\_2 + k\_3\textbackslash,\textbackslash sin e\_3
 \textbackslash{]}
 
-where \textbackslash(U\_1\textbackslash) is the total thrust, \textbackslash((\textbackslash phi,\textbackslash theta,\textbackslash psi)\textbackslash) are roll, pitch, yaw, and \textbackslash(d\_x, d\_y, d\_z\textbackslash) are disturbance forces. The attitude dynamics:
+\textbf{Stability analysis.} With this controller and \textbackslash(V = \textbackslash frac\{1\}\{2\}(e\_1\^{}2 + e\_2\^{}2 + e\_3\^{}2)\textbackslash):
 
 \textbackslash{[}
-I\_\{xx\}\textbackslash ddot\{\textbackslash phi\} = (\textbackslash,I\_\{yy\} - I\_\{zz\})\textbackslash dot\{\textbackslash theta\}\textbackslash dot\{\textbackslash psi\} + l\textbackslash,U\_2 + d\_\textbackslash phi,
+\textbackslash dot\{V\} = e\_1\textbackslash dot\{e\}\_1 + e\_2\textbackslash dot\{e\}\_2 + e\_3\textbackslash dot\{e\}\_3
 \textbackslash{]}
 \textbackslash{[}
-I\_\{yy\}\textbackslash ddot\{\textbackslash theta\} = (I\_\{zz\} - I\_\{xx\})\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash psi\} + l\textbackslash,U\_3 + d\_\textbackslash theta,
-\textbackslash{]}
-\textbackslash{[}
-I\_\{zz\}\textbackslash ddot\{\textbackslash psi\} = (I\_\{xx\} - I\_\{yy\})\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash theta\} + c\textbackslash,U\_4 + d\_\textbackslash psi.
+= e\_1(-k\_1 e\_1 + \textbackslash omega e\_2) + e\_2(-\textbackslash omega e\_1 + v\_r \textbackslash sin e\_3)
++ e\_3(\textbackslash omega\_r - \textbackslash omega)
 \textbackslash{]}
 
-\subsection{4.2 ~ Hierarchical SMC Design}
-
-The standard approach uses a \textbf{cascaded (hierarchical)} structure:
-
-\subsubsection{Outer Loop: Position SMC}
-
-Computes desired thrust \textbackslash(U\_1\textbackslash) and desired roll/pitch angles \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d)\textbackslash) from position errors.
-
-\subsubsection{Inner Loop: Attitude SMC}
-
-Tracks desired roll, pitch, yaw using torque inputs \textbackslash(U\_2, U\_3, U\_4\textbackslash).
-
-\textbf{Figure 9:} Quadrotor with hierarchical SMC. Four rotors produce thrust forces F\_1-F\_4. The outer loop (position SMC) computes total thrust U\_1 and desired attitudes. The inner loop (attitude SMC) tracks desired roll, pitch, yaw. Wind disturbances are rejected by the sliding mode controller.
-
-\subsubsection{Position Sliding Surfaces}
-
-Define position errors \textbackslash(e\_x = x - x\_d\textbackslash), \textbackslash(e\_y = y - y\_d\textbackslash), \textbackslash(e\_z = z - z\_d\textbackslash), and sliding surfaces:
+The cross-terms \textbackslash(e\_1 \textbackslash omega e\_2\textbackslash) and \textbackslash(-e\_2 \textbackslash omega e\_1\textbackslash) cancel. Substituting the controller:
 
 \textbackslash{[}
-s\_x = \textbackslash dot\{e\}\_x + \textbackslash lambda\_x e\_x, \textbackslash quad
-s\_y = \textbackslash dot\{e\}\_y + \textbackslash lambda\_y e\_y, \textbackslash quad
-s\_z = \textbackslash dot\{e\}\_z + \textbackslash lambda\_z e\_z.
-\textbackslash{]}
-
-\subsubsection{Altitude Control (\textbackslash(z\textbackslash)-axis)}
-
-\subsubsection{Derivation}
-
-From \textbackslash(m\textbackslash ddot\{z\} = U\_1\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi - mg + d\_z\textbackslash), define \textbackslash(e\_z = z - z\_d\textbackslash):
-
-\textbackslash{[}
-\textbackslash dot\{s\}\_z = \textbackslash ddot\{e\}\_z + \textbackslash lambda\_z \textbackslash dot\{e\}\_z = \textbackslash frac\{U\_1\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi\}\{m\} - g + \textbackslash frac\{d\_z\}\{m\} - \textbackslash ddot\{z\}\_d + \textbackslash lambda\_z\textbackslash dot\{e\}\_z.
-\textbackslash{]}
-
-Setting \textbackslash(\textbackslash dot\{s\}\_z = -\textbackslash eta\_z \textbackslash operatorname\{sign\}(s\_z) - k\_z s\_z\textbackslash) and solving for \textbackslash(U\_1\textbackslash):
-
-\textbackslash{[}
-U\_1 = \textbackslash frac\{m\}\{\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi\}\textbackslash bigl{[}\textbackslash ddot\{z\}\_d + g - \textbackslash lambda\_z\textbackslash dot\{e\}\_z - \textbackslash eta\_z\textbackslash operatorname\{sat\}(s\_z/\textbackslash varphi\_z) - k\_z s\_z\textbackslash bigr{]}.
-\textbackslash{]}
-
-\subsubsection{Lateral Control (\textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-axes)}
-
-\subsubsection{Derivation}
-
-From the \textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-dynamics, the SMC computes desired virtual accelerations:
-
-\textbackslash{[}
-\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\} = \textbackslash ddot\{x\}\_d - \textbackslash lambda\_x\textbackslash dot\{e\}\_x - \textbackslash eta\_x\textbackslash operatorname\{sat\}(s\_x/\textbackslash varphi\_x) - k\_x s\_x,
+\textbackslash dot\{V\} = -k\_1 e\_1\^{}2 + e\_2 v\_r \textbackslash sin e\_3 + e\_3(\textbackslash omega\_r - \textbackslash omega\_r - k\_2 v\_r e\_2 - k\_3 \textbackslash sin e\_3)
 \textbackslash{]}
 \textbackslash{[}
-\textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\} = \textbackslash ddot\{y\}\_d - \textbackslash lambda\_y\textbackslash dot\{e\}\_y - \textbackslash eta\_y\textbackslash operatorname\{sat\}(s\_y/\textbackslash varphi\_y) - k\_y s\_y.
+= -k\_1 e\_1\^{}2 + v\_r e\_2 \textbackslash sin e\_3 - k\_2 v\_r e\_2 e\_3 - k\_3 e\_3 \textbackslash sin e\_3
 \textbackslash{]}
 
-The desired roll and pitch are then extracted:
+For \textbackslash(v\_r \textgreater{} 0\textbackslash) and using the fact that \textbackslash(\textbackslash frac\{\textbackslash sin e\_3\}\{e\_3\}\textbackslash) is bounded, with appropriate choice of \textbackslash(k\_2\textbackslash), we get \textbackslash(\textbackslash dot\{V\} \textbackslash le -k\_1 e\_1\^{}2 - k\_3 e\_3 \textbackslash sin e\_3 \textbackslash le 0\textbackslash). Convergence of all errors follows by Barbalat\textquotesingle s lemma (since \textbackslash(v\_r(t) \textgreater{} 0\textbackslash)).
+
+\subsection{MATLAB Implementation}
+
+\% Backstepping controller for unicycle mobile robot
+function {[}v, omega{]} = backstepping\_mobile\_robot(e1, e2, e3, v\_r, omega\_r, params)
+\% e1: longitudinal error (body frame)
+\% e2: lateral error (body frame)
+\% e3: heading error
+v = v\_r * cos(e3) + params.k1 * e1;
+omega = omega\_r + params.k2 * v\_r * e2 + params.k3 * sin(e3);
+end
+
+\section{Backstepping for Quadrotor Drone}
+
+\subsection{Quadrotor Cascade Structure}
+
+The quadrotor has a natural four-level cascade:
 
 \textbackslash{[}
-\textbackslash theta\_d = \textbackslash arctan\textbackslash!\textbackslash left(\textbackslash frac\{\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\}\textbackslash cos\textbackslash psi + \textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\}\textbackslash sin\textbackslash psi\}\{\textbackslash ddot\{z\}\_\{\textbackslash text\{cmd\}\} + g\}\textbackslash right),
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash phi\_d = \textbackslash arctan\textbackslash!\textbackslash left(\textbackslash frac\{(\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\}\textbackslash sin\textbackslash psi - \textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\}\textbackslash cos\textbackslash psi)\textbackslash cos\textbackslash theta\_d\}\{\textbackslash ddot\{z\}\_\{\textbackslash text\{cmd\}\} + g\}\textbackslash right).
-\textbackslash{]}
-
-\subsubsection{Attitude Sliding Surfaces and Control}
-
-Define attitude errors \textbackslash(e\_\textbackslash phi = \textbackslash phi - \textbackslash phi\_d\textbackslash), etc., and sliding surfaces:
-
-\textbackslash{[}
-s\_\textbackslash phi = \textbackslash dot\{e\}\_\textbackslash phi + \textbackslash lambda\_\textbackslash phi e\_\textbackslash phi, \textbackslash quad
-s\_\textbackslash theta = \textbackslash dot\{e\}\_\textbackslash theta + \textbackslash lambda\_\textbackslash theta e\_\textbackslash theta, \textbackslash quad
-s\_\textbackslash psi = \textbackslash dot\{e\}\_\textbackslash psi + \textbackslash lambda\_\textbackslash psi e\_\textbackslash psi.
+\textbackslash underbrace\{\textbackslash text\{Position\}\}\_\{\textbackslash text\{Level 1\}\}
+\textbackslash;\textbackslash xrightarrow\{\textbackslash text\{desired accel.\}\}\textbackslash;
+\textbackslash underbrace\{\textbackslash text\{Velocity\}\}\_\{\textbackslash text\{Level 2\}\}
+\textbackslash;\textbackslash xrightarrow\{\textbackslash text\{desired angles\}\}\textbackslash;
+\textbackslash underbrace\{\textbackslash text\{Orientation\}\}\_\{\textbackslash text\{Level 3\}\}
+\textbackslash;\textbackslash xrightarrow\{\textbackslash text\{desired rates\}\}\textbackslash;
+\textbackslash underbrace\{\textbackslash text\{Angular Rate\}\}\_\{\textbackslash text\{Level 4\}\}
+\textbackslash;\textbackslash xrightarrow\{\textbackslash quad\}\textbackslash;
+(T, \textbackslash boldsymbol\{\textbackslash tau\})
 \textbackslash{]}
 
-The attitude SMC torques:
+The simplified quadrotor dynamics (with rotation matrix \textbackslash(R\textbackslash)):
 
 \textbackslash{[}
-U\_2 = \textbackslash frac\{I\_\{xx\}\}\{l\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash phi\}\_d - \textbackslash lambda\_\textbackslash phi\textbackslash dot\{e\}\_\textbackslash phi - \textbackslash frac\{(I\_\{yy\}-I\_\{zz\})\}\{I\_\{xx\}\}\textbackslash dot\{\textbackslash theta\}\textbackslash dot\{\textbackslash psi\} - \textbackslash eta\_\textbackslash phi\textbackslash operatorname\{sat\}(s\_\textbackslash phi/\textbackslash varphi\_\textbackslash phi)\textbackslash bigr{]},
-\textbackslash{]}
-\textbackslash{[}
-U\_3 = \textbackslash frac\{I\_\{yy\}\}\{l\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash theta\}\_d - \textbackslash lambda\_\textbackslash theta\textbackslash dot\{e\}\_\textbackslash theta - \textbackslash frac\{(I\_\{zz\}-I\_\{xx\})\}\{I\_\{yy\}\}\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash psi\} - \textbackslash eta\_\textbackslash theta\textbackslash operatorname\{sat\}(s\_\textbackslash theta/\textbackslash varphi\_\textbackslash theta)\textbackslash bigr{]},
-\textbackslash{]}
-\textbackslash{[}
-U\_4 = \textbackslash frac\{I\_\{zz\}\}\{c\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash psi\}\_d - \textbackslash lambda\_\textbackslash psi\textbackslash dot\{e\}\_\textbackslash psi - \textbackslash frac\{(I\_\{xx\}-I\_\{yy\})\}\{I\_\{zz\}\}\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash theta\} - \textbackslash eta\_\textbackslash psi\textbackslash operatorname\{sat\}(s\_\textbackslash psi/\textbackslash varphi\_\textbackslash psi)\textbackslash bigr{]}.
+\textbackslash begin\{aligned\}
+\textbackslash dot\{\textbackslash mathbf\{p\}\} \&= \textbackslash mathbf\{v\} \textbackslash\textbackslash{[}4pt{]}
+m\textbackslash dot\{\textbackslash mathbf\{v\}\} \&= -mg\textbackslash,\textbackslash mathbf\{e\}\_3 + T\textbackslash,R\textbackslash,\textbackslash mathbf\{e\}\_3 \textbackslash\textbackslash{[}4pt{]}
+\textbackslash dot\{R\} \&= R\textbackslash,{[}\textbackslash boldsymbol\{\textbackslash omega\}{]}\_\textbackslash times \textbackslash\textbackslash{[}4pt{]}
+J\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash omega\}\} \&= -\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} + \textbackslash boldsymbol\{\textbackslash tau\}\_b
+\textbackslash end\{aligned\}
 \textbackslash{]}
 
-\subsection{4.3 ~ MATLAB Implementation}
+where \textbackslash(\textbackslash mathbf\{p\} = {[}x,y,z{]}\^{}T\textbackslash) is position, \textbackslash(\textbackslash mathbf\{v\}\textbackslash) is velocity, \textbackslash(T\textbackslash) is total thrust,
+\textbackslash(R \textbackslash in SO(3)\textbackslash) is the rotation matrix, \textbackslash(\textbackslash boldsymbol\{\textbackslash omega\}\textbackslash) is the body angular velocity,
+\textbackslash(J\textbackslash) is the inertia tensor, and \textbackslash(\textbackslash boldsymbol\{\textbackslash tau\}\_b\textbackslash) are the body torques.
 
-\%\% SMC for Quadrotor Drone
-\% Physical parameters
-m = 1.0; g\_val = 9.81; Ixx = 0.01; Iyy = 0.01; Izz = 0.02;
-l\_arm = 0.2; c\_drag = 0.01;
-\% SMC gains (position)
-lam\_pos = {[}2; 2; 3{]}; eta\_pos = {[}1; 1; 2{]}; k\_pos = {[}1; 1; 1{]};
-phi\_pos = {[}0.05; 0.05; 0.05{]};
-\% SMC gains (attitude)
-lam\_att = {[}8; 8; 4{]}; eta\_att = {[}2; 2; 1{]};
-phi\_att = {[}0.02; 0.02; 0.02{]};
-\% Desired trajectory: helix
-xd = @(t) cos(0.5*t); yd = @(t) sin(0.5*t); zd = @(t) 0.5*t;
-psi\_d = @(t) 0;
-x0 = {[}0;0;0; 0;0;0; 0;0;0; 0;0;0{]}; \% {[}x,y,z, dx,dy,dz, phi,th,psi, dphi,dth,dpsi{]}
-{[}T, X{]} = ode45(@(t,x) smc\_drone\_ode(t, x, m, g\_val, Ixx, Iyy, Izz, ...
-l\_arm, c\_drag, lam\_pos, eta\_pos, k\_pos, phi\_pos, ...
-lam\_att, eta\_att, phi\_att, xd, yd, zd, psi\_d), {[}0 20{]}, x0);
-figure;
-plot3(X(:,1), X(:,2), X(:,3), \textquotesingle b-\textquotesingle, ...
-arrayfun(xd,T), arrayfun(yd,T), arrayfun(zd,T), \textquotesingle r-\/-\textquotesingle);
-legend(\textquotesingle Actual\textquotesingle,\textquotesingle Desired\textquotesingle); title(\textquotesingle Drone SMC 3D Tracking\textquotesingle);
-xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle); zlabel(\textquotesingle z\textquotesingle); grid on;
+\textbf{Figure 7:} Quadrotor cascade backstepping architecture. The position controller generates a desired attitude (virtual control); the attitude controller generates the actual motor commands.
+
+\subsection{Backstepping Design --- Outer Loop (Position Control)}
+
+\subsubsection{Step 1 --- Position Error}
+
+Define position error \textbackslash(z\_1 = \textbackslash mathbf\{p\} - \textbackslash mathbf\{p\}\_d\textbackslash). Then \textbackslash(\textbackslash dot\{z\}\_1 = \textbackslash mathbf\{v\} - \textbackslash dot\{\textbackslash mathbf\{p\}\}\_d\textbackslash).
+
+Virtual control (desired velocity):
+
+\textbackslash{[}
+\textbackslash boldsymbol\{\textbackslash alpha\}\_1 = \textbackslash dot\{\textbackslash mathbf\{p\}\}\_d - K\_\{p1\}\textbackslash,z\_1, \textbackslash qquad K\_\{p1\} = k\_\{p1\}\textbackslash,I\_3 \textbackslash succ 0
+\textbackslash{]}
+
+\subsubsection{Step 2 --- Velocity Error}
+
+Define velocity error \textbackslash(z\_2 = \textbackslash mathbf\{v\} - \textbackslash boldsymbol\{\textbackslash alpha\}\_1\textbackslash). Its dynamics:
+
+\textbackslash{[}
+\textbackslash dot\{z\}\_2 = \textbackslash dot\{\textbackslash mathbf\{v\}\} - \textbackslash dot\{\textbackslash boldsymbol\{\textbackslash alpha\}\}\_1
+= -g\textbackslash mathbf\{e\}\_3 + \textbackslash frac\{T\}\{m\}R\textbackslash mathbf\{e\}\_3 - \textbackslash ddot\{\textbackslash mathbf\{p\}\}\_d + K\_\{p1\}\textbackslash dot\{z\}\_1
+\textbackslash{]}
+
+Choose the Lyapunov function \textbackslash(V = \textbackslash frac\{1\}\{2\}z\_1\^{}T z\_1 + \textbackslash frac\{1\}\{2\}z\_2\^{}T z\_2\textbackslash).
+To make \textbackslash(\textbackslash dot\{V\} = -k\_\{p1\}\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 - k\_\{p2\}\textbackslash\textbar z\_2\textbackslash\textbar\^{}2\textbackslash), we need the
+\textbf{desired acceleration vector}:
+
+\textbackslash{[}
+\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\} = \textbackslash ddot\{\textbackslash mathbf\{p\}\}\_d - K\_\{p1\}\textbackslash dot\{z\}\_1 - z\_1 - K\_\{p2\}\textbackslash,z\_2 + g\textbackslash mathbf\{e\}\_3
+\textbackslash{]}
+
+The thrust magnitude and desired orientation are extracted from \textbackslash(\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\textbackslash):
+
+\textbackslash{[}
+T = m\textbackslash,\textbackslash\textbar\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\textbackslash\textbar{}
+\textbackslash{]}
+\textbackslash{[}
+\textbackslash mathbf\{z\}\_\{B,\textbackslash text\{des\}\} = \textbackslash frac\{\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\}\{\textbackslash\textbar\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\textbackslash\textbar\}
+\textbackslash quad \textbackslash Longrightarrow \textbackslash quad
+R\_\{\textbackslash text\{des\}\} \textbackslash text\{ constructed from \} \textbackslash mathbf\{z\}\_\{B,\textbackslash text\{des\}\} \textbackslash text\{ and desired yaw\}
+\textbackslash{]}
+
+\subsection{Backstepping Design --- Inner Loop (Attitude Control)}
+
+\subsubsection{Step 3 --- Attitude Error}
+
+Using Euler angles \textbackslash((\textbackslash phi, \textbackslash theta, \textbackslash psi)\textbackslash) for a simplified treatment, define:
+
+\textbackslash{[}
+z\_3 = \textbackslash boldsymbol\{\textbackslash Phi\} - \textbackslash boldsymbol\{\textbackslash Phi\}\_\{\textbackslash text\{des\}\}
+= \textbackslash begin\{bmatrix\} \textbackslash phi - \textbackslash phi\_d \textbackslash\textbackslash{} \textbackslash theta - \textbackslash theta\_d \textbackslash\textbackslash{} \textbackslash psi - \textbackslash psi\_d \textbackslash end\{bmatrix\}
+\textbackslash{]}
+
+Virtual control (desired angular rate):
+
+\textbackslash{[}
+\textbackslash boldsymbol\{\textbackslash alpha\}\_3 = \textbackslash dot\{\textbackslash boldsymbol\{\textbackslash Phi\}\}\_\{\textbackslash text\{des\}\} - K\_\{a1\}\textbackslash,z\_3
+\textbackslash{]}
+
+\subsubsection{Step 4 --- Angular Rate Error and Torque Design}
+
+Define \textbackslash(z\_4 = \textbackslash boldsymbol\{\textbackslash omega\} - \textbackslash boldsymbol\{\textbackslash alpha\}\_3\textbackslash). Using the Euler equation
+\textbackslash(J\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash omega\}\} = -\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} + \textbackslash boldsymbol\{\textbackslash tau\}\_b\textbackslash):
+
+\textbf{Backstepping Attitude Torque:}\\
+\strut \\
+\textbackslash{[}
+\textbackslash boldsymbol\{\textbackslash tau\}\_b = J\textbackslash bigl{[}\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash alpha\}\}\_3 - K\_\{a2\}\textbackslash,z\_4\textbackslash bigr{]}
++ \textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} - z\_3
+\textbackslash{]}
+
+This yields the overall Lyapunov function:
+
+\textbackslash{[}
+V = \textbackslash frac\{1\}\{2\}\textbackslash bigl(\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 + \textbackslash\textbar z\_2\textbackslash\textbar\^{}2 + \textbackslash\textbar z\_3\textbackslash\textbar\^{}2 + z\_4\^{}T J\textbackslash,z\_4\textbackslash bigr)
+\textbackslash{]}
+\textbackslash{[}
+\textbackslash dot\{V\} = -k\_\{p1\}\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 - k\_\{p2\}\textbackslash\textbar z\_2\textbackslash\textbar\^{}2 - k\_\{a1\}\textbackslash\textbar z\_3\textbackslash\textbar\^{}2 - k\_\{a2\}\textbackslash,z\_4\^{}T K\_\{a2\}\textbackslash,z\_4 \textbackslash le 0
+\textbackslash{]}
+
+\subsection{MATLAB Implementation}
+
+\% Backstepping controller for quadrotor
+function {[}T, tau\_b{]} = backstepping\_quadrotor(state, ref, params)
+\% State: {[}x y z vx vy vz phi theta psi p q r{]}
+pos = state(1:3); vel = state(4:6);
+phi = state(7); theta = state(8); psi = state(9);
+omega\_b = state(10:12);
+\% Reference
+pos\_d = ref.pos; vel\_d = ref.vel; acc\_d = ref.acc; psi\_d = ref.psi;
+\% -\/-\/- Outer loop: Position backstepping -\/-\/-
+z1 = pos - pos\_d;
+dz1 = vel - vel\_d;
+alpha1 = vel\_d - params.kp1 * z1; \% Virtual velocity
+z2 = vel - alpha1; \% Velocity error
+\% Desired acceleration
+a\_des = acc\_d - params.kp1*dz1 - z1 - params.kp2*z2 + {[}0;0;params.g{]};
+\% Thrust
+T = params.m * norm(a\_des);
+\% Desired orientation from a\_des
+z\_B\_des = a\_des / norm(a\_des);
+phi\_d = asin(z\_B\_des(1)*sin(psi\_d) - z\_B\_des(2)*cos(psi\_d));
+theta\_d = atan2(z\_B\_des(1)*cos(psi\_d)+z\_B\_des(2)*sin(psi\_d), z\_B\_des(3));
+\% -\/-\/- Inner loop: Attitude backstepping -\/-\/-
+Phi = {[}phi; theta; psi{]};
+Phi\_d = {[}phi\_d; theta\_d; psi\_d{]};
+z3 = Phi - Phi\_d;
+alpha3 = -params.ka1 * z3; \% Desired angular rate
+z4 = omega\_b - alpha3;
+\% Body torques
+J = diag({[}params.Ixx, params.Iyy, params.Izz{]});
+tau\_b = J * (-params.ka1*(-params.ka1*z3 - z4*0) - params.ka2*z4) ...
++ cross(omega\_b, J*omega\_b) - z3;
+end
+
+\textbf{Practical note:} In real implementations, the desired angles \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d)\textbackslash)
+must be saturated (typically to \textbackslash(\textbackslash pm 30\^{}\textbackslash circ\textbackslash)) to prevent aggressive manoeuvres.
+The thrust \textbackslash(T\textbackslash) must also be clamped to \textbackslash({[}0, T\_\{\textbackslash max\}{]}\textbackslash).
 
 \section{Summary and Next Steps}
 
-\subsection{Lab Activities}
+\subsection{Hands-on Activities \& Quiz}
 
-\subsection{Activity 1 --- Chattering Observation (10 min)}
+\subsection{Activity 1: Gain Tuning for Manipulator Backstepping (10 min)}
 
-\textbf{Objective:} Observe and quantify the chattering phenomenon, then mitigate it using the boundary layer.
+Run \texttt{backstepping\_control\_simulation.m} and observe the manipulator plots.
+Then modify the gains and re-run:
 
 \begin{enumerate}
 \tightlist
 \item
-  Run the manipulator SMC simulation with \texttt{use\_sat\ =\ false} (pure \texttt{sign(s)}). Plot the control torque \textbackslash(\textbackslash tau\textbackslash). Observe the high-frequency switching.
+  Set \textbackslash(k\_1 = 50, \textbackslash; k\_2 = 5\textbackslash) (position gain much larger than velocity gain).
 \item
-  Switch to \texttt{use\_sat\ =\ true} and test three boundary layer widths: \textbackslash(\textbackslash varphi = 0.01,\textbackslash; 0.1,\textbackslash; 1.0\textbackslash).
+  Set \textbackslash(k\_1 = 5, \textbackslash; k\_2 = 50\textbackslash) (velocity gain much larger than position gain).
 \item
-  For each value of \textbackslash(\textbackslash varphi\textbackslash), record: (a) peak torque oscillation amplitude, (b) steady-state tracking error \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty\textbackslash).
+  Set \textbackslash(k\_1 = k\_2 = 25\textbackslash) (balanced gains).
 \end{enumerate}
 
-\subsubsection{Questions to Answer}
+\textbf{Expected observations:}
 
 \begin{itemize}
 \tightlist
 \item
-  How does boundary layer width \textbackslash(\textbackslash varphi\textbackslash) affect chattering amplitude?
+  \textbf{\textbackslash(k\_1 \textbackslash gg k\_2\textbackslash):} Aggressive position correction generates large desired velocity changes.
+  The velocity loop cannot track them fast enough, causing oscillatory or even unstable behaviour.
+  The virtual control \textbackslash(\textbackslash alpha\_1\textbackslash) demands more than the torque loop can deliver.
 \item
-  How does \textbackslash(\textbackslash varphi\textbackslash) affect steady-state tracking accuracy?
+  \textbf{\textbackslash(k\_2 \textbackslash gg k\_1\textbackslash):} The velocity error \textbackslash(z\_2\textbackslash) converges quickly, but the position
+  error \textbackslash(z\_1\textbackslash) converges slowly because \textbackslash(k\_1\textbackslash) is small. The system is overdamped
+  with sluggish position tracking.
 \item
-  Is there an optimal \textbackslash(\textbackslash varphi\textbackslash)? What criteria would you use to select it?
+  \textbf{\textbackslash(k\_1 \textbackslash approx k\_2\textbackslash):} Balanced convergence rates for both loops. This is
+  generally the best choice for smooth, fast tracking.
 \end{itemize}
 
-\subsection{Activity 2 --- Disturbance Rejection Comparison (15 min)}
+\subsection{Activity 2: Comparative Study (15 min)}
 
-\textbf{Objective:} Compare the robustness of SMC against other control methods under large disturbances.
-
-\begin{enumerate}
-\tightlist
-\item
-  Add a disturbance torque \textbackslash(d(t) = 10\textbackslash sin(5t)\textbackslash) to the manipulator dynamics.
-\item
-  Run four controllers:
-
-  \begin{itemize}
-  \tightlist
-  \item
-    SMC with \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) and \textbackslash(K = 15\textbackslash)
-  \item
-    SMC with \textbackslash(\textbackslash operatorname\{sat\}(s/\textbackslash varphi)\textbackslash), \textbackslash(\textbackslash varphi = 0.05\textbackslash), \textbackslash(K = 15\textbackslash)
-  \item
-    Robust control (from Week 4)
-  \item
-    Computed torque (from Week 1)
-  \end{itemize}
-\item
-  Compare tracking errors and control effort. Plot all on the same axes.
-\end{enumerate}
-
-\subsubsection{Questions to Answer}
+The MATLAB file includes a comparison of backstepping vs. computed torque vs. robust control
+on the manipulator with model uncertainty (20\% mass error). Observe:
 
 \begin{itemize}
 \tightlist
 \item
-  Which controller maintains the smallest tracking error under the disturbance?
+  Which controller has the smallest steady-state error?
 \item
-  What happens to the computed torque controller --- why does it degrade?
+  Which controller has the smoothest control signal?
 \item
-  How does the switching gain \textbackslash(K\textbackslash) relate to the disturbance bound \textbackslash(D = 10\textbackslash)?
+  Which controller uses the least energy (smallest \textbackslash(\textbackslash int \textbackslash\textbar\textbackslash tau\textbackslash\textbar\^{}2 \textbackslash, dt\textbackslash))?
 \end{itemize}
 
-\subsection{Activity 3 --- Super-Twisting Algorithm (5 min)}
+\subsubsection{Quiz --- Virtual Control Design}
 
-\textbf{Objective:} Implement the super-twisting algorithm and compare with standard SMC.
+\textbf{Q1:} Given the system \textbackslash(\textbackslash dot\{x\}\_1 = x\_1\^{}2 + x\_2\textbackslash), \textbackslash(\textbackslash dot\{x\}\_2 = x\_2 + u\textbackslash),
+design a backstepping controller to stabilise \textbackslash(x\_1 = 0\textbackslash).
 
-\begin{enumerate}
+\emph{Answer sketch:}
+
+\begin{itemize}
 \tightlist
 \item
-  Replace the switching term with the super-twisting law. The integral state \textbackslash(v\textbackslash) requires an extra state variable per joint.
+  Step 1: \textbackslash(z\_1 = x\_1\textbackslash), \textbackslash(\textbackslash dot\{z\}\_1 = x\_1\^{}2 + x\_2\textbackslash).
+  Choose \textbackslash(\textbackslash alpha\_1 = -x\_1\^{}2 - k\_1 x\_1\textbackslash) so that \textbackslash(\textbackslash dot\{V\}\_1 = -k\_1 x\_1\^{}2 + x\_1 z\_2\textbackslash).
 \item
-  Compare the control torque smoothness and tracking error against sign-based and sat-based SMC.
-\item
-  Verify that chattering is eliminated while finite-time convergence is preserved.
-\end{enumerate}
+  Step 2: \textbackslash(z\_2 = x\_2 - \textbackslash alpha\_1\textbackslash), \textbackslash(\textbackslash dot\{z\}\_2 = x\_2 + u - (2x\_1)(x\_1\^{}2 + x\_2) + k\_1(x\_1\^{}2 + x\_2)\textbackslash).
+  Choose \textbackslash(u = -x\_2 + \textbackslash dot\{\textbackslash alpha\}\_1 - x\_1 - k\_2 z\_2\textbackslash).
+\end{itemize}
 
-\subsection{Summary --- All Six Control Methods Compared}
+\textbf{Q2:} In the two-step backstepping controller, what happens if we omit the
+cross-coupling term \textbackslash(-z\_1\textbackslash) from the torque law? Is stability still guaranteed?
 
-\begin{longtable}[]{@{}lllllll@{}}
+\emph{Answer:} Without \textbackslash(-z\_1\textbackslash), the Lyapunov derivative becomes
+\textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2 + z\_1\^{}T z\_2\textbackslash). The cross-term \textbackslash(z\_1\^{}T z\_2\textbackslash) can be
+positive, so \textbackslash(\textbackslash dot\{V\}\_2\textbackslash) is not guaranteed negative semi-definite. Stability is only ensured
+if \textbackslash(k\_1 k\_2 \textgreater{} \textbackslash frac\{1\}\{4\}\textbackslash) (by Young\textquotesingle s inequality), but the stability margin is reduced.
+The systematic backstepping design avoids this issue entirely.
+
+\textbf{Q3:} Why does the quadrotor need four backstepping steps while the
+manipulator only needs two?
+
+\emph{Answer:} The quadrotor has a four-level cascade:
+position → velocity → orientation → angular rate, each acting as a virtual control
+for the previous level. The manipulator only has two levels (position → velocity) because
+the torque directly enters the velocity dynamics via \textbackslash(M\^{}\{-1\}\textbackslash tau\textbackslash). The number of backstepping
+steps equals the relative degree from the output to the input.
+
+\subsection{Summary: Comparison of All Five Control Methods}
+
+\begin{longtable}[]{@{}llllll@{}}
 \toprule\noalign{}
-Property & Computed Torque (W1) & MPC (W2) & Adaptive (W3) & Robust (W4) & Backstepping (W5) & SMC (W6) \\
+Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Backstepping (Wk5) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{Core Idea} & Cancel nonlinear dynamics via feedback linearisation & Optimise over finite horizon with constraints & Online parameter estimation; adjust control in real time & Guarantee performance for worst-case bounded uncertainty & Recursive Lyapunov design; stabilise subsystems step-by-step & Variable structure; force state onto sliding surface \\
-\textbf{Model Need} & Exact model required & Predictive model required & Structure known; parameters unknown & Nominal + uncertainty bounds & Full model (strict-feedback form) & Nominal model + disturbance bounds \\
-\textbf{Robustness} & Low --- sensitive to modelling error & Medium --- via constraints & High --- adapts to parametric uncertainty & High --- by design for bounded uncertainty & High --- Lyapunov-guaranteed & Very high --- invariant to matched disturbances on surface \\
-\textbf{Disturbance Handling} & None (unless augmented) & Preview + constraints & Adapts slowly to unmodelled dynamics & Bounded disturbance rejection & Bounded disturbance via Lyapunov & Matched disturbances fully rejected on surface \\
-\textbf{Convergence} & Exponential & Depends on horizon/cost & Asymptotic (with PE condition) & Bounded error (UUB) & Asymptotic / exponential & Finite-time reaching + exponential sliding \\
-\textbf{Main Limitation} & Model inaccuracy degrades performance & Computational cost; model required & Transient performance; PE requirement & Conservative; may require large gains & Complexity grows with system order & Chattering; only handles matched disturbances \\
-\textbf{Control Signal} & Smooth & Smooth (optimised) & Smooth & Smooth & Smooth & Discontinuous (sign) or smooth (sat/ST) \\
-\textbf{Stability Proof} & Input-output linearisation & Terminal cost / constraints & Lyapunov + Barbalat & Lyapunov (ISS / \textbackslash(H\_\textbackslash infty\textbackslash)) & Recursive Lyapunov (CLF) & Lyapunov: \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}T M s\textbackslash) \\
-\textbf{Typical Use Case} & Well-modelled manipulators & Constrained systems, trajectory planning & Unknown or time-varying parameters & Safety-critical systems with bounded uncertainty & Strict-feedback nonlinear systems & Systems with large matched disturbances / uncertainty \\
+\textbf{Core idea} & Cancel nonlinearity, impose linear error dynamics & Optimise predicted trajectory over finite horizon & On-line parameter estimation + control & Dominate worst-case bounded uncertainty & Recursive Lyapunov design through cascade structure \\
+\textbf{Model requirement} & Exact model needed & Prediction model needed & Structure known, parameters unknown & Nominal model + uncertainty bound & Strict-feedback structure required \\
+\textbf{Lyapunov function} & Implicit (linear closed-loop) & Cost function (not standard Lyapunov) & \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}T M s + \textbackslash frac\{1\}\{2\}\textbackslash tilde\{\textbackslash theta\}\^{}T\textbackslash Gamma\^{}\{-1\}\textbackslash tilde\{\textbackslash theta\}\textbackslash) & \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}T M s\textbackslash) & \textbackslash(V = \textbackslash sum \textbackslash frac\{1\}\{2\}z\_i\^{}T W\_i z\_i\textbackslash) (constructed step-by-step) \\
+\textbf{Handles constraints} & No & Yes (core feature) & No (standard form) & No & No (standard form) \\
+\textbf{Robustness} & Poor (sensitive to model errors) & Moderate (depends on model accuracy) & Good (adapts to parametric uncertainty) & Excellent (designed for uncertainty) & Good (Lyapunov-guaranteed; can add adaptation) \\
+\textbf{Computation} & Low (closed-form) & High (on-line optimisation) & Moderate (adaptation law update) & Low (closed-form) & Moderate (derivatives of virtual controls) \\
+\textbf{Key advantage} & Simple, well-understood & Handles constraints and preview & Self-tuning for unknown parameters & Guaranteed performance under uncertainty & Systematic design with constructive stability proof \\
+\textbf{Key limitation} & No robustness to model error & Computational cost, model dependence & Needs persistent excitation, structured uncertainty & Conservative (worst-case design), chattering & Complexity explosion in \textbackslash(\textbackslash dot\{\textbackslash alpha\}\_i\textbackslash) for high-order systems \\
+\textbf{Control law form} & \textbackslash(\textbackslash tau = M(q){[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e{]} + C\textbackslash dot\{q\} + G\textbackslash) & \textbackslash(u\^{}* = \textbackslash arg\textbackslash min\_\{u\} \textbackslash sum\_\{k\} \textbackslash\textbar x\_k - x\_r\textbackslash\textbar\^{}2\_Q + \textbackslash\textbar u\_k\textbackslash\textbar\^{}2\_R\textbackslash) & \textbackslash(\textbackslash tau = Y(q,\textbackslash dot\{q\},\textbackslash dot\{q\}\_r,\textbackslash ddot\{q\}\_r)\textbackslash hat\{\textbackslash theta\} - K\_D s\textbackslash) & \textbackslash(\textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\_D s + \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash) & \textbackslash(\textbackslash tau = M{[}\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1 - K\_2 z\_2{]} + C\textbackslash alpha\_1 + G - z\_1\textbackslash) \\
 \end{longtable}
 
-\textbf{Key Takeaway:} Sliding mode control provides the strongest robustness guarantee among all six methods for matched disturbances --- once on the sliding surface, the system is completely invariant to matched uncertainties. The price is chattering, which can be mitigated using boundary layers or the super-twisting algorithm at the cost of slight performance degradation.
+\textbf{Figure 8:} Side-by-side comparison of feedback linearization (cancels all nonlinearities) versus backstepping (exploits useful nonlinearities with constructive Lyapunov guarantees).
 
-\textbf{Week 6: Sliding Mode Control} --- M.Sc. Control for Robots
+\textbf{Key takeaway:} Backstepping provides a \emph{systematic, constructive} methodology
+for designing stabilising controllers for nonlinear systems in strict-feedback form.
+Unlike computed torque, it does not blindly cancel all nonlinearities.
+Unlike robust control, it does not require conservative worst-case bounds.
+Its main challenge --- the "explosion of terms" as \textbackslash(\textbackslash dot\{\textbackslash alpha\}\_i\textbackslash) grows with each step
+--- can be addressed using \textbf{dynamic surface control} (a first-order filter on
+each virtual control), which we may explore in future weeks.
 
-University of West London • AY 2025--26
+\textbf{M.Sc. Control for Robots} --- AY 2025--26
 
-Next Week: Week 7 --- TBD
+Week 5: Backstepping Control --- Lecture Notes
+
+These notes are for educational purposes.
+Students are encouraged to verify all derivations independently.

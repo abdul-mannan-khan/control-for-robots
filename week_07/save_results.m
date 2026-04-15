@@ -1,11 +1,11 @@
-%% Week 7: SMC Control Simulation with Saved Results
-fprintf('=== Week 7: SMC Control Simulation with Saved Results ===\n\n');
+%% Week 7: Backstepping Control Simulation with Saved Results
+fprintf('=== Week 7: Backstepping Control Simulation with Saved Results ===\n\n');
 
 % Run the main simulation
-run('smc_control_simulation.m');
+run('backstepping_control_simulation.m');
 
 % Define output directory AFTER the simulation
-output_dir = '/home/it-services/auto_control_ws/results/week_07';
+output_dir = '/home/it-services/auto_control_ws/results/week_06';
 
 % Get all figure handles and save
 fig_handles = findall(0, 'Type', 'figure');
@@ -22,5 +22,5 @@ for i = 1:length(fig_handles)
     fprintf('  Saved: %s.png\n', fig_name);
 end
 
-fprintf('\n=== Week 7 SMC Control Results Saved ===\n');
+fprintf('\n=== Week 7 Backstepping Control Results Saved ===\n');
 fprintf('Output directory: %s\n', output_dir);
