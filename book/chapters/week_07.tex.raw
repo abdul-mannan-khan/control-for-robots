@@ -1,21 +1,16 @@
-% ----- auto-generated from week_07/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{Sliding Mode Control (Week 7)}
-\labch{week_07}
-
-
+\hypertarget{week-7-sliding-mode-control}{%
+\section{Week 7: Sliding Mode Control}\label{week-7-sliding-mode-control}}
 
 Variable Structure Control --- Robust Tracking Under Uncertainty
 
 M.Sc. Control for Robots • University of West London • AY 2025--26\\
 Week 7 of 12 • Lecture + Hands-on MATLAB Lab
 
-\section{Overview}
+\hypertarget{week-6-recall-backstepping-control-exam-practice}{%
+\subsection{Week 6 Recall: Backstepping Control --- Exam Practice}\label{week-6-recall-backstepping-control-exam-practice}}
 
-\subsection{Week 6 Recall: Backstepping Control --- Exam Practice}
-
-\subsection{Question 1 --- Scalar Strict-Feedback System}
+\hypertarget{question-1-scalar-strict-feedback-system}{%
+\subsubsection{Question 1 --- Scalar Strict-Feedback System}\label{question-1-scalar-strict-feedback-system}}
 
 Consider the strict-feedback system:
 
@@ -23,7 +18,8 @@ Consider the strict-feedback system:
 \textbackslash dot\{x\}\_1 = x\_2 + x\_1\^{}2, \textbackslash qquad \textbackslash dot\{x\}\_2 = u.
 \textbackslash{]}
 
-\subsubsection{Step 1 --- Virtual Control Design}
+\hypertarget{step-1-virtual-control-design}{%
+\paragraph{Step 1 --- Virtual Control Design}\label{step-1-virtual-control-design}}
 
 Define the first error variable:
 
@@ -47,7 +43,8 @@ z\_1\textbackslash bigl(\textbackslash alpha\_1 + x\_1\^{}2\textbackslash bigr) 
 \textbackslash alpha\_1(x\_1) = -k\_1 x\_1 - x\_1\^{}2.
 \textbackslash{]}
 
-\subsubsection{Step 2 --- Actual Control Design}
+\hypertarget{step-2-actual-control-design}{%
+\paragraph{Step 2 --- Actual Control Design}\label{step-2-actual-control-design}}
 
 Define the second error variable:
 
@@ -86,7 +83,8 @@ u = -z\_1 - k\_2 z\_2 - (k\_1 + 2x\_1)(x\_2 + x\_1\^{}2).
 
 This yields \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2 \textbackslash le 0\textbackslash), guaranteeing global asymptotic stability.
 
-\subsection{Question 2 --- 2-DOF Manipulator Backstepping}
+\hypertarget{question-2-2-dof-manipulator-backstepping}{%
+\subsubsection{Question 2 --- 2-DOF Manipulator Backstepping}\label{question-2-2-dof-manipulator-backstepping}}
 
 Given the manipulator dynamics \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau\textbackslash), define:
 
@@ -140,7 +138,8 @@ Choose the backstepping torque:
 
 which yields \textbackslash(\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 - z\_2\^{}T K\_2 z\_2 \textbackslash le 0\textbackslash).
 
-\subsection{Learning Outcomes}
+\hypertarget{learning-outcomes}{%
+\subsection{Learning Outcomes}\label{learning-outcomes}}
 
 \begin{itemize}
 \tightlist
@@ -156,53 +155,63 @@ which yields \textbackslash(\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 - 
   Implement SMC in \textbf{MATLAB/Simulink}, inject disturbances, and compare performance against computed torque, robust control, and backstepping.
 \end{itemize}
 
-\subsection{Session Roadmap}
+\hypertarget{session-roadmap}{%
+\subsection{Session Roadmap}\label{session-roadmap}}
 
 0:00 -- 0:15
 
-\subsubsection{Week 6 Recall --- Backstepping Exam Practice}
+\hypertarget{week-6-recall-backstepping-exam-practice}{%
+\paragraph{Week 6 Recall --- Backstepping Exam Practice}\label{week-6-recall-backstepping-exam-practice}}
 
 Two worked exam questions on backstepping control. Students attempt before solutions are revealed.
 
 0:15 -- 0:55
 
-\subsubsection{Sliding Mode Control Theory}
+\hypertarget{part-1-sliding-mode-control-theory}{%
+\paragraph{Part 1 --- Sliding Mode Control Theory}\label{part-1-sliding-mode-control-theory}}
 
 Reaching phase, sliding phase, sliding surface design, reaching law, control law decomposition (equivalent + switching), existence condition, chattering, super-twisting algorithm. Full Lyapunov stability proof.
 
 0:55 -- 1:15
 
-\subsubsection{SMC for Robot Manipulator}
+\hypertarget{part-2-smc-for-robot-manipulator}{%
+\paragraph{Part 2 --- SMC for Robot Manipulator}\label{part-2-smc-for-robot-manipulator}}
 
 Sliding surface for joint-space tracking, equivalent control, switching control, Lyapunov proof, and MATLAB implementation.
 
 1:15 -- 1:35
 
-\subsubsection{SMC for Mobile Robot}
+\hypertarget{part-3-smc-for-mobile-robot}{%
+\paragraph{Part 3 --- SMC for Mobile Robot}\label{part-3-smc-for-mobile-robot}}
 
 Unicycle kinematics, position-tracking sliding surface, SMC law, MATLAB code.
 
 1:35 -- 1:55
 
-\subsubsection{SMC for Quadrotor Drone}
+\hypertarget{part-4-smc-for-quadrotor-drone}{%
+\paragraph{Part 4 --- SMC for Quadrotor Drone}\label{part-4-smc-for-quadrotor-drone}}
 
 Hierarchical SMC: position loop (outer) and attitude loop (inner), sliding surfaces, control allocation, MATLAB code.
 
 1:55 -- 2:30
 
-\subsubsection{Activities \& Lab}
+\hypertarget{activities-lab}{%
+\paragraph{Activities \& Lab}\label{activities-lab}}
 
 Activity 1: Chattering observation with sign vs sat. Activity 2: Disturbance rejection comparison. Activity 3: Super-twisting implementation.
 
 2:30 -- 2:45
 
-\subsubsection{Summary \& Six-Method Comparison}
+\hypertarget{summary-six-method-comparison}{%
+\paragraph{Summary \& Six-Method Comparison}\label{summary-six-method-comparison}}
 
 Consolidated table comparing all six control methods studied in Weeks 1--6.
 
-\section{Sliding Mode Control Theory}
+\hypertarget{part-1-sliding-mode-control-theory-1}{%
+\subsection{Part 1 --- Sliding Mode Control Theory}\label{part-1-sliding-mode-control-theory-1}}
 
-\subsection{1.1 ~ Motivation and Core Idea}
+\hypertarget{motivation-and-core-idea}{%
+\subsubsection{1.1 ~ Motivation and Core Idea}\label{motivation-and-core-idea}}
 
 Sliding mode control (SMC) is a \textbf{variable structure control} method. The controller switches between two or more structures depending on which side of a chosen surface the state currently lies. The key benefit is \textbf{invariance}: once the state reaches the sliding surface, the closed-loop dynamics become completely independent of matched uncertainties and disturbances.
 
@@ -210,17 +219,21 @@ Sliding mode control (SMC) is a \textbf{variable structure control} method. The 
 
 \textbf{Figure 1:} Phase portrait of sliding mode control showing two phases. Blue trajectories approach the sliding surface (reaching phase), then follow it toward the origin (sliding phase, green). The red line is the sliding surface s = 0.
 
-\subsection{1.2 ~ Two Phases of SMC}
+\hypertarget{two-phases-of-smc}{%
+\subsubsection{1.2 ~ Two Phases of SMC}\label{two-phases-of-smc}}
 
-\subsubsection{Phase 1: Reaching Phase}
+\hypertarget{phase-1-reaching-phase}{%
+\paragraph{Phase 1: Reaching Phase}\label{phase-1-reaching-phase}}
 
 The controller drives the system state from any initial condition to the sliding surface \textbackslash(s = 0\textbackslash). During this phase the system is sensitive to uncertainties. The reaching phase ends in \textbf{finite time} thanks to the discontinuous switching term.
 
-\subsubsection{Phase 2: Sliding Phase}
+\hypertarget{phase-2-sliding-phase}{%
+\paragraph{Phase 2: Sliding Phase}\label{phase-2-sliding-phase}}
 
 Once \textbackslash(s = 0\textbackslash), the state is constrained to the surface. The system dynamics reduce in order by the number of sliding variables. The resulting motion is governed entirely by the surface parameters, not the plant model.
 
-\subsection{1.3 ~ Sliding Surface Design}
+\hypertarget{sliding-surface-design}{%
+\subsubsection{1.3 ~ Sliding Surface Design}\label{sliding-surface-design}}
 
 Consider a second-order system with tracking error \textbackslash(e = x - x\_d\textbackslash). Define the sliding surface:
 
@@ -246,7 +259,8 @@ For example, for a third-order system (\textbackslash(n=3\textbackslash)):
 s = \textbackslash ddot\{e\} + 2\textbackslash lambda\textbackslash dot\{e\} + \textbackslash lambda\^{}2 e.
 \textbackslash{]}
 
-\subsection{1.4 ~ Reaching Law}
+\hypertarget{reaching-law}{%
+\subsubsection{1.4 ~ Reaching Law}\label{reaching-law}}
 
 To drive \textbackslash(s \textbackslash to 0\textbackslash) in finite time, we impose a reaching law on \textbackslash(\textbackslash dot\{s\}\textbackslash). A common choice is the \textbf{constant + proportional reaching law}:
 
@@ -264,7 +278,8 @@ The term \textbackslash(-\textbackslash eta\textbackslash,\textbackslash operato
 
 \textbf{Figure 2:} Reaching law comparison. (a) Constant rate: s decreases linearly. (b) Exponential + constant: faster initial approach, then finite-time reaching. (c) Power rate: accelerates convergence near the surface for smoother arrival.
 
-\subsection{1.5 ~ Control Law Decomposition}
+\hypertarget{control-law-decomposition}{%
+\subsubsection{1.5 ~ Control Law Decomposition}\label{control-law-decomposition}}
 
 Consider a general second-order uncertain system:
 
@@ -286,9 +301,11 @@ The control law is decomposed as:
 u = u\_\{\textbackslash text\{eq\}\} + u\_\{\textbackslash text\{sw\}\}
 \textbackslash{]}
 
-\paragraph{Equivalent Control \textbackslash(u\_\{\textbackslash text\{eq\}\}\textbackslash)}}
+\hypertarget{equivalent-control-u_texteq}{%
+\paragraph{Equivalent Control \textbackslash(u\_\{\textbackslash text\{eq\}\}\textbackslash)}\label{equivalent-control-u_texteq}}
 
-\subsubsection{Derivation}
+\hypertarget{derivation}{%
+\paragraph{Derivation}\label{derivation}}
 
 The equivalent control is obtained by setting \textbackslash(\textbackslash dot\{s\} = 0\textbackslash) and \textbackslash(d = 0\textbackslash) (nominal conditions):
 
@@ -301,9 +318,11 @@ u\_\{\textbackslash text\{eq\}\} = \textbackslash frac\{1\}\{b\}\textbackslash b
 
 This term cancels the known dynamics and commands the desired trajectory --- it is the smooth, model-based part of the control.
 
-\paragraph{Switching Control \textbackslash(u\_\{\textbackslash text\{sw\}\}\textbackslash)}}
+\hypertarget{switching-control-u_textsw}{%
+\paragraph{Switching Control \textbackslash(u\_\{\textbackslash text\{sw\}\}\textbackslash)}\label{switching-control-u_textsw}}
 
-\subsubsection{Derivation}
+\hypertarget{derivation-1}{%
+\paragraph{Derivation}\label{derivation-1}}
 
 The switching control handles uncertainties and disturbances:
 
@@ -321,7 +340,8 @@ u = \textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash ddot\{x\}\_d
 
 \textbf{Figure 3:} SMC block diagram. The controller decomposes into equivalent control u\_eq (model-based, maintains system on surface) and switching control u\_sw (drives system to surface and rejects disturbances). The sliding variable s is computed from state feedback.
 
-\subsection{1.6 ~ Existence Condition (Reaching Condition)}
+\hypertarget{existence-condition-reaching-condition}{%
+\subsubsection{1.6 ~ Existence Condition (Reaching Condition)}\label{existence-condition-reaching-condition}}
 
 For the state to reach and remain on the surface, we need:
 
@@ -335,7 +355,8 @@ This is equivalent to requiring that \textbackslash(s\textbackslash) decreases i
 \textbackslash dot\{V\} = s\textbackslash,\textbackslash dot\{s\} \textless{} 0.
 \textbackslash{]}
 
-\subsubsection{Lyapunov Stability Proof}
+\hypertarget{lyapunov-stability-proof}{%
+\paragraph{Lyapunov Stability Proof}\label{lyapunov-stability-proof}}
 
 Substituting the full control into \textbackslash(\textbackslash dot\{s\}\textbackslash):
 
@@ -371,7 +392,8 @@ Since \textbackslash(\textbackslash eta \textgreater{} D\textbackslash) and \tex
 t\_\{\textbackslash text\{reach\}\} \textbackslash le \textbackslash frac\{\textbar s(0)\textbar\}\{\textbackslash eta - D\}.
 \textbackslash{]}
 
-\subsection{1.7 ~ The Chattering Problem}
+\hypertarget{the-chattering-problem}{%
+\subsubsection{1.7 ~ The Chattering Problem}\label{the-chattering-problem}}
 
 The discontinuous \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) function causes the control to switch at infinite frequency near \textbackslash(s = 0\textbackslash). In practice, actuator bandwidth is finite, producing \textbf{chattering} --- high-frequency oscillations around the sliding surface.
 
@@ -379,7 +401,8 @@ The discontinuous \textbackslash(\textbackslash operatorname\{sign\}(s)\textback
 
 \textbf{Figure 4:} Chattering problem visualization. Left: ideal SMC with infinite switching frequency -\/- trajectory reaches and stays on the surface. Right: practical SMC with finite actuation bandwidth -\/- trajectory oscillates around the surface, producing high-frequency control chatter that causes actuator wear.
 
-\subsubsection{Solution 1: Boundary Layer (Saturation Function)}
+\hypertarget{solution-1-boundary-layer-saturation-function}{%
+\paragraph{Solution 1: Boundary Layer (Saturation Function)}\label{solution-1-boundary-layer-saturation-function}}
 
 Replace \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) with a continuous approximation inside a boundary layer of width \textbackslash(\textbackslash varphi\textbackslash):
 
@@ -402,7 +425,8 @@ Inside the boundary layer \textbackslash(\textbar s\textbar{} \textbackslash le 
 
 \textbf{Figure 5:} Boundary layer approach for chattering mitigation. Left: phase plane showing the boundary layer band (orange) around the sliding surface (red). Outside the boundary, discontinuous sign(s) is used; inside, smooth sat(s/phi) provides linear control. Right: comparison of sign(s) (discontinuous) vs sat(s/phi) (continuous).
 
-\subsubsection{Solution 2: Super-Twisting Algorithm}
+\hypertarget{solution-2-super-twisting-algorithm}{%
+\paragraph{Solution 2: Super-Twisting Algorithm}\label{solution-2-super-twisting-algorithm}}
 
 The super-twisting algorithm achieves finite-time convergence to \textbackslash(s = 0\textbackslash) with a \textbf{continuous} control signal (no chattering). It uses an integral of the sign function:
 
@@ -420,13 +444,15 @@ The discontinuity is hidden inside the integrator, so the actual control \textba
 
 \textbf{Figure 6:} Super-twisting algorithm comparison. Left: standard SMC produces chattering at the surface with discontinuous control. Right: super-twisting achieves finite-time spiral convergence to the origin with a fully continuous control signal, eliminating chattering completely.
 
-\subsubsection{Think-Pair-Share}
+\hypertarget{think-pair-share}{%
+\paragraph{Think-Pair-Share}\label{think-pair-share}}
 
 \textbf{Question:} Why does \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) cause chattering? Draw the phase portrait of a second-order system under SMC with \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash), showing the trajectories switching direction across \textbackslash(s = 0\textbackslash). How does the boundary layer modify this portrait?
 
 \textbf{Discuss (2 min):} In the phase plane \textbackslash((e, \textbackslash dot\{e\})\textbackslash), the sliding surface is a line. Trajectories approach from both sides and, due to finite sampling/actuation delay, overshoot repeatedly. With the boundary layer, trajectories enter the band \textbackslash(\textbar s\textbar{} \textless{} \textbackslash varphi\textbackslash) and glide smoothly to the origin along a thickened corridor.
 
-\subsection{1.8 ~ Multi-Variable Extension}
+\hypertarget{multi-variable-extension}{%
+\subsubsection{1.8 ~ Multi-Variable Extension}\label{multi-variable-extension}}
 
 For an \textbackslash(n\textbackslash)-DOF system with error \textbackslash(\textbackslash mathbf\{e\} \textbackslash in \textbackslash mathbb\{R\}\^{}n\textbackslash), define the sliding surface vector:
 
@@ -446,9 +472,11 @@ and the reaching condition generalises to:
 \textbackslash dot\{V\} = \textbackslash mathbf\{s\}\^{}T \textbackslash dot\{\textbackslash mathbf\{s\}\} \textless{} 0.
 \textbackslash{]}
 
-\section{SMC for Robot Manipulator}
+\hypertarget{part-2-smc-for-robot-manipulator-1}{%
+\subsection{Part 2 --- SMC for Robot Manipulator}\label{part-2-smc-for-robot-manipulator-1}}
 
-\subsection{2.1 ~ System Model}
+\hypertarget{system-model}{%
+\subsubsection{2.1 ~ System Model}\label{system-model}}
 
 The \textbackslash(n\textbackslash)-DOF rigid-body manipulator dynamics:
 
@@ -464,7 +492,8 @@ where \textbackslash(d(t)\textbackslash) is a bounded disturbance torque with \t
 
 \textbf{Figure 7:} 2-DOF planar manipulator schematic. Joint angles theta\_1, theta\_2 are controlled by torques tau\_1, tau\_2. Link parameters (m\_1, l\_1, m\_2, l\_2) are subject to uncertainty (dashed clouds). Gravity g acts downward, and external disturbances d(t) affect the end-effector.
 
-\subsection{2.2 ~ Sliding Surface}
+\hypertarget{sliding-surface}{%
+\subsubsection{2.2 ~ Sliding Surface}\label{sliding-surface}}
 
 Define the joint tracking error and sliding surface:
 
@@ -484,9 +513,11 @@ This notation simplifies the derivation considerably. Note also:
 \textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash,\textbackslash dot\{e\}.
 \textbackslash{]}
 
-\subsection{2.3 ~ Control Law Derivation}
+\hypertarget{control-law-derivation}{%
+\subsubsection{2.3 ~ Control Law Derivation}\label{control-law-derivation}}
 
-\subsubsection{Full Derivation}
+\hypertarget{full-derivation}{%
+\paragraph{Full Derivation}\label{full-derivation}}
 
 \textbf{Step 1:} Differentiate \textbackslash(s\textbackslash):
 
@@ -539,9 +570,11 @@ Or with the boundary layer:
 \textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash,\textbackslash operatorname\{sat\}\textbackslash!\textbackslash left(\textbackslash frac\{s\}\{\textbackslash varphi\}\textbackslash right)
 \textbackslash{]}
 
-\subsection{2.4 ~ Lyapunov Stability Proof}
+\hypertarget{lyapunov-stability-proof-1}{%
+\subsubsection{2.4 ~ Lyapunov Stability Proof}\label{lyapunov-stability-proof-1}}
 
-\subsubsection{Proof of Finite-Time Reaching}
+\hypertarget{proof-of-finite-time-reaching}{%
+\paragraph{Proof of Finite-Time Reaching}\label{proof-of-finite-time-reaching}}
 
 Choose \textbackslash(V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M(q)\textbackslash,s\textbackslash). Note \textbackslash(V \textgreater{} 0\textbackslash) since \textbackslash(M\textbackslash) is positive definite. Differentiate:
 
@@ -581,7 +614,8 @@ Let \textbackslash(\textbar\textbackslash delta\_i\textbar{} \textbackslash le \
 
 This guarantees finite-time reaching and invariance of the sliding surface.
 
-\subsection{2.5 ~ MATLAB Implementation --- 2-DOF Manipulator SMC}
+\hypertarget{matlab-implementation-2-dof-manipulator-smc}{%
+\subsubsection{2.5 ~ MATLAB Implementation --- 2-DOF Manipulator SMC}\label{matlab-implementation-2-dof-manipulator-smc}}
 
 \%\% SMC for 2-DOF Manipulator
 \% Parameters
@@ -616,9 +650,11 @@ subplot(2,1,2); plot(T, X(:,3:4)); legend(\textquotesingle dq\_1\textquotesingle
 
 \textbf{Note:} The complete ODE function \texttt{smc\_manipulator\_ode()} with all sub-functions is provided in the companion file \texttt{smc\_control\_simulation.m}.
 
-\section{SMC for Mobile Robot}
+\hypertarget{part-3-smc-for-mobile-robot-1}{%
+\subsection{Part 3 --- SMC for Mobile Robot}\label{part-3-smc-for-mobile-robot-1}}
 
-\subsection{3.1 ~ Unicycle Kinematic Model}
+\hypertarget{unicycle-kinematic-model}{%
+\subsubsection{3.1 ~ Unicycle Kinematic Model}\label{unicycle-kinematic-model}}
 
 The unicycle model for a differential-drive mobile robot:
 
@@ -630,7 +666,8 @@ where \textbackslash(v\textbackslash) is the linear velocity and \textbackslash(
 
 \textbf{Figure 8:} Mobile robot SMC tracking. Left: top-down view showing the differential-drive robot tracking a reference trajectory, with tracking errors (e\_x, e\_y) and polar error rho. Right: sliding manifold in error space showing trajectories converging to the sliding surface then sliding to the origin.
 
-\subsection{3.2 ~ Position Tracking Formulation}
+\hypertarget{position-tracking-formulation}{%
+\subsubsection{3.2 ~ Position Tracking Formulation}\label{position-tracking-formulation}}
 
 Define the tracking errors in the body frame. Let \textbackslash((x\_d(t), y\_d(t), \textbackslash theta\_d(t))\textbackslash) be the desired trajectory. The position errors in the world frame are:
 
@@ -646,7 +683,8 @@ Transform to the robot body frame:
 \textbackslash begin\{bmatrix\} e\_x \textbackslash\textbackslash{} e\_y \textbackslash\textbackslash{} \textbackslash theta\_d - \textbackslash theta \textbackslash end\{bmatrix\}.
 \textbackslash{]}
 
-\subsection{3.3 ~ Sliding Surface Design}
+\hypertarget{sliding-surface-design-1}{%
+\subsubsection{3.3 ~ Sliding Surface Design}\label{sliding-surface-design-1}}
 
 For position tracking, define two sliding surfaces:
 
@@ -666,11 +704,13 @@ Then define sliding surfaces:
 s\_v = \textbackslash dot\{\textbackslash rho\} + \textbackslash lambda\_v \textbackslash rho, \textbackslash qquad s\_\textbackslash omega = \textbackslash dot\{\textbackslash alpha\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha.
 \textbackslash{]}
 
-\subsection{3.4 ~ SMC Control Law}
+\hypertarget{smc-control-law}{%
+\subsubsection{3.4 ~ SMC Control Law}\label{smc-control-law}}
 
 Using the body-frame error dynamics and the reaching law, the SMC control inputs become:
 
-\subsubsection{Derivation}
+\hypertarget{derivation-2}{%
+\paragraph{Derivation}\label{derivation-2}}
 
 The error dynamics in polar coordinates are:
 
@@ -697,7 +737,8 @@ v = \textbackslash frac\{\textbackslash lambda\_v \textbackslash rho + \textback
 
 \textbf{Singularity:} When \textbackslash(\textbackslash alpha = \textbackslash pm\textbackslash pi/2\textbackslash) (goal directly to the side), \textbackslash(\textbackslash cos\textbackslash alpha = 0\textbackslash). In practice, clamp \textbackslash(\textbar\textbackslash alpha\textbar{} \textless{} \textbackslash pi/2 - \textbackslash epsilon\textbackslash) or switch to a Cartesian controller near the singularity.
 
-\subsection{3.5 ~ MATLAB Implementation}
+\hypertarget{matlab-implementation}{%
+\subsubsection{3.5 ~ MATLAB Implementation}\label{matlab-implementation}}
 
 \%\% SMC for Mobile Robot (Unicycle)
 lambda\_v = 1.0; lambda\_w = 2.0;
@@ -714,9 +755,11 @@ plot(X(:,1), X(:,2), \textquotesingle b-\textquotesingle, arrayfun(xd,T), arrayf
 legend(\textquotesingle Actual\textquotesingle,\textquotesingle Desired\textquotesingle); title(\textquotesingle Mobile Robot SMC Tracking\textquotesingle);
 axis equal; grid on;
 
-\section{SMC for Quadrotor Drone}
+\hypertarget{part-4-smc-for-quadrotor-drone-1}{%
+\subsection{Part 4 --- SMC for Quadrotor Drone}\label{part-4-smc-for-quadrotor-drone-1}}
 
-\subsection{4.1 ~ Quadrotor Dynamic Model}
+\hypertarget{quadrotor-dynamic-model}{%
+\subsubsection{4.1 ~ Quadrotor Dynamic Model}\label{quadrotor-dynamic-model}}
 
 The 6-DOF quadrotor dynamics separate into translational and rotational subsystems. The position dynamics in the world frame:
 
@@ -742,21 +785,25 @@ I\_\{yy\}\textbackslash ddot\{\textbackslash theta\} = (I\_\{zz\} - I\_\{xx\})\t
 I\_\{zz\}\textbackslash ddot\{\textbackslash psi\} = (I\_\{xx\} - I\_\{yy\})\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash theta\} + c\textbackslash,U\_4 + d\_\textbackslash psi.
 \textbackslash{]}
 
-\subsection{4.2 ~ Hierarchical SMC Design}
+\hypertarget{hierarchical-smc-design}{%
+\subsubsection{4.2 ~ Hierarchical SMC Design}\label{hierarchical-smc-design}}
 
 The standard approach uses a \textbf{cascaded (hierarchical)} structure:
 
-\subsubsection{Outer Loop: Position SMC}
+\hypertarget{outer-loop-position-smc}{%
+\paragraph{Outer Loop: Position SMC}\label{outer-loop-position-smc}}
 
 Computes desired thrust \textbackslash(U\_1\textbackslash) and desired roll/pitch angles \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d)\textbackslash) from position errors.
 
-\subsubsection{Inner Loop: Attitude SMC}
+\hypertarget{inner-loop-attitude-smc}{%
+\paragraph{Inner Loop: Attitude SMC}\label{inner-loop-attitude-smc}}
 
 Tracks desired roll, pitch, yaw using torque inputs \textbackslash(U\_2, U\_3, U\_4\textbackslash).
 
 \textbf{Figure 9:} Quadrotor with hierarchical SMC. Four rotors produce thrust forces F\_1-F\_4. The outer loop (position SMC) computes total thrust U\_1 and desired attitudes. The inner loop (attitude SMC) tracks desired roll, pitch, yaw. Wind disturbances are rejected by the sliding mode controller.
 
-\subsubsection{Position Sliding Surfaces}
+\hypertarget{position-sliding-surfaces}{%
+\paragraph{Position Sliding Surfaces}\label{position-sliding-surfaces}}
 
 Define position errors \textbackslash(e\_x = x - x\_d\textbackslash), \textbackslash(e\_y = y - y\_d\textbackslash), \textbackslash(e\_z = z - z\_d\textbackslash), and sliding surfaces:
 
@@ -766,9 +813,11 @@ s\_y = \textbackslash dot\{e\}\_y + \textbackslash lambda\_y e\_y, \textbackslas
 s\_z = \textbackslash dot\{e\}\_z + \textbackslash lambda\_z e\_z.
 \textbackslash{]}
 
-\subsubsection{Altitude Control (\textbackslash(z\textbackslash)-axis)}
+\hypertarget{altitude-control-z-axis}{%
+\paragraph{Altitude Control (\textbackslash(z\textbackslash)-axis)}\label{altitude-control-z-axis}}
 
-\subsubsection{Derivation}
+\hypertarget{derivation-3}{%
+\paragraph{Derivation}\label{derivation-3}}
 
 From \textbackslash(m\textbackslash ddot\{z\} = U\_1\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi - mg + d\_z\textbackslash), define \textbackslash(e\_z = z - z\_d\textbackslash):
 
@@ -782,9 +831,11 @@ Setting \textbackslash(\textbackslash dot\{s\}\_z = -\textbackslash eta\_z \text
 U\_1 = \textbackslash frac\{m\}\{\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi\}\textbackslash bigl{[}\textbackslash ddot\{z\}\_d + g - \textbackslash lambda\_z\textbackslash dot\{e\}\_z - \textbackslash eta\_z\textbackslash operatorname\{sat\}(s\_z/\textbackslash varphi\_z) - k\_z s\_z\textbackslash bigr{]}.
 \textbackslash{]}
 
-\subsubsection{Lateral Control (\textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-axes)}
+\hypertarget{lateral-control-x--and-y-axes}{%
+\paragraph{Lateral Control (\textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-axes)}\label{lateral-control-x--and-y-axes}}
 
-\subsubsection{Derivation}
+\hypertarget{derivation-4}{%
+\paragraph{Derivation}\label{derivation-4}}
 
 From the \textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-dynamics, the SMC computes desired virtual accelerations:
 
@@ -804,7 +855,8 @@ The desired roll and pitch are then extracted:
 \textbackslash phi\_d = \textbackslash arctan\textbackslash!\textbackslash left(\textbackslash frac\{(\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\}\textbackslash sin\textbackslash psi - \textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\}\textbackslash cos\textbackslash psi)\textbackslash cos\textbackslash theta\_d\}\{\textbackslash ddot\{z\}\_\{\textbackslash text\{cmd\}\} + g\}\textbackslash right).
 \textbackslash{]}
 
-\subsubsection{Attitude Sliding Surfaces and Control}
+\hypertarget{attitude-sliding-surfaces-and-control}{%
+\paragraph{Attitude Sliding Surfaces and Control}\label{attitude-sliding-surfaces-and-control}}
 
 Define attitude errors \textbackslash(e\_\textbackslash phi = \textbackslash phi - \textbackslash phi\_d\textbackslash), etc., and sliding surfaces:
 
@@ -826,7 +878,8 @@ U\_3 = \textbackslash frac\{I\_\{yy\}\}\{l\}\textbackslash bigl{[}\textbackslash
 U\_4 = \textbackslash frac\{I\_\{zz\}\}\{c\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash psi\}\_d - \textbackslash lambda\_\textbackslash psi\textbackslash dot\{e\}\_\textbackslash psi - \textbackslash frac\{(I\_\{xx\}-I\_\{yy\})\}\{I\_\{zz\}\}\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash theta\} - \textbackslash eta\_\textbackslash psi\textbackslash operatorname\{sat\}(s\_\textbackslash psi/\textbackslash varphi\_\textbackslash psi)\textbackslash bigr{]}.
 \textbackslash{]}
 
-\subsection{4.3 ~ MATLAB Implementation}
+\hypertarget{matlab-implementation-1}{%
+\subsubsection{4.3 ~ MATLAB Implementation}\label{matlab-implementation-1}}
 
 \%\% SMC for Quadrotor Drone
 \% Physical parameters
@@ -851,11 +904,11 @@ arrayfun(xd,T), arrayfun(yd,T), arrayfun(zd,T), \textquotesingle r-\/-\textquote
 legend(\textquotesingle Actual\textquotesingle,\textquotesingle Desired\textquotesingle); title(\textquotesingle Drone SMC 3D Tracking\textquotesingle);
 xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle); zlabel(\textquotesingle z\textquotesingle); grid on;
 
-\section{Summary and Next Steps}
+\hypertarget{lab-activities}{%
+\subsection{Lab Activities}\label{lab-activities}}
 
-\subsection{Lab Activities}
-
-\subsection{Activity 1 --- Chattering Observation (10 min)}
+\hypertarget{activity-1-chattering-observation-10-min}{%
+\subsubsection{Activity 1 --- Chattering Observation (10 min)}\label{activity-1-chattering-observation-10-min}}
 
 \textbf{Objective:} Observe and quantify the chattering phenomenon, then mitigate it using the boundary layer.
 
@@ -869,7 +922,8 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
   For each value of \textbackslash(\textbackslash varphi\textbackslash), record: (a) peak torque oscillation amplitude, (b) steady-state tracking error \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty\textbackslash).
 \end{enumerate}
 
-\subsubsection{Questions to Answer}
+\hypertarget{questions-to-answer}{%
+\paragraph{Questions to Answer}\label{questions-to-answer}}
 
 \begin{itemize}
 \tightlist
@@ -881,7 +935,8 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
   Is there an optimal \textbackslash(\textbackslash varphi\textbackslash)? What criteria would you use to select it?
 \end{itemize}
 
-\subsection{Activity 2 --- Disturbance Rejection Comparison (15 min)}
+\hypertarget{activity-2-disturbance-rejection-comparison-15-min}{%
+\subsubsection{Activity 2 --- Disturbance Rejection Comparison (15 min)}\label{activity-2-disturbance-rejection-comparison-15-min}}
 
 \textbf{Objective:} Compare the robustness of SMC against other control methods under large disturbances.
 
@@ -907,7 +962,8 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
   Compare tracking errors and control effort. Plot all on the same axes.
 \end{enumerate}
 
-\subsubsection{Questions to Answer}
+\hypertarget{questions-to-answer-1}{%
+\paragraph{Questions to Answer}\label{questions-to-answer-1}}
 
 \begin{itemize}
 \tightlist
@@ -919,7 +975,8 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
   How does the switching gain \textbackslash(K\textbackslash) relate to the disturbance bound \textbackslash(D = 10\textbackslash)?
 \end{itemize}
 
-\subsection{Activity 3 --- Super-Twisting Algorithm (5 min)}
+\hypertarget{activity-3-super-twisting-algorithm-5-min}{%
+\subsubsection{Activity 3 --- Super-Twisting Algorithm (5 min)}\label{activity-3-super-twisting-algorithm-5-min}}
 
 \textbf{Objective:} Implement the super-twisting algorithm and compare with standard SMC.
 
@@ -933,7 +990,8 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
   Verify that chattering is eliminated while finite-time convergence is preserved.
 \end{enumerate}
 
-\subsection{Summary --- All Six Control Methods Compared}
+\hypertarget{summary-all-six-control-methods-compared}{%
+\subsection{Summary --- All Six Control Methods Compared}\label{summary-all-six-control-methods-compared}}
 
 \begin{longtable}[]{@{}lllllll@{}}
 \toprule\noalign{}

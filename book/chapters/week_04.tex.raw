@@ -1,23 +1,18 @@
-% ----- auto-generated from week_04/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{Adaptive Control (Week 4)}
-\labch{week_04}
-
-
+\hypertarget{week-4-adaptive-control}{%
+\section{Week 4: Adaptive Control}\label{week-4-adaptive-control}}
 
 Lyapunov-Based Adaptive Control for Robotic Systems with Parametric Uncertainty
 
 M.Sc. Control for Robots --- University of West London --- AY 2025--26\\
 3-Hour Lecture \& Lab • Week 4 of 12
 
-\section{Overview}
-
-\subsection{Week 3 Recall --- Model Predictive Control --- Exam Practice}
+\hypertarget{section-0-week-3-recall-model-predictive-control-exam-practice}{%
+\subsection{Section 0: Week 3 Recall --- Model Predictive Control --- Exam Practice}\label{section-0-week-3-recall-model-predictive-control-exam-practice}}
 
 Before we begin new material, spend 20 minutes working through these two exam-style questions that cover last week\textquotesingle s MPC content. Write your solutions on paper.
 
-\subsubsection{Question 1 --- MPC Problem Formulation \& Lifted Form (10 marks)}
+\hypertarget{question-1-mpc-problem-formulation-lifted-form-10-marks}{%
+\paragraph{Question 1 --- MPC Problem Formulation \& Lifted Form (10 marks)}\label{question-1-mpc-problem-formulation-lifted-form-10-marks}}
 
 Consider a discrete-time linear time-invariant system:
 
@@ -56,7 +51,8 @@ Show every substitution step from \textbackslash(i=1\textbackslash) to \textback
 
 \textbf{(b)} Identify the structure of \textbackslash(\textbackslash mathcal\{B\}\textbackslash) (lower-triangular block Toeplitz). Explain why this structure arises from the causal nature of the system (future states depend only on past and present inputs).
 
-\subsubsection{Question 2 --- Deriving the Optimal MPC Control Law (10 marks)}
+\hypertarget{question-2-deriving-the-optimal-mpc-control-law-10-marks}{%
+\paragraph{Question 2 --- Deriving the Optimal MPC Control Law (10 marks)}\label{question-2-deriving-the-optimal-mpc-control-law-10-marks}}
 
 Starting from the lifted quadratic cost:
 
@@ -94,7 +90,8 @@ Explain why \textbackslash(K\_\{\textbackslash mathrm\{MPC\}\}\textbackslash) is
 
 \textbf{Time limit: 20 minutes.} This is exactly the format and difficulty level you will encounter in the final exam. Write full derivations showing every step. Partial credit is awarded for correct intermediate work.
 
-\subsection{Learning Outcomes}
+\hypertarget{section-1-learning-outcomes}{%
+\subsection{Section 1: Learning Outcomes}\label{section-1-learning-outcomes}}
 
 \begin{itemize}
 \tightlist
@@ -110,53 +107,63 @@ Explain why \textbackslash(K\_\{\textbackslash mathrm\{MPC\}\}\textbackslash) is
   Simulate and compare the performance of fixed-model computed torque control versus adaptive control under parameter uncertainty, demonstrating convergence of parameter estimates.
 \end{itemize}
 
-\subsection{Session Roadmap (3 Hours)}
+\hypertarget{section-2-session-roadmap-3-hours}{%
+\subsection{Section 2: Session Roadmap (3 Hours)}\label{section-2-session-roadmap-3-hours}}
 
 0:00 -- 0:20
 
-\subsubsection{Previous Week Exam Practice}
+\hypertarget{previous-week-exam-practice}{%
+\paragraph{Previous Week Exam Practice}\label{previous-week-exam-practice}}
 
 Two exam-style questions on MPC lifted form, optimal control law derivation, and the MPC gain matrix.
 
 0:20 -- 1:00
 
-\subsubsection{Adaptive Control Theory}
+\hypertarget{part-1-adaptive-control-theory}{%
+\paragraph{Part 1 --- Adaptive Control Theory}\label{part-1-adaptive-control-theory}}
 
 Why adaptive? Parameter uncertainty and its consequences. Linearity in parameters. Regressor matrix. Adaptive update law. Lyapunov stability proof.
 
 1:00 -- 1:20
 
-\subsubsection{Adaptive Control for 2-DOF Manipulator}
+\hypertarget{part-2-adaptive-control-for-2-dof-manipulator}{%
+\paragraph{Part 2 --- Adaptive Control for 2-DOF Manipulator}\label{part-2-adaptive-control-for-2-dof-manipulator}}
 
 Full derivation: explicit regressor, parameter vector, control law, update law, and MATLAB implementation.
 
 1:20 -- 1:30
 
-\subsubsection{Break}
+\hypertarget{break}{%
+\paragraph{Break}\label{break}}
 
 10-minute comfort break.
 
 1:30 -- 2:00
 
-\subsubsection{Adaptive Control for Mobile Robot}
+\hypertarget{part-3-adaptive-control-for-mobile-robot}{%
+\paragraph{Part 3 --- Adaptive Control for Mobile Robot}\label{part-3-adaptive-control-for-mobile-robot}}
 
 Parametric uncertainty in wheel radius and track width. Regressor formulation for the unicycle kinematic model. Adaptive tracking controller.
 
 2:00 -- 2:30
 
-\subsubsection{Adaptive Control for Quadrotor}
+\hypertarget{part-4-adaptive-control-for-quadrotor}{%
+\paragraph{Part 4 --- Adaptive Control for Quadrotor}\label{part-4-adaptive-control-for-quadrotor}}
 
 Unknown mass and inertia. Adaptive controller for position and attitude loops. MATLAB simulation.
 
 2:30 -- 3:00
 
-\subsubsection{MATLAB Implementation \& Activities}
+\hypertarget{part-5-matlab-implementation-activities}{%
+\paragraph{Part 5 --- MATLAB Implementation \& Activities}\label{part-5-matlab-implementation-activities}}
 
 Hands-on activities: parameter convergence, comparison with computed torque, regressor construction quiz.
 
-\section{Adaptive Control Theory}
+\hypertarget{section-3-part-1-adaptive-control-theory}{%
+\subsection{Section 3: Part 1 --- Adaptive Control Theory}\label{section-3-part-1-adaptive-control-theory}}
 
-\subsection{Why Adaptive Control?}
+\hypertarget{why-adaptive-control}{%
+\subsubsection{3.1 Why Adaptive Control?}\label{why-adaptive-control}}
 
 In Week 1, we designed a computed torque controller for a 2-DOF manipulator. The control law was:
 
@@ -186,7 +193,8 @@ Adaptive control addresses this by estimating the unknown parameters online, whi
 
 \textbf{Figure 2:} Comparison of {Direct} and {Indirect} adaptive control. In direct adaptation, the error signal is fed to an adaptation law that adjusts controller gains K(t) directly. In indirect adaptation, the error drives a parameter estimator to obtain θ̂, which is then used in a gain computation step to determine K(θ̂).
 
-\subsection{The Linearity-in-Parameters Property}
+\hypertarget{the-linearity-in-parameters-property}{%
+\subsubsection{3.2 The Linearity-in-Parameters Property}\label{the-linearity-in-parameters-property}}
 
 The dynamics of a rigid-body robotic system can always be written as:
 
@@ -206,7 +214,8 @@ This is the \emph{linearity-in-parameters} property. It holds because the equati
 
 \textbf{Figure 3:} The linearity-in-parameters property separates robot dynamics into a {known regressor matrix Y} (computable from kinematics) multiplied by an {unknown parameter vector θ} (to be estimated online).
 
-\subsection{Concrete Example: 2-DOF Planar Manipulator}
+\hypertarget{concrete-example-2-dof-planar-manipulator}{%
+\subsubsection{3.3 Concrete Example: 2-DOF Planar Manipulator}\label{concrete-example-2-dof-planar-manipulator}}
 
 \textbf{Figure 4:} 2-DOF planar manipulator. {Link 1} (length l₁, mass m₁) and {Link 2} (length l₂, mass m₂) rotate at joints with angles θ₁ and θ₂. Joint torques τ₁ and τ₂ are the control inputs.
 
@@ -255,7 +264,8 @@ Y = \textbackslash begin\{bmatrix\}
 
 You can verify: multiply \textbackslash(Y\textbackslash theta\textbackslash) and recover exactly \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q)\textbackslash). Every entry of \textbackslash(Y\textbackslash) is computable from measured (or commanded) \textbackslash(q, \textbackslash dot\{q\}, \textbackslash ddot\{q\}\textbackslash).
 
-\subsection{The Adaptive Control Law}
+\hypertarget{the-adaptive-control-law}{%
+\subsubsection{3.4 The Adaptive Control Law}\label{the-adaptive-control-law}}
 
 We now construct the adaptive controller. Define the tracking error and its filtered version:
 
@@ -298,7 +308,8 @@ where:
 
 \textbf{Important subtlety:} We evaluate the regressor at \textbackslash((\textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash) instead of \textbackslash((\textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash). This avoids the need to measure or numerically differentiate joint accelerations, and it ensures that the regressor is known (computable from \textbackslash(q, \textbackslash dot\{q\}, q\_d, \textbackslash dot\{q\}\_d, \textbackslash ddot\{q\}\_d\textbackslash)).
 
-\subsection{Parameter Update Law}
+\hypertarget{parameter-update-law}{%
+\subsubsection{3.5 Parameter Update Law}\label{parameter-update-law}}
 
 The parameter estimates are updated according to:
 
@@ -314,9 +325,11 @@ Since \textbackslash(\textbackslash theta\textbackslash) is constant, \textbacks
 
 \textbf{Figure 8:} Parameter convergence under adaptive control. Multiple parameter estimates starting from different initial conditions all converge toward the true parameter value θ* (dashed line). The adaptation law drives estimates toward values that minimize tracking error.
 
-\subsection{Lyapunov Stability Proof}
+\hypertarget{lyapunov-stability-proof}{%
+\subsubsection{3.6 Lyapunov Stability Proof}\label{lyapunov-stability-proof}}
 
-\subsubsection{Theorem (Adaptive Control Stability)}
+\hypertarget{theorem-adaptive-control-stability}{%
+\paragraph{Theorem (Adaptive Control Stability)}\label{theorem-adaptive-control-stability}}
 
 Under the adaptive control law \textbackslash(\textbackslash tau = Y\textbackslash hat\{\textbackslash theta\} + K\_D s\textbackslash) with the update law \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash), the sliding variable \textbackslash(s \textbackslash to 0\textbackslash) and consequently the tracking errors \textbackslash(e \textbackslash to 0\textbackslash), \textbackslash(\textbackslash dot\{e\} \textbackslash to 0\textbackslash) as \textbackslash(t \textbackslash to \textbackslash infty\textbackslash).
 
@@ -390,7 +403,8 @@ Since \textbackslash(K\_D \textbackslash succ 0\textbackslash), \textbackslash(\
 \textbackslash{]}
 Some textbooks define \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}\textbackslash) (reversed). With that convention \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = -\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash), and the update law is written as \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash) with opposite sign in the cancellation. The physics is identical; only the bookkeeping differs. Always check which definition of \textbackslash(\textbackslash tilde\{\textbackslash theta\}\textbackslash) a textbook uses before comparing formulas.
 
-\subsubsection{Think-Pair-Share: Effect of Adaptation Gain}
+\hypertarget{think-pair-share-effect-of-adaptation-gain}{%
+\paragraph{Think-Pair-Share: Effect of Adaptation Gain}\label{think-pair-share-effect-of-adaptation-gain}}
 
 Consider the adaptation gain matrix \textbackslash(\textbackslash Gamma\textbackslash). Discuss with your neighbour:
 
@@ -422,9 +436,11 @@ Consider the adaptation gain matrix \textbackslash(\textbackslash Gamma\textback
   \end{itemize}
 \end{enumerate}
 
-\section{Adaptive Control for 2-DOF Manipulator}
+\hypertarget{section-4-part-2-adaptive-control-for-2-dof-manipulator}{%
+\subsection{Section 4: Part 2 --- Adaptive Control for 2-DOF Manipulator}\label{section-4-part-2-adaptive-control-for-2-dof-manipulator}}
 
-\subsection{System Setup}
+\hypertarget{system-setup}{%
+\subsubsection{4.1 System Setup}\label{system-setup}}
 
 We now implement the full adaptive controller for the 2-DOF planar manipulator from Section 3.3. The true parameters are:
 
@@ -459,7 +475,8 @@ Composite Parameter & True Value & Initial Estimate \\
 \textbackslash(\textbackslash theta\_6 = m\_2 g l\_2\textbackslash) & 19.62 & 9.81 \\
 \end{longtable}
 
-\subsection{Building the Regressor Matrix}
+\hypertarget{building-the-regressor-matrix}{%
+\subsubsection{4.2 Building the Regressor Matrix}\label{building-the-regressor-matrix}}
 
 We need the regressor evaluated at the reference quantities \textbackslash((\textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash) instead of \textbackslash((\textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash). Define:
 
@@ -506,7 +523,8 @@ Y\_\{25\} = 0
 Y\_\{26\} = \textbackslash sin(q\_1 + q\_2)
 \textbackslash{]}
 
-\subsection{Complete Control Algorithm}
+\hypertarget{complete-control-algorithm}{%
+\subsubsection{4.3 Complete Control Algorithm}\label{complete-control-algorithm}}
 
 Algorithm: Adaptive Control for 2-DOF Manipulator
 
@@ -530,7 +548,8 @@ tau = Y * theta\_hat + K\_D * s
 d(theta\_hat)/dt = Gamma\_inv * Y\textquotesingle{} * s
 8. Apply tau to the plant
 
-\subsection{MATLAB Implementation}
+\hypertarget{matlab-implementation}{%
+\subsubsection{4.4 MATLAB Implementation}\label{matlab-implementation}}
 
 \%\% Adaptive Control for 2-DOF Manipulator
 \% True parameters
@@ -596,9 +615,11 @@ ddq = M \textbackslash{} (tau - C*dq - G);
 dx = {[}dq; ddq; dtheta\_hat{]};
 end
 
-\section{Adaptive Control for Mobile Robot}
+\hypertarget{section-5-part-3-adaptive-control-for-mobile-robot}{%
+\subsection{Section 5: Part 3 --- Adaptive Control for Mobile Robot}\label{section-5-part-3-adaptive-control-for-mobile-robot}}
 
-\subsection{Parametric Uncertainty in Mobile Robots}
+\hypertarget{parametric-uncertainty-in-mobile-robots}{%
+\subsubsection{5.1 Parametric Uncertainty in Mobile Robots}\label{parametric-uncertainty-in-mobile-robots}}
 
 \textbf{Figure 5:} Top-down view of a differential-drive mobile robot. The robot (blue) follows an actual path (pink) while tracking a reference trajectory (dashed purple). Tracking errors eₓ and eₙ are measured in the body frame. The uncertain parameters r (wheel radius) and b (track width) are indicated.
 
@@ -626,7 +647,8 @@ Uncertainties arise from:
   \textbf{Track width \textbackslash(b\textbackslash):} Manufacturing tolerances and wheel alignment errors affect the effective distance between contact patches.
 \end{itemize}
 
-\subsection{Linearity in Parameters for the Kinematic Model}
+\hypertarget{linearity-in-parameters-for-the-kinematic-model}{%
+\subsubsection{5.2 Linearity in Parameters for the Kinematic Model}\label{linearity-in-parameters-for-the-kinematic-model}}
 
 We can write the velocity-level kinematics in a form that is linear in the uncertain parameters. Define the control inputs as the wheel angular velocities \textbackslash(u = {[}\textbackslash omega\_R, \textbackslash omega\_L{]}\^{}T\textbackslash). Then:
 
@@ -647,7 +669,8 @@ Define the parameter vector \textbackslash(\textbackslash theta\_m = {[}r,\textb
 \textbackslash begin\{bmatrix\} r \textbackslash\textbackslash{} r/b \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Adaptive Tracking Controller}
+\hypertarget{adaptive-tracking-controller}{%
+\subsubsection{5.3 Adaptive Tracking Controller}\label{adaptive-tracking-controller}}
 
 For trajectory tracking, we use a Lyapunov-based approach. Define the position error in the body frame:
 
@@ -682,7 +705,8 @@ The parameter update law is:
 
 where \textbackslash(\textbackslash Gamma\_m \textbackslash succ 0\textbackslash) is the adaptation gain for the mobile robot parameters.
 
-\subsection{MATLAB Implementation}
+\hypertarget{matlab-implementation-1}{%
+\subsubsection{5.4 MATLAB Implementation}\label{matlab-implementation-1}}
 
 \%\% Adaptive Control for Differential-Drive Mobile Robot
 \% True parameters
@@ -740,9 +764,11 @@ dtheta = Gamma\_m * Y\_m\textquotesingle{} * e\_adapt;
 dx = {[}dpx; dpy; dphi; dtheta{]};
 end
 
-\section{Adaptive Control for Quadrotor}
+\hypertarget{section-6-part-4-adaptive-control-for-quadrotor}{%
+\subsection{Section 6: Part 4 --- Adaptive Control for Quadrotor}\label{section-6-part-4-adaptive-control-for-quadrotor}}
 
-\subsection{Quadrotor Dynamics with Unknown Parameters}
+\hypertarget{quadrotor-dynamics-with-unknown-parameters}{%
+\subsubsection{6.1 Quadrotor Dynamics with Unknown Parameters}\label{quadrotor-dynamics-with-unknown-parameters}}
 
 \textbf{Figure 6:} Quadrotor UAV showing four rotors with alternating CW/CCW rotation, thrust vectors (green arrows), body frame axes (xᵇ, yᵇ, zᵇ), weight force mg, and Euler angles. Unknown parameters include mass m and moments of inertia.
 
@@ -764,7 +790,8 @@ The unknown parameters are:
 \textbackslash theta\_d = \textbackslash begin\{bmatrix\} m \textbackslash\textbackslash{} m\textbackslash,g \textbackslash\textbackslash{} I\_\{xx\} \textbackslash\textbackslash{} I\_\{yy\} \textbackslash\textbackslash{} I\_\{zz\} \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Linearity in Parameters}
+\hypertarget{linearity-in-parameters}{%
+\subsubsection{6.2 Linearity in Parameters}\label{linearity-in-parameters}}
 
 The translational dynamics can be written as:
 
@@ -797,7 +824,8 @@ Y\_p = \textbackslash begin\{bmatrix\}
 
 The total thrust magnitude is \textbackslash(T = \textbackslash\textbar F\_\{\textbackslash mathrm\{des\}\}\textbackslash\textbar\textbackslash), and the desired orientation is extracted from \textbackslash(F\_\{\textbackslash mathrm\{des\}\}\textbackslash).
 
-\subsection{Attitude Adaptive Control}
+\hypertarget{attitude-adaptive-control}{%
+\subsubsection{6.3 Attitude Adaptive Control}\label{attitude-adaptive-control}}
 
 For the attitude loop, define the orientation error \textbackslash(e\_a = {[}\textbackslash phi\_d - \textbackslash phi,\textbackslash; \textbackslash theta\_d - \textbackslash theta\_0,\textbackslash; \textbackslash psi\_d - \textbackslash psi{]}\^{}T\textbackslash), the sliding variable \textbackslash(s\_a = \textbackslash dot\{e\}\_a + \textbackslash Lambda\_a e\_a\textbackslash), and the reference angular acceleration \textbackslash(\textbackslash ddot\{\textbackslash eta\}\_r = \textbackslash ddot\{\textbackslash eta\}\_d + \textbackslash Lambda\_a \textbackslash dot\{e\}\_a\textbackslash). The adaptive torque is:
 
@@ -812,14 +840,16 @@ Y\_a = \textbackslash mathrm\{diag\}(\textbackslash ddot\{\textbackslash eta\}\_
 \textbackslash hat\{\textbackslash theta\}\_a = \textbackslash begin\{bmatrix\} \textbackslash hat\{I\}\_\{xx\} \textbackslash\textbackslash{} \textbackslash hat\{I\}\_\{yy\} \textbackslash\textbackslash{} \textbackslash hat\{I\}\_\{zz\} \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Update Laws}
+\hypertarget{update-laws}{%
+\subsubsection{6.4 Update Laws}\label{update-laws}}
 
 \textbackslash{[}
 \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\_p = \textbackslash Gamma\_p\^{}\{-1\}\textbackslash,Y\_p\^{}T\textbackslash,s\_p, \textbackslash qquad
 \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\_a = \textbackslash Gamma\_a\^{}\{-1\}\textbackslash,Y\_a\^{}T\textbackslash,s\_a
 \textbackslash{]}
 
-\subsection{MATLAB Implementation}
+\hypertarget{matlab-implementation-2}{%
+\subsubsection{6.5 MATLAB Implementation}\label{matlab-implementation-2}}
 
 \%\% Adaptive Control for Quadrotor
 \% True parameters
@@ -851,11 +881,14 @@ tspan, x0\_quad);
 
 The full implementation, including the ODE function for the quadrotor adaptive controller, is provided in the companion MATLAB file \texttt{adaptive\_control\_simulation.m}.
 
-\section{MATLAB Implementation \& Activities}
+\hypertarget{section-7-part-5-matlab-implementation-activities}{%
+\subsection{Section 7: Part 5 --- MATLAB Implementation \& Activities}\label{section-7-part-5-matlab-implementation-activities}}
 
-\subsection{Activity 1: Parameter Convergence (10 minutes)}
+\hypertarget{activity-1-parameter-convergence-10-minutes}{%
+\subsubsection{Activity 1: Parameter Convergence (10 minutes)}\label{activity-1-parameter-convergence-10-minutes}}
 
-\subsubsection{Instructions}
+\hypertarget{instructions}{%
+\paragraph{Instructions}\label{instructions}}
 
 \begin{enumerate}
 \tightlist
@@ -871,9 +904,11 @@ The full implementation, including the ODE function for the quadrotor adaptive c
 
 \textbf{Expected observation:} Parameters that appear in the regressor columns excited by the sinusoidal trajectory will converge. Parameters associated with modes not excited may converge to incorrect values --- but tracking is still achieved. This is the difference between \emph{stability} (guaranteed by Lyapunov) and \emph{parameter convergence} (requires persistent excitation).
 
-\subsection{Activity 2: Adaptive vs Computed Torque Under Uncertainty (15 minutes)}
+\hypertarget{activity-2-adaptive-vs-computed-torque-under-uncertainty-15-minutes}{%
+\subsubsection{Activity 2: Adaptive vs Computed Torque Under Uncertainty (15 minutes)}\label{activity-2-adaptive-vs-computed-torque-under-uncertainty-15-minutes}}
 
-\subsubsection{Instructions}
+\hypertarget{instructions-1}{%
+\paragraph{Instructions}\label{instructions-1}}
 
 \begin{enumerate}
 \tightlist
@@ -903,9 +938,11 @@ The full implementation, including the ODE function for the quadrotor adaptive c
   \end{itemize}
 \end{enumerate}
 
-\subsection{Quiz}
+\hypertarget{quiz}{%
+\subsubsection{Quiz}\label{quiz}}
 
-\subsubsection{Quick Quiz: Regressor Construction}
+\hypertarget{quick-quiz-regressor-construction}{%
+\paragraph{Quick Quiz: Regressor Construction}\label{quick-quiz-regressor-construction}}
 
 \textbf{Question:} Consider the gravity term for link 2 of the 2-DOF manipulator:
 
@@ -931,9 +968,8 @@ Y\_\{1,6\} = \textbackslash sin(q\_1 + q\_2)
 
 because the gravity contribution of link 2 to joint 1 is also \textbackslash(m\_2 g l\_2 \textbackslash sin(q\_1+q\_2)\textbackslash).
 
-\section{Summary and Next Steps}
-
-\subsection{Summary --- Control Methods Comparison}
+\hypertarget{section-8-summary-control-methods-comparison}{%
+\subsection{Section 8: Summary --- Control Methods Comparison}\label{section-8-summary-control-methods-comparison}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}

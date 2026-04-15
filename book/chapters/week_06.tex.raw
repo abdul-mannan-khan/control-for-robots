@@ -1,21 +1,16 @@
-% ----- auto-generated from week_06/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{Backstepping Control (Week 6)}
-\labch{week_06}
-
-
+\hypertarget{week-6-backstepping-control}{%
+\section{Week 6: Backstepping Control}\label{week-6-backstepping-control}}
 
 Recursive Lyapunov Design for Nonlinear Systems
 
 M.Sc. Control for Robots --- University of West London --- AY 2025--26\\
 Duration: 3 Hours (Lecture + Hands-on Lab)
 
-\section{Overview}
+\hypertarget{section-0-week-5-recall-robust-control-exam-practice-20-min}{%
+\subsection{Section 0 --- Week 5 Recall: Robust Control --- Exam Practice (20 min)}\label{section-0-week-5-recall-robust-control-exam-practice-20-min}}
 
-\subsection{Week 5 Recall: Robust Control --- Exam Practice (20 min)}
-
-\subsection{Question 1 --- Robust Sliding-Mode Analysis}
+\hypertarget{question-1-robust-sliding-mode-analysis}{%
+\subsubsection{Question 1 --- Robust Sliding-Mode Analysis}\label{question-1-robust-sliding-mode-analysis}}
 
 Consider a manipulator with model uncertainty:
 
@@ -37,7 +32,8 @@ with the robust term
 
 where \textbackslash(e = q\_d - q\textbackslash), \textbackslash(\textbackslash dot\{e\} = \textbackslash dot\{q\}\_d - \textbackslash dot\{q\}\textbackslash), and \textbackslash(\textbackslash Lambda \textbackslash succ 0\textbackslash).
 
-\subsubsection{Model Answer --- Closed-Loop Error Dynamics}
+\hypertarget{model-answer-closed-loop-error-dynamics}{%
+\paragraph{Model Answer --- Closed-Loop Error Dynamics}\label{model-answer-closed-loop-error-dynamics}}
 
 \textbf{Step 1 --- Substitution.} Write the true dynamics as
 \textbackslash(M\textbackslash ddot\{q\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G\textbackslash).
@@ -94,9 +90,11 @@ Since \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\}\textb
 
 \textbf{Conclusion:} If \textbackslash(\textbackslash rho(t) \textbackslash ge \textbackslash\textbar\textbackslash eta(t)\textbackslash\textbar\textbackslash), then \textbackslash(\textbackslash dot\{V\} \textbackslash le 0\textbackslash) and the tracking error \textbackslash(s \textbackslash to 0\textbackslash). The sliding variable converges, guaranteeing bounded tracking despite uncertainty. By Barbalat\textquotesingle s lemma, \textbackslash(s(t) \textbackslash to 0\textbackslash) asymptotically, which implies \textbackslash(e(t) \textbackslash to 0\textbackslash) exponentially since \textbackslash(\textbackslash dot\{e\} = s - \textbackslash Lambda e\textbackslash) is a stable filter.
 
-\subsection{Question 2 --- Robust vs. Adaptive: Mathematical Comparison}
+\hypertarget{question-2-robust-vs.-adaptive-mathematical-comparison}{%
+\subsubsection{Question 2 --- Robust vs. Adaptive: Mathematical Comparison}\label{question-2-robust-vs.-adaptive-mathematical-comparison}}
 
-\subsubsection{Model Answer}
+\hypertarget{model-answer}{%
+\paragraph{Model Answer}\label{model-answer}}
 
 \textbf{Adaptive control} uses an augmented Lyapunov function:
 
@@ -147,7 +145,8 @@ Unstructured uncertainty & Cannot handle (requires linear parameterisation) & Ha
 Convergence & Asymptotic (with PE: exponential) & Finite-time to sliding surface \\
 \end{longtable}
 
-\subsection{Learning Outcomes}
+\hypertarget{section-1-learning-outcomes}{%
+\subsection{Section 1 --- Learning Outcomes}\label{section-1-learning-outcomes}}
 
 \begin{itemize}
 \tightlist
@@ -163,47 +162,56 @@ Convergence & Asymptotic (with PE: exponential) & Finite-time to sliding surface
   Compare backstepping with computed torque, MPC, adaptive, and robust control
 \end{itemize}
 
-\subsection{Session Roadmap (3 Hours)}
+\hypertarget{section-2-session-roadmap-3-hours}{%
+\subsection{Section 2 --- Session Roadmap (3 Hours)}\label{section-2-session-roadmap-3-hours}}
 
 0:00 -- 0:20
 
-\subsubsection{Week 5 Recall --- Robust Control Exam Practice}
+\hypertarget{week-5-recall-robust-control-exam-practice}{%
+\paragraph{Week 5 Recall --- Robust Control Exam Practice}\label{week-5-recall-robust-control-exam-practice}}
 
 Solve two exam-style questions on robust control, Lyapunov analysis, and comparison with adaptive control.
 
 0:20 -- 1:00
 
-\subsubsection{Backstepping Theory}
+\hypertarget{part-1-backstepping-theory}{%
+\paragraph{Part 1 --- Backstepping Theory}\label{part-1-backstepping-theory}}
 
 Strict-feedback systems, virtual control, recursive Lyapunov design, n-step generalisation.
 
 1:00 -- 1:30
 
-\subsubsection{Backstepping for Manipulator}
+\hypertarget{part-2-backstepping-for-manipulator}{%
+\paragraph{Part 2 --- Backstepping for Manipulator}\label{part-2-backstepping-for-manipulator}}
 
 Convert Euler-Lagrange dynamics to strict-feedback form, design backstepping torque controller, full Lyapunov proof, MATLAB code.
 
 1:30 -- 2:00
 
-\subsubsection{Backstepping for Mobile Robot}
+\hypertarget{part-3-backstepping-for-mobile-robot}{%
+\paragraph{Part 3 --- Backstepping for Mobile Robot}\label{part-3-backstepping-for-mobile-robot}}
 
 Chained-form unicycle model, backstepping position tracking design, MATLAB code.
 
 2:00 -- 2:30
 
-\subsubsection{Backstepping for Drone}
+\hypertarget{part-4-backstepping-for-drone}{%
+\paragraph{Part 4 --- Backstepping for Drone}\label{part-4-backstepping-for-drone}}
 
 Cascade position--attitude structure, multi-loop backstepping, MATLAB code.
 
 2:30 -- 3:00
 
-\subsubsection{Hands-on Activities, Quiz \& Summary}
+\hypertarget{hands-on-activities-quiz-summary}{%
+\paragraph{Hands-on Activities, Quiz \& Summary}\label{hands-on-activities-quiz-summary}}
 
 Gain tuning experiments, comparative study, quiz, and method comparison table.
 
-\section{Backstepping Theory}
+\hypertarget{section-3-part-1-backstepping-theory}{%
+\subsection{Section 3 --- Part 1: Backstepping Theory}\label{section-3-part-1-backstepping-theory}}
 
-\subsection{Motivation --- Why Backstepping?}
+\hypertarget{motivation-why-backstepping}{%
+\subsubsection{3.1 Motivation --- Why Backstepping?}\label{motivation-why-backstepping}}
 
 In previous weeks, we studied controllers that either require exact cancellation of nonlinearities
 (computed torque), predict future behaviour (MPC), estimate unknown parameters on-line (adaptive),
@@ -217,7 +225,8 @@ subsystem. Backstepping systematically exploits this structure.
 
 \textbf{Figure 1:} Backstepping cascade structure. The design proceeds from the outermost subsystem (Step 1) back to the actual control input (Step n).
 
-\subsection{Strict-Feedback Form}
+\hypertarget{strict-feedback-form}{%
+\subsubsection{3.2 Strict-Feedback Form}\label{strict-feedback-form}}
 
 A nonlinear system is in \textbf{strict-feedback form} if it can be written as:
 
@@ -247,7 +256,8 @@ Key properties:
 
 \textbf{Figure 2:} Triangular dependency structure of strict-feedback form. Each row depends only on states from current and previous subsystems.
 
-\subsection{Two-Step Backstepping --- Complete Derivation}
+\hypertarget{two-step-backstepping-complete-derivation}{%
+\subsubsection{3.3 Two-Step Backstepping --- Complete Derivation}\label{two-step-backstepping-complete-derivation}}
 
 Consider the simplest strict-feedback system (two states, one input):
 
@@ -260,7 +270,8 @@ Consider the simplest strict-feedback system (two states, one input):
 
 \textbf{Goal:} Drive \textbackslash(x\_1 \textbackslash to x\_\{1,\textbackslash text\{ref\}\}\textbackslash) (a desired reference).
 
-\subsubsection{Step 1 --- Stabilise the \textbackslash(x\_1\textbackslash) Subsystem (Virtual Control Design)}
+\hypertarget{step-1-stabilise-the-x_1-subsystem-virtual-control-design}{%
+\paragraph{Step 1 --- Stabilise the \textbackslash(x\_1\textbackslash) Subsystem (Virtual Control Design)}\label{step-1-stabilise-the-x_1-subsystem-virtual-control-design}}
 
 Define the tracking error:
 
@@ -310,7 +321,8 @@ Substituting \textbackslash(x\_2 = z\_2 + \textbackslash alpha\_1\textbackslash)
 
 The term \textbackslash(-k\_1 z\_1\^{}2\textbackslash) is stabilising; the coupling term \textbackslash(g\_1 z\_1 z\_2\textbackslash) must be handled in Step 2.
 
-\subsubsection{Step 2 --- Design the Actual Control \textbackslash(u\textbackslash) (Backstep)}
+\hypertarget{step-2-design-the-actual-control-u-backstep}{%
+\paragraph{Step 2 --- Design the Actual Control \textbackslash(u\textbackslash) (Backstep)}\label{step-2-design-the-actual-control-u-backstep}}
 
 Now we must drive \textbackslash(z\_2 \textbackslash to 0\textbackslash). Compute the dynamics of \textbackslash(z\_2\textbackslash):
 
@@ -357,7 +369,8 @@ u = \textbackslash frac\{1\}\{g\_2(x\_1,x\_2)\}\textbackslash left{[}-f\_2(x\_1,
 
 which guarantees global asymptotic stability of \textbackslash((z\_1, z\_2) = (0,0)\textbackslash) by Lyapunov\textquotesingle s theorem.
 
-\subsection{Generalisation to \textbackslash(n\textbackslash)-Step Backstepping}
+\hypertarget{generalisation-to-n-step-backstepping}{%
+\subsubsection{3.4 Generalisation to \textbackslash(n\textbackslash)-Step Backstepping}\label{generalisation-to-n-step-backstepping}}
 
 For an \textbackslash(n\textbackslash)-dimensional strict-feedback system, the procedure generalises recursively:
 
@@ -376,27 +389,32 @@ Result: Global asymptotic stability with V\_n as Lyapunov function.
 
 \textbf{Figure 3:} Step-by-step backstepping design flowchart. Each step defines an error, augments the Lyapunov function, and designs a (virtual) control.
 
-\subsection{Why Backstepping Works --- Intuition}
+\hypertarget{why-backstepping-works-intuition}{%
+\subsubsection{3.5 Why Backstepping Works --- Intuition}\label{why-backstepping-works-intuition}}
 
-\subsubsection{Recursive Lyapunov Construction}
+\hypertarget{recursive-lyapunov-construction}{%
+\paragraph{Recursive Lyapunov Construction}\label{recursive-lyapunov-construction}}
 
 At each step, we extend the Lyapunov function by adding \textbackslash(\textbackslash frac\{1\}\{2\}z\_i\^{}2\textbackslash).
 Each new virtual control is designed to make the new terms in \textbackslash(\textbackslash dot\{V\}\textbackslash) negative definite
 while leaving the previously designed terms unchanged.
 
-\subsubsection{"Backstepping" the Control}
+\hypertarget{backstepping-the-control}{%
+\paragraph{"Backstepping" the Control}\label{backstepping-the-control}}
 
 The name comes from the fact that we start from the outermost subsystem (where the reference
 lives) and "step back" through the cascade, designing one layer at a time until we reach the
 actual control input.
 
-\subsubsection{No Cancellation Required}
+\hypertarget{no-cancellation-required}{%
+\paragraph{No Cancellation Required}\label{no-cancellation-required}}
 
 Unlike feedback linearisation, backstepping does not cancel all nonlinearities. It only
 cancels what is needed and uses the remaining structure constructively. This gives better
 robustness and avoids wasting control effort.
 
-\subsubsection{Guaranteed Stability}
+\hypertarget{guaranteed-stability}{%
+\paragraph{Guaranteed Stability}\label{guaranteed-stability}}
 
 The final Lyapunov function \textbackslash(V\_n = \textbackslash sum\_\{i=1\}\^{}n \textbackslash frac\{1\}\{2\}z\_i\^{}2\textbackslash) with
 \textbackslash(\textbackslash dot\{V\}\_n = -\textbackslash sum\_\{i=1\}\^{}n k\_i z\_i\^{}2\textbackslash) provides a \emph{constructive} proof of
@@ -404,7 +422,8 @@ global asymptotic stability.
 
 \textbf{Figure 5:} Lyapunov function augmentation. Each step adds a new error term, growing the "bowl" in state space while maintaining negative definiteness of V̇.
 
-\subsubsection{Think-Pair-Share (3 min)}
+\hypertarget{think-pair-share-3-min}{%
+\paragraph{Think-Pair-Share (3 min)}\label{think-pair-share-3-min}}
 
 \textbf{Question:} Why can\textquotesingle t we just use feedback linearisation for all nonlinear systems?
 When does backstepping have an advantage?
@@ -428,9 +447,11 @@ When does backstepping have an advantage?
   parameters in the strict-feedback structure.
 \end{itemize}
 
-\section{Backstepping for Robot Manipulator}
+\hypertarget{section-4-part-2-backstepping-for-robot-manipulator}{%
+\subsection{Section 4 --- Part 2: Backstepping for Robot Manipulator}\label{section-4-part-2-backstepping-for-robot-manipulator}}
 
-\subsection{Strict-Feedback Form of Manipulator Dynamics}
+\hypertarget{strict-feedback-form-of-manipulator-dynamics}{%
+\subsubsection{4.1 Strict-Feedback Form of Manipulator Dynamics}\label{strict-feedback-form-of-manipulator-dynamics}}
 
 The standard Euler-Lagrange dynamics of an \textbackslash(n\textbackslash)-DOF manipulator are:
 
@@ -452,7 +473,8 @@ This is a strict-feedback system with \textbackslash(f\_1 = 0\textbackslash), \t
 
 \textbf{Figure 4:} 2-DOF planar manipulator and its decomposition into position and velocity subsystems for backstepping design.
 
-\subsubsection{Step 1 --- Virtual Control for Position Subsystem}
+\hypertarget{step-1-virtual-control-for-position-subsystem}{%
+\paragraph{Step 1 --- Virtual Control for Position Subsystem}\label{step-1-virtual-control-for-position-subsystem}}
 
 Define the position error:
 
@@ -480,7 +502,8 @@ Design the virtual control \textbackslash(\textbackslash alpha\_1\textbackslash)
 
 This gives \textbackslash(\textbackslash dot\{V\}\_1 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2\textbackslash) where \textbackslash(z\_2 = x\_2 - \textbackslash alpha\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1 z\_1\textbackslash).
 
-\subsubsection{Step 2 --- Torque Control for Velocity Subsystem}
+\hypertarget{step-2-torque-control-for-velocity-subsystem}{%
+\paragraph{Step 2 --- Torque Control for Velocity Subsystem}\label{step-2-torque-control-for-velocity-subsystem}}
 
 Define the velocity error:
 
@@ -545,7 +568,8 @@ where \textbackslash(K\_2 = k\_2 I \textbackslash succ 0\textbackslash). Expandi
 
 Both \textbackslash(z\_1 \textbackslash to 0\textbackslash) and \textbackslash(z\_2 \textbackslash to 0\textbackslash) asymptotically, which means \textbackslash(q \textbackslash to q\_d\textbackslash) and \textbackslash(\textbackslash dot\{q\} \textbackslash to \textbackslash dot\{q\}\_d\textbackslash).
 
-\subsection{MATLAB Implementation}
+\hypertarget{matlab-implementation}{%
+\subsubsection{4.2 MATLAB Implementation}\label{matlab-implementation}}
 
 \% Backstepping controller for 2-DOF manipulator
 function tau = backstepping\_manipulator(t, q, dq, params)
@@ -570,9 +594,11 @@ end
 Without it, the position and velocity errors would remain coupled and stability
 cannot be guaranteed by our Lyapunov function.
 
-\section{Backstepping for Mobile Robot}
+\hypertarget{section-5-part-3-backstepping-for-mobile-robot}{%
+\subsection{Section 5 --- Part 3: Backstepping for Mobile Robot}\label{section-5-part-3-backstepping-for-mobile-robot}}
 
-\subsection{Unicycle Model and Error Coordinates}
+\hypertarget{unicycle-model-and-error-coordinates}{%
+\subsubsection{5.1 Unicycle Model and Error Coordinates}\label{unicycle-model-and-error-coordinates}}
 
 The unicycle (differential-drive) mobile robot has the kinematic model:
 
@@ -608,9 +634,11 @@ The error dynamics are:
 
 \textbf{Figure 6:} Differential-drive mobile robot (top-down view) with body-frame errors and the backstepping cascade: position error drives heading control, which drives velocity control.
 
-\subsection{Backstepping Design}
+\hypertarget{backstepping-design}{%
+\subsubsection{5.2 Backstepping Design}\label{backstepping-design}}
 
-\subsubsection{Step 1 --- Stabilise the Lateral/Heading Subsystem}
+\hypertarget{step-1-stabilise-the-lateralheading-subsystem}{%
+\paragraph{Step 1 --- Stabilise the Lateral/Heading Subsystem}\label{step-1-stabilise-the-lateralheading-subsystem}}
 
 Consider the \textbackslash((e\_2, e\_3)\textbackslash) subsystem first. Note that \textbackslash(e\_2\textbackslash) is driven by \textbackslash(v\_r \textbackslash sin e\_3\textbackslash).
 Think of \textbackslash(e\_3\textbackslash) as a virtual input to steer \textbackslash(e\_2\textbackslash). If \textbackslash(e\_3\textbackslash) could be freely chosen, pick:
@@ -627,7 +655,8 @@ However, \textbackslash(e\_3\textbackslash) is a state, not an input. Define the
 \textbackslash bar\{e\}\_3 = e\_3 - e\_3\^{}*
 \textbackslash{]}
 
-\subsubsection{Step 2 --- Design the Control Inputs \textbackslash((v, \textbackslash omega)\textbackslash)}
+\hypertarget{step-2-design-the-control-inputs-v-omega}{%
+\paragraph{Step 2 --- Design the Control Inputs \textbackslash((v, \textbackslash omega)\textbackslash)}\label{step-2-design-the-control-inputs-v-omega}}
 
 Choose the Lyapunov function:
 
@@ -686,7 +715,8 @@ The cross-terms \textbackslash(e\_1 \textbackslash omega e\_2\textbackslash) and
 
 For \textbackslash(v\_r \textgreater{} 0\textbackslash) and using the fact that \textbackslash(\textbackslash frac\{\textbackslash sin e\_3\}\{e\_3\}\textbackslash) is bounded, with appropriate choice of \textbackslash(k\_2\textbackslash), we get \textbackslash(\textbackslash dot\{V\} \textbackslash le -k\_1 e\_1\^{}2 - k\_3 e\_3 \textbackslash sin e\_3 \textbackslash le 0\textbackslash). Convergence of all errors follows by Barbalat\textquotesingle s lemma (since \textbackslash(v\_r(t) \textgreater{} 0\textbackslash)).
 
-\subsection{MATLAB Implementation}
+\hypertarget{matlab-implementation-1}{%
+\subsubsection{5.3 MATLAB Implementation}\label{matlab-implementation-1}}
 
 \% Backstepping controller for unicycle mobile robot
 function {[}v, omega{]} = backstepping\_mobile\_robot(e1, e2, e3, v\_r, omega\_r, params)
@@ -697,9 +727,11 @@ v = v\_r * cos(e3) + params.k1 * e1;
 omega = omega\_r + params.k2 * v\_r * e2 + params.k3 * sin(e3);
 end
 
-\section{Backstepping for Quadrotor Drone}
+\hypertarget{section-6-part-4-backstepping-for-quadrotor-drone}{%
+\subsection{Section 6 --- Part 4: Backstepping for Quadrotor Drone}\label{section-6-part-4-backstepping-for-quadrotor-drone}}
 
-\subsection{Quadrotor Cascade Structure}
+\hypertarget{quadrotor-cascade-structure}{%
+\subsubsection{6.1 Quadrotor Cascade Structure}\label{quadrotor-cascade-structure}}
 
 The quadrotor has a natural four-level cascade:
 
@@ -732,9 +764,11 @@ where \textbackslash(\textbackslash mathbf\{p\} = {[}x,y,z{]}\^{}T\textbackslash
 
 \textbf{Figure 7:} Quadrotor cascade backstepping architecture. The position controller generates a desired attitude (virtual control); the attitude controller generates the actual motor commands.
 
-\subsection{Backstepping Design --- Outer Loop (Position Control)}
+\hypertarget{backstepping-design-outer-loop-position-control}{%
+\subsubsection{6.2 Backstepping Design --- Outer Loop (Position Control)}\label{backstepping-design-outer-loop-position-control}}
 
-\subsubsection{Step 1 --- Position Error}
+\hypertarget{step-1-position-error}{%
+\paragraph{Step 1 --- Position Error}\label{step-1-position-error}}
 
 Define position error \textbackslash(z\_1 = \textbackslash mathbf\{p\} - \textbackslash mathbf\{p\}\_d\textbackslash). Then \textbackslash(\textbackslash dot\{z\}\_1 = \textbackslash mathbf\{v\} - \textbackslash dot\{\textbackslash mathbf\{p\}\}\_d\textbackslash).
 
@@ -744,7 +778,8 @@ Virtual control (desired velocity):
 \textbackslash boldsymbol\{\textbackslash alpha\}\_1 = \textbackslash dot\{\textbackslash mathbf\{p\}\}\_d - K\_\{p1\}\textbackslash,z\_1, \textbackslash qquad K\_\{p1\} = k\_\{p1\}\textbackslash,I\_3 \textbackslash succ 0
 \textbackslash{]}
 
-\subsubsection{Step 2 --- Velocity Error}
+\hypertarget{step-2-velocity-error}{%
+\paragraph{Step 2 --- Velocity Error}\label{step-2-velocity-error}}
 
 Define velocity error \textbackslash(z\_2 = \textbackslash mathbf\{v\} - \textbackslash boldsymbol\{\textbackslash alpha\}\_1\textbackslash). Its dynamics:
 
@@ -772,9 +807,11 @@ T = m\textbackslash,\textbackslash\textbar\textbackslash mathbf\{a\}\_\{\textbac
 R\_\{\textbackslash text\{des\}\} \textbackslash text\{ constructed from \} \textbackslash mathbf\{z\}\_\{B,\textbackslash text\{des\}\} \textbackslash text\{ and desired yaw\}
 \textbackslash{]}
 
-\subsection{Backstepping Design --- Inner Loop (Attitude Control)}
+\hypertarget{backstepping-design-inner-loop-attitude-control}{%
+\subsubsection{6.3 Backstepping Design --- Inner Loop (Attitude Control)}\label{backstepping-design-inner-loop-attitude-control}}
 
-\subsubsection{Step 3 --- Attitude Error}
+\hypertarget{step-3-attitude-error}{%
+\paragraph{Step 3 --- Attitude Error}\label{step-3-attitude-error}}
 
 Using Euler angles \textbackslash((\textbackslash phi, \textbackslash theta, \textbackslash psi)\textbackslash) for a simplified treatment, define:
 
@@ -789,7 +826,8 @@ Virtual control (desired angular rate):
 \textbackslash boldsymbol\{\textbackslash alpha\}\_3 = \textbackslash dot\{\textbackslash boldsymbol\{\textbackslash Phi\}\}\_\{\textbackslash text\{des\}\} - K\_\{a1\}\textbackslash,z\_3
 \textbackslash{]}
 
-\subsubsection{Step 4 --- Angular Rate Error and Torque Design}
+\hypertarget{step-4-angular-rate-error-and-torque-design}{%
+\paragraph{Step 4 --- Angular Rate Error and Torque Design}\label{step-4-angular-rate-error-and-torque-design}}
 
 Define \textbackslash(z\_4 = \textbackslash boldsymbol\{\textbackslash omega\} - \textbackslash boldsymbol\{\textbackslash alpha\}\_3\textbackslash). Using the Euler equation
 \textbackslash(J\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash omega\}\} = -\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} + \textbackslash boldsymbol\{\textbackslash tau\}\_b\textbackslash):
@@ -810,7 +848,8 @@ V = \textbackslash frac\{1\}\{2\}\textbackslash bigl(\textbackslash\textbar z\_1
 \textbackslash dot\{V\} = -k\_\{p1\}\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 - k\_\{p2\}\textbackslash\textbar z\_2\textbackslash\textbar\^{}2 - k\_\{a1\}\textbackslash\textbar z\_3\textbackslash\textbar\^{}2 - k\_\{a2\}\textbackslash,z\_4\^{}T K\_\{a2\}\textbackslash,z\_4 \textbackslash le 0
 \textbackslash{]}
 
-\subsection{MATLAB Implementation}
+\hypertarget{matlab-implementation-2}{%
+\subsubsection{6.4 MATLAB Implementation}\label{matlab-implementation-2}}
 
 \% Backstepping controller for quadrotor
 function {[}T, tau\_b{]} = backstepping\_quadrotor(state, ref, params)
@@ -849,11 +888,11 @@ end
 must be saturated (typically to \textbackslash(\textbackslash pm 30\^{}\textbackslash circ\textbackslash)) to prevent aggressive manoeuvres.
 The thrust \textbackslash(T\textbackslash) must also be clamped to \textbackslash({[}0, T\_\{\textbackslash max\}{]}\textbackslash).
 
-\section{Summary and Next Steps}
+\hypertarget{section-7-hands-on-activities-quiz}{%
+\subsection{Section 7 --- Hands-on Activities \& Quiz}\label{section-7-hands-on-activities-quiz}}
 
-\subsection{Hands-on Activities \& Quiz}
-
-\subsection{Activity 1: Gain Tuning for Manipulator Backstepping (10 min)}
+\hypertarget{activity-1-gain-tuning-for-manipulator-backstepping-10-min}{%
+\subsubsection{Activity 1: Gain Tuning for Manipulator Backstepping (10 min)}\label{activity-1-gain-tuning-for-manipulator-backstepping-10-min}}
 
 Run \texttt{backstepping\_control\_simulation.m} and observe the manipulator plots.
 Then modify the gains and re-run:
@@ -885,7 +924,8 @@ Then modify the gains and re-run:
   generally the best choice for smooth, fast tracking.
 \end{itemize}
 
-\subsection{Activity 2: Comparative Study (15 min)}
+\hypertarget{activity-2-comparative-study-15-min}{%
+\subsubsection{Activity 2: Comparative Study (15 min)}\label{activity-2-comparative-study-15-min}}
 
 The MATLAB file includes a comparison of backstepping vs. computed torque vs. robust control
 on the manipulator with model uncertainty (20\% mass error). Observe:
@@ -900,7 +940,8 @@ on the manipulator with model uncertainty (20\% mass error). Observe:
   Which controller uses the least energy (smallest \textbackslash(\textbackslash int \textbackslash\textbar\textbackslash tau\textbackslash\textbar\^{}2 \textbackslash, dt\textbackslash))?
 \end{itemize}
 
-\subsubsection{Quiz --- Virtual Control Design}
+\hypertarget{quiz-virtual-control-design}{%
+\paragraph{Quiz --- Virtual Control Design}\label{quiz-virtual-control-design}}
 
 \textbf{Q1:} Given the system \textbackslash(\textbackslash dot\{x\}\_1 = x\_1\^{}2 + x\_2\textbackslash), \textbackslash(\textbackslash dot\{x\}\_2 = x\_2 + u\textbackslash),
 design a backstepping controller to stabilise \textbackslash(x\_1 = 0\textbackslash).
@@ -935,7 +976,8 @@ for the previous level. The manipulator only has two levels (position → veloci
 the torque directly enters the velocity dynamics via \textbackslash(M\^{}\{-1\}\textbackslash tau\textbackslash). The number of backstepping
 steps equals the relative degree from the output to the input.
 
-\subsection{Summary: Comparison of All Five Control Methods}
+\hypertarget{section-8-summary-comparison-of-all-five-control-methods}{%
+\subsection{Section 8 --- Summary: Comparison of All Five Control Methods}\label{section-8-summary-comparison-of-all-five-control-methods}}
 
 \begin{longtable}[]{@{}llllll@{}}
 \toprule\noalign{}

@@ -1,23 +1,18 @@
-% ----- auto-generated from week_11/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{ROS\,2 Navigation Control (Week 11)}
-\labch{week_11}
-
-
+\hypertarget{autonav-solutions-navigation-engineer-technical-challenge}{%
+\section{AutoNav Solutions --- Navigation Engineer Technical Challenge}\label{autonav-solutions-navigation-engineer-technical-challenge}}
 
 Build Costmap, A* Planner, and Path Follower from LiDAR and Odometry Data
 
 Position: Navigation Engineer • Team: Autonomous Navigation\\
 Pre-Interview Technical Assessment • Estimated Time: 3 Hours
 
-\section{Overview}
-
-\subsection{Company Brief: AutoNav Solutions}
+\hypertarget{company-brief-autonav-solutions}{%
+\subsection{Company Brief: AutoNav Solutions}\label{company-brief-autonav-solutions}}
 
 \textbf{Scenario:} AutoNav Solutions develops autonomous mobile robot platforms for warehouse and logistics environments. Your team has collected 30 seconds of navigation sensor data from a robot operating in a structured environment, including a static map, laser scans, and wheel odometry. As part of this challenge, you will build a complete navigation pipeline from scratch.
 
-\subsection{Provided Bag Data}
+\hypertarget{provided-bag-data}{%
+\subsubsection{Provided Bag Data}\label{provided-bag-data}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -31,7 +26,8 @@ Topic & Message Type & Rate & Description \\
 \texttt{/scan} & sensor\_msgs/LaserScan & 5 Hz & 2D laser range finder data \\
 \end{longtable}
 
-\subsection{Deliverables}
+\hypertarget{deliverables}{%
+\subsubsection{Deliverables}\label{deliverables}}
 
 \begin{itemize}
 \tightlist
@@ -47,7 +43,8 @@ Topic & Message Type & Rate & Description \\
   A quantitative comparison of path quality, tracking error, and localisation accuracy
 \end{itemize}
 
-\subsection{Evaluation Criteria}
+\hypertarget{evaluation-criteria}{%
+\subsubsection{Evaluation Criteria}\label{evaluation-criteria}}
 
 \begin{itemize}
 \tightlist
@@ -61,7 +58,8 @@ Topic & Message Type & Rate & Description \\
   \textbf{Communication:} Ability to explain Nav2 architecture and compare DWA to MPC during the follow-up interview
 \end{itemize}
 
-\subsection{Skills You Will Demonstrate}
+\hypertarget{skills-you-will-demonstrate}{%
+\subsection{Skills You Will Demonstrate}\label{skills-you-will-demonstrate}}
 
 By the end of this session, you will be able to:
 
@@ -85,89 +83,108 @@ By the end of this session, you will be able to:
   Configure, launch, and tune Nav2 for TurtleBot3 simulation including AMCL localization, DWA local planning, and waypoint navigation.
 \end{itemize}
 
-\subsection{Recommended Approach (3-Hour Session)}
+\hypertarget{recommended-approach-3-hour-session}{%
+\subsection{Recommended Approach (3-Hour Session)}\label{recommended-approach-3-hour-session}}
 
 0:00 -- 0:20
 
-\subsubsection{Week 10 Exam Recall \& Introduction}
+\hypertarget{week-10-exam-recall-introduction}{%
+\paragraph{Week 10 Exam Recall \& Introduction}\label{week-10-exam-recall-introduction}}
 
 Review quadrotor control exam questions. Introduce mobile robot navigation as the next control application domain.
 
 0:20 -- 0:50
 
-\subsubsection{Nav2 Architecture Overview}
+\hypertarget{part-1-nav2-architecture-overview}{%
+\paragraph{Part 1: Nav2 Architecture Overview}\label{part-1-nav2-architecture-overview}}
 
 Global planner, local controller, costmaps, AMCL, behavior trees, recovery behaviors. Key ROS2 topics and message types.
 
 0:50 -- 1:20
 
-\subsubsection{DWA --- The Local Controller as Optimization}
+\hypertarget{part-2-dwa-the-local-controller-as-optimization}{%
+\paragraph{Part 2: DWA --- The Local Controller as Optimization}\label{part-2-dwa-the-local-controller-as-optimization}}
 
 Deep dive into the Dynamic Window Approach. Connection to MPC. Simplified DWA implementation in ROS2.
 
 1:20 -- 1:35
 
-\subsubsection{Break}
+\hypertarget{break}{%
+\paragraph{Break}\label{break}}
 
 15-minute break.
 
 1:35 -- 1:55
 
-\subsubsection{AMCL --- State Estimation for Control}
+\hypertarget{part-3-amcl-state-estimation-for-control}{%
+\paragraph{Part 3: AMCL --- State Estimation for Control}\label{part-3-amcl-state-estimation-for-control}}
 
 Particle filter localization. Connection to Week 8\textquotesingle s controller-estimator pairing for NMPC. ROS2 AMCL configuration.
 
 1:55 -- 2:10
 
-\subsubsection{Costmaps as Constraints \& Part 5: Behavior Trees}
+\hypertarget{part-4-costmaps-as-constraints-part-5-behavior-trees}{%
+\paragraph{Part 4: Costmaps as Constraints \& Part 5: Behavior Trees}\label{part-4-costmaps-as-constraints-part-5-behavior-trees}}
 
 Costmap inflation as soft constraints. Behavior tree navigation orchestration.
 
 2:10 -- 2:25
 
-\subsubsection{Applying Control Theory to Navigation}
+\hypertarget{part-6-applying-control-theory-to-navigation}{%
+\paragraph{Part 6: Applying Control Theory to Navigation}\label{part-6-applying-control-theory-to-navigation}}
 
 Mapping all 8 control methods from the course to mobile robot navigation scenarios.
 
 2:25 -- 3:00
 
-\subsubsection{Hands-On Activities \& Lab Exercises}
+\hypertarget{hands-on-activities-lab-exercises}{%
+\paragraph{Hands-On Activities \& Lab Exercises}\label{hands-on-activities-lab-exercises}}
 
 Configure Nav2 for TurtleBot3. Tune DWA. Compare DWA vs MPC. Waypoint navigation with recovery.
 
-\section{The ROS2 Navigation Stack (Nav2)}
+\hypertarget{section-3-part-1-the-ros2-navigation-stack-nav2}{%
+\subsection{Section 3: Part 1 --- The ROS2 Navigation Stack (Nav2)}\label{section-3-part-1-the-ros2-navigation-stack-nav2}}
 
 Nav2 is the standard ROS2 navigation framework for autonomous mobile robots. It provides a complete, modular pipeline: from a goal pose, through path planning and obstacle avoidance, to velocity commands sent to the robot\textquotesingle s motors. Every component is a ROS2 lifecycle node that can be configured, replaced, or extended via plugins.
 
-\subsection{Nav2 Core Components}
+\hypertarget{nav2-core-components}{%
+\subsubsection{3.1 Nav2 Core Components}\label{nav2-core-components}}
 
-\subsubsection{Global Planner}
+\hypertarget{global-planner}{%
+\paragraph{Global Planner}\label{global-planner}}
 
 Computes a collision-free path from the robot\textquotesingle s current position to the goal on the global costmap. Plugins include \textbf{NavFn} (Dijkstra/A*), \textbf{SmacPlanner} (State Lattice, Hybrid-A*), and \textbf{ThetaStar}. Operates on the full map at \textasciitilde1 Hz.
 
-\subsubsection{Local Controller}
+\hypertarget{local-controller}{%
+\paragraph{Local Controller}\label{local-controller}}
 
 Follows the global path while avoiding local obstacles. Runs at 10--20 Hz on the local costmap. Plugins: \textbf{DWA} (Dynamic Window Approach), \textbf{MPPI} (Model Predictive Path Integral), \textbf{Regulated Pure Pursuit}, \textbf{Rotation Shim}.
 
-\subsubsection{Costmap 2D}
+\hypertarget{costmap-2d}{%
+\paragraph{Costmap 2D}\label{costmap-2d}}
 
 Layered 2D cost grid. \textbf{Static layer} from the SLAM map, \textbf{obstacle layer} from live sensor data (LiDAR, depth cameras), \textbf{inflation layer} providing safety buffers with exponential cost decay around obstacles.
 
-\subsubsection{AMCL Localization}
+\hypertarget{amcl-localization}{%
+\paragraph{AMCL Localization}\label{amcl-localization}}
 
 Adaptive Monte Carlo Localization --- a particle filter that estimates the robot\textquotesingle s pose on the map using laser scan data and odometry. Publishes the \texttt{map\ →\ odom} transform.
 
-\subsubsection{Behavior Tree Navigator}
+\hypertarget{behavior-tree-navigator}{%
+\paragraph{Behavior Tree Navigator}\label{behavior-tree-navigator}}
 
 Orchestrates the entire navigation pipeline using behavior trees (BehaviorTree.CPP). Handles sequencing of planning, control, and recovery. More flexible and maintainable than finite state machines.
 
-\subsubsection{Recovery Behaviors}
+\hypertarget{recovery-behaviors}{%
+\paragraph{Recovery Behaviors}\label{recovery-behaviors}}
 
 Activated when the robot gets stuck. \textbf{Spin:} rotate in place to clear local costmap. \textbf{Backup:} drive backwards. \textbf{Wait:} pause and hope dynamic obstacles move. \textbf{ClearCostmap:} reset costmap layers.
 
-\subsection{Nav2 Architecture Diagram}
+\hypertarget{nav2-architecture-diagram}{%
+\subsubsection{3.2 Nav2 Architecture Diagram}\label{nav2-architecture-diagram}}
 
-\subsection{Key Nav2 ROS2 Topics}
+\hypertarget{key-nav2-ros2-topics}{%
+\subsubsection{3.3 Key Nav2 ROS2 Topics}\label{key-nav2-ros2-topics}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -188,17 +205,20 @@ Topic & Message Type & Publisher & Purpose \\
 
 \textbf{Control Theory Connection:} The Nav2 architecture implements a hierarchical control structure analogous to the cascaded quadrotor controller from Week 10. The behavior tree is the mission-level controller, the global planner is the trajectory generator, and the local controller is the real-time feedback loop --- each operating at progressively faster rates.
 
-\section{DWA: The Local Controller as Optimization}
+\hypertarget{section-4-part-2-dwa-the-local-controller-as-optimization}{%
+\subsection{Section 4: Part 2 --- DWA: The Local Controller as Optimization}\label{section-4-part-2-dwa-the-local-controller-as-optimization}}
 
 The Dynamic Window Approach (DWA) is one of the most widely-used local planners in mobile robotics. From a control theory perspective, \textbf{DWA is essentially a simplified Model Predictive Controller with a one-step prediction horizon}. Understanding this connection bridges the gap between classical control optimization (Week 3) and practical robot navigation.
 
-\subsection{DWA Velocity Space}
+\hypertarget{dwa-velocity-space}{%
+\subsubsection{4.1 DWA Velocity Space}\label{dwa-velocity-space}}
 
 A differential-drive robot is controlled by two inputs: linear velocity \textbackslash(v\textbackslash) and angular velocity \textbackslash(\textbackslash omega\textbackslash). DWA operates in this 2D velocity space:
 
 \textbf{Velocity Space:} \textbackslash( (v, \textbackslash omega) \textbackslash) where \textbackslash( v \textbackslash in {[}v\_\{\textbackslash min\}, v\_\{\textbackslash max\}{]} \textbackslash), \textbackslash( \textbackslash omega \textbackslash in {[}\textbackslash omega\_\{\textbackslash min\}, \textbackslash omega\_\{\textbackslash max\}{]} \textbackslash)
 
-\subsection{Dynamic Window Constraint}
+\hypertarget{dynamic-window-constraint}{%
+\subsubsection{4.2 Dynamic Window Constraint}\label{dynamic-window-constraint}}
 
 Not all velocities in the admissible range are physically reachable from the current state within one control interval \textbackslash(\textbackslash Delta t\textbackslash). The \textbf{dynamic window} restricts the search to reachable velocities given acceleration limits:
 
@@ -216,7 +236,8 @@ V\_a = \textbackslash\{ (v, \textbackslash omega) \textbackslash mid v \textback
 \textbackslash omega \textbackslash leq \textbackslash sqrt\{2 \textbackslash cdot \textbackslash text\{dist\}(v,\textbackslash omega) \textbackslash cdot \textbackslash dot\{\textbackslash omega\}\_\{\textbackslash max\}\} \textbackslash\}
 \textbackslash{]}
 
-\subsection{DWA Objective Function}
+\hypertarget{dwa-objective-function}{%
+\subsubsection{4.3 DWA Objective Function}\label{dwa-objective-function}}
 
 DWA selects the velocity pair \textbackslash((v\^{}*, \textbackslash omega\^{}*)\textbackslash) that maximises a weighted objective:
 
@@ -234,7 +255,8 @@ where:
   \textbf{velocity(\textbackslash(v, \textbackslash omega\textbackslash)):} Forward speed \textbackslash(v\textbackslash) of the candidate, normalised to {[}0, 1{]}. Encourages faster progress toward the goal rather than overly cautious creeping.
 \end{itemize}
 
-\subsection{Connection to MPC (Week 3)}
+\hypertarget{connection-to-mpc-week-3}{%
+\subsubsection{4.4 Connection to MPC (Week 3)}\label{connection-to-mpc-week-3}}
 
 \textbf{Key Insight:} DWA can be viewed as MPC with horizon \textbackslash(N = 1\textbackslash), state = robot pose, control = \textbackslash((v, \textbackslash omega)\textbackslash), cost = negative of heading + clearance + velocity, and constraints = dynamic window + collision-free. The modern Nav2 \textbf{MPPI} (Model Predictive Path Integral) controller IS full MPC with \textbackslash(N \textbackslash gg 1\textbackslash).
 
@@ -263,7 +285,8 @@ Computational Cost & Low (\textasciitilde1 ms) & Higher (\textasciitilde5--50 ms
 Anticipation & Myopic (reacts to immediate surroundings) & Looks ahead (anticipates obstacles, turns) \\
 \end{longtable}
 
-\subsection{ROS2 Implementation --- Simplified DWA Local Planner Node}
+\hypertarget{ros2-implementation-simplified-dwa-local-planner-node}{%
+\subsubsection{4.5 ROS2 Implementation --- Simplified DWA Local Planner Node}\label{ros2-implementation-simplified-dwa-local-planner-node}}
 
 \#!/usr/bin/env python3
 """Simplified DWA local planner node for ROS2.
@@ -388,13 +411,16 @@ High \textbackslash(\textbackslash beta\textbackslash) = overly cautious (slow p
 High \textbackslash(\textbackslash gamma\textbackslash) = fast but may overshoot.
 Start with \textbackslash(\textbackslash alpha = 1.0, \textbackslash beta = 1.0, \textbackslash gamma = 0.5\textbackslash) and adjust.
 
-\section{AMCL: State Estimation for Control}
+\hypertarget{section-5-part-3-amcl-state-estimation-for-control}{%
+\subsection{Section 5: Part 3 --- AMCL: State Estimation for Control}\label{section-5-part-3-amcl-state-estimation-for-control}}
 
-\subsection{Connection to Nonlinear Optimization (Week 8)}
+\hypertarget{connection-to-nonlinear-optimization-week-8}{%
+\subsubsection{5.1 Connection to Nonlinear Optimization (Week 8)}\label{connection-to-nonlinear-optimization-week-8}}
 
 Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iLQR/NMPC for trajectory optimization, and per-controller optimization of SMC / adaptive / robust / backstepping gains. Every controller in that framework assumes access to the state \textbackslash(x\textbackslash) --- but in a real robot the state must be \emph{estimated} from sensors. Controller-plus-estimator is the universal structure:
 
-\subsubsection{Week 8 NMPC / iLQR}
+\hypertarget{week-8-nmpc-ilqr}{%
+\paragraph{Week 8 NMPC / iLQR}\label{week-8-nmpc-ilqr}}
 
 \begin{itemize}
 \tightlist
@@ -408,7 +434,8 @@ Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iL
   \textbf{Sensors:} any; noise model enters the estimator design, not the controller
 \end{itemize}
 
-\subsubsection{Nav2 Navigation}
+\hypertarget{nav2-navigation}{%
+\paragraph{Nav2 Navigation}\label{nav2-navigation}}
 
 \begin{itemize}
 \tightlist
@@ -424,7 +451,8 @@ Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iL
 
 \textbf{Why not a Kalman Filter?} The Kalman filter assumes Gaussian distributions and linear (or locally linear) models. In mobile robot localization, the probability distribution over poses can be \textbf{multimodal} (the robot could be in several places on a symmetric map). Particle filters handle arbitrary distributions, making AMCL more suitable for global localization.
 
-\subsection{AMCL Algorithm}
+\hypertarget{amcl-algorithm}{%
+\subsubsection{5.2 AMCL Algorithm}\label{amcl-algorithm}}
 
 AMCL represents the belief over the robot\textquotesingle s pose as a set of weighted particles:
 
@@ -452,9 +480,11 @@ The AMCL algorithm cycles through four steps:
   \textbf{Resampling:} When the effective particle count \textbackslash(N\_\{\textbackslash text\{eff\}\} = 1/\textbackslash sum w\_i\^{}2\textbackslash) drops below a threshold, perform low-variance resampling: draw a new particle set where particles with higher weights are more likely to be selected.
 \end{enumerate}
 
-\subsection{AMCL Cycle Diagram}
+\hypertarget{amcl-cycle-diagram}{%
+\subsubsection{5.3 AMCL Cycle Diagram}\label{amcl-cycle-diagram}}
 
-\subsection{ROS2 AMCL Configuration}
+\hypertarget{ros2-amcl-configuration}{%
+\subsubsection{5.4 ROS2 AMCL Configuration}\label{ros2-amcl-configuration}}
 
 \# Launch AMCL for TurtleBot3 localization
 ros2 launch nav2\_bringup localization\_launch.py \textbackslash{}
@@ -489,25 +519,31 @@ sigma\_hit: 0.2
 recovery\_alpha\_slow: 0.001 \# Slow average weight decay
 recovery\_alpha\_fast: 0.1 \# Fast average weight decay
 
-\section{Costmap: Constraints for Control}
+\hypertarget{section-6-part-4-costmap-constraints-for-control}{%
+\subsection{Section 6: Part 4 --- Costmap: Constraints for Control}\label{section-6-part-4-costmap-constraints-for-control}}
 
 In control theory, constraints define the safe operating region. In Nav2, \textbf{costmaps} serve exactly this purpose: they encode where the robot can and cannot go, with graduated costs creating soft boundaries.
 
-\subsection{Costmaps as Control Constraints}
+\hypertarget{costmaps-as-control-constraints}{%
+\subsubsection{6.1 Costmaps as Control Constraints}\label{costmaps-as-control-constraints}}
 
-\subsubsection{Global Costmap ↔ Terminal Constraint}
+\hypertarget{global-costmap-terminal-constraint}{%
+\paragraph{Global Costmap ↔ Terminal Constraint}\label{global-costmap-terminal-constraint}}
 
 The global costmap constrains the global planner, analogous to the \textbf{terminal constraint} in MPC that ensures the planned trajectory ends in a safe set. It covers the entire known map and updates slowly (\textasciitilde1 Hz).
 
-\subsubsection{Local Costmap ↔ Stage Constraints}
+\hypertarget{local-costmap-stage-constraints}{%
+\paragraph{Local Costmap ↔ Stage Constraints}\label{local-costmap-stage-constraints}}
 
 The local costmap constrains the DWA/MPPI local controller, analogous to \textbf{stage constraints} in MPC \textbackslash((\textbackslash mathbf\{x\}\_k \textbackslash in \textbackslash mathcal\{X\}, \textbackslash mathbf\{u\}\_k \textbackslash in \textbackslash mathcal\{U\})\textbackslash) that enforce safety at each time step. Rolling window, updated at 5--20 Hz.
 
-\subsubsection{Inflation Layer ↔ Soft Constraints}
+\hypertarget{inflation-layer-soft-constraints}{%
+\paragraph{Inflation Layer ↔ Soft Constraints}\label{inflation-layer-soft-constraints}}
 
 The inflation layer creates graduated costs around obstacles, analogous to \textbf{barrier functions} or \textbf{soft constraints} with penalty terms. The robot is not forbidden from approaching obstacles but incurs increasing cost.
 
-\subsection{Costmap Layers}
+\hypertarget{costmap-layers}{%
+\subsubsection{6.2 Costmap Layers}\label{costmap-layers}}
 
 \begin{enumerate}
 \tightlist
@@ -519,7 +555,8 @@ The inflation layer creates graduated costs around obstacles, analogous to \text
   \textbf{Inflation Layer:} Expands obstacles by the robot\textquotesingle s inscribed radius and adds exponentially-decaying cost beyond that. This is the critical safety layer.
 \end{enumerate}
 
-\subsection{Inflation Cost Function}
+\hypertarget{inflation-cost-function}{%
+\subsubsection{6.3 Inflation Cost Function}\label{inflation-cost-function}}
 
 \textbackslash{[}
 c(d) = \textbackslash begin\{cases\}
@@ -545,7 +582,8 @@ where:
   \textbackslash(\textbackslash beta\textbackslash) = cost scaling factor controlling how quickly cost decays with distance
 \end{itemize}
 
-\subsection{Nav2 Costmap Configuration}
+\hypertarget{nav2-costmap-configuration}{%
+\subsubsection{6.4 Nav2 Costmap Configuration}\label{nav2-costmap-configuration}}
 
 Costmap YAML Configuration (nav2\_params.yaml)
 
@@ -603,9 +641,11 @@ plugin: "nav2\_costmap\_2d::InflationLayer"
 cost\_scaling\_factor: 5.0
 inflation\_radius: 0.55
 
-\section{Behavior Trees for Mission Control}
+\hypertarget{section-7-part-5-behavior-trees-for-mission-control}{%
+\subsection{Section 7: Part 5 --- Behavior Trees for Mission Control}\label{section-7-part-5-behavior-trees-for-mission-control}}
 
-\subsection{Why Behavior Trees?}
+\hypertarget{why-behavior-trees}{%
+\subsubsection{7.1 Why Behavior Trees?}\label{why-behavior-trees}}
 
 Behavior Trees (BTs) are an alternative to Finite State Machines (FSMs) for orchestrating complex robot behaviors. Nav2 uses the \textbf{BehaviorTree.CPP} library.
 
@@ -623,7 +663,8 @@ Reusability & Low (states are context-dependent) & High (subtrees are self-conta
 Debugging & Hard with many states & Visual tools (Groot) show live tree state \\
 \end{longtable}
 
-\subsection{BT Node Types}
+\hypertarget{bt-node-types}{%
+\subsubsection{7.2 BT Node Types}\label{bt-node-types}}
 
 \begin{itemize}
 \tightlist
@@ -639,9 +680,11 @@ Debugging & Hard with many states & Visual tools (Groot) show live tree state \\
   \textbf{Decorator:} Modifies a child\textquotesingle s behavior (e.g., Inverter, Retry, Timeout).
 \end{itemize}
 
-\subsection{Navigation Behavior Tree Diagram}
+\hypertarget{navigation-behavior-tree-diagram}{%
+\subsubsection{7.3 Navigation Behavior Tree Diagram}\label{navigation-behavior-tree-diagram}}
 
-\subsection{Nav2 BT XML Configuration}
+\hypertarget{nav2-bt-xml-configuration}{%
+\subsubsection{7.4 Nav2 BT XML Configuration}\label{nav2-bt-xml-configuration}}
 
 Default Nav2 Behavior Tree XML (navigate\_to\_pose\_w\_replanning.xml)
 
@@ -668,7 +711,8 @@ service\_name="/global\_costmap/clear"/\textgreater{}
 \textless/BehaviorTree\textgreater{}
 \textless/root\textgreater{}
 
-\section{Applying Control Theory to Navigation}
+\hypertarget{section-8-part-6-applying-control-theory-to-navigation}{%
+\subsection{Section 8: Part 6 --- Applying Control Theory to Navigation}\label{section-8-part-6-applying-control-theory-to-navigation}}
 
 Throughout Weeks 1--8, you studied eight control methods in the context of general dynamical systems. Here we show how \textbf{every one of them} maps directly to a mobile robot navigation scenario.
 
@@ -689,47 +733,56 @@ Controller & Navigation Role & Example Scenario \\
 \textbf{LQR} & Highway/corridor following & Straight, smooth paths \\
 \end{longtable}
 
-\subsection{Detailed Mapping}
+\hypertarget{detailed-mapping}{%
+\subsubsection{Detailed Mapping}\label{detailed-mapping}}
 
-\subsubsection{PID → Pure Pursuit Path Follower}
+\hypertarget{pid-pure-pursuit-path-follower}{%
+\paragraph{PID → Pure Pursuit Path Follower}\label{pid-pure-pursuit-path-follower}}
 
 The simplest approach: a PID controller on the cross-track error (distance from the path) and heading error. The proportional term steers toward the path, the integral corrects for systematic drift, and the derivative damps oscillations. Used in Nav2\textquotesingle s Regulated Pure Pursuit plugin where the lookahead distance acts as an effective proportional gain.
 
-\subsubsection{Computed Torque → Model-Based Tracking}
+\hypertarget{computed-torque-model-based-tracking}{%
+\paragraph{Computed Torque → Model-Based Tracking}\label{computed-torque-model-based-tracking}}
 
 When the robot\textquotesingle s kinematic or dynamic model is well-known (mass, inertia, wheel-ground friction), computed torque control cancels the nonlinear dynamics and applies a linear outer loop. For a differential-drive robot, this means compensating for the nonholonomic constraint \textbackslash(\textbackslash dot\{x\}\textbackslash sin\textbackslash theta - \textbackslash dot\{y\}\textbackslash cos\textbackslash theta = 0\textbackslash) directly in the control law.
 
-\subsubsection{MPC → MPPI Local Planner}
+\hypertarget{mpc-mppi-local-planner}{%
+\paragraph{MPC → MPPI Local Planner}\label{mpc-mppi-local-planner}}
 
 Nav2\textquotesingle s MPPI (Model Predictive Path Integral) controller is a direct implementation of MPC using sampling-based optimization. It rolls out thousands of trajectories over a prediction horizon \textbackslash(N\textbackslash), evaluates a cost function (path following + obstacle avoidance + smoothness), and selects the optimal control sequence. This is the most capable Nav2 controller for complex environments.
 
-\subsubsection{Adaptive → Terrain-Adaptive Navigation}
+\hypertarget{adaptive-terrain-adaptive-navigation}{%
+\paragraph{Adaptive → Terrain-Adaptive Navigation}\label{adaptive-terrain-adaptive-navigation}}
 
 When a robot moves from smooth tile to carpet to gravel, the effective friction and slip change unpredictably. An adaptive controller estimates these parameters online and adjusts the velocity/steering gains accordingly. This prevents the robot from overshooting on low-friction surfaces or responding sluggishly on high-friction ones.
 
-\subsubsection{Robust (H-infinity) → All-Weather Navigation}
+\hypertarget{robust-h-infinity-all-weather-navigation}{%
+\paragraph{Robust (H-infinity) → All-Weather Navigation}\label{robust-h-infinity-all-weather-navigation}}
 
 Robust control guarantees performance despite bounded uncertainties. For navigation, this means maintaining path-tracking accuracy despite sensor noise (rain degrading LiDAR), actuator uncertainty (wheel slip on wet surfaces), and model uncertainty (payload changes). The controller is designed for the worst-case disturbance scenario.
 
-\subsubsection{Backstepping → Nonholonomic Path Tracking}
+\hypertarget{backstepping-nonholonomic-path-tracking}{%
+\paragraph{Backstepping → Nonholonomic Path Tracking}\label{backstepping-nonholonomic-path-tracking}}
 
 Backstepping is particularly well-suited for nonholonomic systems like differential-drive robots, which cannot move sideways. The controller recursively stabilises the system by first stabilising the orientation error, then using that as a "virtual input" to stabilise the position error. Ideal for parking manoeuvres and tight turns where the nonholonomic constraint is most limiting.
 
-\subsubsection{SMC → Rough Terrain Tracking}
+\hypertarget{smc-rough-terrain-tracking}{%
+\paragraph{SMC → Rough Terrain Tracking}\label{smc-rough-terrain-tracking}}
 
 Sliding Mode Control provides robustness against unmatched disturbances through a discontinuous control law that forces the system onto a sliding surface. For mobile robots on rough terrain, SMC rejects disturbances from bumps, rocks, and uneven ground that would destabilise smoother controllers. The chattering issue can be mitigated with boundary layers.
 
-\subsubsection{LQR → Highway/Corridor Following}
+\hypertarget{lqr-highwaycorridor-following}{%
+\paragraph{LQR → Highway/Corridor Following}\label{lqr-highwaycorridor-following}}
 
 LQR provides optimal control for linear systems (or linearised around a reference). In long, straight corridors or highways, the robot dynamics can be well-approximated as linear, and LQR provides the minimum-energy deviation from the centre-line. Often used as the local stabiliser within a larger nonlinear controller.
 
-\section{Summary and Next Steps}
-
-\subsection{ROS2 Lab Exercises}
+\hypertarget{section-9-part-7-ros2-lab-exercises}{%
+\subsection{Section 9: Part 7 --- ROS2 Lab Exercises}\label{section-9-part-7-ros2-lab-exercises}}
 
 This week\textquotesingle s practical work aligns with the ROS2 Robotics Course \textbf{Week 5: Navigation Stack (Nav2)}. The exercises are available in the course repository under \texttt{src/ros2\_robotics\_course/week\_05/}.
 
-\subsection{Python Lab Exercises (Algorithmic Foundations)}
+\hypertarget{python-lab-exercises-algorithmic-foundations}{%
+\subsubsection{9.1 Python Lab Exercises (Algorithmic Foundations)}\label{python-lab-exercises-algorithmic-foundations}}
 
 Located in \texttt{week\_05/lab\_exercises/}. These standalone Python scripts implement the core algorithms underlying Nav2 without requiring a running ROS2 system.
 
@@ -749,7 +802,8 @@ Task & File & Description & Control Connection \\
 \textbf{Task 7} & \texttt{task7\_full\_navigation.py} & Full integrated navigation combining all components: costmap, A*, DWA, particle filter, and behavior tree in a single pipeline. & Complete navigation control system \\
 \end{longtable}
 
-\subsection{ROS2 Applied Exercises (Node-Based)}
+\hypertarget{ros2-applied-exercises-node-based}{%
+\subsubsection{9.2 ROS2 Applied Exercises (Node-Based)}\label{ros2-applied-exercises-node-based}}
 
 Located in \texttt{week\_05/w05\_exercises/}. These implement the navigation components as proper ROS2 nodes using topics, services, and message types.
 
@@ -778,9 +832,11 @@ ros2 run week\_05 exercise2\_node -\/-ros-args \textbackslash{}
 ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 -\/-params-file week\_05/w05\_exercises/config/params.yaml
 
-\subsection{Hands-On Activities}
+\hypertarget{section-10-hands-on-activities}{%
+\subsection{Section 10: Hands-On Activities}\label{section-10-hands-on-activities}}
 
-\subsection{Activity 1: Configure Nav2 for TurtleBot3 Navigation}
+\hypertarget{activity-1-configure-nav2-for-turtlebot3-navigation}{%
+\subsubsection{Activity 1: Configure Nav2 for TurtleBot3 Navigation}\label{activity-1-configure-nav2-for-turtlebot3-navigation}}
 
 \textbf{Objective:} Set up the full Nav2 stack for TurtleBot3 in Gazebo and navigate through a maze environment.
 
@@ -819,7 +875,8 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
   \textbf{Record observations:} For three different parameter sets, record: (a) time to goal, (b) minimum obstacle distance, (c) path smoothness.
 \end{enumerate}
 
-\subsection{Activity 2: Compare DWA vs MPC for Navigation}
+\hypertarget{activity-2-compare-dwa-vs-mpc-for-navigation}{%
+\subsubsection{Activity 2: Compare DWA vs MPC for Navigation}\label{activity-2-compare-dwa-vs-mpc-for-navigation}}
 
 \textbf{Objective:} Replace the default DWA controller with your MPC controller from Week 9 and compare performance across three scenarios.
 
@@ -860,7 +917,8 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
   \end{longtable}
 \end{enumerate}
 
-\subsection{Activity 3: Waypoint Navigation with Recovery Behaviors}
+\hypertarget{activity-3-waypoint-navigation-with-recovery-behaviors}{%
+\subsubsection{Activity 3: Waypoint Navigation with Recovery Behaviors}\label{activity-3-waypoint-navigation-with-recovery-behaviors}}
 
 \textbf{Objective:} Implement waypoint navigation using the Nav2 action server, visit 5 waypoints in order, and add recovery behavior when stuck.
 
@@ -938,81 +996,98 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
   \textbf{Compare:} Run with recovery behaviors enabled vs. disabled. How much does recovery improve the success rate?
 \end{enumerate}
 
-\subsubsection{Quick Quiz --- Navigation and Mobile Robot Control}
+\hypertarget{quick-quiz-navigation-and-mobile-robot-control}{%
+\paragraph{Quick Quiz --- Navigation and Mobile Robot Control}\label{quick-quiz-navigation-and-mobile-robot-control}}
 
 \textbf{Q1:} In the DWA objective function \textbackslash(G(v,\textbackslash omega) = \textbackslash alpha \textbackslash cdot \textbackslash text\{heading\} + \textbackslash beta \textbackslash cdot \textbackslash text\{clearance\} + \textbackslash gamma \textbackslash cdot \textbackslash text\{velocity\}\textbackslash), what happens if you set \textbackslash(\textbackslash beta = 0\textbackslash) (zero clearance weight)?
 
-\subsubsection{Answer}
+\hypertarget{answer}{%
+\paragraph{Answer}\label{answer}}
 
 The controller completely ignores obstacle proximity. It will select velocities that best align with the goal and maximise speed, regardless of nearby obstacles. This will almost certainly result in collisions. The clearance term is the primary safety mechanism in DWA --- without it, the controller has no incentive to avoid obstacles.
 
 \textbf{Q2:} Why does Nav2 use a particle filter (AMCL) rather than an Extended Kalman Filter (EKF) for localization on a known map?
 
-\subsubsection{Answer}
+\hypertarget{answer-1}{%
+\paragraph{Answer}\label{answer-1}}
 
 The EKF assumes the posterior distribution is unimodal Gaussian, which fails for global localization on a map with symmetry (e.g., a long corridor looks the same from many positions). The particle filter represents the full multimodal distribution, allowing the robot to maintain multiple hypotheses about its location until sensor evidence disambiguates them. Additionally, the laser scan likelihood function is highly nonlinear and non-Gaussian, which the particle filter handles naturally.
 
 \textbf{Q3:} How is the Nav2 behavior tree architecture analogous to the cascaded control architecture of a quadrotor?
 
-\subsubsection{Answer}
+\hypertarget{answer-2}{%
+\paragraph{Answer}\label{answer-2}}
 
 Both implement hierarchical control with different levels operating at different rates. In the quadrotor: mission planner → position controller → attitude controller → rate controller → motors. In Nav2: behavior tree (mission) → global planner (path) → local controller (trajectory) → cmd\_vel (motors). Each level abstracts the complexity below it and operates at a progressively faster rate. Recovery behaviors in Nav2 are analogous to the attitude controller\textquotesingle s ability to stabilise even when the position controller fails.
 
 \textbf{Q4:} The inflation layer uses \textbackslash(c(d) = A \textbackslash cdot e\^{}\{-\textbackslash beta(d - r\_\{\textbackslash text\{inscribed\}\})\}\textbackslash). If you double the cost\_scaling\_factor \textbackslash(\textbackslash beta\textbackslash), what happens to the robot\textquotesingle s navigation behavior?
 
-\subsubsection{Answer}
+\hypertarget{answer-3}{%
+\paragraph{Answer}\label{answer-3}}
 
 Doubling \textbackslash(\textbackslash beta\textbackslash) makes the exponential decay steeper, meaning the cost drops to zero much faster with distance from obstacles. The effective "buffer zone" around obstacles becomes narrower. The robot will navigate closer to walls and obstacles because the cost penalty for proximity is confined to a smaller region. This is useful in tight spaces but increases collision risk. Conversely, halving \textbackslash(\textbackslash beta\textbackslash) creates wider buffer zones and more cautious navigation.
 
 \textbf{Q5:} You need to navigate a mobile robot through a cluttered warehouse with moving forklifts. Which Nav2 local controller plugin would you choose: DWA, Regulated Pure Pursuit, or MPPI? Justify your choice.
 
-\subsubsection{Answer}
+\hypertarget{answer-4}{%
+\paragraph{Answer}\label{answer-4}}
 
 \textbf{MPPI} is the best choice for this scenario. Reasoning: (1) Moving forklifts create a highly dynamic environment requiring the controller to anticipate obstacle motion, which MPPI can do through its prediction horizon \textbackslash(N \textbackslash gg 1\textbackslash). (2) The cluttered warehouse has many narrow passages requiring lookahead to avoid dead-ends, which DWA\textquotesingle s single-step horizon cannot provide. (3) MPPI\textquotesingle s sampling-based approach naturally handles the nonlinear constraints of obstacle avoidance without requiring linearisation. (4) Regulated Pure Pursuit is designed for path following, not obstacle avoidance --- it relies entirely on the global planner to route around obstacles, which cannot react to dynamic forklifts. The computational cost of MPPI (\textasciitilde5--20 ms) is acceptable for a warehouse robot operating at \textasciitilde10 Hz.
 
-\subsection{Summary --- Key Takeaways}
+\hypertarget{summary-key-takeaways}{%
+\subsection{Summary --- Key Takeaways}\label{summary-key-takeaways}}
 
-\subsubsection{Nav2 Architecture}
+\hypertarget{nav2-architecture}{%
+\paragraph{Nav2 Architecture}\label{nav2-architecture}}
 
 Nav2 implements hierarchical navigation control: behavior tree (mission) → global planner (A*/Dijkstra) → local controller (DWA/MPPI) → cmd\_vel. Each component is a lifecycle node with plugin-based extensibility.
 
-\subsubsection{DWA = Simplified MPC}
+\hypertarget{dwa-simplified-mpc}{%
+\paragraph{DWA = Simplified MPC}\label{dwa-simplified-mpc}}
 
 The Dynamic Window Approach is fundamentally a 1-step MPC: sample velocities in a dynamic window, forward-simulate, score trajectories with \textbackslash(\textbackslash alpha \textbackslash cdot h + \textbackslash beta \textbackslash cdot c + \textbackslash gamma \textbackslash cdot v\textbackslash), and select the best. Nav2\textquotesingle s MPPI extends this to full N-step MPC.
 
-\subsubsection{AMCL = State Estimator}
+\hypertarget{amcl-state-estimator}{%
+\paragraph{AMCL = State Estimator}\label{amcl-state-estimator}}
 
 Just as Week 8\textquotesingle s NMPC/iLQR framework assumes a matched state estimator, Nav2 pairs its controller with AMCL (particle filter). Both solve the same fundamental problem: you cannot control what you cannot observe. AMCL handles the multimodal, nonlinear nature of map-based localization --- exactly where a Kalman filter fails.
 
-\subsubsection{Costmaps = Constraints}
+\hypertarget{costmaps-constraints}{%
+\paragraph{Costmaps = Constraints}\label{costmaps-constraints}}
 
 Costmap layers encode navigation constraints: static (walls), obstacle (dynamic), inflation (safety buffer). The inflation layer\textquotesingle s exponential decay is analogous to MPC soft constraints or barrier functions.
 
-\subsubsection{Behavior Trees = Mission Control}
+\hypertarget{behavior-trees-mission-control}{%
+\paragraph{Behavior Trees = Mission Control}\label{behavior-trees-mission-control}}
 
 BTs orchestrate planning, control, and recovery in a modular, extensible tree structure. More scalable than FSMs. The Nav2 default BT implements navigate-with-replanning and multi-stage recovery.
 
-\subsubsection{All Controllers Apply}
+\hypertarget{all-controllers-apply}{%
+\paragraph{All Controllers Apply}\label{all-controllers-apply}}
 
 Every control method from Weeks 1--8 maps to a navigation role: PID (path following), MPC (MPPI planner), LQR (corridor tracking), Adaptive (terrain changes), Robust (weather), SMC (rough terrain), Backstepping (nonholonomic constraints).
 
 \textbf{Next Week (Week 12):} Course synthesis and final integration. We will combine everything from Weeks 1--11: control theory foundations (MATLAB), ROS2 control nodes, quadrotor control, and mobile robot navigation into a comprehensive final project and course review.
 
-\subsection{Running the ROS2 Demo}
+\hypertarget{running-the-ros2-demo}{%
+\subsection{Running the ROS2 Demo}\label{running-the-ros2-demo}}
 
-\subsection{Build and Source}
+\hypertarget{build-and-source}{%
+\subsubsection{Build and Source}\label{build-and-source}}
 
 cd \textasciitilde/auto\_control\_ws
 colcon build -\/-packages-select week\_05\_nav2
 source install/setup.bash
 
-\subsection{Launch the Demo}
+\hypertarget{launch-the-demo}{%
+\subsubsection{Launch the Demo}\label{launch-the-demo}}
 
 ros2 launch week\_05\_nav2 demo.launch.py
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (costmap builder, A* planner, path follower), and opens RViz2 with a preconfigured layout.
 
-\subsection{ROS2 Topics}
+\hypertarget{ros2-topics}{%
+\subsubsection{ROS2 Topics}\label{ros2-topics}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -1028,11 +1103,13 @@ Topic & Type & Source & Description \\
 \texttt{/plan} & nav\_msgs/Path & Nodes & A* planned global path \\
 \end{longtable}
 
-\subsection{Expected RViz2 Output}
+\hypertarget{expected-rviz2-output}{%
+\subsubsection{Expected RViz2 Output}\label{expected-rviz2-output}}
 
 RViz2 will display the occupancy grid map, the robot\textquotesingle s odometry path, laser scan points, the planned A* path (green line), and the robot following the path. You should see the costmap with inflated obstacles, the global path avoiding obstacles, and the robot tracking the path with the local controller.
 
-\subsection{Troubleshooting}
+\hypertarget{troubleshooting}{%
+\subsubsection{Troubleshooting}\label{troubleshooting}}
 
 \begin{itemize}
 \tightlist
@@ -1046,15 +1123,18 @@ RViz2 will display the occupancy grid map, the robot\textquotesingle s odometry 
   \textbf{QoS mismatch warnings:} The bag uses default QoS. If your subscriber uses \texttt{BEST\_EFFORT}, switch to \texttt{RELIABLE} or use \texttt{-\/-qos-profile-overrides-path}.
 \end{itemize}
 
-\subsection{Appendix: Review Material --- Quadrotor Control}
+\hypertarget{appendix-review-material-quadrotor-control}{%
+\subsection{Appendix: Review Material --- Quadrotor Control}\label{appendix-review-material-quadrotor-control}}
 
 Before we move to mobile robot navigation, let us revisit the key concepts from Week 10 on quadrotor control with two exam-style questions.
 
-\subsubsection{Question 1 (25 marks)}
+\hypertarget{question-1-25-marks}{%
+\paragraph{Question 1 (25 marks)}\label{question-1-25-marks}}
 
 \textbf{Draw and explain the cascaded control architecture for a quadrotor} (position → attitude → rate → motors). Why is cascaded control preferred over a single monolithic controller? What are the typical loop rates for each cascade level?
 
-\subsubsection{Model Answer --- Q1}
+\hypertarget{model-answer-q1}{%
+\paragraph{Model Answer --- Q1}\label{model-answer-q1}}
 
 \textbf{Cascaded Architecture (5 marks for diagram, 10 marks for explanation, 10 marks for justification and rates):}
 
@@ -1086,11 +1166,13 @@ The quadrotor cascaded controller consists of four nested loops:
   \textbf{Robustness:} If the outer loop has modelling errors, the fast inner loops still maintain attitude stability, preventing catastrophic failure.
 \end{itemize}
 
-\subsubsection{Question 2 (25 marks)}
+\hypertarget{question-2-25-marks}{%
+\paragraph{Question 2 (25 marks)}\label{question-2-25-marks}}
 
 \textbf{You tested PID, LQR, and MPC on a quadrotor flying a square trajectory with 3 m/s wind disturbance.} Rank the controllers by (a) tracking accuracy, (b) disturbance rejection, (c) energy efficiency. Justify your ranking with reference to each controller\textquotesingle s design principles.
 
-\subsubsection{Model Answer --- Q2}
+\hypertarget{model-answer-q2}{%
+\paragraph{Model Answer --- Q2}\label{model-answer-q2}}
 
 \textbf{(a) Tracking Accuracy (8 marks):}
 

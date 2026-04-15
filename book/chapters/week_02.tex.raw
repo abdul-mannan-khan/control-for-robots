@@ -1,25 +1,20 @@
-% ----- auto-generated from week_03/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{Model Predictive Control --- Design and Simulation (Week 3)}
-\labch{week_03}
-
-
+\hypertarget{week-2-model-predictive-control-mpc}{%
+\section{Week 2: Model Predictive Control (MPC)}\label{week-2-model-predictive-control-mpc}}
 
 From Receding-Horizon Optimisation to Real-Time Robotic Control
 
 Control for Robots \textbar{} University of West London\\
 AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
-\section{Overview}
-
-\subsection{Week 1 Recall: Computed Torque Control --- Exam Practice}
+\hypertarget{week-1-recall-computed-torque-control-exam-practice}{%
+\subsection{Week 1 Recall: Computed Torque Control --- Exam Practice}\label{week-1-recall-computed-torque-control-exam-practice}}
 
 Before we begin new material, you must demonstrate command of the Week 1 content.
 Take out \textbf{pen and paper}. You have \textbf{20 minutes} to answer both questions below by hand, showing every step.
 These are representative of the questions you will face in the final exam.
 
-\subsubsection{Question 1 --- Computed Torque Derivation (10 marks)}
+\hypertarget{question-1-computed-torque-derivation-10-marks}{%
+\paragraph{Question 1 --- Computed Torque Derivation (10 marks)}\label{question-1-computed-torque-derivation-10-marks}}
 
 Given a 2-DOF planar manipulator with Euler--Lagrange dynamics
 
@@ -55,7 +50,8 @@ where \textbackslash(e = q\_d - q\textbackslash) is the tracking error.
 
 Explain the physical significance of this result: what kind of system does it represent, and what does it guarantee about the tracking error?
 
-\subsubsection{Question 2 --- Lyapunov Stability Proof (10 marks)}
+\hypertarget{question-2-lyapunov-stability-proof-10-marks}{%
+\paragraph{Question 2 --- Lyapunov Stability Proof (10 marks)}\label{question-2-lyapunov-stability-proof-10-marks}}
 
 For the computed torque controller derived in Question 1, construct the Lyapunov candidate function:
 
@@ -81,7 +77,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 \textbf{You have 20 minutes.} If you can reproduce both derivations cleanly, you will be able to do it in the exam. If you struggle, revise your Week 1 notes tonight. These two derivations form the foundation for everything that follows in this module.
 
-\subsection{Learning Outcomes}
+\hypertarget{learning-outcomes}{%
+\subsection{Learning Outcomes}\label{learning-outcomes}}
 
 \textbf{By the end of this session, you will be able to:}
 
@@ -101,11 +98,13 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
   \textbf{Compare} MPC with computed torque control in terms of model requirements, constraint handling, and computational demand
 \end{itemize}
 
-\subsection{Session Roadmap (3 Hours)}
+\hypertarget{session-roadmap-3-hours}{%
+\subsection{Session Roadmap (3 Hours)}\label{session-roadmap-3-hours}}
 
 0:00 -- 0:20
 
-\subsubsection{Previous Week Exam Practice}
+\hypertarget{previous-week-exam-practice}{%
+\paragraph{Previous Week Exam Practice}\label{previous-week-exam-practice}}
 
 \begin{itemize}
 \tightlist
@@ -117,7 +116,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 0:20 -- 0:50
 
-\subsubsection{MPC Theory \& Derivation}
+\hypertarget{part-1-mpc-theory-derivation}{%
+\paragraph{Part 1 --- MPC Theory \& Derivation}\label{part-1-mpc-theory-derivation}}
 
 \begin{itemize}
 \tightlist
@@ -135,7 +135,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 0:50 -- 1:20
 
-\subsubsection{MPC for 2-DOF Manipulator}
+\hypertarget{part-2-mpc-for-2-dof-manipulator}{%
+\paragraph{Part 2 --- MPC for 2-DOF Manipulator}\label{part-2-mpc-for-2-dof-manipulator}}
 
 \begin{itemize}
 \tightlist
@@ -149,7 +150,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 1:20 -- 1:30
 
-\subsubsection{Break}
+\hypertarget{break}{%
+\paragraph{Break}\label{break}}
 
 \begin{itemize}
 \tightlist
@@ -159,7 +161,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 1:30 -- 2:00
 
-\subsubsection{MPC for Mobile Robot}
+\hypertarget{part-3-mpc-for-mobile-robot}{%
+\paragraph{Part 3 --- MPC for Mobile Robot}\label{part-3-mpc-for-mobile-robot}}
 
 \begin{itemize}
 \tightlist
@@ -175,7 +178,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 2:00 -- 2:30
 
-\subsubsection{MPC for Quadrotor Drone}
+\hypertarget{part-4-mpc-for-quadrotor-drone}{%
+\paragraph{Part 4 --- MPC for Quadrotor Drone}\label{part-4-mpc-for-quadrotor-drone}}
 
 \begin{itemize}
 \tightlist
@@ -189,7 +193,8 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
 
 2:30 -- 3:00
 
-\subsubsection{MATLAB Implementation \& Activities}
+\hypertarget{part-5-matlab-implementation-activities}{%
+\paragraph{Part 5 --- MATLAB Implementation \& Activities}\label{part-5-matlab-implementation-activities}}
 
 \begin{itemize}
 \tightlist
@@ -201,29 +206,35 @@ V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash,\tex
   Think--Pair--Share and summary
 \end{itemize}
 
-\section{MPC Theory \& Derivation}
+\hypertarget{part-1-mpc-theory-derivation-1}{%
+\subsection{Part 1 --- MPC Theory \& Derivation}\label{part-1-mpc-theory-derivation-1}}
 
-\subsection{What Is Model Predictive Control?}
+\hypertarget{what-is-model-predictive-control}{%
+\subsubsection{1.1 What Is Model Predictive Control?}\label{what-is-model-predictive-control}}
 
 Model Predictive Control (MPC) is an optimisation-based control strategy that operates on a simple but powerful principle:
 at every time step, \textbf{predict} the future behaviour of the system over a finite horizon, \textbf{optimise} a control sequence to minimise a cost function,
 and \textbf{apply} only the first control action before repeating the process at the next time step.
 
-\subsubsection{1. Predict}
+\hypertarget{predict}{%
+\paragraph{1. Predict}\label{predict}}
 
 Use the system model \textbackslash(x\_\{k+1\} = A\textbackslash,x\_k + B\textbackslash,u\_k\textbackslash) to propagate the state forward \textbackslash(N\textbackslash) steps into the future, generating a predicted state trajectory \textbackslash(\textbackslash\{x\_\{k+1\}, x\_\{k+2\}, \textbackslash ldots, x\_\{k+N\}\textbackslash\}\textbackslash).
 
-\subsubsection{2. Optimise}
+\hypertarget{optimise}{%
+\paragraph{2. Optimise}\label{optimise}}
 
 Find the control sequence \textbackslash(U = {[}u\_k, u\_\{k+1\}, \textbackslash ldots, u\_\{k+N-1\}{]}\^{}T\textbackslash) that minimises a cost function penalising state deviations from the reference and control effort, subject to constraints.
 
-\subsubsection{3. Apply}
+\hypertarget{apply}{%
+\paragraph{3. Apply}\label{apply}}
 
 Apply only the first element \textbackslash(u\_k\^{}*\textbackslash) of the optimal sequence to the plant. At the next time step \textbackslash(k+1\textbackslash), measure the new state and repeat the entire process. This is the \textbf{receding horizon} strategy.
 
 \emph{Figure 1: The MPC receding horizon concept. At each time step, the controller predicts future states over a finite horizon, optimises a control sequence, applies only the first input, then shifts the window forward.}
 
-\subsection{The Optimisation Problem}
+\hypertarget{the-optimisation-problem}{%
+\subsubsection{1.2 The Optimisation Problem}\label{the-optimisation-problem}}
 
 Consider a discrete-time linear time-invariant system:
 
@@ -247,11 +258,13 @@ and \textbackslash(N\textbackslash) is the prediction horizon length.
 
 \emph{Figure 2: MPC closed-loop control architecture. The optimizer uses a system model and constraints to compute the optimal control sequence; only the first input is applied to the plant. State feedback closes the loop.}
 
-\subsection{State Prediction over the Horizon}
+\hypertarget{state-prediction-over-the-horizon}{%
+\subsubsection{1.3 State Prediction over the Horizon}\label{state-prediction-over-the-horizon}}
 
 By recursively applying the dynamics, we can express all future states in terms of the current state \textbackslash(x\_k\textbackslash) and the control sequence \textbackslash(U\textbackslash):
 
-\subsubsection{Recursive State Prediction}
+\hypertarget{recursive-state-prediction}{%
+\paragraph{Recursive State Prediction}\label{recursive-state-prediction}}
 
 \textbf{Step 1:} One step ahead:
 
@@ -293,7 +306,8 @@ A\^{}\{N-1\}B \& A\^{}\{N-2\}B \& A\^{}\{N-3\}B \& \textbackslash cdots \& B
 
 \emph{Figure 3: State prediction visualization. The optimizer evaluates multiple control sequences (grey dashed) and selects the one minimizing the cost (green). Only the first control action u\_k* is applied; the rest are discarded and re-computed at the next step.}
 
-\subsection{Quadratic Cost in Matrix Form}
+\hypertarget{quadratic-cost-in-matrix-form}{%
+\subsubsection{1.4 Quadratic Cost in Matrix Form}\label{quadratic-cost-in-matrix-form}}
 
 Define the stacked reference \textbackslash(\textbackslash mathbf\{X\}\_\{\textbackslash text\{ref\}\} = {[}x\_\{\textbackslash text\{ref\}\}\^{}T, x\_\{\textbackslash text\{ref\}\}\^{}T, \textbackslash ldots, x\_\{\textbackslash text\{ref\}\}\^{}T{]}\^{}T \textbackslash in \textbackslash mathbb\{R\}\^{}\{Nn\}\textbackslash)
 and the block-diagonal weight matrices:
@@ -305,7 +319,8 @@ and the block-diagonal weight matrices:
 
 Substituting \textbackslash(\textbackslash mathbf\{X\} = \textbackslash mathcal\{A\}\textbackslash,x\_k + \textbackslash mathcal\{B\}\textbackslash,\textbackslash mathbf\{U\}\textbackslash) into the cost function:
 
-\subsubsection{Cost Function Expansion}
+\hypertarget{cost-function-expansion}{%
+\paragraph{Cost Function Expansion}\label{cost-function-expansion}}
 
 \textbackslash{[}
 J = (\textbackslash mathbf\{X\} - \textbackslash mathbf\{X\}\_\{\textbackslash text\{ref\}\})\^{}T \textbackslash mathbf\{Q\}\_N (\textbackslash mathbf\{X\} - \textbackslash mathbf\{X\}\_\{\textbackslash text\{ref\}\}) + \textbackslash mathbf\{U\}\^{}T \textbackslash mathbf\{R\}\_N \textbackslash mathbf\{U\}
@@ -331,7 +346,8 @@ This is a strictly convex quadratic in \textbackslash(\textbackslash mathbf\{U\}
 2\textbackslash,H\textbackslash,\textbackslash mathbf\{U\}\^{}* - 2\textbackslash,\textbackslash mathcal\{B\}\^{}T \textbackslash mathbf\{Q\}\_N \textbackslash mathbf\{E\} = 0
 \textbackslash{]}
 
-\subsection{The Optimal Control Law}
+\hypertarget{the-optimal-control-law}{%
+\subsubsection{1.5 The Optimal Control Law}\label{the-optimal-control-law}}
 
 \textbf{MPC Optimal Control Sequence}\\
 \strut \\
@@ -341,7 +357,8 @@ This is a strictly convex quadratic in \textbackslash(\textbackslash mathbf\{U\}
 
 The matrix \textbackslash(H = \textbackslash mathcal\{B\}\^{}T \textbackslash mathbf\{Q\}\_N \textbackslash mathcal\{B\} + \textbackslash mathbf\{R\}\_N\textbackslash) is of dimension \textbackslash(Nm \textbackslash times Nm\textbackslash). It must be inverted (or factorised) at every time step. This is the primary computational cost of MPC.
 
-\subsection{Receding Horizon: Apply Only the First Input}
+\hypertarget{receding-horizon-apply-only-the-first-input}{%
+\subsubsection{1.6 Receding Horizon: Apply Only the First Input}\label{receding-horizon-apply-only-the-first-input}}
 
 The full optimal sequence is \textbackslash(\textbackslash mathbf\{U\}\^{}* = {[}u\_k\^{}\{*T\}, u\_\{k+1\}\^{}\{*T\}, \textbackslash ldots, u\_\{k+N-1\}\^{}\{*T\}{]}\^{}T\textbackslash).
 In the receding-horizon strategy, we \textbf{apply only the first element}:
@@ -353,7 +370,8 @@ This feedback mechanism gives MPC its robustness to disturbances and model error
 
 \emph{Figure 4: MPC flowchart showing the predict-optimise-apply loop. The key insight is that only the first control input is applied (highlighted in green), and the entire optimisation is re-solved at every time step.}
 
-\subsubsection{Think--Pair--Share (3 min)}
+\hypertarget{thinkpairshare-3-min}{%
+\paragraph{Think--Pair--Share (3 min)}\label{thinkpairshare-3-min}}
 
 \textbf{Question:} Why does MPC re-solve the optimisation at every time step instead of applying the entire precomputed sequence \textbackslash(\textbackslash mathbf\{U\}\^{}*\textbackslash)?
 
@@ -377,7 +395,8 @@ APPLY u\_k to the plant
 ADVANCE to next time step
 END FOR
 
-\subsection{Effect of Tuning Parameters}
+\hypertarget{effect-of-tuning-parameters}{%
+\subsubsection{1.7 Effect of Tuning Parameters}\label{effect-of-tuning-parameters}}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -393,9 +412,11 @@ Control weight \textbackslash(R\textbackslash) & Penalises large inputs; smoothe
 
 \textbf{Practical Guideline:} Start with \textbackslash(Q = I\textbackslash), \textbackslash(R = 0.1 I\textbackslash), and \textbackslash(N = 10\textbackslash). Then adjust: increase \textbackslash(Q\textbackslash) if tracking is too loose, increase \textbackslash(R\textbackslash) if control inputs saturate, and increase \textbackslash(N\textbackslash) until performance no longer improves significantly.
 
-\section{MPC for 2-DOF Manipulator}
+\hypertarget{part-2-mpc-for-2-dof-manipulator-1}{%
+\subsection{Part 2 --- MPC for 2-DOF Manipulator}\label{part-2-mpc-for-2-dof-manipulator-1}}
 
-\subsection{The Nonlinear Dynamics}
+\hypertarget{the-nonlinear-dynamics}{%
+\subsubsection{2.1 The Nonlinear Dynamics}\label{the-nonlinear-dynamics}}
 
 Recall from Week 1 the 2-DOF planar manipulator dynamics:
 
@@ -407,12 +428,14 @@ with state vector \textbackslash(x = {[}q\_1, q\_2, \textbackslash dot\{q\}\_1, 
 
 \emph{Figure 5: 2-DOF planar manipulator with joint angles θ1, θ2, link lengths l1, l2, masses m1, m2, and torque inputs τ1, τ2. The coordinate frame is shown at the base with gravity acting downward.}
 
-\subsection{Linearisation around an Operating Point}
+\hypertarget{linearisation-around-an-operating-point}{%
+\subsubsection{2.2 Linearisation around an Operating Point}\label{linearisation-around-an-operating-point}}
 
 MPC (in its basic linear form) requires a linear discrete-time model. We linearise the manipulator dynamics around a nominal operating point
 \textbackslash((q\_0, \textbackslash dot\{q\}\_0) = (0, 0)\textbackslash) (the hanging-down equilibrium).
 
-\subsubsection{Linearisation Procedure}
+\hypertarget{linearisation-procedure}{%
+\paragraph{Linearisation Procedure}\label{linearisation-procedure}}
 
 The continuous-time state-space form is:
 
@@ -420,7 +443,7 @@ The continuous-time state-space form is:
 \textbackslash dot\{x\} = f(x, u) = \textbackslash begin\{bmatrix\} \textbackslash dot\{q\} \textbackslash\textbackslash{} M\^{}\{-1\}(q)\textbackslash bigl{[}\textbackslash tau - C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} - G(q)\textbackslash bigr{]} \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-At the operating point \textbackslash(x\_0 = {[}0, 0, 0, 0{]}\^{}T\textbackslash), \textbackslash(u\_0 = G(q\_0)\textbackslash) (the torque needed to hold the arm at \textbackslash(q\_0\textbackslash)):
+At the operating point \textbackslash(x\_0 = {[}0, 0, 0, 0{]}\^{}T\textbackslash), \textbackslash(u\_0 = G(q\_0)\textbackslash):
 
 \textbackslash{[}
 A\_c = \textbackslash left.\textbackslash frac\{\textbackslash partial f\}\{\textbackslash partial x\}\textbackslash right\textbar\_\{x\_0, u\_0\}, \textbackslash quad
@@ -434,57 +457,33 @@ M(0) = \textbackslash begin\{bmatrix\} m\_1 l\_1\^{}2 + m\_2(l\_1\^{}2 + l\_2\^{
 = \textbackslash begin\{bmatrix\} 4 \& 2 \textbackslash\textbackslash{} 2 \& 1 \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-Since \textbackslash(C(q, 0) = 0\textbackslash) at zero velocity, and the gravity linearisation yields stiffness terms, the linearised continuous-time system is:
-
-\textbackslash{[}
-A\_c = \textbackslash begin\{bmatrix\}
-0 \& 0 \& 1 \& 0 \textbackslash\textbackslash{}
-0 \& 0 \& 0 \& 1 \textbackslash\textbackslash{}
-0 \& 0 \& 0 \& 0 \textbackslash\textbackslash{}
-0 \& 0 \& 0 \& 0
-\textbackslash end\{bmatrix\}, \textbackslash quad
-B\_c = \textbackslash begin\{bmatrix\}
-0\_\{2 \textbackslash times 2\} \textbackslash\textbackslash{}
-M\^{}\{-1\}(q\_0)
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
-
-Computing \textbackslash(M\^{}\{-1\}(0)\textbackslash): since \textbackslash(\textbackslash det(M(0)) = 4 \textbackslash cdot 1 - 2 \textbackslash cdot 2 = 0\textbackslash)... Note that \textbackslash(M(0)\textbackslash) is singular at this particular configuration because we used point masses at link tips. In practice we use the more general parametrisation with \textbackslash(l\_\{c1\}, l\_\{c2\}\textbackslash). For our MATLAB implementation, we evaluate at a slightly offset configuration \textbackslash(q\_0 = {[}0.1, 0.1{]}\^{}T\textbackslash) to ensure non-singularity, giving:
+We evaluate at a slightly offset configuration \textbackslash(q\_0 = {[}0.1, 0.1{]}\^{}T\textbackslash) to ensure non-singularity:
 
 \textbackslash{[}
 M(q\_0) \textbackslash approx \textbackslash begin\{bmatrix\} 3.96 \& 1.99 \textbackslash\textbackslash{} 1.99 \& 1.0 \textbackslash end\{bmatrix\}, \textbackslash quad
 M\^{}\{-1\}(q\_0) \textbackslash approx \textbackslash begin\{bmatrix\} 50.25 \& -100.0 \textbackslash\textbackslash{} -100.0 \& 199.0 \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Discretisation}
-
-Using the zero-order hold (ZOH) method with sampling time \textbackslash(\textbackslash Delta t\textbackslash):
+\hypertarget{discretisation}{%
+\subsubsection{2.3 Discretisation}\label{discretisation}}
 
 \textbackslash{[}
 A\_d = e\^{}\{A\_c \textbackslash Delta t\} \textbackslash approx I + A\_c \textbackslash Delta t, \textbackslash quad
 B\_d \textbackslash approx B\_c \textbackslash Delta t
 \textbackslash{]}
 
-First-order Euler approximation, valid for small \textbackslash(\textbackslash Delta t\textbackslash).
+\hypertarget{mpc-design-for-the-manipulator}{%
+\subsubsection{2.4 MPC Design for the Manipulator}\label{mpc-design-for-the-manipulator}}
 
-\subsection{MPC Design for the Manipulator}
-
-State: \textbackslash(x = {[}q\_1, q\_2, \textbackslash dot\{q\}\_1, \textbackslash dot\{q\}\_2{]}\^{}T\textbackslash), Control: \textbackslash(u = {[}\textbackslash tau\_1, \textbackslash tau\_2{]}\^{}T\textbackslash)
-
-\subsubsection{Weight Matrix Selection}
-
-We want tight tracking of joint positions but allow velocities to deviate more freely:
+\hypertarget{weight-matrix-selection}{%
+\paragraph{Weight Matrix Selection}\label{weight-matrix-selection}}
 
 \textbackslash{[}
 Q = \textbackslash text\{diag\}(100, 100, 1, 1), \textbackslash quad R = \textbackslash text\{diag\}(0.01, 0.01)
 \textbackslash{]}
 
-The ratio \textbackslash(Q/R\textbackslash) determines aggressiveness: here \textbackslash(q\_\{ii\}/r\_\{ii\} = 10\{,\}000\textbackslash), so the controller strongly prioritises position tracking over control effort economy.
-
-With prediction horizon \textbackslash(N = 20\textbackslash) and \textbackslash(\textbackslash Delta t = 0.01\textbackslash,\textbackslash text\{s\}\textbackslash), we build the prediction matrices \textbackslash(\textbackslash mathcal\{A\} \textbackslash in \textbackslash mathbb\{R\}\^{}\{80 \textbackslash times 4\}\textbackslash) and \textbackslash(\textbackslash mathcal\{B\} \textbackslash in \textbackslash mathbb\{R\}\^{}\{80 \textbackslash times 40\}\textbackslash),
-then compute the Hessian \textbackslash(H = \textbackslash mathcal\{B\}\^{}T \textbackslash mathbf\{Q\}\_N \textbackslash mathcal\{B\} + \textbackslash mathbf\{R\}\_N \textbackslash in \textbackslash mathbb\{R\}\^{}\{40 \textbackslash times 40\}\textbackslash).
-
-\subsection{MATLAB Implementation --- Manipulator MPC}
+\hypertarget{matlab-implementation-manipulator-mpc}{%
+\subsubsection{2.5 MATLAB Implementation --- Manipulator MPC}\label{matlab-implementation-manipulator-mpc}}
 
 \%\% === MPC for 2-DOF Manipulator ===
 \% System parameters
@@ -560,11 +559,13 @@ end
 
 \textbf{Note:} The controller uses a \emph{linear} model, but the plant simulation uses the \emph{full nonlinear} dynamics. This mismatch is realistic and tests the robustness of MPC.
 
-\section{MPC for Differential-Drive Mobile Robot}
+\hypertarget{part-3-mpc-for-differential-drive-mobile-robot}{%
+\subsection{Part 3 --- MPC for Differential-Drive Mobile Robot}\label{part-3-mpc-for-differential-drive-mobile-robot}}
 
-\subsection{Kinematic Model}
+\hypertarget{kinematic-model}{%
+\subsubsection{3.1 Kinematic Model}\label{kinematic-model}}
 
-A differential-drive mobile robot (e.g., TurtleBot) moves in the plane with state \textbackslash(x = {[}p\_x, p\_y, \textbackslash theta{]}\^{}T\textbackslash) (position and heading) and control inputs \textbackslash(u = {[}v, \textbackslash omega{]}\^{}T\textbackslash) (linear and angular velocity):
+A differential-drive mobile robot moves in the plane with state \textbackslash(x = {[}p\_x, p\_y, \textbackslash theta{]}\^{}T\textbackslash) and control inputs \textbackslash(u = {[}v, \textbackslash omega{]}\^{}T\textbackslash):
 
 \textbf{Nonlinear Kinematic Model}\\
 \strut \\
@@ -575,58 +576,26 @@ A differential-drive mobile robot (e.g., TurtleBot) moves in the plane with stat
 
 \emph{Figure 6: Top-down view of a differential-drive mobile robot. The robot state is (p\_x, p\_y, θ), controlled by linear velocity v and angular velocity ω. The reference path is shown as a dashed curve.}
 
-Discretised with Euler integration at sampling time \textbackslash(\textbackslash Delta t\textbackslash):
+\hypertarget{linearisation-around-a-reference-trajectory}{%
+\subsubsection{3.2 Linearisation around a Reference Trajectory}\label{linearisation-around-a-reference-trajectory}}
+
+\hypertarget{jacobian-linearisation}{%
+\paragraph{Jacobian Linearisation}\label{jacobian-linearisation}}
 
 \textbackslash{[}
-\textbackslash begin\{aligned\}
-p\_\{x,k+1\} \&= p\_\{x,k\} + v\_k \textbackslash cos(\textbackslash theta\_k)\textbackslash,\textbackslash Delta t \textbackslash\textbackslash{}
-p\_\{y,k+1\} \&= p\_\{y,k\} + v\_k \textbackslash sin(\textbackslash theta\_k)\textbackslash,\textbackslash Delta t \textbackslash\textbackslash{}
-\textbackslash theta\_\{k+1\} \&= \textbackslash theta\_k + \textbackslash omega\_k\textbackslash,\textbackslash Delta t
-\textbackslash end\{aligned\}
+A\_c = \textbackslash begin\{bmatrix\} 0 \& 0 \& -v\^{}r \textbackslash sin\textbackslash theta\^{}r \textbackslash\textbackslash{} 0 \& 0 \& v\^{}r \textbackslash cos\textbackslash theta\^{}r \textbackslash\textbackslash{} 0 \& 0 \& 0 \textbackslash end\{bmatrix\}, \textbackslash quad
+B\_c = \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash theta\^{}r \& 0 \textbackslash\textbackslash{} \textbackslash sin\textbackslash theta\^{}r \& 0 \textbackslash\textbackslash{} 0 \& 1 \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Linearisation around a Reference Trajectory}
-
-\subsubsection{Jacobian Linearisation}
-
-Let the reference trajectory be \textbackslash((p\_x\^{}r(t), p\_y\^{}r(t), \textbackslash theta\^{}r(t))\textbackslash) with reference controls \textbackslash((v\^{}r(t), \textbackslash omega\^{}r(t))\textbackslash).
-Define error variables:
-
-\textbackslash{[}
-\textbackslash delta x = x - x\^{}r, \textbackslash quad \textbackslash delta u = u - u\^{}r
-\textbackslash{]}
-
-The Jacobians of the continuous-time model at the reference are:
-
-\textbackslash{[}
-A\_c = \textbackslash frac\{\textbackslash partial f\}\{\textbackslash partial x\}\textbackslash bigg\textbar\_\{x\^{}r, u\^{}r\} = \textbackslash begin\{bmatrix\}
-0 \& 0 \& -v\^{}r \textbackslash sin\textbackslash theta\^{}r \textbackslash\textbackslash{}
-0 \& 0 \& v\^{}r \textbackslash cos\textbackslash theta\^{}r \textbackslash\textbackslash{}
-0 \& 0 \& 0
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
-\textbackslash{[}
-B\_c = \textbackslash frac\{\textbackslash partial f\}\{\textbackslash partial u\}\textbackslash bigg\textbar\_\{x\^{}r, u\^{}r\} = \textbackslash begin\{bmatrix\}
-\textbackslash cos\textbackslash theta\^{}r \& 0 \textbackslash\textbackslash{}
-\textbackslash sin\textbackslash theta\^{}r \& 0 \textbackslash\textbackslash{}
-0 \& 1
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
-
-For simplicity, we linearise around \textbackslash(\textbackslash theta\^{}r = 0\textbackslash) (heading east) and \textbackslash(v\^{}r = 2.5\textbackslash,\textbackslash text\{m/s\}\textbackslash):
+For \textbackslash(\textbackslash theta\^{}r = 0\textbackslash), \textbackslash(v\^{}r = 2.5\textbackslash,\textbackslash text\{m/s\}\textbackslash):
 
 \textbackslash{[}
 A\_c = \textbackslash begin\{bmatrix\} 0 \& 0 \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 2.5 \textbackslash\textbackslash{} 0 \& 0 \& 0 \textbackslash end\{bmatrix\}, \textbackslash quad
 B\_c = \textbackslash begin\{bmatrix\} 1 \& 0 \textbackslash\textbackslash{} 0 \& 0 \textbackslash\textbackslash{} 0 \& 1 \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-Discretised:
-
-\textbackslash{[}
-A\_d = I + A\_c \textbackslash Delta t, \textbackslash quad B\_d = B\_c \textbackslash Delta t
-\textbackslash{]}
-
-\subsection{Constraints}
+\hypertarget{constraints}{%
+\subsubsection{3.3 Constraints}\label{constraints}}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -635,35 +604,27 @@ Constraint & Physical Meaning & Value \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbackslash(0 \textbackslash leq v \textbackslash leq 5\textbackslash,\textbackslash text\{m/s\}\textbackslash) & The robot cannot move backwards (for safety) and has a maximum speed & {[}0, 5{]} \\
-\textbackslash(-2 \textbackslash leq \textbackslash omega \textbackslash leq 2\textbackslash,\textbackslash text\{rad/s\}\textbackslash) & Maximum turning rate limited by wheel motors & {[}-2, 2{]} \\
+\textbackslash(0 \textbackslash leq v \textbackslash leq 5\textbackslash,\textbackslash text\{m/s\}\textbackslash) & No backward motion; maximum speed & {[}0, 5{]} \\
+\textbackslash(-2 \textbackslash leq \textbackslash omega \textbackslash leq 2\textbackslash,\textbackslash text\{rad/s\}\textbackslash) & Maximum turning rate & {[}-2, 2{]} \\
 \end{longtable}
 
-\subsection{MPC Design}
-
-State: \textbackslash(x = {[}p\_x, p\_y, \textbackslash theta{]}\^{}T\textbackslash), Control: \textbackslash(u = {[}v, \textbackslash omega{]}\^{}T\textbackslash), Horizon: \textbackslash(N = 15\textbackslash), Weights:
+\hypertarget{mpc-design}{%
+\subsubsection{3.4 MPC Design}\label{mpc-design}}
 
 \textbackslash{[} Q = \textbackslash text\{diag\}(50, 50, 10), \textbackslash quad R = \textbackslash text\{diag\}(0.1, 0.1) \textbackslash{]}
 
-The higher weight on position relative to heading ensures the robot prioritises reaching the correct \textbackslash((x, y)\textbackslash) location, with heading as a secondary objective.
-
-\subsection{MATLAB Implementation --- Mobile Robot MPC}
+\hypertarget{matlab-implementation-mobile-robot-mpc}{%
+\subsubsection{3.5 MATLAB Implementation --- Mobile Robot MPC}\label{matlab-implementation-mobile-robot-mpc}}
 
 \%\% === MPC for Differential-Drive Mobile Robot ===
-\% Linearisation parameters
-v\_ref = 2.5; \% Reference linear velocity
-dt = 0.05; \% Sampling time
-\% Linearised system (around theta = 0, v = v\_ref)
+v\_ref = 2.5; dt = 0.05;
 Ac\_mob = {[}0, 0, 0; 0, 0, v\_ref; 0, 0, 0{]};
 Bc\_mob = {[}1, 0; 0, 0; 0, 1{]};
 Ad\_mob = eye(3) + Ac\_mob*dt;
 Bd\_mob = Bc\_mob*dt;
-\% MPC parameters
-N\_mob = 15;
-Q\_mob = diag({[}50, 50, 10{]});
-R\_mob = diag({[}0.1, 0.1{]});
+N\_mob = 15; Q\_mob = diag({[}50, 50, 10{]}); R\_mob = diag({[}0.1, 0.1{]});
 n\_mob = 3; m\_mob = 2;
-\% Build prediction matrices
+\% Build prediction matrices (same structure as manipulator)
 A\_cal\_mob = zeros(n\_mob*N\_mob, n\_mob);
 B\_cal\_mob = zeros(n\_mob*N\_mob, m\_mob*N\_mob);
 for i = 1:N\_mob
@@ -677,17 +638,12 @@ R\_N\_mob = kron(eye(N\_mob), R\_mob);
 H\_mob = B\_cal\_mob\textquotesingle{} * Q\_N\_mob * B\_cal\_mob + R\_N\_mob;
 H\_inv\_mob = inv(H\_mob);
 F\_mob = B\_cal\_mob\textquotesingle{} * Q\_N\_mob;
-\% Simulation
+\% Simulation (circular reference)
 t\_span\_mob = 0:dt:20;
 x\_mob = {[}0; 0; 0{]};
-x\_hist\_mob = zeros(3, length(t\_span\_mob));
-u\_hist\_mob = zeros(2, length(t\_span\_mob));
-x\_hist\_mob(:,1) = x\_mob;
-\% Circular reference trajectory (radius = 5 m)
 R\_circle = 5; omega\_circle = 0.5;
 for k = 1:length(t\_span\_mob)-1
 t = t\_span\_mob(k);
-\% Build reference over horizon
 x\_ref\_mob = zeros(n\_mob*N\_mob, 1);
 for i = 1:N\_mob
 t\_f = t + i*dt;
@@ -695,25 +651,22 @@ x\_ref\_mob((i-1)*n\_mob+1:i*n\_mob) = {[}R\_circle*cos(omega\_circle*t\_f); ...
 R\_circle*sin(omega\_circle*t\_f); ...
 omega\_circle*t\_f + pi/2{]};
 end
-\% MPC solve
 E\_mob = x\_ref\_mob - A\_cal\_mob * x\_mob;
 U\_star\_mob = H\_inv\_mob * F\_mob * E\_mob;
 u\_mob = U\_star\_mob(1:m\_mob);
-\% Enforce constraints
-u\_mob(1) = max(min(u\_mob(1), 5), 0); \% v in {[}0, 5{]}
-u\_mob(2) = max(min(u\_mob(2), 2), -2); \% omega in {[}-2, 2{]}
-\% True nonlinear dynamics (Euler integration)
+u\_mob(1) = max(min(u\_mob(1), 5), 0);
+u\_mob(2) = max(min(u\_mob(2), 2), -2);
 theta = x\_mob(3);
 x\_mob = x\_mob + {[}u\_mob(1)*cos(theta); u\_mob(1)*sin(theta); u\_mob(2){]}*dt;
-x\_hist\_mob(:,k+1) = x\_mob;
-u\_hist\_mob(:,k) = u\_mob;
 end
 
-\textbf{Linearisation Caveat:} The linearisation is performed at a single operating point. When the robot heading \textbackslash(\textbackslash theta\textbackslash) deviates significantly from \textbackslash(\textbackslash theta\^{}r = 0\textbackslash), the linear model becomes inaccurate. In practice, one re-linearises at each time step (forming a time-varying linear MPC), or uses nonlinear MPC.
+\textbf{Linearisation Caveat:} The linearisation is performed at a single operating point. In practice, one re-linearises at each time step or uses nonlinear MPC.
 
-\section{MPC for Quadrotor Drone}
+\hypertarget{part-4-mpc-for-quadrotor-drone-1}{%
+\subsection{Part 4 --- MPC for Quadrotor Drone}\label{part-4-mpc-for-quadrotor-drone-1}}
 
-\subsection{The 12-State Quadrotor Model}
+\hypertarget{the-12-state-quadrotor-model}{%
+\subsubsection{4.1 The 12-State Quadrotor Model}\label{the-12-state-quadrotor-model}}
 
 A quadrotor has 6 degrees of freedom (3 translational + 3 rotational), leading to a 12-dimensional state vector:
 
@@ -730,75 +683,23 @@ The control inputs are thrust and three body-frame torques:
 u = \textbackslash begin\{bmatrix\} T \textbackslash\textbackslash{} \textbackslash tau\_x \textbackslash\textbackslash{} \textbackslash tau\_y \textbackslash\textbackslash{} \textbackslash tau\_z \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Nonlinear Equations of Motion}
+\hypertarget{linearised-hover-dynamics}{%
+\subsubsection{4.2 Linearised Hover Dynamics}\label{linearised-hover-dynamics}}
 
-\subsubsection{Full Quadrotor Dynamics}
-
-\textbf{Translational dynamics} (Newton\textquotesingle s second law in the world frame):
-
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{v\}\_x \&= \textbackslash frac\{T\}\{m\}\textbackslash bigl(\textbackslash cos\textbackslash phi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash psi + \textbackslash sin\textbackslash phi\textbackslash sin\textbackslash psi\textbackslash bigr) \textbackslash\textbackslash{}
-\textbackslash dot\{v\}\_y \&= \textbackslash frac\{T\}\{m\}\textbackslash bigl(\textbackslash cos\textbackslash phi\textbackslash sin\textbackslash theta\textbackslash sin\textbackslash psi - \textbackslash sin\textbackslash phi\textbackslash cos\textbackslash psi\textbackslash bigr) \textbackslash\textbackslash{}
-\textbackslash dot\{v\}\_z \&= \textbackslash frac\{T\}\{m\}\textbackslash cos\textbackslash phi\textbackslash cos\textbackslash theta - g
-\textbackslash end\{aligned\}
-\textbackslash{]}
-
-\textbf{Rotational dynamics} (Euler\textquotesingle s equations for a symmetric body):
-
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{\textbackslash omega\}\_x \&= \textbackslash frac\{\textbackslash tau\_x\}\{I\_\{xx\}\} + \textbackslash frac\{(I\_\{yy\} - I\_\{zz\})\}\{I\_\{xx\}\}\textbackslash omega\_y\textbackslash omega\_z \textbackslash\textbackslash{}
-\textbackslash dot\{\textbackslash omega\}\_y \&= \textbackslash frac\{\textbackslash tau\_y\}\{I\_\{yy\}\} + \textbackslash frac\{(I\_\{zz\} - I\_\{xx\})\}\{I\_\{yy\}\}\textbackslash omega\_x\textbackslash omega\_z \textbackslash\textbackslash{}
-\textbackslash dot\{\textbackslash omega\}\_z \&= \textbackslash frac\{\textbackslash tau\_z\}\{I\_\{zz\}\} + \textbackslash frac\{(I\_\{xx\} - I\_\{yy\})\}\{I\_\{zz\}\}\textbackslash omega\_x\textbackslash omega\_y
-\textbackslash end\{aligned\}
-\textbackslash{]}
-
-\subsection{Linearisation around Hover}
-
-At hover, all velocities and angular rates are zero, \textbackslash(\textbackslash phi = \textbackslash theta = \textbackslash psi = 0\textbackslash), and the thrust equals gravity: \textbackslash(T\_0 = mg\textbackslash).
-The linearised continuous-time system simplifies considerably because the trigonometric functions reduce to their small-angle approximations and the cross-coupling terms in Euler\textquotesingle s equations vanish:
-
-\subsubsection{Linearised Hover Dynamics}
+\hypertarget{linearised-hover-dynamics-1}{%
+\paragraph{Linearised Hover Dynamics}\label{linearised-hover-dynamics-1}}
 
 At hover (\textbackslash(\textbackslash phi = \textbackslash theta = \textbackslash psi = 0\textbackslash), \textbackslash(T\_0 = mg\textbackslash)):
 
 \textbackslash{[}
-\textbackslash dot\{v\}\_x \textbackslash approx g\textbackslash,\textbackslash theta, \textbackslash quad
-\textbackslash dot\{v\}\_y \textbackslash approx -g\textbackslash,\textbackslash phi, \textbackslash quad
-\textbackslash dot\{v\}\_z \textbackslash approx \textbackslash frac\{T - mg\}\{m\}
+\textbackslash dot\{v\}\_x \textbackslash approx g\textbackslash,\textbackslash theta, \textbackslash quad \textbackslash dot\{v\}\_y \textbackslash approx -g\textbackslash,\textbackslash phi, \textbackslash quad \textbackslash dot\{v\}\_z \textbackslash approx \textbackslash frac\{T - mg\}\{m\}
 \textbackslash{]}
 \textbackslash{[}
-\textbackslash dot\{\textbackslash omega\}\_x \textbackslash approx \textbackslash frac\{\textbackslash tau\_x\}\{I\_\{xx\}\}, \textbackslash quad
-\textbackslash dot\{\textbackslash omega\}\_y \textbackslash approx \textbackslash frac\{\textbackslash tau\_y\}\{I\_\{yy\}\}, \textbackslash quad
-\textbackslash dot\{\textbackslash omega\}\_z \textbackslash approx \textbackslash frac\{\textbackslash tau\_z\}\{I\_\{zz\}\}
+\textbackslash dot\{\textbackslash omega\}\_x \textbackslash approx \textbackslash frac\{\textbackslash tau\_x\}\{I\_\{xx\}\}, \textbackslash quad \textbackslash dot\{\textbackslash omega\}\_y \textbackslash approx \textbackslash frac\{\textbackslash tau\_y\}\{I\_\{yy\}\}, \textbackslash quad \textbackslash dot\{\textbackslash omega\}\_z \textbackslash approx \textbackslash frac\{\textbackslash tau\_z\}\{I\_\{zz\}\}
 \textbackslash{]}
 
-The linearised state-space matrices become:
-
-\textbackslash{[}
-A\_c = \textbackslash begin\{bmatrix\}
-0\_3 \& I\_3 \& 0\_3 \& 0\_3 \textbackslash\textbackslash{}
-0\_3 \& 0\_3 \& G\_\{\textbackslash text\{lin\}\} \& 0\_3 \textbackslash\textbackslash{}
-0\_3 \& 0\_3 \& 0\_3 \& I\_3 \textbackslash\textbackslash{}
-0\_3 \& 0\_3 \& 0\_3 \& 0\_3
-\textbackslash end\{bmatrix\}, \textbackslash quad
-B\_c = \textbackslash begin\{bmatrix\}
-0\_3 \textbackslash\textbackslash{} B\_T \textbackslash\textbackslash{} 0\_3 \textbackslash\textbackslash{} B\_\textbackslash tau
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
-
-where the coupling matrix \textbackslash(G\_\{\textbackslash text\{lin\}\}\textbackslash) and input matrices are:
-
-\textbackslash{[}
-G\_\{\textbackslash text\{lin\}\} = \textbackslash begin\{bmatrix\} 0 \& g \& 0 \textbackslash\textbackslash{} -g \& 0 \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 0 \textbackslash end\{bmatrix\}, \textbackslash quad
-B\_T = \textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} 1/m \textbackslash end\{bmatrix\} \textbackslash begin\{bmatrix\} 1 \& 0 \& 0 \& 0 \textbackslash end\{bmatrix\}, \textbackslash quad
-B\_\textbackslash tau = \textbackslash text\{diag\}\textbackslash!\textbackslash left(\textbackslash frac\{1\}\{I\_\{xx\}\}, \textbackslash frac\{1\}\{I\_\{yy\}\}, \textbackslash frac\{1\}\{I\_\{zz\}\}\textbackslash right) \textbackslash begin\{bmatrix\} 0 \& I\_3 \textbackslash end\{bmatrix\}
-\textbackslash{]}
-
-\subsection{MPC Design for the Quadrotor}
-
-State dimension: \textbackslash(n = 12\textbackslash), Control dimension: \textbackslash(m = 4\textbackslash), Horizon: \textbackslash(N = 15\textbackslash).
+\hypertarget{mpc-design-for-the-quadrotor}{%
+\subsubsection{4.3 MPC Design for the Quadrotor}\label{mpc-design-for-the-quadrotor}}
 
 \textbackslash{[}
 Q = \textbackslash text\{diag\}(\textbackslash underbrace\{80, 80, 120\}\_\{\textbackslash text\{position\}\}, \textbackslash underbrace\{1, 1, 1\}\_\{\textbackslash text\{velocity\}\}, \textbackslash underbrace\{50, 50, 50\}\_\{\textbackslash text\{orientation\}\}, \textbackslash underbrace\{1, 1, 1\}\_\{\textbackslash text\{angular rate\}\})
@@ -807,7 +708,8 @@ Q = \textbackslash text\{diag\}(\textbackslash underbrace\{80, 80, 120\}\_\{\tex
 R = \textbackslash text\{diag\}(0.1, 0.1, 0.1, 0.1)
 \textbackslash{]}
 
-\subsection{Constraints}
+\hypertarget{constraints-1}{%
+\subsubsection{4.4 Constraints}\label{constraints-1}}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -816,39 +718,33 @@ Constraint & Physical Meaning & Value \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbackslash(0 \textbackslash leq T \textbackslash leq 2mg\textbackslash) & Thrust cannot be negative; max is twice the hover thrust & {[}0, 19.62{]} N \\
-\textbackslash(-2 \textbackslash leq \textbackslash tau\_x, \textbackslash tau\_y, \textbackslash tau\_z \textbackslash leq 2\textbackslash) & Maximum body torques from motor differentials & {[}-2, 2{]} N·m \\
-\textbackslash(-30\^{}\textbackslash circ \textbackslash leq \textbackslash phi, \textbackslash theta \textbackslash leq 30\^{}\textbackslash circ\textbackslash) & Tilt angle limits for safety & {[}-0.524, 0.524{]} rad \\
+\textbackslash(0 \textbackslash leq T \textbackslash leq 2mg\textbackslash) & Thrust range & {[}0, 19.62{]} N \\
+\textbackslash(-2 \textbackslash leq \textbackslash tau\_x, \textbackslash tau\_y, \textbackslash tau\_z \textbackslash leq 2\textbackslash) & Maximum body torques & {[}-2, 2{]} N·m \\
+\textbackslash(-30\^{}\textbackslash circ \textbackslash leq \textbackslash phi, \textbackslash theta \textbackslash leq 30\^{}\textbackslash circ\textbackslash) & Tilt angle limits & {[}-0.524, 0.524{]} rad \\
 \end{longtable}
 
-\subsection{MATLAB Implementation --- Quadrotor MPC}
+\hypertarget{matlab-implementation-quadrotor-mpc}{%
+\subsubsection{4.5 MATLAB Implementation --- Quadrotor MPC}\label{matlab-implementation-quadrotor-mpc}}
 
 \%\% === MPC for Quadrotor Drone ===
-\% Physical parameters
-quad.m = 1.0;
-quad.Ixx = 0.1; quad.Iyy = 0.1; quad.Izz = 0.2;
-quad.g = 9.81;
-dt\_q = 0.02; \% Sampling time (50 Hz)
-n\_q = 12; m\_q = 4;
-\% Linearised continuous-time matrices (hover)
+quad.m = 1.0; quad.Ixx = 0.1; quad.Iyy = 0.1; quad.Izz = 0.2; quad.g = 9.81;
+dt\_q = 0.02; n\_q = 12; m\_q = 4;
 Ac\_q = zeros(12,12);
-Ac\_q(1:3, 4:6) = eye(3); \% dp/dt = v
-Ac\_q(4,8) = quad.g; \% dvx/dt = g*theta
-Ac\_q(5,7) = -quad.g; \% dvy/dt = -g*phi
-Ac\_q(7:9, 10:12) = eye(3); \% datt/dt = omega
+Ac\_q(1:3, 4:6) = eye(3);
+Ac\_q(4,8) = quad.g;
+Ac\_q(5,7) = -quad.g;
+Ac\_q(7:9, 10:12) = eye(3);
 Bc\_q = zeros(12,4);
-Bc\_q(6,1) = 1/quad.m; \% dvz/dt = T/m
-Bc\_q(10,2) = 1/quad.Ixx; \% domega\_x/dt = tau\_x/Ixx
-Bc\_q(11,3) = 1/quad.Iyy; \% domega\_y/dt = tau\_y/Iyy
-Bc\_q(12,4) = 1/quad.Izz; \% domega\_z/dt = tau\_z/Izz
-\% Discretise
+Bc\_q(6,1) = 1/quad.m;
+Bc\_q(10,2) = 1/quad.Ixx;
+Bc\_q(11,3) = 1/quad.Iyy;
+Bc\_q(12,4) = 1/quad.Izz;
 Ad\_q = eye(12) + Ac\_q*dt\_q;
 Bd\_q = Bc\_q*dt\_q;
-\% MPC weights
 N\_q = 15;
 Q\_q = diag({[}80, 80, 120, 1, 1, 1, 50, 50, 50, 1, 1, 1{]});
 R\_q = diag({[}0.1, 0.1, 0.1, 0.1{]});
-\% Build prediction matrices
+\% Build prediction matrices and solve (same pattern as above)
 A\_cal\_q = zeros(n\_q*N\_q, n\_q);
 B\_cal\_q = zeros(n\_q*N\_q, m\_q*N\_q);
 for i = 1:N\_q
@@ -857,75 +753,27 @@ for j = 1:i
 B\_cal\_q((i-1)*n\_q+1:i*n\_q, (j-1)*m\_q+1:j*m\_q) = Ad\_q\^{}(i-j)*Bd\_q;
 end
 end
-Q\_N\_q = kron(eye(N\_q), Q\_q);
-R\_N\_q = kron(eye(N\_q), R\_q);
-H\_q = B\_cal\_q\textquotesingle{} * Q\_N\_q * B\_cal\_q + R\_N\_q;
+H\_q = B\_cal\_q\textquotesingle{} * kron(eye(N\_q),Q\_q) * B\_cal\_q + kron(eye(N\_q),R\_q);
 H\_inv\_q = inv(H\_q);
-F\_q = B\_cal\_q\textquotesingle{} * Q\_N\_q;
-\% Simulation (helical trajectory)
-t\_span\_q = 0:dt\_q:20;
-x\_q = zeros(12,1);
-x\_hist\_q = zeros(12, length(t\_span\_q));
-u\_hist\_q = zeros(4, length(t\_span\_q));
-x\_hist\_q(:,1) = x\_q;
-\% Helical reference: circle in XY with linear climb in Z
-R\_helix = 3; omega\_helix = 0.5; vz\_helix = 0.3;
-for k = 1:length(t\_span\_q)-1
-t = t\_span\_q(k);
-\% Build reference over horizon
-x\_ref\_q = zeros(n\_q*N\_q, 1);
-for i = 1:N\_q
-t\_f = t + i*dt\_q;
-px\_ref = R\_helix*sin(omega\_helix*t\_f);
-py\_ref = R\_helix*cos(omega\_helix*t\_f);
-pz\_ref = 5 + vz\_helix*sin(0.2*t\_f);
-vx\_ref = R\_helix*omega\_helix*cos(omega\_helix*t\_f);
-vy\_ref = -R\_helix*omega\_helix*sin(omega\_helix*t\_f);
-vz\_ref = vz\_helix*0.2*cos(0.2*t\_f);
-x\_ref\_q((i-1)*n\_q+1:i*n\_q) = {[}px\_ref; py\_ref; pz\_ref; ...
-vx\_ref; vy\_ref; vz\_ref; ...
-0; 0; 0; 0; 0; 0{]};
-end
-\% MPC solve (note: u here is delta\_u around hover)
-E\_q = x\_ref\_q - A\_cal\_q * x\_q;
-U\_star\_q = H\_inv\_q * F\_q * E\_q;
-u\_q = U\_star\_q(1:m\_q);
-\% Add hover thrust offset and enforce constraints
-u\_q(1) = u\_q(1) + quad.m*quad.g; \% Total thrust = hover + correction
-u\_q(1) = max(min(u\_q(1), 2*quad.m*quad.g), 0);
-u\_q(2:4) = max(min(u\_q(2:4), 2), -2);
-\% Simulate true nonlinear dynamics (simplified Euler step)
-pos = x\_q(1:3); vel = x\_q(4:6);
-att = x\_q(7:9); omg = x\_q(10:12);
-phi = att(1); th = att(2); psi = att(3);
-T = u\_q(1); tau\_body = u\_q(2:4);
-\% Translational acceleration (full nonlinear)
-ax = (T/quad.m)*(cos(phi)*sin(th)*cos(psi) + sin(phi)*sin(psi));
-ay = (T/quad.m)*(cos(phi)*sin(th)*sin(psi) - sin(phi)*cos(psi));
-az = (T/quad.m)*cos(phi)*cos(th) - quad.g;
-\% Rotational acceleration
-domg\_x = tau\_body(1)/quad.Ixx + (quad.Iyy-quad.Izz)/quad.Ixx*omg(2)*omg(3);
-domg\_y = tau\_body(2)/quad.Iyy + (quad.Izz-quad.Ixx)/quad.Iyy*omg(1)*omg(3);
-domg\_z = tau\_body(3)/quad.Izz + (quad.Ixx-quad.Iyy)/quad.Izz*omg(1)*omg(2);
-\% Euler integration
-x\_q = x\_q + {[}vel; ax; ay; az; omg; domg\_x; domg\_y; domg\_z{]}*dt\_q;
-x\_hist\_q(:,k+1) = x\_q;
-u\_hist\_q(:,k) = u\_q;
-end
+F\_q = B\_cal\_q\textquotesingle{} * kron(eye(N\_q),Q\_q);
+\% Simulation loop follows same pattern with helical reference trajectory
 
 \textbf{Key Observation:} The MPC controller for the quadrotor uses a 12-state linear model but drives the full nonlinear plant. The receding-horizon feedback mechanism compensates for linearisation errors at each step.
 
-\section{MATLAB Implementation \& Activities}
+\hypertarget{part-5-matlab-implementation-activities-1}{%
+\subsection{Part 5 --- MATLAB Implementation \& Activities}\label{part-5-matlab-implementation-activities-1}}
 
-\subsection{Activity 1: Prediction Horizon Tuning (10 min)}
+\hypertarget{activity-1-prediction-horizon-tuning-10-min}{%
+\subsubsection{Activity 1: Prediction Horizon Tuning (10 min)}\label{activity-1-prediction-horizon-tuning-10-min}}
 
-\subsubsection{Task: Investigate the Effect of Horizon Length \textbackslash(N\textbackslash)}
+\hypertarget{task-investigate-the-effect-of-horizon-length-n}{%
+\paragraph{Task: Investigate the Effect of Horizon Length \textbackslash(N\textbackslash)}\label{task-investigate-the-effect-of-horizon-length-n}}
 
-Run the manipulator MPC code with three different prediction horizons. For each, record the peak tracking error \textbackslash(\textbackslash max \textbar e(t)\textbar\textbackslash) and the computation time.
+Run the manipulator MPC code with three different prediction horizons.
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
-Horizon \textbackslash(N\textbackslash) & Peak Position Error (rad) & Steady-State Error (rad) & Approx. Computation Time \\
+Horizon \textbackslash(N\textbackslash) & Peak Position Error & Steady-State Error & Computation Time \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -935,51 +783,37 @@ Horizon \textbackslash(N\textbackslash) & Peak Position Error (rad) & Steady-Sta
 \textbackslash(N = 50\textbackslash) & {[}record{]} & {[}record{]} & {[}record{]} \\
 \end{longtable}
 
-\textbf{Questions to answer:}
+\hypertarget{activity-2-three-system-comparison-15-min}{%
+\subsubsection{Activity 2: Three-System Comparison (15 min)}\label{activity-2-three-system-comparison-15-min}}
+
+\hypertarget{task-run-mpc-for-all-three-systems-side-by-side}{%
+\paragraph{Task: Run MPC for All Three Systems Side by Side}\label{task-run-mpc-for-all-three-systems-side-by-side}}
 
 \begin{enumerate}
 \tightlist
 \item
-  How does increasing \textbackslash(N\textbackslash) affect the transient response? Is there a point of diminishing returns?
+  Compare the MPC tracking error with the PD tracking error for each system.
 \item
-  Why does a very short horizon (\textbackslash(N = 5\textbackslash)) lead to poor performance? Relate to the "myopic" nature of a short prediction window.
+  Examine the control input plots. Does MPC produce smoother control signals?
 \item
-  At what value of \textbackslash(N\textbackslash) does the computation time become a concern for real-time control at 100 Hz?
+  Look at the constraint enforcement: does PD ever violate the limits?
 \end{enumerate}
 
-\subsection{Activity 2: Three-System Comparison (15 min)}
+\hypertarget{activity-3-mpc-vs-computed-torque-discussion-5-min}{%
+\subsubsection{Activity 3: MPC vs Computed Torque Discussion (5 min)}\label{activity-3-mpc-vs-computed-torque-discussion-5-min}}
 
-\subsubsection{Task: Run MPC for All Three Systems Side by Side}
+\hypertarget{thinkpairshare}{%
+\paragraph{Think--Pair--Share}\label{thinkpairshare}}
 
-Run the complete \texttt{mpc\_control\_simulation.m} file, which simulates MPC for the manipulator, mobile robot, and quadrotor simultaneously. The script also includes a PD-control baseline for comparison.
+\textbf{Question 1:} When would you prefer MPC over computed torque control?
 
-\begin{enumerate}
-\tightlist
-\item
-  Compare the MPC tracking error with the PD tracking error for each system. Which controller provides tighter tracking?
-\item
-  Examine the control input plots. Does MPC produce smoother control signals than PD?
-\item
-  Look at the constraint enforcement: does PD ever violate the torque/velocity limits? Does MPC?
-\item
-  For the mobile robot, compare the actual path (MPC vs PD) on the XY plot. Which is closer to the circular reference?
-\end{enumerate}
+\textbf{Question 2:} When would computed torque control be the better choice?
 
-\subsection{Activity 3: MPC vs Computed Torque Discussion (5 min)}
+\hypertarget{summary-key-takeaways}{%
+\subsection{Summary \& Key Takeaways}\label{summary-key-takeaways}}
 
-\subsubsection{Think--Pair--Share}
-
-\textbf{Question 1:} In what real-world scenario would you prefer MPC over computed torque control? Consider constraint handling, trajectory planning, and multi-objective optimisation.
-
-\textbf{Question 2:} When would computed torque control be the better choice? Consider computational requirements, real-time performance at high rates, and systems with well-known dynamics.
-
-Discuss with your neighbour for 2 minutes, then share one scenario each with the class.
-
-\section{Summary and Next Steps}
-
-\subsection{Summary \& Key Takeaways}
-
-\subsection{Core MPC Equations}
+\hypertarget{core-mpc-equations}{%
+\subsubsection{Core MPC Equations}\label{core-mpc-equations}}
 
 \begin{longtable}[]{@{}ll@{}}
 \toprule\noalign{}
@@ -995,7 +829,8 @@ Equation & Description \\
 \textbackslash(u\_k = \textbackslash mathbf\{U\}\^{}*(1\{:\}m)\textbackslash) & Receding horizon: apply only first input \\
 \end{longtable}
 
-\subsection{MPC vs Computed Torque Control}
+\hypertarget{mpc-vs-computed-torque-control}{%
+\subsubsection{MPC vs Computed Torque Control}\label{mpc-vs-computed-torque-control}}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -1004,32 +839,34 @@ Property & MPC & Computed Torque \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{Model Knowledge} & Requires linear (or nonlinear) model; can use approximate models with re-linearisation & Requires full nonlinear dynamics \textbackslash(M(q)\textbackslash), \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), \textbackslash(G(q)\textbackslash) \\
-\textbf{Constraint Handling} & Systematically incorporates state and control constraints in the optimisation & No built-in constraint handling; requires ad-hoc saturation or anti-windup \\
-\textbf{Computation} & Solves a QP at every time step; computational cost grows with \textbackslash(N\textbackslash), \textbackslash(n\textbackslash), \textbackslash(m\textbackslash) & Evaluates \textbackslash(M\textbackslash), \textbackslash(C\textbackslash), \textbackslash(G\textbackslash) and a matrix-vector product; very fast per step \\
-\textbf{Tracking Accuracy} & Optimal within the prediction horizon; slightly conservative due to linearisation & Perfect tracking with exact model (nonlinear cancellation) \\
-\textbf{Multi-Objective} & Naturally balances tracking, energy, and constraints through cost weights & Single objective: tracking error minimisation \\
-\textbf{Robustness} & Feedback through receding horizon; can incorporate robust/stochastic extensions & Sensitive to model mismatch; requires additional robust terms \\
-\textbf{Best For} & Systems with constraints, slow-medium dynamics, trajectory optimisation & Fast manipulator control with known dynamics, high-rate servo loops \\
+\textbf{Model Knowledge} & Requires linear (or nonlinear) model; can use approximate models & Requires full nonlinear dynamics \textbackslash(M(q)\textbackslash), \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), \textbackslash(G(q)\textbackslash) \\
+\textbf{Constraint Handling} & Systematically incorporates state and control constraints & No built-in constraint handling \\
+\textbf{Computation} & Solves a QP at every time step & Matrix-vector product; very fast per step \\
+\textbf{Best For} & Systems with constraints, slow-medium dynamics & Fast manipulator control with known dynamics \\
 \end{longtable}
 
-\subsubsection{Key Takeaway 1}
+\hypertarget{key-takeaway-1}{%
+\paragraph{Key Takeaway 1}\label{key-takeaway-1}}
 
-MPC converts the control problem into a \textbf{repeated optimisation} problem. The quality of the controller depends directly on the quality of the model and the tuning of \textbackslash(N\textbackslash), \textbackslash(Q\textbackslash), \textbackslash(R\textbackslash).
+MPC converts the control problem into a \textbf{repeated optimisation} problem.
 
-\subsubsection{Key Takeaway 2}
+\hypertarget{key-takeaway-2}{%
+\paragraph{Key Takeaway 2}\label{key-takeaway-2}}
 
-The receding-horizon strategy provides \textbf{implicit feedback}: by re-solving at every step, MPC naturally rejects disturbances and compensates for model errors.
+The receding-horizon strategy provides \textbf{implicit feedback}.
 
-\subsubsection{Key Takeaway 3}
+\hypertarget{key-takeaway-3}{%
+\paragraph{Key Takeaway 3}\label{key-takeaway-3}}
 
-MPC\textquotesingle s greatest strength over computed torque is \textbf{constraint handling}. Real actuators have limits; MPC respects them by design.
+MPC\textquotesingle s greatest strength is \textbf{constraint handling}.
 
-\subsubsection{Key Takeaway 4}
+\hypertarget{key-takeaway-4}{%
+\paragraph{Key Takeaway 4}\label{key-takeaway-4}}
 
-Computed torque remains superior when the dynamics are well-known and the control loop must run at \textbf{very high rates} (\textgreater{} 1 kHz) where solving a QP is too expensive.
+Computed torque remains superior at \textbf{very high rates} (\textgreater{} 1 kHz).
 
-\subsection{Next Week: Adaptive Control}
+\hypertarget{next-week-adaptive-control}{%
+\subsection{Next Week: Adaptive Control}\label{next-week-adaptive-control}}
 
 \textbf{Building on Weeks 1 and 2, we will cover:}
 
@@ -1045,18 +882,17 @@ Computed torque remains superior when the dynamics are well-known and the contro
   Stability proofs for adaptive systems using Lyapunov-based methods
 \end{itemize}
 
-\subsection{Preparation}
+\hypertarget{preparation}{%
+\subsubsection{Preparation}\label{preparation}}
 
 \begin{itemize}
 \tightlist
 \item
   Complete all MATLAB activities from today and save your scripts
 \item
-  Review the linearity-in-parameters property from Week 1 (Section 1.4, Property 3)
+  Review the linearity-in-parameters property from Week 1
 \item
   Think about: \emph{"If the controller does not know \textbackslash(M(q)\textbackslash), \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), or \textbackslash(G(q)\textbackslash), how could it learn these online while still maintaining stability?"}
-\item
-  Read about parameter convergence and persistent excitation
 \end{itemize}
 
 \textbf{Control for Robots}

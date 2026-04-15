@@ -1,23 +1,18 @@
-% ----- auto-generated from week_10/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{ROS\,2 Quadrotor Control (Week 10)}
-\labch{week_10}
-
-
+\hypertarget{aerovision-uav-flight-software-engineer-technical-challenge}{%
+\section{AeroVision UAV --- Flight Software Engineer Technical Challenge}\label{aerovision-uav-flight-software-engineer-technical-challenge}}
 
 Attitude Estimation and Control from Raw IMU Data
 
 Position: Flight Software Engineer • Team: Autopilot Development\\
 Pre-Interview Technical Assessment • Estimated Time: 3 Hours
 
-\section{Overview}
-
-\subsection{Company Brief: AeroVision UAV}
+\hypertarget{company-brief-aerovision-uav}{%
+\subsection{Company Brief: AeroVision UAV}\label{company-brief-aerovision-uav}}
 
 \textbf{Scenario:} AeroVision UAV builds autonomous quadrotor platforms for aerial inspection and mapping. Your team has collected 10 seconds of high-rate sensor data from a test flight including raw IMU readings, desired attitude commands, motor telemetry, and ground truth pose. As part of this challenge, you will implement attitude estimation and control pipelines as ROS2 nodes.
 
-\subsection{Provided Bag Data}
+\hypertarget{provided-bag-data}{%
+\subsubsection{Provided Bag Data}\label{provided-bag-data}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -32,7 +27,8 @@ Topic & Message Type & Rate & Description \\
 \texttt{/ground\_truth\_pose} & geometry\_msgs/PoseStamped & 100 Hz & Ground truth pose from motion capture \\
 \end{longtable}
 
-\subsection{Deliverables}
+\hypertarget{deliverables}{%
+\subsubsection{Deliverables}\label{deliverables}}
 
 \begin{itemize}
 \tightlist
@@ -48,7 +44,8 @@ Topic & Message Type & Rate & Description \\
   A quantitative comparison: attitude RMSE, computation time, and wind disturbance rejection
 \end{itemize}
 
-\subsection{Evaluation Criteria}
+\hypertarget{evaluation-criteria}{%
+\subsubsection{Evaluation Criteria}\label{evaluation-criteria}}
 
 \begin{itemize}
 \tightlist
@@ -62,7 +59,8 @@ Topic & Message Type & Rate & Description \\
   \textbf{Communication:} Ability to explain cascaded control design and trade-offs during the follow-up interview
 \end{itemize}
 
-\subsection{Skills You Will Demonstrate}
+\hypertarget{skills-you-will-demonstrate}{%
+\subsection{Skills You Will Demonstrate}\label{skills-you-will-demonstrate}}
 
 By the end of this session you will be able to:
 
@@ -86,55 +84,65 @@ By the end of this session you will be able to:
   Compare and evaluate all seven controllers on quadrotor hover and trajectory-tracking tasks using quantitative metrics (RMSE, computation time, wind rejection)
 \end{itemize}
 
-\subsection{Recommended Approach (3-Hour Session)}
+\hypertarget{recommended-approach-3-hour-session}{%
+\subsection{Recommended Approach (3-Hour Session)}\label{recommended-approach-3-hour-session}}
 
 0:00 -- 0:20
 
-\subsubsection{Week 9 Exam Recall}
+\hypertarget{week-9-exam-recall}{%
+\paragraph{Week 9 Exam Recall}\label{week-9-exam-recall}}
 
 Review ROS2 control node architecture, timer-based vs event-driven loops, and computational comparison of PID/LQR/MPC.
 
 0:20 -- 0:50
 
-\subsubsection{Quadrotor Dynamics Review}
+\hypertarget{part-1-quadrotor-dynamics-review}{%
+\paragraph{Part 1: Quadrotor Dynamics Review}\label{part-1-quadrotor-dynamics-review}}
 
 State vector, translational and rotational dynamics, motor mixing matrix, coordinate frames. SVG diagram of plus-configuration.
 
 0:50 -- 1:20
 
-\subsubsection{Cascaded Control Architecture in ROS2}
+\hypertarget{part-2-cascaded-control-architecture-in-ros2}{%
+\paragraph{Part 2: Cascaded Control Architecture in ROS2}\label{part-2-cascaded-control-architecture-in-ros2}}
 
 Outer/middle/inner loop decomposition, node graph, topic structure, launch file. Industry standard (PX4, ArduPilot, DJI).
 
 1:20 -- 1:50
 
-\subsubsection{PID Attitude Controller in ROS2}
+\hypertarget{part-3-pid-attitude-controller-in-ros2}{%
+\paragraph{Part 3: PID Attitude Controller in ROS2}\label{part-3-pid-attitude-controller-in-ros2}}
 
 Full Python implementation of cascaded PID attitude controller node. Complementary filter for attitude estimation.
 
 1:50 -- 2:20
 
-\subsubsection{Applying All 7 Controllers to Quadrotor}
+\hypertarget{part-4-applying-all-7-controllers-to-quadrotor}{%
+\paragraph{Part 4: Applying All 7 Controllers to Quadrotor}\label{part-4-applying-all-7-controllers-to-quadrotor}}
 
 CTC, MPC, Adaptive, Robust, Backstepping, SMC, LQR --- mapping each to quadrotor dynamics. Comprehensive comparison table.
 
 2:20 -- 2:40
 
-\subsubsection{Quadrotor Simulation in ROS2}
+\hypertarget{part-5-quadrotor-simulation-in-ros2}{%
+\paragraph{Part 5: Quadrotor Simulation in ROS2}\label{part-5-quadrotor-simulation-in-ros2}}
 
 quadrotor\_sim.py physics engine, RViz2 visualization, rosbag2 recording, lab exercise walkthrough.
 
 2:40 -- 3:00
 
-\subsubsection{Hands-On Activities \& Wrap-Up}
+\hypertarget{hands-on-activities-wrap-up}{%
+\paragraph{Hands-On Activities \& Wrap-Up}\label{hands-on-activities-wrap-up}}
 
 Three lab activities: hover test, trajectory tracking comparison, wind disturbance rejection. Quiz and summary.
 
-\section{Quadrotor Dynamics Review}
+\hypertarget{section-3-part-1-quadrotor-dynamics-review}{%
+\subsection{Section 3: Part 1 --- Quadrotor Dynamics Review}\label{section-3-part-1-quadrotor-dynamics-review}}
 
 You studied quadrotor dynamics extensively in Weeks 3--8 (MATLAB theory block). Here we briefly review the key equations that we will now implement in ROS2 control nodes. The simulation uses the \texttt{quadrotor\_sim.py} physics engine from \texttt{src/ros2\_robotics\_course/week\_06/}, which follows the ENU/FLU convention (x-forward, y-left, z-up) --- the ROS2 standard.
 
-\subsection{State Vector}
+\hypertarget{state-vector}{%
+\subsubsection{3.1 State Vector}\label{state-vector}}
 
 The full quadrotor state is a 12-dimensional vector:
 
@@ -142,7 +150,8 @@ The full quadrotor state is a 12-dimensional vector:
 
 where \textbackslash((x, y, z)\textbackslash) is the position in the world ENU frame, \textbackslash((\textbackslash phi, \textbackslash theta, \textbackslash psi)\textbackslash) are roll, pitch, yaw (ZYX Euler angles), \textbackslash((\textbackslash dot\{x\}, \textbackslash dot\{y\}, \textbackslash dot\{z\})\textbackslash) are world-frame velocities, and \textbackslash((p, q, r)\textbackslash) are body-frame angular rates.
 
-\subsection{Translational Dynamics}
+\hypertarget{translational-dynamics}{%
+\subsubsection{3.2 Translational Dynamics}\label{translational-dynamics}}
 
 Applying Newton\textquotesingle s second law in the world frame:
 
@@ -152,7 +161,8 @@ where \textbackslash(m\textbackslash) is the total mass, \textbackslash(g = 9.81
 
 \textbackslash{[} R = R\_z(\textbackslash psi) R\_y(\textbackslash theta) R\_x(\textbackslash phi) = \textbackslash begin\{bmatrix\} c\textbackslash theta c\textbackslash psi \& c\textbackslash psi s\textbackslash theta s\textbackslash phi - s\textbackslash psi c\textbackslash phi \& c\textbackslash psi s\textbackslash theta c\textbackslash phi + s\textbackslash psi s\textbackslash phi \textbackslash\textbackslash{} c\textbackslash theta s\textbackslash psi \& s\textbackslash psi s\textbackslash theta s\textbackslash phi + c\textbackslash psi c\textbackslash phi \& s\textbackslash psi s\textbackslash theta c\textbackslash phi - c\textbackslash psi s\textbackslash phi \textbackslash\textbackslash{} -s\textbackslash theta \& c\textbackslash theta s\textbackslash phi \& c\textbackslash theta c\textbackslash phi \textbackslash end\{bmatrix\} \textbackslash{]}
 
-\subsection{Rotational Dynamics}
+\hypertarget{rotational-dynamics}{%
+\subsubsection{3.3 Rotational Dynamics}\label{rotational-dynamics}}
 
 Euler\textquotesingle s equation for rotational motion in the body frame:
 
@@ -168,7 +178,8 @@ I\_\{yy\}\textbackslash dot\{q\} \&= (I\_\{zz\} - I\_\{xx\})pr + \textbackslash 
 I\_\{zz\}\textbackslash dot\{r\} \&= (I\_\{xx\} - I\_\{yy\})pq + \textbackslash tau\_\textbackslash psi
 \textbackslash end\{aligned\} \textbackslash{]}
 
-\subsection{Motor Mixing Matrix}
+\hypertarget{motor-mixing-matrix}{%
+\subsubsection{3.4 Motor Mixing Matrix}\label{motor-mixing-matrix}}
 
 The four motors (plus-configuration) produce a total thrust \textbackslash(T\textbackslash) and three torques \textbackslash((\textbackslash tau\_\textbackslash phi, \textbackslash tau\_\textbackslash theta, \textbackslash tau\_\textbackslash psi)\textbackslash). The relationship is:
 
@@ -180,17 +191,21 @@ where \textbackslash(k\_f\textbackslash) is the thrust coefficient, \textbacksla
 
 \textbf{Physical Parameters (from quadrotor\_sim.py):} mass = 1.0 kg, arm\_length = 0.25 m, \textbackslash(I\_\{xx\} = I\_\{yy\} = 0.0082\textbackslash;\textbackslash text\{kg\}\textbackslash cdot\textbackslash text\{m\}\^{}2\textbackslash), \textbackslash(I\_\{zz\} = 0.0150\textbackslash;\textbackslash text\{kg\}\textbackslash cdot\textbackslash text\{m\}\^{}2\textbackslash), \textbackslash(k\_f = 6.8 \textbackslash times 10\^{}\{-6\}\textbackslash), \textbackslash(k\_m = 2.6 \textbackslash times 10\^{}\{-7\}\textbackslash), motor range: 0--838 rad/s.
 
-\subsection{Quadrotor Plus-Configuration Diagram}
+\hypertarget{quadrotor-plus-configuration-diagram}{%
+\subsubsection{3.5 Quadrotor Plus-Configuration Diagram}\label{quadrotor-plus-configuration-diagram}}
 
 The following diagram shows the motor layout, rotation directions, thrust vectors, and body-frame axes for a plus-configuration quadrotor:
 
-\section{Cascaded Control Architecture in ROS2}
+\hypertarget{section-4-part-2-cascaded-control-architecture-in-ros2}{%
+\subsection{Section 4: Part 2 --- Cascaded Control Architecture in ROS2}\label{section-4-part-2-cascaded-control-architecture-in-ros2}}
 
 The standard control architecture used by virtually all commercial and research flight controllers (DJI, PX4, ArduPilot, BetaFlight) is a \textbf{cascaded loop} structure. Each loop operates at a different frequency, with inner loops running faster than outer loops.
 
-\subsection{Three-Loop Cascade}
+\hypertarget{three-loop-cascade}{%
+\subsubsection{4.1 Three-Loop Cascade}\label{three-loop-cascade}}
 
-\subsubsection{Outer Loop: Position Controller}
+\hypertarget{outer-loop-position-controller}{%
+\paragraph{Outer Loop: Position Controller}\label{outer-loop-position-controller}}
 
 \textbf{Rate:} 10--50 Hz
 
@@ -202,7 +217,8 @@ The standard control architecture used by virtually all commercial and research 
 
 This loop converts position error into desired accelerations, then maps accelerations to desired tilt angles using the small-angle approximation.
 
-\subsubsection{Middle Loop: Attitude Controller}
+\hypertarget{middle-loop-attitude-controller}{%
+\paragraph{Middle Loop: Attitude Controller}\label{middle-loop-attitude-controller}}
 
 \textbf{Rate:} 100--250 Hz
 
@@ -214,7 +230,8 @@ This loop converts position error into desired accelerations, then maps accelera
 
 Proportional control on attitude error to generate rate setpoints. This decouples attitude from rate dynamics.
 
-\subsubsection{Inner Loop: Rate Controller}
+\hypertarget{inner-loop-rate-controller}{%
+\paragraph{Inner Loop: Rate Controller}\label{inner-loop-rate-controller}}
 
 \textbf{Rate:} 250--1000 Hz
 
@@ -228,9 +245,11 @@ Full PID on rate error. This is the tightest loop and must run fastest for stabi
 
 \textbf{Why Cascaded?} A single loop from position to motors would need to invert the full nonlinear dynamics at every step, requiring extremely high bandwidth. By cascading, each loop only needs to stabilize one dynamic mode: the inner rate loop damps oscillations, the attitude loop tracks orientation, and the outer loop tracks position. Each loop sees the next inner loop as an approximately instantaneous actuator (because the inner loop is 5--10x faster).
 
-\subsection{Cascaded Architecture Block Diagram}
+\hypertarget{cascaded-architecture-block-diagram}{%
+\subsubsection{4.2 Cascaded Architecture Block Diagram}\label{cascaded-architecture-block-diagram}}
 
-\subsection{ROS2 Topic Structure}
+\hypertarget{ros2-topic-structure}{%
+\subsubsection{4.3 ROS2 Topic Structure}\label{ros2-topic-structure}}
 
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
@@ -248,7 +267,8 @@ Topic Name & Message Type & Publisher & Subscriber(s) & Rate (Hz) \\
 \texttt{/imu} & sensor\_msgs/Imu & /quadrotor\_sim & /attitude\_controller, /rate\_controller & 250 \\
 \end{longtable}
 
-\subsection{Launch File for Cascaded System}
+\hypertarget{launch-file-for-cascaded-system}{%
+\subsubsection{4.4 Launch File for Cascaded System}\label{launch-file-for-cascaded-system}}
 
 {from} launch {import} LaunchDescription
 {from} launch\_ros.actions {import} Node
@@ -290,11 +310,13 @@ name={\textquotesingle motor\_mixer\textquotesingle{}},
 ),
 {]})
 
-\section{Implementing PID Attitude Controller in ROS2}
+\hypertarget{section-5-part-3-implementing-pid-attitude-controller-in-ros2}{%
+\subsection{Section 5: Part 3 --- Implementing PID Attitude Controller in ROS2}\label{section-5-part-3-implementing-pid-attitude-controller-in-ros2}}
 
 Below is a complete ROS2 Python node implementing a cascaded PID attitude controller. It subscribes to \texttt{/imu} for current attitude and \texttt{/attitude\_cmd} for desired orientation, then publishes torque/thrust commands on \texttt{/motor\_cmd}.
 
-\subsection{Full PID Attitude Controller Node}
+\hypertarget{full-pid-attitude-controller-node}{%
+\subsubsection{5.1 Full PID Attitude Controller Node}\label{full-pid-attitude-controller-node}}
 
 {\#!/usr/bin/env python3}
 {"""PID Attitude Controller - ROS2 Node for Quadrotor."""}
@@ -377,7 +399,8 @@ rclpy.shutdown()
 {if} \_\_name\_\_ == {\textquotesingle\_\_main\_\_\textquotesingle{}}:
 main()
 
-\subsection{Complementary Filter for Attitude Estimation}
+\hypertarget{complementary-filter-for-attitude-estimation}{%
+\subsubsection{5.2 Complementary Filter for Attitude Estimation}\label{complementary-filter-for-attitude-estimation}}
 
 The complementary filter fuses gyroscope integration (high-frequency, drift-prone) with accelerometer-derived angles (low-frequency, noisy) to produce a stable attitude estimate:
 
@@ -405,13 +428,16 @@ The same principle applies for pitch:
 
 where \textbackslash(\textbackslash theta\_\textbackslash text\{acc\} = \textbackslash text\{atan2\}\textbackslash bigl(-a\_x,\textbackslash;\textbackslash sqrt\{a\_y\^{}2 + a\_z\^{}2\}\textbackslash bigr)\textbackslash). Yaw cannot be corrected by the accelerometer alone --- it requires a magnetometer or visual heading.
 
-\section{Applying All 7 Controllers to Quadrotor}
+\hypertarget{section-6-part-4-applying-all-7-controllers-to-quadrotor}{%
+\subsection{Section 6: Part 4 --- Applying All 7 Controllers to Quadrotor}\label{section-6-part-4-applying-all-7-controllers-to-quadrotor}}
 
 In Weeks 1--8 you studied seven control strategies in the abstract. In Week 9 you implemented them as generic ROS2 nodes. Now we map each controller specifically to the quadrotor dynamics and discuss the practical ROS2 implementation considerations.
 
-\subsection{Computed Torque Control (CTC)}
+\hypertarget{computed-torque-control-ctc}{%
+\subsubsection{6.1 Computed Torque Control (CTC)}\label{computed-torque-control-ctc}}
 
-\subsubsection{Concept}
+\hypertarget{concept}{%
+\paragraph{Concept}\label{concept}}
 
 Computed Torque Control (also called \emph{feedback linearization}) cancels the nonlinear terms in the rotational dynamics and replaces them with a desired linear response:
 
@@ -429,9 +455,11 @@ where \textbackslash(\textbackslash mathbf\{u\}\_d = \textbackslash ddot\{\textb
   \textbf{Best for:} Known, well-characterized platforms where the model is accurate.
 \end{itemize}
 
-\subsection{Model Predictive Control (MPC)}
+\hypertarget{model-predictive-control-mpc}{%
+\subsubsection{6.2 Model Predictive Control (MPC)}\label{model-predictive-control-mpc}}
 
-\subsubsection{Concept}
+\hypertarget{concept-1}{%
+\paragraph{Concept}\label{concept-1}}
 
 Linearize the quadrotor dynamics about the hover operating point. At each control cycle, solve a finite-horizon constrained optimization:
 
@@ -449,9 +477,11 @@ subject to \textbackslash(\textbackslash mathbf\{x\}\_\{k+1\} = A\textbackslash 
   \textbf{Industry:} ETH Zurich (aggressive aerobatics), Skydio (obstacle avoidance), DJI Matrice (waypoint tracking).
 \end{itemize}
 
-\subsection{Adaptive Control}
+\hypertarget{adaptive-control}{%
+\subsubsection{6.3 Adaptive Control}\label{adaptive-control}}
 
-\subsubsection{Concept}
+\hypertarget{concept-2}{%
+\paragraph{Concept}\label{concept-2}}
 
 Online estimation of uncertain parameters (mass \textbackslash(m\textbackslash), inertia \textbackslash(J\textbackslash), aerodynamic coefficients) using the regressor form:
 
@@ -467,9 +497,11 @@ where \textbackslash(\textbackslash hat\{\textbackslash boldsymbol\{\textbacksla
   \textbf{ROS2 Implementation:} Parameter update runs alongside the control law in the same callback. Store \textbackslash(\textbackslash hat\{\textbackslash boldsymbol\{\textbackslash theta\}\}\textbackslash) as node state. Publish parameter estimates for monitoring on \texttt{/param\_estimates}.
 \end{itemize}
 
-\subsection{Robust Control (H-infinity / Sliding Boundary Layer)}
+\hypertarget{robust-control-h-infinity-sliding-boundary-layer}{%
+\subsubsection{6.4 Robust Control (H-infinity / Sliding Boundary Layer)}\label{robust-control-h-infinity-sliding-boundary-layer}}
 
-\subsubsection{Concept}
+\hypertarget{concept-3}{%
+\paragraph{Concept}\label{concept-3}}
 
 Add a robust compensating term to handle bounded disturbances (wind, ground effect, model uncertainty):
 
@@ -485,9 +517,11 @@ where \textbackslash(\textbackslash boldsymbol\{\textbackslash tau\}\_\textbacks
   \textbf{ROS2 Implementation:} A wind estimator node subscribes to \texttt{/imu} and \texttt{/odom}, estimates disturbance force, and publishes on \texttt{/wind\_estimate}. The robust compensator node uses this estimate to set the disturbance bound \textbackslash(\textbackslash rho\textbackslash).
 \end{itemize}
 
-\subsection{Backstepping Control}
+\hypertarget{backstepping-control}{%
+\subsubsection{6.5 Backstepping Control}\label{backstepping-control}}
 
-\subsubsection{Concept}
+\hypertarget{concept-4}{%
+\paragraph{Concept}\label{concept-4}}
 
 Backstepping is a natural fit for the cascaded quadrotor structure. Design proceeds in two steps:
 
@@ -506,9 +540,11 @@ Each step uses a Lyapunov function to prove stability. The virtual control from 
   \textbf{ROS2 Implementation:} Two-node architecture mirrors the two backstepping steps: \texttt{/backstepping\_outer} (position) and \texttt{/backstepping\_inner} (attitude). The outer node publishes desired attitude for the inner node.
 \end{itemize}
 
-\subsection{Sliding Mode Control (SMC)}
+\hypertarget{sliding-mode-control-smc}{%
+\subsubsection{6.6 Sliding Mode Control (SMC)}\label{sliding-mode-control-smc}}
 
-\subsubsection{Concept}
+\hypertarget{concept-5}{%
+\paragraph{Concept}\label{concept-5}}
 
 Define a sliding surface for each attitude axis:
 
@@ -528,9 +564,11 @@ The control law drives the state to the surface and maintains it there:
   \textbf{ROS2 Implementation:} Requires a fast inner loop (500--1000 Hz) to maintain sliding condition. Timer period = 1--2 ms. Use \texttt{BEST\_EFFORT} QoS to avoid blocking.
 \end{itemize}
 
-\subsection{Nonlinear Control Optimization --- iLQR / NMPC (Week 8)}
+\hypertarget{nonlinear-control-optimization-ilqr-nmpc-week-8}{%
+\subsubsection{6.7 Nonlinear Control Optimization --- iLQR / NMPC (Week 8)}\label{nonlinear-control-optimization-ilqr-nmpc-week-8}}
 
-\subsubsection{Concept}
+\hypertarget{concept-6}{%
+\paragraph{Concept}\label{concept-6}}
 
 Rather than linearising the quadrotor around hover once, \textbf{iLQR} (Week 8 §9) linearises around the \emph{current-iterate trajectory} at every iteration and solves a time-varying LQR in closed form. The discrete-time recursion computes, for \textbackslash(k = N\textbackslash!-\textbackslash!1,\textbackslash ldots,0\textbackslash):
 
@@ -551,7 +589,8 @@ where \textbackslash(Q\_\{uu\}, Q\_\{ux\}, Q\_u\textbackslash) are Jacobian/Hess
   \textbf{Meta-use:} iLQR/NMPC is also the offline tuning tool for the other six controllers --- minimising a closed-loop cost \textbackslash(J(\textbackslash theta)\textbackslash) over SMC gains \textbackslash((\textbackslash lambda,\textbackslash phi,\textbackslash eta)\textbackslash), adaptive \textbackslash((\textbackslash Gamma,\textbackslash sigma)\textbackslash), robust \textbackslash((K\_p,K\_d,\textbackslash rho,\textbackslash Lambda)\textbackslash), or backstepping \textbackslash((k\_1,\textbackslash ldots,k\_n)\textbackslash) as shown in Week 8 §5--§8.
 \end{itemize}
 
-\subsection{Comprehensive Controller Comparison}
+\hypertarget{comprehensive-controller-comparison}{%
+\subsubsection{6.8 Comprehensive Controller Comparison}\label{comprehensive-controller-comparison}}
 
 \begin{longtable}[]{@{}lllllll@{}}
 \toprule\noalign{}
@@ -572,9 +611,11 @@ Controller & Hover RMSE (cm) & Trajectory RMSE (cm) & Wind Rejection (3 m/s) & C
 
 \textbf{Key Insight:} No single controller dominates across all metrics. PID is the industry standard due to simplicity and robustness of tuning. MPC excels at trajectory tracking with constraints. SMC and Robust control are superior for wind rejection. LQR is optimal for hover energy efficiency. In practice, many production systems blend approaches --- for example, PX4 uses a cascaded PID structure but the position loop effectively implements LQR-like gains computed from a simplified model.
 
-\section{Quadrotor Simulation in ROS2}
+\hypertarget{section-7-part-5-quadrotor-simulation-in-ros2}{%
+\subsection{Section 7: Part 5 --- Quadrotor Simulation in ROS2}\label{section-7-part-5-quadrotor-simulation-in-ros2}}
 
-\subsection{Simulation Environment}
+\hypertarget{simulation-environment}{%
+\subsubsection{7.1 Simulation Environment}\label{simulation-environment}}
 
 The simulation uses the \texttt{quadrotor\_sim.py} physics engine from the ROS2 Robotics Course (Week 6). Key features:
 
@@ -592,7 +633,8 @@ The simulation uses the \texttt{quadrotor\_sim.py} physics engine from the ROS2 
   \textbf{Motor Layout:} Plus-configuration with M1 (front, CW), M2 (left, CCW), M3 (rear, CW), M4 (right, CCW)
 \end{itemize}
 
-\subsection{ROS2 Integration}
+\hypertarget{ros2-integration}{%
+\subsubsection{7.2 ROS2 Integration}\label{ros2-integration}}
 
 The simulation node publishes sensor data and subscribes to motor commands:
 
@@ -614,7 +656,8 @@ self.state{[}2{]} = 0.0 {\# start on ground}
 self.params = QuadrotorParams()
 self.create\_timer(0.001, self.step\_sim) {\# 1 kHz physics}
 
-\subsection{Visualization in RViz2}
+\hypertarget{visualization-in-rviz2}{%
+\subsubsection{7.3 Visualization in RViz2}\label{visualization-in-rviz2}}
 
 \begin{itemize}
 \tightlist
@@ -626,7 +669,8 @@ self.create\_timer(0.001, self.step\_sim) {\# 1 kHz physics}
   \textbf{Trajectory:} Publish \texttt{nav\_msgs/Path} on \texttt{/trajectory} to show the flight path as a line strip in RViz2.
 \end{itemize}
 
-\subsection{Recording Flight Data with rosbag2}
+\hypertarget{recording-flight-data-with-rosbag2}{%
+\subsubsection{7.4 Recording Flight Data with rosbag2}\label{recording-flight-data-with-rosbag2}}
 
 {\# Record all relevant topics during a flight test}
 ros2 bag record /odom /imu /attitude\_cmd /rate\_cmd /motor\_cmd /motor\_speeds \textbackslash{}
@@ -636,7 +680,8 @@ ros2 bag play flight\_test\_pid\_hover
 {\# Convert to CSV for MATLAB/Python plotting}
 ros2 bag convert -i flight\_test\_pid\_hover -o flight\_data.csv
 
-\subsection{Lab Exercises from ROS2 Robotics Course (Week 6)}
+\hypertarget{lab-exercises-from-ros2-robotics-course-week-6}{%
+\subsubsection{7.5 Lab Exercises from ROS2 Robotics Course (Week 6)}\label{lab-exercises-from-ros2-robotics-course-week-6}}
 
 The following lab exercises from \texttt{src/ros2\_robotics\_course/week\_06/lab\_exercises/} build up to a complete quadrotor simulation. This week, you will use these as your foundation and swap in different controllers:
 
@@ -658,11 +703,11 @@ Task 7 & \texttt{task7\_full\_simulation.py} & Full simulation: fly a square tra
 
 \textbf{Integration with This Week:} Tasks 1--4 provide the foundation (dynamics, mixing, PID). Task 5 gives the cascaded structure. Your job this week is to replace the inner PID controller in Task 5 with each of the seven controllers (CTC, MPC, Adaptive, Robust, Backstepping, SMC, LQR) and compare performance on the same trajectory.
 
-\section{Summary and Next Steps}
+\hypertarget{section-8-hands-on-activities}{%
+\subsection{Section 8: Hands-On Activities}\label{section-8-hands-on-activities}}
 
-\subsection{Hands-On Activities}
-
-\subsection{Activity 1: PID Hover Test}
+\hypertarget{activity-1-pid-hover-test}{%
+\subsubsection{Activity 1: PID Hover Test}\label{activity-1-pid-hover-test}}
 
 \textbf{Objective:} Implement the PID attitude controller from Section 5 as a ROS2 node and verify stable hover.
 
@@ -697,7 +742,8 @@ ros2 bag record /odom /imu /attitude\_cmd /motor\_cmd -o hover\_test\_pid
 {\# Terminal 3: Monitor in real-time}
 ros2 topic echo /odom -\/-field pose.pose.position
 
-\subsection{Activity 2: Trajectory Tracking --- PID vs LQR vs MPC}
+\hypertarget{activity-2-trajectory-tracking-pid-vs-lqr-vs-mpc}{%
+\subsubsection{Activity 2: Trajectory Tracking --- PID vs LQR vs MPC}\label{activity-2-trajectory-tracking-pid-vs-lqr-vs-mpc}}
 
 \textbf{Objective:} Fly a square trajectory and compare three controllers quantitatively.
 
@@ -749,7 +795,8 @@ ros2 topic echo /odom -\/-field pose.pose.position
   \end{itemize}
 \end{enumerate}
 
-\subsection{Activity 3: Wind Disturbance Rejection --- SMC vs Robust vs PID}
+\hypertarget{activity-3-wind-disturbance-rejection-smc-vs-robust-vs-pid}{%
+\subsubsection{Activity 3: Wind Disturbance Rejection --- SMC vs Robust vs PID}\label{activity-3-wind-disturbance-rejection-smc-vs-robust-vs-pid}}
 
 \textbf{Objective:} Add a simulated constant wind disturbance and compare rejection performance.
 
@@ -799,41 +846,49 @@ ros2 topic echo /odom -\/-field pose.pose.position
 
 \textbf{Expected Results:} SMC should achieve the smallest steady-state drift (\textasciitilde4 cm) due to its inherent disturbance rejection on the sliding surface. Robust control should be next (\textasciitilde5 cm). PID will show the largest drift (\textasciitilde15 cm) unless the integral gain is significantly increased, which risks oscillation.
 
-\subsubsection{Quick Quiz: Quadrotor Control in ROS2}
+\hypertarget{quick-quiz-quadrotor-control-in-ros2}{%
+\paragraph{Quick Quiz: Quadrotor Control in ROS2}\label{quick-quiz-quadrotor-control-in-ros2}}
 
 \textbf{Q1.} In a cascaded control architecture, why must the inner rate loop run at a higher frequency (e.g., 500 Hz) than the outer position loop (e.g., 50 Hz)?
 
-\subsubsection{Answer}
+\hypertarget{answer}{%
+\paragraph{Answer}\label{answer}}
 
 The inner loop must be fast enough that it appears as an instantaneous actuator to the outer loop. The rule of thumb is that each inner loop should be 5--10x faster than the loop that commands it. If the rate loop were too slow, the attitude loop would command rate changes that take too long to execute, leading to phase lag and potential instability in the outer loop. Additionally, the angular rate dynamics are the fastest dynamics in the quadrotor system (small inertia, high torques), so the rate controller must sample at or above the Nyquist rate of these dynamics.
 
 \textbf{Q2.} The motor mixing matrix \textbackslash(M\textbackslash) has dimensions \textbackslash(4 \textbackslash times 4\textbackslash). Under what condition is \textbackslash(M\textbackslash) invertible? What physical situation would make it singular?
 
-\subsubsection{Answer}
+\hypertarget{answer-1}{%
+\paragraph{Answer}\label{answer-1}}
 
 \textbackslash(M\textbackslash) is invertible when the four motors can independently produce the four wrench components (thrust, roll torque, pitch torque, yaw torque). It becomes singular if, for example, all motors are collocated (arm length \textbackslash(d = 0\textbackslash)), which makes the roll and pitch torque rows identical to zero. It would also be singular if the yaw torque coefficients were all equal (no counter-rotating pairs), as you could not produce differential yaw torque. In the standard plus or X configuration with properly counter-rotating motors, \textbackslash(M\textbackslash) is always full rank.
 
 \textbf{Q3.} Why is MPC typically placed in the outer position loop (10--20 Hz) rather than the inner rate loop for a quadrotor?
 
-\subsubsection{Answer}
+\hypertarget{answer-2}{%
+\paragraph{Answer}\label{answer-2}}
 
 MPC involves solving a constrained quadratic program at each cycle, which takes 1--50 ms depending on the horizon length and solver. This computation time is acceptable at 10--20 Hz (50--100 ms period) but would miss deadlines at 500 Hz (2 ms period). The position dynamics are the slowest, so the prediction horizon can be longer without excessive computation. The inner rate loop uses simpler controllers (PID, LQR) that execute in microseconds, ensuring the tight timing needed for angular rate stabilization.
 
 \textbf{Q4.} In the complementary filter \textbackslash(\textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash alpha(\textbackslash hat\{\textbackslash phi\}\_k + \textbackslash omega\_x \textbackslash Delta t) + (1-\textbackslash alpha)\textbackslash phi\_\textbackslash text\{acc\}\textbackslash), what happens if \textbackslash(\textbackslash alpha = 1.0\textbackslash)? What if \textbackslash(\textbackslash alpha = 0.0\textbackslash)?
 
-\subsubsection{Answer}
+\hypertarget{answer-3}{%
+\paragraph{Answer}\label{answer-3}}
 
 If \textbackslash(\textbackslash alpha = 1.0\textbackslash), the filter becomes pure gyroscope integration: \textbackslash(\textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash hat\{\textbackslash phi\}\_k + \textbackslash omega\_x \textbackslash Delta t\textbackslash). This will drift over time due to gyro bias, eventually producing arbitrarily large errors. If \textbackslash(\textbackslash alpha = 0.0\textbackslash), the filter uses only the accelerometer: \textbackslash(\textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash phi\_\textbackslash text\{acc\}\textbackslash). This eliminates drift but produces a very noisy estimate and is invalid during translational acceleration (the accelerometer measures gravity plus linear acceleration, so the gravity-derived angle is wrong during maneuvers). Typical values of \textbackslash(\textbackslash alpha = 0.95\textbackslash)--\textbackslash(0.99\textbackslash) balance gyro responsiveness with accelerometer stability.
 
 \textbf{Q5.} Which of the seven controllers would you recommend for a delivery drone that must pick up packages of unknown weight? Justify your choice.
 
-\subsubsection{Answer}
+\hypertarget{answer-4}{%
+\paragraph{Answer}\label{answer-4}}
 
 \textbf{Adaptive Control} is the best choice. When the drone picks up a package, its mass \textbackslash(m\textbackslash) and inertia \textbackslash(J\textbackslash) change suddenly. Adaptive control uses online parameter estimation to update \textbackslash(\textbackslash hat\{m\}\textbackslash) and \textbackslash(\textbackslash hat\{J\}\textbackslash) in real-time, adjusting the control law accordingly. The regressor-based formulation \textbackslash(\textbackslash tau = Y(q, \textbackslash dot\{q\}, \textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash hat\{\textbackslash theta\}\textbackslash) can track mass changes within a few seconds. PID would work but would require aggressive integral action and retuning. LQR and MPC would degrade because the linearized model is incorrect for the new mass. Computed Torque would produce incorrect compensation torques until the model is updated. A practical hybrid approach combines Adaptive control with MPC: the adaptive law estimates parameters, and MPC uses the updated model for trajectory optimization.
 
-\subsection{Summary}
+\hypertarget{summary}{%
+\subsection{Summary}\label{summary}}
 
-\subsection{Key Takeaways}
+\hypertarget{key-takeaways}{%
+\subsubsection{Key Takeaways}\label{key-takeaways}}
 
 \begin{itemize}
 \tightlist
@@ -851,25 +906,30 @@ If \textbackslash(\textbackslash alpha = 1.0\textbackslash), the filter becomes 
   \textbf{Real-Time Matters:} The inner rate loop must execute within 1--2 ms. PID and LQR easily meet this. MPC requires careful solver selection and runs in the outer loop. Use timer-based callbacks, pre-allocate memory, and avoid heap allocation in control loops.
 \end{itemize}
 
-\subsection{Preparation for Week 11}
+\hypertarget{preparation-for-week-11}{%
+\subsubsection{Preparation for Week 11}\label{preparation-for-week-11}}
 
 Next week we move to \textbf{Multi-Robot Coordination and Formation Control}. We will extend the single-quadrotor controllers from this week to multi-agent systems, implementing consensus-based formation control, leader-follower architectures, and collision avoidance using ROS2 multi-node communication patterns. Complete all three activities from this week before the next session.
 
-\subsection{Running the ROS2 Demo}
+\hypertarget{running-the-ros2-demo}{%
+\subsection{Running the ROS2 Demo}\label{running-the-ros2-demo}}
 
-\subsection{Build and Source}
+\hypertarget{build-and-source}{%
+\subsubsection{Build and Source}\label{build-and-source}}
 
 cd \textasciitilde/auto\_control\_ws
 colcon build -\/-packages-select week\_06\_quadrotor\_dynamics
 source install/setup.bash
 
-\subsection{Launch the Demo}
+\hypertarget{launch-the-demo}{%
+\subsubsection{Launch the Demo}\label{launch-the-demo}}
 
 ros2 launch week\_06\_quadrotor\_dynamics demo.launch.py
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (attitude estimation, PID control, motor mixing), and opens RViz2 with a preconfigured layout.
 
-\subsection{ROS2 Topics}
+\hypertarget{ros2-topics}{%
+\subsubsection{ROS2 Topics}\label{ros2-topics}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -884,11 +944,13 @@ Topic & Type & Source & Description \\
 \texttt{/ground\_truth\_pose} & geometry\_msgs/PoseStamped & Bag & Ground truth from motion capture at 100 Hz \\
 \end{longtable}
 
-\subsection{Expected RViz2 Output}
+\hypertarget{expected-rviz2-output}{%
+\subsubsection{Expected RViz2 Output}\label{expected-rviz2-output}}
 
 RViz2 will display the quadrotor\textquotesingle s estimated attitude (from the complementary filter) alongside the ground truth pose. You should see the attitude estimate converging to ground truth within the first few seconds. Motor command markers will show thrust allocation across the four rotors.
 
-\subsection{Troubleshooting}
+\hypertarget{troubleshooting}{%
+\subsubsection{Troubleshooting}\label{troubleshooting}}
 
 \begin{itemize}
 \tightlist
@@ -900,9 +962,11 @@ RViz2 will display the quadrotor\textquotesingle s estimated attitude (from the 
   \textbf{QoS mismatch warnings:} The bag uses default QoS. If your subscriber uses \texttt{BEST\_EFFORT}, switch to \texttt{RELIABLE} or use \texttt{-\/-qos-profile-overrides-path}.
 \end{itemize}
 
-\subsection{Appendix: Review Material --- ROS2 Control Implementation}
+\hypertarget{appendix-review-material-ros2-control-implementation}{%
+\subsection{Appendix: Review Material --- ROS2 Control Implementation}\label{appendix-review-material-ros2-control-implementation}}
 
-\subsubsection{Question 1 (25 marks)}
+\hypertarget{question-1-25-marks}{%
+\paragraph{Question 1 (25 marks)}\label{question-1-25-marks}}
 
 Explain the architecture of a ROS2 control node for a robotic system. In your answer:
 
@@ -916,7 +980,8 @@ Explain the architecture of a ROS2 control node for a robotic system. In your an
   Compare \textbf{timer-based} control loops (fixed-rate callbacks) versus \textbf{event-driven} control loops (triggered on new sensor data). Discuss the advantages and disadvantages of each approach in terms of latency, jitter, and computational load. \emph{(12 marks)}
 \end{enumerate}
 
-\subsubsection{Model Answer --- Q1}
+\hypertarget{model-answer-q1}{%
+\paragraph{Model Answer --- Q1}\label{model-answer-q1}}
 
 \textbf{Part (a):} A typical ROS2 control node subscribes to state-feedback topics such as \texttt{/odom} (nav\_msgs/Odometry) for position and velocity, \texttt{/imu} (sensor\_msgs/Imu) for angular velocity and linear acceleration, and \texttt{/joint\_states} (sensor\_msgs/JointState) for joint-level feedback. It publishes actuator commands on topics like \texttt{/cmd\_vel} (geometry\_msgs/Twist), \texttt{/motor\_cmd} (std\_msgs/Float64MultiArray), or \texttt{/joint\_commands}.
 
@@ -940,7 +1005,8 @@ Best for & Inner-loop controllers needing guaranteed rate (PID, LQR) & High-leve
 
 In practice, most flight controllers (PX4, ArduPilot) use timer-based loops for attitude and rate control, with event-driven callbacks only for updating the latest sensor data into shared buffers that the timer callback reads.
 
-\subsubsection{Question 2 (25 marks)}
+\hypertarget{question-2-25-marks}{%
+\paragraph{Question 2 (25 marks)}\label{question-2-25-marks}}
 
 You implemented PID, LQR, and MPC as separate ROS2 control nodes in Week 9. Compare their computational requirements per control cycle by answering the following:
 
@@ -954,7 +1020,8 @@ You implemented PID, LQR, and MPC as separate ROS2 control nodes in Week 9. Comp
   Which of the three controllers requires hard real-time guarantees and why? What ROS2 mechanisms (executor type, QoS settings) help achieve this? \emph{(8 marks)}
 \end{enumerate}
 
-\subsubsection{Model Answer --- Q2}
+\hypertarget{model-answer-q2}{%
+\paragraph{Model Answer --- Q2}\label{model-answer-q2}}
 
 \textbf{Part (a):}
 

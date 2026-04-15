@@ -1,19 +1,13 @@
-% ----- auto-generated from week_01/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
-\chapter{Manipulator Dynamics and Computed-Torque Control (Week 1)}
-\labch{week_01}
-
-
+\hypertarget{week-1-manipulator-dynamics-control-design}{%
+\section{🤖 Week 1: Manipulator Dynamics \& Control Design}\label{week-1-manipulator-dynamics-control-design}}
 
 From Equations of Motion to Computed Torque Control
 
 Control for Robots \textbar{} University of West London\\
 AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
-\section{Overview}
-
-\subsection{Learning Outcomes}
+\hypertarget{learning-outcomes}{%
+\subsection{🎯 Learning Outcomes}\label{learning-outcomes}}
 
 \textbf{By the end of this session, you will be able to:}
 
@@ -33,11 +27,13 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
   \textbf{Compare} PD, PD + gravity compensation, and full computed torque control performance
 \end{itemize}
 
-\subsection{Session Roadmap (3 Hours)}
+\hypertarget{session-roadmap-3-hours}{%
+\subsection{📅 Session Roadmap (3 Hours)}\label{session-roadmap-3-hours}}
 
 0:00 -- 0:40
 
-\subsubsection{Manipulator Dynamics}
+\hypertarget{part-1-manipulator-dynamics}{%
+\paragraph{Part 1 --- Manipulator Dynamics}\label{part-1-manipulator-dynamics}}
 
 \begin{itemize}
 \tightlist
@@ -53,7 +49,8 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
 0:40 -- 1:20
 
-\subsubsection{Control Design}
+\hypertarget{part-2-control-design}{%
+\paragraph{Part 2 --- Control Design}\label{part-2-control-design}}
 
 \begin{itemize}
 \tightlist
@@ -69,7 +66,8 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
 1:20 -- 1:30
 
-\subsubsection{Break}
+\hypertarget{break}{%
+\paragraph{☕ Break}\label{break}}
 
 \begin{itemize}
 \tightlist
@@ -79,7 +77,8 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
 1:30 -- 2:15
 
-\subsubsection{MATLAB Implementation}
+\hypertarget{part-3-matlab-implementation}{%
+\paragraph{Part 3 --- MATLAB Implementation}\label{part-3-matlab-implementation}}
 
 \begin{itemize}
 \tightlist
@@ -93,7 +92,8 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
 2:15 -- 3:00
 
-\subsubsection{Robustness Analysis \& Activities}
+\hypertarget{part-4-robustness-analysis-activities}{%
+\paragraph{Part 4 --- Robustness Analysis \& Activities}\label{part-4-robustness-analysis-activities}}
 
 \begin{itemize}
 \tightlist
@@ -107,25 +107,31 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
   Group activity \& wrap-up quiz
 \end{itemize}
 
-\section{Manipulator Dynamics}
+\hypertarget{part-1-manipulator-dynamics-1}{%
+\subsection{📖 Part 1 --- Manipulator Dynamics}\label{part-1-manipulator-dynamics-1}}
 
-\subsection{Why Dynamics Matter}
+\hypertarget{why-dynamics-matter}{%
+\subsubsection{1.1 Why Dynamics Matter}\label{why-dynamics-matter}}
 
 Kinematics tells us \emph{where} the robot moves; dynamics tells us \emph{what forces and torques} are required to produce that motion. Without a dynamic model we cannot design controllers that truly cancel the nonlinear effects of inertia, coupling, Coriolis forces, and gravity.
 
-\subsubsection{Feedback Control}
+\hypertarget{feedback-control}{%
+\paragraph{🔄 Feedback Control}\label{feedback-control}}
 
 Uses sensor measurements (encoders, IMUs) to adjust torques in real time. Robust against model errors but reacts \emph{after} errors occur.
 
-\subsubsection{Feedforward Control}
+\hypertarget{feedforward-control}{%
+\paragraph{➡️ Feedforward Control}\label{feedforward-control}}
 
 Applies precomputed torques from the dynamic model \emph{before} the error appears. Requires an accurate model but gives faster response.
 
-\subsubsection{Combined (Computed Torque)}
+\hypertarget{combined-computed-torque}{%
+\paragraph{⚙️ Combined (Computed Torque)}\label{combined-computed-torque}}
 
 Feedforward cancels known dynamics; feedback corrects remaining error. This is the gold standard for manipulator control.
 
-\subsection{The Euler--Lagrange Equation of Motion}
+\hypertarget{the-eulerlagrange-equation-of-motion}{%
+\subsubsection{1.2 The Euler--Lagrange Equation of Motion}\label{the-eulerlagrange-equation-of-motion}}
 
 For an \textbackslash(n\textbackslash)-DOF rigid-body manipulator, the Lagrangian \textbackslash(\textbackslash mathcal\{L\} = T - V\textbackslash) (kinetic minus potential energy) yields the standard form:
 
@@ -145,11 +151,13 @@ Symbol & Name & Dimension & Physical Meaning \\
 \textbackslash(\textbackslash tau\textbackslash) & Joint torques & \textbackslash(n \textbackslash times 1\textbackslash) & Control inputs (what we design) \\
 \end{longtable}
 
-\subsection{A Concrete Example: 2-DOF Planar Manipulator}
+\hypertarget{a-concrete-example-2-dof-planar-manipulator}{%
+\subsubsection{1.3 A Concrete Example: 2-DOF Planar Manipulator}\label{a-concrete-example-2-dof-planar-manipulator}}
 
 Consider a two-link planar arm with link masses \textbackslash(m\_1, m\_2\textbackslash), link lengths \textbackslash(l\_1, l\_2\textbackslash), and distances to centres of mass \textbackslash(l\_\{c1\}, l\_\{c2\}\textbackslash). For simplicity we take \textbackslash(l\_\{ci\} = l\_i\textbackslash) (point masses at link tips).
 
-\subsubsection{Mass Matrix \textbackslash(M(q)\textbackslash)}
+\hypertarget{mass-matrix-mq}{%
+\paragraph{📐 Mass Matrix \textbackslash(M(q)\textbackslash)}\label{mass-matrix-mq}}
 
 \textbackslash{[}
 M(q) = \textbackslash begin\{bmatrix\}
@@ -160,7 +168,8 @@ m\_2(l\_2\^{}2 + l\_1 l\_2 \textbackslash cos q\_2) \& m\_2 l\_2\^{}2
 
 Notice: \textbackslash(M(q)\textbackslash) depends on \textbackslash(q\_2\textbackslash) only (the relative angle), and is always symmetric positive-definite so it is invertible.
 
-\paragraph{🌀 Coriolis \& Centrifugal Matrix \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash)}}
+\hypertarget{coriolis-centrifugal-matrix-cqdotq}{%
+\paragraph{🌀 Coriolis \& Centrifugal Matrix \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash)}\label{coriolis-centrifugal-matrix-cqdotq}}
 
 Using Christoffel symbols of the first kind:
 
@@ -171,7 +180,8 @@ m\_2 l\_1 l\_2 \textbackslash sin(q\_2)\textbackslash,\textbackslash dot\{q\}\_1
 \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsubsection{Gravity Vector \textbackslash(G(q)\textbackslash)}
+\hypertarget{gravity-vector-gq}{%
+\paragraph{⬇️ Gravity Vector \textbackslash(G(q)\textbackslash)}\label{gravity-vector-gq}}
 
 \textbackslash{[}
 G(q) = \textbackslash begin\{bmatrix\}
@@ -180,29 +190,36 @@ m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash cos(q\_1 + q\_2)
 \textbackslash end\{bmatrix\}
 \textbackslash{]}
 
-\subsection{Key Properties of the Dynamic Model}
+\hypertarget{key-properties-of-the-dynamic-model}{%
+\subsubsection{1.4 Key Properties of the Dynamic Model}\label{key-properties-of-the-dynamic-model}}
 
-\subsubsection{Property 1: Symmetry \& Positive-Definiteness}
+\hypertarget{property-1-symmetry-positive-definiteness}{%
+\paragraph{✅ Property 1: Symmetry \& Positive-Definiteness}\label{property-1-symmetry-positive-definiteness}}
 
 \textbackslash(M(q) = M(q)\^{}T \textgreater{} 0\textbackslash) for all \textbackslash(q\textbackslash). This guarantees the system always has finite inertia and the dynamics are well-posed.
 
-\subsubsection{Property 2: Skew-Symmetry}
+\hypertarget{property-2-skew-symmetry}{%
+\paragraph{✅ Property 2: Skew-Symmetry}\label{property-2-skew-symmetry}}
 
 The matrix \textbackslash(\textbackslash dot\{M\}(q) - 2C(q,\textbackslash dot\{q\})\textbackslash) is skew-symmetric, i.e., \textbackslash(x\^{}T{[}\textbackslash dot\{M\} - 2C{]}x = 0\textbackslash) for all \textbackslash(x\textbackslash). This property is \textbf{essential} for Lyapunov-based stability proofs.
 
-\subsubsection{Property 3: Linearity in Parameters}
+\hypertarget{property-3-linearity-in-parameters}{%
+\paragraph{✅ Property 3: Linearity in Parameters}\label{property-3-linearity-in-parameters}}
 
 The dynamics can be written as \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = Y(q,\textbackslash dot\{q\},\textbackslash ddot\{q\})\textbackslash,\textbackslash theta\textbackslash) where \textbackslash(\textbackslash theta\textbackslash) contains the physical parameters. This enables adaptive control.
 
-\subsubsection{Think--Pair--Share (5 min)}
+\hypertarget{thinkpairshare-5-min}{%
+\paragraph{Think--Pair--Share (5 min)}\label{thinkpairshare-5-min}}
 
 \textbf{Question:} If the second link mass \textbackslash(m\_2\textbackslash) doubles (e.g., the robot picks up a heavy payload), which terms in \textbackslash(M(q)\textbackslash), \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), and \textbackslash(G(q)\textbackslash) are affected? Which are \emph{not} affected?
 
 Discuss with your neighbour for 2 minutes, then we will share answers as a class.
 
-\section{Control Design for the Manipulator}
+\hypertarget{part-2-control-design-for-the-manipulator}{%
+\subsection{🎛️ Part 2 --- Control Design for the Manipulator}\label{part-2-control-design-for-the-manipulator}}
 
-\subsection{Approach 1: Simple PD Control}
+\hypertarget{approach-1-simple-pd-control}{%
+\subsubsection{2.1 Approach 1: Simple PD Control}\label{approach-1-simple-pd-control}}
 
 The simplest approach is a joint-space PD controller:
 
@@ -214,13 +231,15 @@ This treats the manipulator as if it were a collection of independent linear joi
 
 \textbf{Limitation:} PD control alone cannot guarantee zero steady-state error in the presence of gravity. The arm will droop under its own weight because no term compensates for \textbackslash(G(q)\textbackslash).
 
-\subsection{Approach 2: PD + Gravity Compensation}
+\hypertarget{approach-2-pd-gravity-compensation}{%
+\subsubsection{2.2 Approach 2: PD + Gravity Compensation}\label{approach-2-pd-gravity-compensation}}
 
 \textbackslash{[} \textbackslash tau = K\_P\textbackslash,e + K\_D\textbackslash,\textbackslash dot\{e\} + G(q) \textbackslash{]}
 
 Adding the gravity term \textbackslash(G(q)\textbackslash) eliminates the steady-state droop at the desired position. However, during fast motions the Coriolis and inertia coupling terms still cause significant tracking errors.
 
-\subsection{Approach 3: Computed Torque Control (Inverse Dynamics)}
+\hypertarget{approach-3-computed-torque-control-inverse-dynamics}{%
+\subsubsection{2.3 Approach 3: Computed Torque Control (Inverse Dynamics)}\label{approach-3-computed-torque-control-inverse-dynamics}}
 
 The computed torque controller uses the full dynamic model to \textbf{cancel all nonlinear dynamics} and then imposes a desired linear closed-loop behaviour.
 
@@ -228,7 +247,8 @@ The computed torque controller uses the full dynamic model to \textbf{cancel all
 \strut \\
 \textbackslash{[} \textbackslash tau = M(q)\textbackslash,\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash,\textbackslash dot\{e\} + K\_P\textbackslash,e\textbackslash bigr{]} + C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + G(q) \textbackslash{]}
 
-\subsubsection{Derivation --- Step by Step}
+\hypertarget{derivation-step-by-step}{%
+\paragraph{📐 Derivation --- Step by Step}\label{derivation-step-by-step}}
 
 \textbf{Step 1:} Start from the robot dynamics:
 
@@ -248,7 +268,8 @@ The computed torque controller uses the full dynamic model to \textbf{cancel all
 
 This is a \textbf{linear, decoupled, second-order ODE} for each joint --- identical to a mass--spring--damper system. With proper gain selection the error converges to zero exponentially!
 
-\subsection{Gain Selection: Placing Closed-Loop Poles}
+\hypertarget{gain-selection-placing-closed-loop-poles}{%
+\subsubsection{2.4 Gain Selection: Placing Closed-Loop Poles}\label{gain-selection-placing-closed-loop-poles}}
 
 For each joint, the characteristic equation is \textbackslash(s\^{}2 + k\_d\textbackslash,s + k\_p = 0\textbackslash). Comparing with the standard second-order form \textbackslash(s\^{}2 + 2\textbackslash zeta\textbackslash omega\_n s + \textbackslash omega\_n\^{}2 = 0\textbackslash):
 
@@ -266,11 +287,13 @@ Critically damped & 1.0 & 10 & 100 & 20 & Fastest without overshoot ✓ \\
 Overdamped & 2.0 & 10 & 100 & 40 & Sluggish but smooth \\
 \end{longtable}
 
-\subsection{Lyapunov Stability Proof}
+\hypertarget{lyapunov-stability-proof}{%
+\subsubsection{2.5 Lyapunov Stability Proof}\label{lyapunov-stability-proof}}
 
 Even though the computed torque controller linearises the system, we can also prove stability directly using Lyapunov theory --- which is more rigorous and generalises to uncertain models.
 
-\subsubsection{Lyapunov Proof for Computed Torque Control}
+\hypertarget{lyapunov-proof-for-computed-torque-control}{%
+\paragraph{🔒 Lyapunov Proof for Computed Torque Control}\label{lyapunov-proof-for-computed-torque-control}}
 
 \textbf{Step 1 --- Choose a Lyapunov candidate:}
 
@@ -294,7 +317,8 @@ Since \textbackslash(M(q) \textbackslash succ 0\textbackslash) and \textbackslas
 
 \textbf{Key Insight:} The skew-symmetry of \textbackslash(\textbackslash dot\{M\} - 2C\textbackslash) is what makes the cross terms cancel in the Lyapunov derivative. This is the most important structural property in robot control!
 
-\subsubsection{Quick Check (2 min)}
+\hypertarget{quick-check-2-min}{%
+\paragraph{Quick Check (2 min)}\label{quick-check-2-min}}
 
 \begin{enumerate}
 \tightlist
@@ -306,12 +330,14 @@ Since \textbackslash(M(q) \textbackslash succ 0\textbackslash) and \textbackslas
   If \textbackslash(M(q)\textbackslash) were identity (unit mass everywhere), how would the computed torque law simplify?
 \end{enumerate}
 
-\section{MATLAB Implementation}
+\hypertarget{part-3-matlab-implementation-1}{%
+\subsection{💻 Part 3 --- MATLAB Implementation}\label{part-3-matlab-implementation-1}}
 
 We will now implement the computed torque controller for a 2-DOF manipulator step by step. The robot must track a sinusoidal trajectory:
 \textbackslash(q\_d(t) = \textbackslash begin\{bmatrix\} 0.5\textbackslash sin(t) \textbackslash\textbackslash{} 0.5\textbackslash cos(t) \textbackslash end\{bmatrix\}\textbackslash).
 
-\subsection{System Parameters}
+\hypertarget{system-parameters}{%
+\subsubsection{3.1 System Parameters}\label{system-parameters}}
 
 \% ===== System Parameters =====
 clear all; close all; clc;
@@ -329,16 +355,19 @@ q0 = {[}0; 0{]}; \% Initial joint angles
 dq0 = {[}0; 0{]}; \% Initial joint velocities
 x0 = {[}q0; dq0{]}; \% State vector {[}q1; q2; dq1; dq2{]}
 
-\subsection{Desired Trajectory Functions}
+\hypertarget{desired-trajectory-functions}{%
+\subsubsection{3.2 Desired Trajectory Functions}\label{desired-trajectory-functions}}
 
 \% ===== Desired Trajectory =====
 qd = @(t) {[}0.5*sin(t); 0.5*cos(t){]};
 dqd = @(t) {[}0.5*cos(t); -0.5*sin(t){]};
 ddqd = @(t) {[}-0.5*sin(t); -0.5*cos(t){]};
 
-\subsection{Dynamics with Computed Torque Controller}
+\hypertarget{dynamics-with-computed-torque-controller}{%
+\subsubsection{3.3 Dynamics with Computed Torque Controller}\label{dynamics-with-computed-torque-controller}}
 
-\subsubsection{Pseudocode}
+\hypertarget{pseudocode}{%
+\paragraph{🧮 Pseudocode}\label{pseudocode}}
 
 📋 PSEUDOCODE --- Computed Torque Controller
 
@@ -355,7 +384,8 @@ COMPUTE torque: tau = M * a\_cmd + C * dq + G
 COMPUTE acceleration: ddq = M \textbackslash{} (tau - C*dq - G)
 RETURN {[}dq; ddq{]}
 
-\subsubsection{MATLAB Code}
+\hypertarget{matlab-code}{%
+\paragraph{⚙️ MATLAB Code}\label{matlab-code}}
 
 function dx = manipulator\_dynamics(t, x, params, qd, dqd, ddqd)
 q = x(1:2); \% Joint angles
@@ -393,7 +423,8 @@ end
 
 \textbf{Why \texttt{M\textbackslash{}b} instead of \texttt{inv(M)*b}?} The backslash operator is numerically more stable and faster. Never invert the mass matrix explicitly in production code.
 
-\subsection{Run Simulation \& Plot}
+\hypertarget{run-simulation-plot}{%
+\subsubsection{3.4 Run Simulation \& Plot}\label{run-simulation-plot}}
 
 \% ===== Run ODE45 =====
 {[}t, x{]} = ode45(@(t,x) manipulator\_dynamics(t, x, params, qd, dqd, ddqd), ...
@@ -427,7 +458,8 @@ sgtitle(\textquotesingle Computed Torque Control --- 2-DOF Manipulator\textquote
 
 \textbf{Expected Result:} After a brief transient (≈ 1--2 s), both joint errors should converge to near zero and the actual trajectory should overlay the desired trajectory almost perfectly.
 
-\subsubsection{Hands-On Activity 1 (10 min)}
+\hypertarget{hands-on-activity-1-10-min}{%
+\paragraph{Hands-On Activity 1 (10 min)}\label{hands-on-activity-1-10-min}}
 
 \textbf{Task:} Run the code above in MATLAB. Then modify the gains as follows and observe the effect on the tracking error plot:
 
@@ -443,23 +475,27 @@ sgtitle(\textquotesingle Computed Torque Control --- 2-DOF Manipulator\textquote
 
 Record the peak error for each case. We will compare results as a class.
 
-\section{Comparing Control Strategies}
+\hypertarget{comparing-control-strategies}{%
+\subsection{📊 Comparing Control Strategies}\label{comparing-control-strategies}}
 
 To appreciate why computed torque is superior, let us compare three controllers on the same trajectory.
 
-\subsection{Controller A: PD Only}
+\hypertarget{controller-a-pd-only}{%
+\subsubsection{Controller A: PD Only}\label{controller-a-pd-only}}
 
 \% Inside dynamics function, replace control law with:
 tau = params.Kp * e + params.Kd * de;
 \% No model terms --- ignores M, C, G completely
 
-\subsection{Controller B: PD + Gravity Compensation}
+\hypertarget{controller-b-pd-gravity-compensation}{%
+\subsubsection{Controller B: PD + Gravity Compensation}\label{controller-b-pd-gravity-compensation}}
 
 \% Inside dynamics function, replace control law with:
 tau = params.Kp * e + params.Kd * de + G;
 \% Compensates gravity but ignores Coriolis and inertia coupling
 
-\subsection{Controller C: Computed Torque (Full)}
+\hypertarget{controller-c-computed-torque-full}{%
+\subsubsection{Controller C: Computed Torque (Full)}\label{controller-c-computed-torque-full}}
 
 \% Full computed torque (already implemented above):
 a\_cmd = ddq\_des + params.Kd * de + params.Kp * e;
@@ -477,7 +513,8 @@ PD + Gravity & \textbackslash(G(q)\textbackslash) & Zero at setpoints & Moderate
 Computed Torque & \textbackslash(M, C, G\textbackslash) & Zero & Small (tunable) & Excellent ✓ \\
 \end{longtable}
 
-\subsubsection{Hands-On Activity 2 (15 min)}
+\hypertarget{hands-on-activity-2-15-min}{%
+\paragraph{Hands-On Activity 2 (15 min)}\label{hands-on-activity-2-15-min}}
 
 \textbf{Task:} Implement all three controllers. Plot their tracking errors on the same figure using \texttt{subplot} or overlaid with different colours. Answer:
 
@@ -491,29 +528,36 @@ Computed Torque & \textbackslash(M, C, G\textbackslash) & Zero & Small (tunable)
   At what joint velocity does the PD controller start to diverge noticeably from computed torque?
 \end{enumerate}
 
-\section{Robustness Analysis}
+\hypertarget{part-4-robustness-analysis}{%
+\subsection{🛡️ Part 4 --- Robustness Analysis}\label{part-4-robustness-analysis}}
 
 Computed torque control delivers \textbf{perfect} tracking when the model is exact. In practice, we never know the model perfectly. Robustness analysis studies what happens when the model used in the controller differs from the true plant.
 
-\subsection{Sources of Model Uncertainty}
+\hypertarget{sources-of-model-uncertainty}{%
+\subsubsection{4.1 Sources of Model Uncertainty}\label{sources-of-model-uncertainty}}
 
-\subsubsection{Payload Variation}
+\hypertarget{payload-variation}{%
+\paragraph{📦 Payload Variation}\label{payload-variation}}
 
 The mass \textbackslash(m\_2\textbackslash) changes when the robot picks up or drops objects. The controller may still use the nominal value.
 
-\subsubsection{Friction}
+\hypertarget{friction}{%
+\paragraph{🔩 Friction}\label{friction}}
 
 Real joints exhibit Coulomb and viscous friction not captured in the rigid-body model.
 
-\subsubsection{Parameter Errors}
+\hypertarget{parameter-errors}{%
+\paragraph{📏 Parameter Errors}\label{parameter-errors}}
 
 Link lengths and centres of mass are measured imprecisely. Actuator dynamics are neglected.
 
-\subsubsection{External Disturbances}
+\hypertarget{external-disturbances}{%
+\paragraph{💨 External Disturbances}\label{external-disturbances}}
 
 Contact forces, wind loads, or interaction forces when collaborating with humans.
 
-\subsection{Mathematical Framework}
+\hypertarget{mathematical-framework}{%
+\subsubsection{4.2 Mathematical Framework}\label{mathematical-framework}}
 
 Let the true dynamics be governed by \textbackslash((M, C, G)\textbackslash) and the \emph{estimated} (controller) model be \textbackslash((\textbackslash hat\{M\}, \textbackslash hat\{C\}, \textbackslash hat\{G\})\textbackslash). The control law uses the estimated model:
 
@@ -531,7 +575,8 @@ The error no longer converges to zero --- it is driven by the perturbation \text
 
 \textbf{Key Result:} With model mismatch, computed torque control guarantees \emph{bounded} errors (the errors stay small if the gains are high and the model errors are small), but not \emph{asymptotic} tracking to zero.
 
-\subsection{Experiment: Payload Mismatch}
+\hypertarget{experiment-payload-mismatch}{%
+\subsubsection{4.3 Experiment: Payload Mismatch}\label{experiment-payload-mismatch}}
 
 We simulate the scenario where the \textbf{true} plant has \textbackslash(m\_2 = 2\textbackslash,\textbackslash text\{kg\}\textbackslash) but the controller still assumes \textbackslash(m\_2 = 1\textbackslash,\textbackslash text\{kg\}\textbackslash).
 
@@ -569,7 +614,8 @@ G = {[}(p.m1+p.m2)*p.g*p.l1*cos(q(1)) + p.m2*p.g*p.l2*cos(q(1)+q(2));
 p.m2*p.g*p.l2*cos(q(1)+q(2)){]};
 end
 
-\subsection{Experiment: Adding Joint Friction}
+\hypertarget{experiment-adding-joint-friction}{%
+\subsubsection{4.4 Experiment: Adding Joint Friction}\label{experiment-adding-joint-friction}}
 
 \% ===== Add Coulomb + Viscous Friction =====
 \% After computing ddq from the model, add friction terms:
@@ -580,7 +626,8 @@ tau\_friction = b\_viscous * dq + f\_coulomb * sign(dq);
 \% Modified acceleration (true plant sees friction)
 ddq = M\_true \textbackslash{} (tau - C\_true*dq - G\_true - tau\_friction);
 
-\subsection{Experiment: External Disturbance Pulse}
+\hypertarget{experiment-external-disturbance-pulse}{%
+\subsubsection{4.5 Experiment: External Disturbance Pulse}\label{experiment-external-disturbance-pulse}}
 
 \% ===== External Disturbance =====
 \% Simulate a sudden impact at t = 10 s lasting 0.5 s
@@ -591,7 +638,8 @@ tau\_dist = {[}0; 0{]};
 end
 ddq = M\_true \textbackslash{} (tau - C\_true*dq - G\_true + tau\_dist);
 
-\subsection{Summary of Robustness Results}
+\hypertarget{summary-of-robustness-results}{%
+\subsubsection{4.6 Summary of Robustness Results}\label{summary-of-robustness-results}}
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -609,11 +657,11 @@ Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with
 
 \textbf{Rule of Thumb:} Higher gains (\textbackslash(K\_P, K\_D\textbackslash)) improve robustness by rejecting perturbations faster, but they also amplify sensor noise and demand higher torques. Controller design is always a trade-off between performance, robustness, and actuator limits.
 
-\section{Summary and Next Steps}
+\hypertarget{hands-on-activities}{%
+\subsection{🔬 Hands-On Activities}\label{hands-on-activities}}
 
-\subsection{Hands-On Activities}
-
-\subsection{Activity 3: Robustness Investigation (20 min)}
+\hypertarget{activity-3-robustness-investigation-20-min}{%
+\subsubsection{Activity 3: Robustness Investigation (20 min)}\label{activity-3-robustness-investigation-20-min}}
 
 \begin{enumerate}
 \tightlist
@@ -631,7 +679,8 @@ Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with
 
 \textbf{Expected Observation:} Tracking error grows approximately linearly with payload mismatch for small mismatches, but growth accelerates for large mismatches.
 
-\subsection{Activity 4: Controller Comparison Dashboard (25 min)}
+\hypertarget{activity-4-controller-comparison-dashboard-25-min}{%
+\subsubsection{Activity 4: Controller Comparison Dashboard (25 min)}\label{activity-4-controller-comparison-dashboard-25-min}}
 
 Create a single MATLAB figure with a 3×2 subplot layout:
 
@@ -649,9 +698,11 @@ Create a single MATLAB figure with a 3×2 subplot layout:
 
 Use the same gains and trajectory for all three. Include a title, legends, and axis labels on every subplot.
 
-\subsection{Activity 5: Design Challenge (15 min)}
+\hypertarget{activity-5-design-challenge-15-min}{%
+\subsubsection{Activity 5: Design Challenge (15 min)}\label{activity-5-design-challenge-15-min}}
 
-\subsubsection{Challenge: Robust Trajectory Tracking}
+\hypertarget{challenge-robust-trajectory-tracking}{%
+\paragraph{🏆 Challenge: Robust Trajectory Tracking}\label{challenge-robust-trajectory-tracking}}
 
 Design a controller that can track the reference trajectory with \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty \textless{} 0.05\textbackslash,\textbackslash text\{rad\}\textbackslash) under the following \textbf{simultaneous} conditions:
 
@@ -667,9 +718,11 @@ Design a controller that can track the reference trajectory with \textbackslash(
 
 \textbf{Hint:} You may increase gains, add integral action, or add a robust term \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\} = K\_r\textbackslash,\textbackslash text\{sign\}(\textbackslash dot\{e\})\textbackslash).
 
-\subsection{End-of-Lecture Quiz}
+\hypertarget{end-of-lecture-quiz}{%
+\subsection{🧠 End-of-Lecture Quiz}\label{end-of-lecture-quiz}}
 
-\subsubsection{Test Your Understanding}
+\hypertarget{test-your-understanding}{%
+\paragraph{Test Your Understanding}\label{test-your-understanding}}
 
 \begin{enumerate}
 \item
@@ -702,9 +755,11 @@ Click to reveal answers
   The perturbation scales proportionally with the mass error \textbackslash(\textbackslash Delta M\textbackslash), which doubles. Increasing \textbackslash(K\_P\textbackslash) alone gives faster error correction but does not cancel the feedforward mismatch --- you also need higher \textbackslash(K\_D\textbackslash) to damp the resulting oscillations, or better yet, update the model.
 \end{enumerate}
 
-\subsection{Week 1 Summary}
+\hypertarget{week-1-summary}{%
+\subsection{📚 Week 1 Summary}\label{week-1-summary}}
 
-\subsubsection{Manipulator Dynamics}
+\hypertarget{manipulator-dynamics}{%
+\paragraph{⚙️ Manipulator Dynamics}\label{manipulator-dynamics}}
 
 \begin{itemize}
 \tightlist
@@ -720,7 +775,8 @@ Click to reveal answers
   ✅ Skew-symmetry property
 \end{itemize}
 
-\subsubsection{Control Design}
+\hypertarget{control-design}{%
+\paragraph{🎛️ Control Design}\label{control-design}}
 
 \begin{itemize}
 \tightlist
@@ -736,7 +792,8 @@ Click to reveal answers
   ✅ Lyapunov stability proof
 \end{itemize}
 
-\subsubsection{Implementation}
+\hypertarget{implementation}{%
+\paragraph{💻 Implementation}\label{implementation}}
 
 \begin{itemize}
 \tightlist
@@ -752,7 +809,8 @@ Click to reveal answers
   ✅ Gain tuning experiments
 \end{itemize}
 
-\subsubsection{Robustness}
+\hypertarget{robustness}{%
+\paragraph{🛡️ Robustness}\label{robustness}}
 
 \begin{itemize}
 \tightlist
@@ -768,7 +826,8 @@ Click to reveal answers
   ✅ Gain--robustness trade-off
 \end{itemize}
 
-\subsection{Key Equations to Remember}
+\hypertarget{key-equations-to-remember}{%
+\subsubsection{Key Equations to Remember}\label{key-equations-to-remember}}
 
 \begin{longtable}[]{@{}ll@{}}
 \toprule\noalign{}
@@ -784,7 +843,8 @@ Equation & Description \\
 \textbackslash(\textbackslash dot\{V\} = -\textbackslash dot\{e\}\^{}T K\_D \textbackslash dot\{e\} \textbackslash leq 0\textbackslash) & Lyapunov derivative (guarantees stability) \\
 \end{longtable}
 
-\subsection{Next Week: Advanced Control Techniques}
+\hypertarget{next-week-advanced-control-techniques}{%
+\subsection{🚀 Next Week: Advanced Control Techniques}\label{next-week-advanced-control-techniques}}
 
 \textbf{Building on this week\textquotesingle s foundation, we will cover:}
 
@@ -800,7 +860,8 @@ Equation & Description \\
   🔄 Impedance and force control for contact tasks
 \end{itemize}
 
-\subsection{Preparation for Next Lecture}
+\hypertarget{preparation-for-next-lecture}{%
+\subsubsection{Preparation for Next Lecture}\label{preparation-for-next-lecture}}
 
 \begin{itemize}
 \tightlist

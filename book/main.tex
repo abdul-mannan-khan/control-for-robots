@@ -28,6 +28,12 @@
 
 \graphicspath{{images/}}
 
+% Keep the TOC to two levels deep (section + subsection); sub-subsections
+% still render in the text body but do not appear in the TOC.
+\setcounter{tocdepth}{2}
+% Section numbering matches the TOC depth (no sub-sub numbering in-text either).
+\setcounter{secnumdepth}{3}
+
 \usepackage{kaotheorems}
 \usepackage{kaorefs}
 \usepackage{kaobiblio}
