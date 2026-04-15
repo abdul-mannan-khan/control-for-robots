@@ -28,6 +28,34 @@ Each `week_XX/` directory contains:
 
 ## Running the simulations
 
+### 🐳 Quickest path — Docker (no MATLAB licence required)
+
+If you don't want to fight library versions, build the container. It ships with Python 3.12 (numpy, scipy, matplotlib, jupyterlab) plus GNU Octave (MATLAB-compatible; runs the `.m` scripts without a MATLAB licence).
+
+```bash
+# Build once
+docker build -t control-for-robots .
+
+# or using docker compose
+docker compose build
+
+# Run the Week 8 MATLAB/Octave simulations (saves figures to week_08/sims/figures/)
+docker run --rm -v "$(pwd)":/work control-for-robots \
+    bash docker/run_week08_sims.sh
+
+# Run the Week 9 Python NMPC simulation (saves figures to week_09/sims/figures/)
+docker run --rm -v "$(pwd)":/work control-for-robots \
+    bash docker/run_week09_nmpc.sh
+
+# Serve the lecture HTMLs to your browser on localhost:8000
+docker run --rm -it -p 8000:8000 -v "$(pwd)":/work control-for-robots
+
+# Optional Jupyter Lab at localhost:8888
+docker compose --profile jupyter up
+```
+
+Images are built verified as of first commit: Python NMPC sim produces `final position error 1.7 mm`; Octave runs the simulations.
+
 ### MATLAB (weeks 3, 4, 5, 6, 7)
 
 ```matlab

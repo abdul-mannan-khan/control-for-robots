@@ -1,0 +1,33 @@
+services:
+  course:
+    build: .
+    image: control-for-robots:latest
+    container_name: control-for-robots
+    ports:
+      - "8000:8000"     # lecture HTML server
+      - "8888:8888"     # optional Jupyter Lab (see 'jupyter' profile below)
+    volumes:
+      - .:/work
+    working_dir: /work
+    tty: true
+    stdin_open: true
+
+  # Opt-in Jupyter Lab:   docker compose --profile jupyter up
+  jupyter:
+    image: control-for-robots:latest
+    profiles: ["jupyter"]
+    build: .
+    container_name: control-for-robots-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/work
+    working_dir: /work
+    command:
+      - "jupyter"
+      - "lab"
+      - "--ip=0.0.0.0"
+      - "--allow-root"
+      - "--no-browser"
+      - "--ServerApp.token="
+      - "--ServerApp.password="
