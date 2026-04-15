@@ -115,6 +115,44 @@ BOILERPLATE_RE = re.compile(
     re.IGNORECASE,
 )
 
+def _preprocess_html_codeblocks(html: str) -> str:
+    """Convert our custom <div class="code-block">...</div> and
+    <div class="pseudocode-block">...</div> to <pre><code>...</code></pre>
+    so pandoc emits them as verbatim LaTeX rather than paragraph text.
+
+    We have to handle the contents carefully: newlines inside the div
+    need to be preserved, and any nested markup (e.g. <strong> for
+    keywords) is stripped — pandoc's verbatim doesn't render inline
+    formatting inside code blocks anyway.
+    """
+    def _strip_markup(inner: str) -> str:
+        # Remove inline tags but keep the text
+        inner = re.sub(r"<[^>]+>", "", inner)
+        # Decode a few common entities
+        inner = (inner.replace("&lt;", "<").replace("&gt;", ">")
+                      .replace("&amp;", "&").replace("&nbsp;", " ")
+                      .replace("&quot;", '"'))
+        return inner
+
+    def _repl(m):
+        inner = m.group(1)
+        # Drop our "pseudocode-header" bar if present
+        inner = re.sub(r'<div class="pseudocode-header">.*?</div>', "",
+                       inner, flags=re.DOTALL)
+        code = _strip_markup(inner).strip("\n")
+        return f"<pre><code>{code}</code></pre>"
+
+    html = re.sub(
+        r'<div class="code-block"[^>]*>(.*?)</div>',
+        _repl, html, flags=re.DOTALL,
+    )
+    html = re.sub(
+        r'<div class="pseudocode-block"[^>]*>(.*?)</div>',
+        _repl, html, flags=re.DOTALL,
+    )
+    return html
+
+
 def _label_for_run(run_titles):
     """Pick an informative wrapper label based on what's in the boilerplate run.
 
@@ -226,12 +264,77 @@ def _clean_heading_text(text: str) -> str:
 
 
 def copy_figures_for_week(week):
+    """Pull all simulation-output PNGs for this week into book/images/<week>/.
+    Sources checked (if present):
+      * <public_repo>/<week>/sims/figures/*.png    (weeks 8, 9)
+      * <public_repo>/results/<week>/*.png          (weeks 1, 3--7 — MATLAB)
+    """
     dst = BOOK / "images" / week
     dst.mkdir(parents=True, exist_ok=True)
-    sim_fig_dir = SRC_WS / week / "sims" / "figures"
-    if sim_fig_dir.exists():
-        for p in sim_fig_dir.glob("*.png"):
+
+    sources = [
+        SRC_WS / week / "sims" / "figures",
+        SRC_WS / "results" / week,
+    ]
+    for src in sources:
+        if not src.exists():
+            continue
+        for p in src.glob("*.png"):
+            if p.stat().st_size == 0:
+                continue        # skip empty / corrupt PNGs
             shutil.copy(p, dst / p.name)
+
+
+# Captions for the canonical MATLAB output figures so the book has a
+# descriptive label on each rather than the raw filename.
+FIGURE_CAPTIONS = {
+    "manipulator_tracking.png": "Manipulator joint-space tracking.",
+    "mobile_robot_tracking.png": "Differential-drive mobile robot trajectory tracking.",
+    "quadrotor_tracking.png": "Quadrotor position / attitude tracking.",
+    "performance_summary.png": "Performance summary across the three robotic platforms.",
+    "smc_results.png": "Sliding Mode Control: baseline vs.\\ optimised gains on manipulator, mobile, quadrotor.",
+    "adaptive_results.png": "Adaptive control: baseline vs.\\ optimised gains on all three robots.",
+    "robust_results.png": "Robust control: baseline vs.\\ min-max optimised gains on all three robots.",
+    "backstepping_results.png": "Backstepping: baseline vs.\\ optimised virtual-control gains on all three robots.",
+    "nmpc_results.png": "Nonlinear MPC (iLQR): short vs.\\ long prediction horizon on all three robots.",
+    "nmpc_unicycle_trajectory.png": "NMPC closed-loop XY trajectory of the unicycle converging onto the reference circle.",
+    "nmpc_unicycle_commands.png": "NMPC control commands $v(t), \\omega(t)$ with saturation limits.",
+    "nmpc_unicycle_errors.png": "NMPC closed-loop position and heading errors versus time.",
+}
+
+
+def build_simulation_results_block(week: str) -> str:
+    """Emit a LaTeX section that includes every simulation figure we have
+    for this week, so the book contains the MATLAB / Python output plots
+    right alongside the lecture text they belong to.
+    """
+    img_dir = BOOK / "images" / week
+    if not img_dir.exists():
+        return ""
+    pngs = sorted(img_dir.glob("*.png"))
+    if not pngs:
+        return ""
+
+    lines = ["\n% --- auto-generated simulation figures ---\n",
+             "\\section{Simulation Results}\n\n",
+             "The figures below are the output of the MATLAB (or Python) "
+             "simulation scripts that accompany this lecture. Each figure "
+             "is reproducible by running the corresponding script in the "
+             "companion repository; see Section~\\ref{sec:repository} of "
+             "the preface for instructions.\n\n"]
+    for p in pngs:
+        caption = FIGURE_CAPTIONS.get(
+            p.name,
+            p.stem.replace("_", " ").replace("-", " ").capitalize() + ".",
+        )
+        lines.append(
+            "\\begin{figure}[ht]\n"
+            "    \\centering\n"
+            f"    \\includegraphics[width=0.92\\textwidth,keepaspectratio]{{images/{week}/{p.name}}}\n"
+            f"    \\caption{{{caption}}}\n"
+            "\\end{figure}\n\n"
+        )
+    return "".join(lines)
 
 
 def transform_body(week: str, body: str) -> str:
@@ -323,11 +426,45 @@ def clean_and_wrap(week):
     body = raw_path.read_text(encoding="utf-8", errors="replace")
     body = transform_body(week, body)
 
+    # Post-process: shrink longtables so wide ones fit within text width.
+    body = re.sub(
+        r"(\\begin\{longtable\}[^\n]*\n)",
+        r"\\begingroup\\footnotesize\n\1",
+        body,
+    )
+    body = body.replace(
+        r"\end{longtable}",
+        r"\end{longtable}\endgroup",
+    )
+
+    # Append a "Simulation Results" section with every figure we have
+    # for this week. Inserted BEFORE the trailing Summary/Wrap-Up blocks
+    # if they exist, so the chapter flows: content -> simulation -> summary.
+    sims_block = build_simulation_results_block(week)
+    if sims_block:
+        # Find the last Summary/Wrap-Up \section and insert before it
+        summary_patterns = [
+            r"\\section\{Summary and Next Steps\}",
+            r"\\section\{Activities and Wrap-Up\}",
+        ]
+        inserted = False
+        for pat in summary_patterns:
+            m = list(re.finditer(pat, body))
+            if m:
+                idx = m[-1].start()
+                body = body[:idx] + sims_block + body[idx:]
+                inserted = True
+                break
+        if not inserted:
+            body = body + "\n" + sims_block
+
     title = TITLES.get(week, week)
+    # Cleaner chapter opener: no reserved image-space, no margin mini-TOC.
+    # kaobook still numbers and formats the chapter heading, just without
+    # the Tufte-style sidebar decorations that were leaving a gaping
+    # blank at the top of every first page.
     header = (
         f"% ----- auto-generated from {week}/Week*.html via pandoc -----\n"
-        f"\\setchapterimage[6cm]{{}}\n"
-        f"\\setchapterpreamble[u]{{\\margintoc}}\n"
         f"\\chapter{{{title}}}\n"
         f"\\labch{{{week}}}\n\n"
     )
@@ -344,6 +481,14 @@ def main():
             if not found:
                 print(f"  SKP  {w}: no HTML found")
                 continue
+            # Preprocess the HTML so pandoc recognises our custom
+            # <div class="code-block">...</div> as code. Pandoc otherwise
+            # emits the block as plain paragraph text, and MATLAB / shell
+            # snippets become unreadable prose.
+            html_raw = found[0].read_text(encoding="utf-8", errors="replace")
+            html_pp = _preprocess_html_codeblocks(html_raw)
+            tmp_html = raw.with_suffix(".html.tmp")
+            tmp_html.write_text(html_pp, encoding="utf-8")
             subprocess.run([
                 "pandoc",
                 # Enable HTML reader extensions for MathJax-style math
@@ -354,10 +499,13 @@ def main():
                 "-t", "latex",
                 "--wrap=preserve",
                 "--no-highlight",
-                str(found[0]), "-o", str(raw),
+                str(tmp_html), "-o", str(raw),
             ], check=True)
-        ok = clean_and_wrap(w)
+            tmp_html.unlink(missing_ok=True)
+        # Copy sim figures BEFORE generating the chapter — clean_and_wrap
+        # scans images/<week>/ to build the Simulation Results section.
         copy_figures_for_week(w)
+        ok = clean_and_wrap(w)
         sz = (BOOK / "chapters" / f"{w}.tex").stat().st_size if ok else 0
         print(f"  {'ok ' if ok else 'SKP'}  {w}: {sz} bytes")
 

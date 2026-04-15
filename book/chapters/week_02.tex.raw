@@ -378,7 +378,9 @@ This feedback mechanism gives MPC its robustness to disturbances and model error
 Hint: Think about what happens if the model is imperfect, or if a disturbance pushes the state away from the predicted trajectory.
 Compare with open-loop vs closed-loop control.
 
-PSEUDOCODE --- MPC Receding Horizon Algorithm
+\begin{verbatim}
+                    PSEUDOCODE — MPC Receding Horizon Algorithm
+\end{verbatim}
 
 INITIALISE: state x\_0, horizon N, weights Q and R
 BUILD: prediction matrices A\_cal and B\_cal from (A, B, N)
@@ -485,77 +487,94 @@ We evaluate at a slightly offset configuration \(q_0 = [0.1, 0.1]^T\) to ensure 
 \hypertarget{matlab-implementation-manipulator-mpc}{%
 \subsubsection{2.5 MATLAB Implementation --- Manipulator MPC}\label{matlab-implementation-manipulator-mpc}}
 
-\%\% === MPC for 2-DOF Manipulator ===
-\% System parameters
+\begin{verbatim}
+%% === MPC for 2-DOF Manipulator ===
+% System parameters
 params.m1 = 1; params.m2 = 1;
 params.l1 = 1; params.l2 = 1;
 params.g = 9.81;
-\% Linearisation point
-q0 = {[}0.1; 0.1{]}; dq0 = {[}0; 0{]};
-\% Build M(q0), compute M\_inv
+
+% Linearisation point
+q0 = [0.1; 0.1]; dq0 = [0; 0];
+
+% Build M(q0), compute M_inv
 c2 = cos(q0(2));
-M11 = params.m1*params.l1\^{}2 + params.m2*(params.l1\^{}2 + params.l2\^{}2 + 2*params.l1*params.l2*c2);
-M12 = params.m2*(params.l2\^{}2 + params.l1*params.l2*c2);
-M22 = params.m2*params.l2\^{}2;
-M0 = {[}M11, M12; M12, M22{]};
-M0\_inv = inv(M0);
-\% Continuous-time A, B (linearised around q0, dq0=0)
-Ac = {[}zeros(2), eye(2); zeros(2), zeros(2){]};
-Bc = {[}zeros(2); M0\_inv{]};
-\% Discretise (Euler, dt = 0.01 s)
+M11 = params.m1*params.l1^2 + params.m2*(params.l1^2 + params.l2^2 + 2*params.l1*params.l2*c2);
+M12 = params.m2*(params.l2^2 + params.l1*params.l2*c2);
+M22 = params.m2*params.l2^2;
+M0 = [M11, M12; M12, M22];
+M0_inv = inv(M0);
+
+% Continuous-time A, B (linearised around q0, dq0=0)
+Ac = [zeros(2), eye(2); zeros(2), zeros(2)];
+Bc = [zeros(2); M0_inv];
+
+% Discretise (Euler, dt = 0.01 s)
 dt = 0.01;
 Ad = eye(4) + Ac*dt;
 Bd = Bc*dt;
-\% MPC parameters
-N = 20; \% Prediction horizon
-Q = diag({[}100, 100, 1, 1{]}); \% State weight
-R = diag({[}0.01, 0.01{]}); \% Control weight
-\% Build prediction matrices
+
+% MPC parameters
+N = 20;                          % Prediction horizon
+Q = diag([100, 100, 1, 1]);     % State weight
+R = diag([0.01, 0.01]);         % Control weight
+
+% Build prediction matrices
 n = 4; m = 2;
-A\_cal = zeros(n*N, n);
-B\_cal = zeros(n*N, m*N);
+A_cal = zeros(n*N, n);
+B_cal = zeros(n*N, m*N);
 for i = 1:N
-A\_cal((i-1)*n+1:i*n, :) = Ad\^{}i;
-for j = 1:i
-B\_cal((i-1)*n+1:i*n, (j-1)*m+1:j*m) = Ad\^{}(i-j) * Bd;
+    A_cal((i-1)*n+1:i*n, :) = Ad^i;
+    for j = 1:i
+        B_cal((i-1)*n+1:i*n, (j-1)*m+1:j*m) = Ad^(i-j) * Bd;
+    end
 end
+
+% Block-diagonal weights
+Q_N = kron(eye(N), Q);
+R_N = kron(eye(N), R);
+
+% Hessian and its inverse (constant for LTI system)
+H = B_cal' * Q_N * B_cal + R_N;
+H_inv = inv(H);
+F = B_cal' * Q_N;
+
+% Simulation
+t_span = 0:dt:20;
+x = [0; 0; 0; 0];  % Initial state
+x_hist = zeros(4, length(t_span));
+u_hist = zeros(2, length(t_span));
+x_hist(:,1) = x;
+
+for k = 1:length(t_span)-1
+    t = t_span(k);
+
+    % Reference trajectory (sinusoidal)
+    x_ref_k = zeros(n*N, 1);
+    for i = 1:N
+        t_future = t + i*dt;
+        x_ref_k((i-1)*n+1:i*n) = [0.5*sin(t_future); 0.5*cos(t_future); ...
+                                    0.5*cos(t_future); -0.5*sin(t_future)];
+    end
+
+    % MPC optimal control
+    E = x_ref_k - A_cal * x;
+    U_star = H_inv * F * E;
+    u = U_star(1:m);  % Apply first control only
+
+    % Clamp torques (constraint enforcement)
+    u = max(min(u, 50), -50);
+
+    % Simulate true nonlinear dynamics (one Euler step)
+    q = x(1:2); dq = x(3:4);
+    [M_true, C_true, G_true] = manipulator_model(q, dq, params);
+    ddq = M_true \ (u - C_true*dq - G_true);
+    x = x + [dq; ddq]*dt;
+
+    x_hist(:,k+1) = x;
+    u_hist(:,k) = u;
 end
-\% Block-diagonal weights
-Q\_N = kron(eye(N), Q);
-R\_N = kron(eye(N), R);
-\% Hessian and its inverse (constant for LTI system)
-H = B\_cal\textquotesingle{} * Q\_N * B\_cal + R\_N;
-H\_inv = inv(H);
-F = B\_cal\textquotesingle{} * Q\_N;
-\% Simulation
-t\_span = 0:dt:20;
-x = {[}0; 0; 0; 0{]}; \% Initial state
-x\_hist = zeros(4, length(t\_span));
-u\_hist = zeros(2, length(t\_span));
-x\_hist(:,1) = x;
-for k = 1:length(t\_span)-1
-t = t\_span(k);
-\% Reference trajectory (sinusoidal)
-x\_ref\_k = zeros(n*N, 1);
-for i = 1:N
-t\_future = t + i*dt;
-x\_ref\_k((i-1)*n+1:i*n) = {[}0.5*sin(t\_future); 0.5*cos(t\_future); ...
-0.5*cos(t\_future); -0.5*sin(t\_future){]};
-end
-\% MPC optimal control
-E = x\_ref\_k - A\_cal * x;
-U\_star = H\_inv * F * E;
-u = U\_star(1:m); \% Apply first control only
-\% Clamp torques (constraint enforcement)
-u = max(min(u, 50), -50);
-\% Simulate true nonlinear dynamics (one Euler step)
-q = x(1:2); dq = x(3:4);
-{[}M\_true, C\_true, G\_true{]} = manipulator\_model(q, dq, params);
-ddq = M\_true \textbackslash{} (u - C\_true*dq - G\_true);
-x = x + {[}dq; ddq{]}*dt;
-x\_hist(:,k+1) = x;
-u\_hist(:,k) = u;
-end
+\end{verbatim}
 
 \textbf{Note:} The controller uses a \emph{linear} model, but the plant simulation uses the \emph{full nonlinear} dynamics. This mismatch is realistic and tests the robustness of MPC.
 
@@ -616,49 +635,55 @@ Constraint & Physical Meaning & Value \\
 \hypertarget{matlab-implementation-mobile-robot-mpc}{%
 \subsubsection{3.5 MATLAB Implementation --- Mobile Robot MPC}\label{matlab-implementation-mobile-robot-mpc}}
 
-\%\% === MPC for Differential-Drive Mobile Robot ===
-v\_ref = 2.5; dt = 0.05;
-Ac\_mob = {[}0, 0, 0; 0, 0, v\_ref; 0, 0, 0{]};
-Bc\_mob = {[}1, 0; 0, 0; 0, 1{]};
-Ad\_mob = eye(3) + Ac\_mob*dt;
-Bd\_mob = Bc\_mob*dt;
-N\_mob = 15; Q\_mob = diag({[}50, 50, 10{]}); R\_mob = diag({[}0.1, 0.1{]});
-n\_mob = 3; m\_mob = 2;
-\% Build prediction matrices (same structure as manipulator)
-A\_cal\_mob = zeros(n\_mob*N\_mob, n\_mob);
-B\_cal\_mob = zeros(n\_mob*N\_mob, m\_mob*N\_mob);
-for i = 1:N\_mob
-A\_cal\_mob((i-1)*n\_mob+1:i*n\_mob, :) = Ad\_mob\^{}i;
-for j = 1:i
-B\_cal\_mob((i-1)*n\_mob+1:i*n\_mob, (j-1)*m\_mob+1:j*m\_mob) = Ad\_mob\^{}(i-j)*Bd\_mob;
+\begin{verbatim}
+%% === MPC for Differential-Drive Mobile Robot ===
+v_ref = 2.5; dt = 0.05;
+Ac_mob = [0, 0, 0; 0, 0, v_ref; 0, 0, 0];
+Bc_mob = [1, 0; 0, 0; 0, 1];
+Ad_mob = eye(3) + Ac_mob*dt;
+Bd_mob = Bc_mob*dt;
+
+N_mob = 15; Q_mob = diag([50, 50, 10]); R_mob = diag([0.1, 0.1]);
+n_mob = 3; m_mob = 2;
+
+% Build prediction matrices (same structure as manipulator)
+A_cal_mob = zeros(n_mob*N_mob, n_mob);
+B_cal_mob = zeros(n_mob*N_mob, m_mob*N_mob);
+for i = 1:N_mob
+    A_cal_mob((i-1)*n_mob+1:i*n_mob, :) = Ad_mob^i;
+    for j = 1:i
+        B_cal_mob((i-1)*n_mob+1:i*n_mob, (j-1)*m_mob+1:j*m_mob) = Ad_mob^(i-j)*Bd_mob;
+    end
 end
+Q_N_mob = kron(eye(N_mob), Q_mob);
+R_N_mob = kron(eye(N_mob), R_mob);
+H_mob = B_cal_mob' * Q_N_mob * B_cal_mob + R_N_mob;
+H_inv_mob = inv(H_mob);
+F_mob = B_cal_mob' * Q_N_mob;
+
+% Simulation (circular reference)
+t_span_mob = 0:dt:20;
+x_mob = [0; 0; 0];
+R_circle = 5; omega_circle = 0.5;
+
+for k = 1:length(t_span_mob)-1
+    t = t_span_mob(k);
+    x_ref_mob = zeros(n_mob*N_mob, 1);
+    for i = 1:N_mob
+        t_f = t + i*dt;
+        x_ref_mob((i-1)*n_mob+1:i*n_mob) = [R_circle*cos(omega_circle*t_f); ...
+                                               R_circle*sin(omega_circle*t_f); ...
+                                               omega_circle*t_f + pi/2];
+    end
+    E_mob = x_ref_mob - A_cal_mob * x_mob;
+    U_star_mob = H_inv_mob * F_mob * E_mob;
+    u_mob = U_star_mob(1:m_mob);
+    u_mob(1) = max(min(u_mob(1), 5), 0);
+    u_mob(2) = max(min(u_mob(2), 2), -2);
+    theta = x_mob(3);
+    x_mob = x_mob + [u_mob(1)*cos(theta); u_mob(1)*sin(theta); u_mob(2)]*dt;
 end
-Q\_N\_mob = kron(eye(N\_mob), Q\_mob);
-R\_N\_mob = kron(eye(N\_mob), R\_mob);
-H\_mob = B\_cal\_mob\textquotesingle{} * Q\_N\_mob * B\_cal\_mob + R\_N\_mob;
-H\_inv\_mob = inv(H\_mob);
-F\_mob = B\_cal\_mob\textquotesingle{} * Q\_N\_mob;
-\% Simulation (circular reference)
-t\_span\_mob = 0:dt:20;
-x\_mob = {[}0; 0; 0{]};
-R\_circle = 5; omega\_circle = 0.5;
-for k = 1:length(t\_span\_mob)-1
-t = t\_span\_mob(k);
-x\_ref\_mob = zeros(n\_mob*N\_mob, 1);
-for i = 1:N\_mob
-t\_f = t + i*dt;
-x\_ref\_mob((i-1)*n\_mob+1:i*n\_mob) = {[}R\_circle*cos(omega\_circle*t\_f); ...
-R\_circle*sin(omega\_circle*t\_f); ...
-omega\_circle*t\_f + pi/2{]};
-end
-E\_mob = x\_ref\_mob - A\_cal\_mob * x\_mob;
-U\_star\_mob = H\_inv\_mob * F\_mob * E\_mob;
-u\_mob = U\_star\_mob(1:m\_mob);
-u\_mob(1) = max(min(u\_mob(1), 5), 0);
-u\_mob(2) = max(min(u\_mob(2), 2), -2);
-theta = x\_mob(3);
-x\_mob = x\_mob + {[}u\_mob(1)*cos(theta); u\_mob(1)*sin(theta); u\_mob(2){]}*dt;
-end
+\end{verbatim}
 
 \textbf{Linearisation Caveat:} The linearisation is performed at a single operating point. In practice, one re-linearises at each time step or uses nonlinear MPC.
 
@@ -726,37 +751,45 @@ Constraint & Physical Meaning & Value \\
 \hypertarget{matlab-implementation-quadrotor-mpc}{%
 \subsubsection{4.5 MATLAB Implementation --- Quadrotor MPC}\label{matlab-implementation-quadrotor-mpc}}
 
-\%\% === MPC for Quadrotor Drone ===
+\begin{verbatim}
+%% === MPC for Quadrotor Drone ===
 quad.m = 1.0; quad.Ixx = 0.1; quad.Iyy = 0.1; quad.Izz = 0.2; quad.g = 9.81;
-dt\_q = 0.02; n\_q = 12; m\_q = 4;
-Ac\_q = zeros(12,12);
-Ac\_q(1:3, 4:6) = eye(3);
-Ac\_q(4,8) = quad.g;
-Ac\_q(5,7) = -quad.g;
-Ac\_q(7:9, 10:12) = eye(3);
-Bc\_q = zeros(12,4);
-Bc\_q(6,1) = 1/quad.m;
-Bc\_q(10,2) = 1/quad.Ixx;
-Bc\_q(11,3) = 1/quad.Iyy;
-Bc\_q(12,4) = 1/quad.Izz;
-Ad\_q = eye(12) + Ac\_q*dt\_q;
-Bd\_q = Bc\_q*dt\_q;
-N\_q = 15;
-Q\_q = diag({[}80, 80, 120, 1, 1, 1, 50, 50, 50, 1, 1, 1{]});
-R\_q = diag({[}0.1, 0.1, 0.1, 0.1{]});
-\% Build prediction matrices and solve (same pattern as above)
-A\_cal\_q = zeros(n\_q*N\_q, n\_q);
-B\_cal\_q = zeros(n\_q*N\_q, m\_q*N\_q);
-for i = 1:N\_q
-A\_cal\_q((i-1)*n\_q+1:i*n\_q, :) = Ad\_q\^{}i;
-for j = 1:i
-B\_cal\_q((i-1)*n\_q+1:i*n\_q, (j-1)*m\_q+1:j*m\_q) = Ad\_q\^{}(i-j)*Bd\_q;
+dt_q = 0.02; n_q = 12; m_q = 4;
+
+Ac_q = zeros(12,12);
+Ac_q(1:3, 4:6) = eye(3);
+Ac_q(4,8) = quad.g;
+Ac_q(5,7) = -quad.g;
+Ac_q(7:9, 10:12) = eye(3);
+
+Bc_q = zeros(12,4);
+Bc_q(6,1) = 1/quad.m;
+Bc_q(10,2) = 1/quad.Ixx;
+Bc_q(11,3) = 1/quad.Iyy;
+Bc_q(12,4) = 1/quad.Izz;
+
+Ad_q = eye(12) + Ac_q*dt_q;
+Bd_q = Bc_q*dt_q;
+
+N_q = 15;
+Q_q = diag([80, 80, 120, 1, 1, 1, 50, 50, 50, 1, 1, 1]);
+R_q = diag([0.1, 0.1, 0.1, 0.1]);
+
+% Build prediction matrices and solve (same pattern as above)
+A_cal_q = zeros(n_q*N_q, n_q);
+B_cal_q = zeros(n_q*N_q, m_q*N_q);
+for i = 1:N_q
+    A_cal_q((i-1)*n_q+1:i*n_q, :) = Ad_q^i;
+    for j = 1:i
+        B_cal_q((i-1)*n_q+1:i*n_q, (j-1)*m_q+1:j*m_q) = Ad_q^(i-j)*Bd_q;
+    end
 end
-end
-H\_q = B\_cal\_q\textquotesingle{} * kron(eye(N\_q),Q\_q) * B\_cal\_q + kron(eye(N\_q),R\_q);
-H\_inv\_q = inv(H\_q);
-F\_q = B\_cal\_q\textquotesingle{} * kron(eye(N\_q),Q\_q);
-\% Simulation loop follows same pattern with helical reference trajectory
+H_q = B_cal_q' * kron(eye(N_q),Q_q) * B_cal_q + kron(eye(N_q),R_q);
+H_inv_q = inv(H_q);
+F_q = B_cal_q' * kron(eye(N_q),Q_q);
+
+% Simulation loop follows same pattern with helical reference trajectory
+\end{verbatim}
 
 \textbf{Key Observation:} The MPC controller for the quadrotor uses a 12-state linear model but drives the full nonlinear plant. The receding-horizon feedback mechanism compensates for linearisation errors at each step.
 

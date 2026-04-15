@@ -1,6 +1,4 @@
 % ----- auto-generated from week_04/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
 \chapter{Adaptive Control (Week 4)}
 \labch{week_04}
 
@@ -428,6 +426,7 @@ Consider the adaptation gain matrix \(\Gamma\). Discuss with your neighbour:
 
 We now implement the full adaptive controller for the 2-DOF planar manipulator from Section 3.3. The true parameters are:
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Parameter & Symbol & True Value & Initial Estimate \\
@@ -440,10 +439,11 @@ Link 2 mass & \(m_2\) & 2.0 kg & 1.0 kg (50\% error) \\
 Link 1 length & \(l_1\) & 1.0 m & 1.0 m (known) \\
 Link 2 length & \(l_2\) & 1.0 m & 1.0 m (known) \\
 Gravity & \(g\) & 9.81 m/s² & 9.81 m/s² (known) \\
-\end{longtable}
+\end{longtable}\endgroup
 
 Even though only \(m_2\) is wrong, all composite parameters involving \(m_2\) are affected:
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Composite Parameter & True Value & Initial Estimate \\
@@ -457,7 +457,7 @@ Composite Parameter & True Value & Initial Estimate \\
 \(\theta_4 = m_2 l_1 l_2\) & 2.0 & 1.0 \\
 \(\theta_5 = (m_1+m_2)gl_1\) & 29.43 & 19.62 \\
 \(\theta_6 = m_2 g l_2\) & 19.62 & 9.81 \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Building the Regressor Matrix}
 
@@ -508,7 +508,9 @@ The regressor \(Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r) \in \mathbb{R}^{2 \times 6}
 
 \subsection{Complete Control Algorithm}
 
-Algorithm: Adaptive Control for 2-DOF Manipulator
+\begin{verbatim}
+                Algorithm: Adaptive Control for 2-DOF Manipulator
+\end{verbatim}
 
 \textbf{Given:} desired trajectory q\_d(t), dq\_d(t), ddq\_d(t)
 \textbf{Initialise:} theta\_hat = theta\_hat\_0 (initial parameter estimates)
@@ -532,69 +534,85 @@ d(theta\_hat)/dt = Gamma\_inv * Y\textquotesingle{} * s
 
 \subsection{MATLAB Implementation}
 
-\%\% Adaptive Control for 2-DOF Manipulator
-\% True parameters
+\begin{verbatim}
+%% Adaptive Control for 2-DOF Manipulator
+% True parameters
 m1 = 1; m2 = 2; l1 = 1; l2 = 1; g = 9.81;
-theta\_true = {[}m1*l1\^{}2; m2*l1\^{}2; m2*l2\^{}2; m2*l1*l2; (m1+m2)*g*l1; m2*g*l2{]};
-\% Initial estimates (m2\_hat = 1 instead of 2)
-m2\_hat = 1;
-theta\_hat0 = {[}m1*l1\^{}2; m2\_hat*l1\^{}2; m2\_hat*l2\^{}2; m2\_hat*l1*l2; ...
-(m1+m2\_hat)*g*l1; m2\_hat*g*l2{]};
-\% Design parameters
-Lambda = 10*eye(2); \% Sliding surface slope
-K\_D = 50*eye(2); \% Damping gain
-Gamma\_inv = 5*eye(6); \% Inverse adaptation gain
-\% Desired trajectory
-qd = @(t) {[}0.5*sin(t); 0.5*cos(t){]};
-dqd = @(t) {[}0.5*cos(t); -0.5*sin(t){]};
-ddqd = @(t) {[}-0.5*sin(t); -0.5*cos(t){]};
-\% State: {[}q1; q2; dq1; dq2; theta\_hat(1:6){]}
-x0 = {[}0; 0; 0; 0; theta\_hat0{]};
+theta_true = [m1*l1^2; m2*l1^2; m2*l2^2; m2*l1*l2; (m1+m2)*g*l1; m2*g*l2];
+
+% Initial estimates (m2_hat = 1 instead of 2)
+m2_hat = 1;
+theta_hat0 = [m1*l1^2; m2_hat*l1^2; m2_hat*l2^2; m2_hat*l1*l2; ...
+              (m1+m2_hat)*g*l1; m2_hat*g*l2];
+
+% Design parameters
+Lambda = 10*eye(2);    % Sliding surface slope
+K_D    = 50*eye(2);    % Damping gain
+Gamma_inv = 5*eye(6);  % Inverse adaptation gain
+
+% Desired trajectory
+qd   = @(t) [0.5*sin(t); 0.5*cos(t)];
+dqd  = @(t) [0.5*cos(t); -0.5*sin(t)];
+ddqd = @(t) [-0.5*sin(t); -0.5*cos(t)];
+
+% State: [q1; q2; dq1; dq2; theta_hat(1:6)]
+x0 = [0; 0; 0; 0; theta_hat0];
 tspan = 0:0.01:20;
-{[}t, X{]} = ode45(@(t,x) adaptive\_manipulator(t, x, ...
-m1, m2, l1, l2, g, Lambda, K\_D, Gamma\_inv, qd, dqd, ddqd), tspan, x0);
-function dx = adaptive\_manipulator(t, x, m1, m2, l1, l2, g, ...
-Lambda, K\_D, Gamma\_inv, qd, dqd, ddqd)
-q = x(1:2); dq = x(3:4); theta\_hat = x(5:10);
-\% True dynamics matrices
-c2 = cos(q(2)); s2 = sin(q(2));
-M = {[}m1*l1\^{}2 + m2*(l1\^{}2+l2\^{}2+2*l1*l2*c2), m2*(l2\^{}2+l1*l2*c2);
-m2*(l2\^{}2+l1*l2*c2), m2*l2\^{}2{]};
-C = {[}-m2*l1*l2*s2*dq(2), -m2*l1*l2*s2*(dq(1)+dq(2));
-m2*l1*l2*s2*dq(1), 0{]};
-G = {[}(m1+m2)*g*l1*sin(q(1)) + m2*g*l2*sin(q(1)+q(2));
-m2*g*l2*sin(q(1)+q(2)){]};
-\% Errors and reference signals
-e = qd(t) - q;
-de = dqd(t) - dq;
-dqr = dqd(t) + Lambda*e;
-ddqr = ddqd(t) + Lambda*de;
-s = de + Lambda*e;
-\% Build regressor Y(q, dq, dqr, ddqr) {[}2x6{]}
-s2q = sin(q(2)); c2q = cos(q(2));
-s1 = sin(q(1)); s12 = sin(q(1)+q(2));
-Y = zeros(2,6);
-Y(1,1) = ddqr(1);
-Y(1,2) = ddqr(1);
-Y(1,3) = ddqr(1) + ddqr(2);
-Y(1,4) = 2*c2q*ddqr(1) + c2q*ddqr(2) ...
-- s2q*dq(2)*dqr(1) - s2q*(dq(1)+dq(2))*dqr(2);
-Y(1,5) = s1;
-Y(1,6) = s12;
-Y(2,1) = 0;
-Y(2,2) = 0;
-Y(2,3) = ddqr(1) + ddqr(2);
-Y(2,4) = c2q*ddqr(1) + s2q*dq(1)*dqr(1);
-Y(2,5) = 0;
-Y(2,6) = s12;
-\% Adaptive control law
-tau = Y*theta\_hat + K\_D*s;
-\% Parameter update law
-dtheta\_hat = Gamma\_inv * Y\textquotesingle{} * s;
-\% True dynamics
-ddq = M \textbackslash{} (tau - C*dq - G);
-dx = {[}dq; ddq; dtheta\_hat{]};
+
+[t, X] = ode45(@(t,x) adaptive_manipulator(t, x, ...
+    m1, m2, l1, l2, g, Lambda, K_D, Gamma_inv, qd, dqd, ddqd), tspan, x0);
+
+function dx = adaptive_manipulator(t, x, m1, m2, l1, l2, g, ...
+                                    Lambda, K_D, Gamma_inv, qd, dqd, ddqd)
+    q  = x(1:2);  dq = x(3:4);  theta_hat = x(5:10);
+
+    % True dynamics matrices
+    c2 = cos(q(2)); s2 = sin(q(2));
+    M = [m1*l1^2 + m2*(l1^2+l2^2+2*l1*l2*c2), m2*(l2^2+l1*l2*c2);
+         m2*(l2^2+l1*l2*c2),                    m2*l2^2];
+    C = [-m2*l1*l2*s2*dq(2), -m2*l1*l2*s2*(dq(1)+dq(2));
+          m2*l1*l2*s2*dq(1),  0];
+    G = [(m1+m2)*g*l1*sin(q(1)) + m2*g*l2*sin(q(1)+q(2));
+          m2*g*l2*sin(q(1)+q(2))];
+
+    % Errors and reference signals
+    e   = qd(t) - q;
+    de  = dqd(t) - dq;
+    dqr  = dqd(t) + Lambda*e;
+    ddqr = ddqd(t) + Lambda*de;
+    s    = de + Lambda*e;
+
+    % Build regressor Y(q, dq, dqr, ddqr) [2x6]
+    s2q = sin(q(2)); c2q = cos(q(2));
+    s1  = sin(q(1)); s12 = sin(q(1)+q(2));
+
+    Y = zeros(2,6);
+    Y(1,1) = ddqr(1);
+    Y(1,2) = ddqr(1);
+    Y(1,3) = ddqr(1) + ddqr(2);
+    Y(1,4) = 2*c2q*ddqr(1) + c2q*ddqr(2) ...
+             - s2q*dq(2)*dqr(1) - s2q*(dq(1)+dq(2))*dqr(2);
+    Y(1,5) = s1;
+    Y(1,6) = s12;
+    Y(2,1) = 0;
+    Y(2,2) = 0;
+    Y(2,3) = ddqr(1) + ddqr(2);
+    Y(2,4) = c2q*ddqr(1) + s2q*dq(1)*dqr(1);
+    Y(2,5) = 0;
+    Y(2,6) = s12;
+
+    % Adaptive control law
+    tau = Y*theta_hat + K_D*s;
+
+    % Parameter update law
+    dtheta_hat = Gamma_inv * Y' * s;
+
+    % True dynamics
+    ddq = M \ (tau - C*dq - G);
+
+    dx = [dq; ddq; dtheta_hat];
 end
+\end{verbatim}
 
 \section{Adaptive Control for Mobile Robot}
 
@@ -684,61 +702,76 @@ where \(\Gamma_m \succ 0\) is the adaptation gain for the mobile robot parameter
 
 \subsection{MATLAB Implementation}
 
-\%\% Adaptive Control for Differential-Drive Mobile Robot
-\% True parameters
-r\_true = 0.05; \% wheel radius {[}m{]}
-b\_true = 0.3; \% track width {[}m{]}
-theta\_m\_true = {[}r\_true; r\_true/b\_true{]};
-\% Initial estimates (20\% error on both)
-r\_hat0 = 0.04; b\_hat0 = 0.36;
-theta\_m\_hat0 = {[}r\_hat0; r\_hat0/b\_hat0{]};
-\% Tracking gains
+\begin{verbatim}
+%% Adaptive Control for Differential-Drive Mobile Robot
+% True parameters
+r_true = 0.05;     % wheel radius [m]
+b_true = 0.3;      % track width [m]
+theta_m_true = [r_true; r_true/b_true];
+
+% Initial estimates (20% error on both)
+r_hat0 = 0.04;   b_hat0 = 0.36;
+theta_m_hat0 = [r_hat0; r_hat0/b_hat0];
+
+% Tracking gains
 k1 = 3; k2 = 5; k3 = 3;
-Gamma\_m = diag({[}0.01, 0.05{]});
-\% Circular reference trajectory
-R\_circ = 2; omega\_circ = 0.5;
-xd = @(t) R\_circ*cos(omega\_circ*t);
-yd = @(t) R\_circ*sin(omega\_circ*t);
-phid = @(t) omega\_circ*t + pi/2;
-vd = @(t) R\_circ*omega\_circ;
-wd = @(t) omega\_circ;
-\% State: {[}x; y; phi; theta\_m\_hat(1:2){]}
-x0\_mob = {[}R\_circ; 0; pi/2; theta\_m\_hat0{]};
+Gamma_m = diag([0.01, 0.05]);
+
+% Circular reference trajectory
+R_circ = 2;  omega_circ = 0.5;
+xd   = @(t) R_circ*cos(omega_circ*t);
+yd   = @(t) R_circ*sin(omega_circ*t);
+phid = @(t) omega_circ*t + pi/2;
+vd   = @(t) R_circ*omega_circ;
+wd   = @(t) omega_circ;
+
+% State: [x; y; phi; theta_m_hat(1:2)]
+x0_mob = [R_circ; 0; pi/2; theta_m_hat0];
 tspan = 0:0.01:30;
-{[}t\_mob, X\_mob{]} = ode45(@(t,x) adaptive\_mobile(t, x, ...
-r\_true, b\_true, k1, k2, k3, Gamma\_m, ...
-xd, yd, phid, vd, wd), tspan, x0\_mob);
-function dx = adaptive\_mobile(t, x, r\_true, b\_true, ...
-k1, k2, k3, Gamma\_m, ...
-xd, yd, phid, vd, wd)
-px = x(1); py = x(2); phi = x(3);
-theta\_hat = x(4:5);
-\% Body-frame errors
-ex = cos(phi)*(xd(t)-px) + sin(phi)*(yd(t)-py);
-ey = -sin(phi)*(xd(t)-px) + cos(phi)*(yd(t)-py);
-ephi = phid(t) - phi;
-ephi = atan2(sin(ephi), cos(ephi)); \% wrap to {[}-pi,pi{]}
-\% Desired velocity commands
-v\_c = vd(t)*cos(ephi) + k1*ex;
-w\_c = wd(t) + vd(t)*(k2*ey + k3*sin(ephi));
-\% Inverse kinematics using estimated parameters
-r\_hat = theta\_hat(1);
-rb\_hat = theta\_hat(2); \% r/b estimate
-omega\_R = (v\_c/r\_hat) + (w\_c/(2*rb\_hat));
-omega\_L = (v\_c/r\_hat) - (w\_c/(2*rb\_hat));
-\% True velocities (using true parameters)
-v\_actual = (r\_true/2)*(omega\_R + omega\_L);
-w\_actual = (r\_true/b\_true)*(omega\_R - omega\_L);
-\% Kinematics
-dpx = v\_actual*cos(phi);
-dpy = v\_actual*sin(phi);
-dphi = w\_actual;
-\% Parameter update
-Y\_m = {[}0.5*(omega\_R+omega\_L), 0; 0, omega\_R-omega\_L{]};
-e\_adapt = {[}ex; ephi{]};
-dtheta = Gamma\_m * Y\_m\textquotesingle{} * e\_adapt;
-dx = {[}dpx; dpy; dphi; dtheta{]};
+
+[t_mob, X_mob] = ode45(@(t,x) adaptive_mobile(t, x, ...
+    r_true, b_true, k1, k2, k3, Gamma_m, ...
+    xd, yd, phid, vd, wd), tspan, x0_mob);
+
+function dx = adaptive_mobile(t, x, r_true, b_true, ...
+                               k1, k2, k3, Gamma_m, ...
+                               xd, yd, phid, vd, wd)
+    px = x(1); py = x(2); phi = x(3);
+    theta_hat = x(4:5);
+
+    % Body-frame errors
+    ex =  cos(phi)*(xd(t)-px) + sin(phi)*(yd(t)-py);
+    ey = -sin(phi)*(xd(t)-px) + cos(phi)*(yd(t)-py);
+    ephi = phid(t) - phi;
+    ephi = atan2(sin(ephi), cos(ephi));  % wrap to [-pi,pi]
+
+    % Desired velocity commands
+    v_c  = vd(t)*cos(ephi) + k1*ex;
+    w_c  = wd(t) + vd(t)*(k2*ey + k3*sin(ephi));
+
+    % Inverse kinematics using estimated parameters
+    r_hat = theta_hat(1);
+    rb_hat = theta_hat(2);  % r/b estimate
+    omega_R = (v_c/r_hat) + (w_c/(2*rb_hat));
+    omega_L = (v_c/r_hat) - (w_c/(2*rb_hat));
+
+    % True velocities (using true parameters)
+    v_actual = (r_true/2)*(omega_R + omega_L);
+    w_actual = (r_true/b_true)*(omega_R - omega_L);
+
+    % Kinematics
+    dpx  = v_actual*cos(phi);
+    dpy  = v_actual*sin(phi);
+    dphi = w_actual;
+
+    % Parameter update
+    Y_m = [0.5*(omega_R+omega_L), 0; 0, omega_R-omega_L];
+    e_adapt = [ex; ephi];
+    dtheta = Gamma_m * Y_m' * e_adapt;
+
+    dx = [dpx; dpy; dphi; dtheta];
 end
+\end{verbatim}
 
 \section{Adaptive Control for Quadrotor}
 
@@ -821,33 +854,41 @@ where:
 
 \subsection{MATLAB Implementation}
 
-\%\% Adaptive Control for Quadrotor
-\% True parameters
-m\_true = 1.5; g\_val = 9.81;
-Ixx\_true = 0.03; Iyy\_true = 0.03; Izz\_true = 0.06;
-theta\_p\_true = {[}m\_true; m\_true*g\_val{]};
-theta\_a\_true = {[}Ixx\_true; Iyy\_true; Izz\_true{]};
-\% Initial estimates (mass off by 50\%, inertias off by 40\%)
-m\_hat0 = 1.0; g\_hat = 9.81;
-theta\_p\_hat0 = {[}m\_hat0; m\_hat0*g\_hat{]};
-theta\_a\_hat0 = {[}0.05; 0.05; 0.10{]};
-\% Gains
-Lambda\_p = 2*eye(3); K\_Dp = 15*eye(3); Gamma\_p\_inv = 0.5*eye(2);
-Lambda\_a = 5*eye(3); K\_Da = 8*eye(3); Gamma\_a\_inv = 0.1*eye(3);
-\% State: {[}x,y,z, dx,dy,dz, phi,theta,psi, dphi,dtheta,dpsi, theta\_p\_hat(2), theta\_a\_hat(3){]}
-x0\_quad = zeros(17,1);
-x0\_quad(13:14) = theta\_p\_hat0;
-x0\_quad(15:17) = theta\_a\_hat0;
-\% Helical trajectory
-pd = @(t) {[}2*cos(0.5*t); 2*sin(0.5*t); 0.2*t{]};
-dpd = @(t) {[}-sin(0.5*t); cos(0.5*t); 0.2{]};
-ddpd = @(t) {[}-0.5*cos(0.5*t); -0.5*sin(0.5*t); 0{]};
-psid = @(t) 0; dpsid = @(t) 0; ddpsid = @(t) 0;
+\begin{verbatim}
+%% Adaptive Control for Quadrotor
+% True parameters
+m_true = 1.5;  g_val = 9.81;
+Ixx_true = 0.03; Iyy_true = 0.03; Izz_true = 0.06;
+
+theta_p_true = [m_true; m_true*g_val];
+theta_a_true = [Ixx_true; Iyy_true; Izz_true];
+
+% Initial estimates (mass off by 50%, inertias off by 40%)
+m_hat0 = 1.0;  g_hat = 9.81;
+theta_p_hat0 = [m_hat0; m_hat0*g_hat];
+theta_a_hat0 = [0.05; 0.05; 0.10];
+
+% Gains
+Lambda_p = 2*eye(3);   K_Dp = 15*eye(3);  Gamma_p_inv = 0.5*eye(2);
+Lambda_a = 5*eye(3);   K_Da = 8*eye(3);   Gamma_a_inv = 0.1*eye(3);
+
+% State: [x,y,z, dx,dy,dz, phi,theta,psi, dphi,dtheta,dpsi, theta_p_hat(2), theta_a_hat(3)]
+x0_quad = zeros(17,1);
+x0_quad(13:14) = theta_p_hat0;
+x0_quad(15:17) = theta_a_hat0;
+
+% Helical trajectory
+pd = @(t) [2*cos(0.5*t); 2*sin(0.5*t); 0.2*t];
+dpd = @(t) [-sin(0.5*t); cos(0.5*t); 0.2];
+ddpd = @(t) [-0.5*cos(0.5*t); -0.5*sin(0.5*t); 0];
+psid = @(t) 0;  dpsid = @(t) 0;  ddpsid = @(t) 0;
+
 tspan = 0:0.01:30;
-{[}t\_q, X\_q{]} = ode45(@(t,x) adaptive\_quad(t, x, m\_true, g\_val, ...
-Ixx\_true, Iyy\_true, Izz\_true, Lambda\_p, K\_Dp, Gamma\_p\_inv, ...
-Lambda\_a, K\_Da, Gamma\_a\_inv, pd, dpd, ddpd, psid, dpsid, ddpsid), ...
-tspan, x0\_quad);
+[t_q, X_q] = ode45(@(t,x) adaptive_quad(t, x, m_true, g_val, ...
+    Ixx_true, Iyy_true, Izz_true, Lambda_p, K_Dp, Gamma_p_inv, ...
+    Lambda_a, K_Da, Gamma_a_inv, pd, dpd, ddpd, psid, dpsid, ddpsid), ...
+    tspan, x0_quad);
+\end{verbatim}
 
 The full implementation, including the ODE function for the quadrotor adaptive controller, is provided in the companion MATLAB file \texttt{adaptive\_control\_simulation.m}.
 
@@ -931,10 +972,41 @@ Because \(G_2 = \theta_6 \cdot \sin(q_1 + q_2)\). The regressor separates the kn
 
 because the gravity contribution of link 2 to joint 1 is also \(m_2 g l_2 \sin(q_1+q_2)\).
 
+
+% --- auto-generated simulation figures ---
+\section{Simulation Results}
+
+The figures below are the output of the MATLAB (or Python) simulation scripts that accompany this lecture. Each figure is reproducible by running the corresponding script in the companion repository; see Section~\ref{sec:repository} of the preface for instructions.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_04/Computed_Torque_vs_Adaptive.png}
+    \caption{Computed torque vs adaptive.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_04/Manipulator_Adaptive_Control.png}
+    \caption{Manipulator adaptive control.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_04/Mobile_Robot_Adaptive_Control.png}
+    \caption{Mobile robot adaptive control.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_04/Quadrotor_Adaptive_Control.png}
+    \caption{Quadrotor adaptive control.}
+\end{figure}
+
 \section{Summary and Next Steps}
 
 \subsection{Summary --- Control Methods Comparison}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Property & Computed Torque (Week 1) & MPC (Week 2) & Adaptive Control (Week 3) \\
@@ -951,7 +1023,7 @@ Property & Computed Torque (Week 1) & MPC (Week 2) & Adaptive Control (Week 3) \
 \textbf{Parameter convergence} & N/A (parameters assumed known) & N/A (parameters assumed known) & Only with persistent excitation \\
 \textbf{Key design parameters} & \(K_p, K_v\) (PD gains) & \(Q, R, N\) (cost weights, horizon) & \(\Lambda, K_D, \Gamma\) (sliding surface, damping, adaptation rate) \\
 \textbf{Best suited for} & Well-modelled systems with known parameters & Systems with constraints, preview information, and known models & Systems with unknown or slowly-varying parameters, no constraints \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Looking ahead --- Week 4: Robust Control.} What if the uncertainty is not parametric but includes unmodelled dynamics, disturbances, or unstructured uncertainty? Robust control (e.g., sliding mode control, \(H_\infty\)) provides guaranteed performance bounds without requiring online estimation. We will see how robust and adaptive approaches can be combined.
 

@@ -34,6 +34,21 @@
 % Section numbering matches the TOC depth (no sub-sub numbering in-text either).
 \setcounter{secnumdepth}{3}
 
+% Override kaobook's Tufte-style asymmetric margins with a standard
+% symmetric book layout. The default kaobook geometry reserves a wide
+% outer margin for sidenotes; since we do not use sidenotes, the asymmetry
+% just looked like uneven whitespace. Use \geometry to impose normal
+% equal inner/outer margins. Matches the kaobook "wide" pagelayout.
+\usepackage{geometry}
+\geometry{
+  inner = 25mm,
+  outer = 25mm,
+  top   = 28mm,
+  bottom= 32mm,
+  marginparwidth = 0pt,
+  marginparsep   = 0pt,
+}
+
 \usepackage{kaotheorems}
 \usepackage{kaorefs}
 \usepackage{kaobiblio}
@@ -95,11 +110,14 @@ provided so students can reproduce every result without fighting library install
 \listoftables
 
 \mainmatter
-\setchapterstyle{kao}
+% Use the "plain" chapter style so the chapter number is on its own line
+% above the title, instead of the kao style where a big drop-cap-sized
+% chapter number overlaps the first word of the title text.
+\setchapterstyle{plain}
 
 \pagelayout{wide}
 \addpart{Control Theory Block}
-\pagelayout{margin}
+\pagelayout{wide}
 
 \input{chapters/week_01}
 \input{chapters/week_02}
@@ -112,7 +130,7 @@ provided so students can reproduce every result without fighting library install
 
 \pagelayout{wide}
 \addpart{ROS\,2 Integration Block}
-\pagelayout{margin}
+\pagelayout{wide}
 
 \input{chapters/week_09}
 \input{chapters/week_10}

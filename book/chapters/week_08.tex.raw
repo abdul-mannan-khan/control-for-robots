@@ -627,18 +627,22 @@ The lab\textquotesingle s \texttt{fminsearch} on the \emph{nonlinear} 2-link arm
 \hypertarget{implementation-from-sim_smc.m}{%
 \subsubsection{\texorpdfstring{5.5 Implementation (from \texttt{sim\_smc.m})}{5.5 Implementation (from sim\_smc.m)}}\label{implementation-from-sim_smc.m}}
 
-\% Per-sample control law (manipulator):
-e = q - q\_des; de = dq;
-s = de + lambda*e; \% sliding variable
-{[}M,C,G{]} = manipulator\_dyn(q, dq, p);
-\% Feedback-linearization-based SMC:
-u = M*(-lambda*de) + C*dq + G - eta*sat(s/phi);
-ddq = M \textbackslash{} (u - C*dq - G);
-\% Saturation function (boundary-layered):
+\begin{verbatim}
+% Per-sample control law (manipulator):
+e  = q - q_des;     de = dq;
+s  = de + lambda*e;                       % sliding variable
+[M,C,G] = manipulator_dyn(q, dq, p);
+% Feedback-linearization-based SMC:
+u  = M*(-lambda*de) + C*dq + G - eta*sat(s/phi);
+ddq = M \ (u - C*dq - G);
+
+% Saturation function (boundary-layered):
 function y = sat(s), y = max(-1, min(1, s)); end
-\% Outer optimization: minimize tracking + effort + chatter
-J = sum(sum(e.\^{}2))*dt + 0.001*sum(sum(u.\^{}2))*dt + 0.01*sum(\textbar du\textbar)*dt;
-zOpt = fminsearch(@(z) smc\_manip\_cost(z, p, q\_des, T, dt), {[}10, 0.05, 5{]});
+
+% Outer optimization: minimize tracking + effort + chatter
+J = sum(sum(e.^2))*dt + 0.001*sum(sum(u.^2))*dt + 0.01*sum(|du|)*dt;
+zOpt = fminsearch(@(z) smc_manip_cost(z, p, q_des, T, dt), [10, 0.05, 5]);
+\end{verbatim}
 
 \hypertarget{simulation-results-manipulator-mobile-quadrotor}{%
 \subsubsection{5.6 Simulation results (manipulator / mobile / quadrotor)}\label{simulation-results-manipulator-mobile-quadrotor}}
@@ -908,21 +912,24 @@ This is the outer NLP that \texttt{fminsearch} solves in \texttt{sim\_adaptive.m
 \hypertarget{implementation-from-sim_adaptive.m}{%
 \paragraph{\texorpdfstring{Implementation (from \texttt{sim\_adaptive.m})}{Implementation (from sim\_adaptive.m)}}\label{implementation-from-sim_adaptive.m}}
 
-\% Each sample in the inner loop:
-e = q - q\_des; de = dq;
-\% Controller uses estimate theta\_hat (= m2\_hat for manipulator lab)
-p\_est = p\_nom; p\_est.m2 = theta\_hat;
-{[}Mh,Ch,Gh{]} = manipulator\_dyn(q, dq, p\_est);
-u = Mh*(-Kp*e - Kd*de) + Ch*dq + Gh; \% model-based control with estimate
-\% True (uncertain) plant
-{[}Mt,Ct,Gt{]} = manipulator\_dyn(q, dq, p\_true);
-ddq = Mt \textbackslash{} (u - Ct*dq - Gt);
-\% Adaptation law: dtheta\_hat/dt = Gamma*Y\^{}T*s - sigma*theta\_hat
-phi = (e(1)+e(2)); \% scalar surrogate regressor
-theta\_hat = theta\_hat + dt*(Gamma*phi - sigma*theta\_hat);
-theta\_hat = max(0.1, min(3.0, theta\_hat)); \% projection bounds
-\% OUTER loop: fminsearch over z = {[}Gamma, sigma{]}
-zOpt = fminsearch(@(z) ada\_manip\_cost(z, p\_nom, p\_true, q\_des, T, dt), z0);
+\begin{verbatim}
+% Each sample in the inner loop:
+e  = q - q_des;     de = dq;
+% Controller uses estimate theta_hat (= m2_hat for manipulator lab)
+p_est     = p_nom;  p_est.m2 = theta_hat;
+[Mh,Ch,Gh] = manipulator_dyn(q, dq, p_est);
+u = Mh*(-Kp*e - Kd*de) + Ch*dq + Gh;     % model-based control with estimate
+% True (uncertain) plant
+[Mt,Ct,Gt] = manipulator_dyn(q, dq, p_true);
+ddq = Mt \ (u - Ct*dq - Gt);
+% Adaptation law: dtheta_hat/dt = Gamma*Y^T*s - sigma*theta_hat
+phi        = (e(1)+e(2));                      % scalar surrogate regressor
+theta_hat  = theta_hat + dt*(Gamma*phi - sigma*theta_hat);
+theta_hat  = max(0.1, min(3.0, theta_hat));    % projection bounds
+
+% OUTER loop: fminsearch over z = [Gamma, sigma]
+zOpt = fminsearch(@(z) ada_manip_cost(z, p_nom, p_true, q_des, T, dt), z0);
+\end{verbatim}
 
 \hypertarget{simulation-results}{%
 \subsubsection{6.4 Simulation results}\label{simulation-results}}
@@ -1169,58 +1176,74 @@ The full implementation lives in \texttt{sims/sim\_robust.m}. Key excerpts:
 \hypertarget{manipulator-robust-controller}{%
 \paragraph{Manipulator robust controller}\label{manipulator-robust-controller}}
 
-\% Controller uses NOMINAL plant parameters only
-{[}\textasciitilde, \textasciitilde, G\_nom{]} = manipulator\_dyn(q, dq, p\_nom);
-e = q - q\_des;
+\begin{verbatim}
+% Controller uses NOMINAL plant parameters only
+[~, ~, G_nom] = manipulator_dyn(q, dq, p_nom);
+
+e  = q - q_des;
 de = dq;
-s = de + Lambda*e; \% Slotine-Li sliding variable
-tau\_nominal = -Kp*e - Kd*de + G\_nom; \% feedback + gravity feedforward
-tau\_robust = -rho * tanh(s/eps\_bl); \% boundary-layered switching
-u = tau\_nominal + tau\_robust;
-\% TRUE (uncertain) plant integrated separately
-{[}M, C, G{]} = manipulator\_dyn(q, dq, p\_true);
-ddq = M \textbackslash{} (u - C*dq - G);
+s  = de + Lambda*e;                     % Slotine-Li sliding variable
+
+tau_nominal = -Kp*e - Kd*de + G_nom;    % feedback + gravity feedforward
+tau_robust  = -rho * tanh(s/eps_bl);    % boundary-layered switching
+u = tau_nominal + tau_robust;
+
+% TRUE (uncertain) plant integrated separately
+[M, C, G] = manipulator_dyn(q, dq, p_true);
+ddq = M \ (u - C*dq - G);
+\end{verbatim}
 
 \hypertarget{mobile-robot-kanayama-tracker}{%
 \paragraph{Mobile robot Kanayama tracker}\label{mobile-robot-kanayama-tracker}}
 
-R = {[}cos(x(3)) sin(x(3)); -sin(x(3)) cos(x(3)){]};
-eb = R * (xr(1:2) - x(1:2)); \% body-frame position error
+\begin{verbatim}
+R  = [cos(x(3)) sin(x(3)); -sin(x(3)) cos(x(3))];
+eb = R * (xr(1:2) - x(1:2));            % body-frame position error
 etheta = wrap(xr(3) - x(3));
-v = vref*cos(etheta) + kx*eb(1);
+
+v     = vref*cos(etheta) + kx*eb(1);
 omega = dxr(3) + vref*(ky*eb(2) + ktheta*sin(etheta));
-\% Plant applies actuator scale a\_true on v
-u\_plant = {[}a\_true*v; omega{]};
-x = x + dt * unicycle\_dyn(x, u\_plant);
+
+% Plant applies actuator scale a_true on v
+u_plant = [a_true*v; omega];
+x = x + dt * unicycle_dyn(x, u_plant);
+\end{verbatim}
 
 \hypertarget{quadrotor-nested-pd}{%
 \paragraph{Quadrotor nested PD}\label{quadrotor-nested-pd}}
 
-ez = x(2) - 1.0; dez = x(5); \% altitude error
-phi = x(3); dphi = x(6); \% roll error
-T\_cmd = p\_nom.m * (p\_nom.g - Kpz*ez - Kdz*dez); \% nominal-mass FF
-T\_cmd = max(0.05, T\_cmd); \% thrust \textgreater= 0
-tau = p\_nom.J * (-Kpphi*phi - Kdphi*dphi);
-u = {[}T\_cmd; tau{]};
-\% True plant with unknown mass m\_true (in {[}0.4, 0.8{]})
-p\_true = p\_nom; p\_true.m = m\_true;
-x = x + dt * quadrotor\_dyn(x, u, p\_true);
+\begin{verbatim}
+ez  = x(2) - 1.0;   dez  = x(5);       % altitude error
+phi = x(3);         dphi = x(6);       % roll error
+
+T_cmd = p_nom.m * (p_nom.g - Kpz*ez - Kdz*dez);     % nominal-mass FF
+T_cmd = max(0.05, T_cmd);                           % thrust >= 0
+tau   = p_nom.J * (-Kpphi*phi - Kdphi*dphi);
+u = [T_cmd; tau];
+
+% True plant with unknown mass m_true (in [0.4, 0.8])
+p_true = p_nom; p_true.m = m_true;
+x = x + dt * quadrotor_dyn(x, u, p_true);
+\end{verbatim}
 
 \hypertarget{min-max-optimization}{%
 \paragraph{Min-max optimization}\label{min-max-optimization}}
 
-function J = robust\_manip\_cost(z, p\_nom, plant\_set, q\_des, T, dt)
-Js = zeros(1, numel(plant\_set));
-for i = 1:numel(plant\_set)
-{[}\textasciitilde, Q, U{]} = run\_robust\_manip(z, p\_nom, plant\_set\{i\}, q\_des, T, dt);
-e = Q - q\_des\textquotesingle;
-Js(i) = sum(sum(e.\^{}2))*dt + 0.001*sum(sum(U.\^{}2))*dt;
+\begin{verbatim}
+function J = robust_manip_cost(z, p_nom, plant_set, q_des, T, dt)
+    Js = zeros(1, numel(plant_set));
+    for i = 1:numel(plant_set)
+        [~, Q, U] = run_robust_manip(z, p_nom, plant_set{i}, q_des, T, dt);
+        e = Q - q_des';
+        Js(i) = sum(sum(e.^2))*dt + 0.001*sum(sum(U.^2))*dt;
+    end
+    J = max(Js);   % WORST-CASE over the plant set
 end
-J = max(Js); \% WORST-CASE over the plant set
-end
-\% Outer minimization
-zOpt = fminsearch(@(z) robust\_manip\_cost(z, p\_nom, plant\_set, q\_des, T, dt), ...
-z0, optimset(\textquotesingle MaxIter\textquotesingle, 120));
+
+% Outer minimization
+zOpt = fminsearch(@(z) robust_manip_cost(z, p_nom, plant_set, q_des, T, dt), ...
+                  z0, optimset('MaxIter', 120));
+\end{verbatim}
 
 \hypertarget{simulation-results-1}{%
 \subsubsection{7.8 Simulation results}\label{simulation-results-1}}
@@ -1426,17 +1449,21 @@ A known pathology of plain backstepping is \emph{explosion of complexity}: \(\do
 \hypertarget{implementation-from-sim_backstepping.m}{%
 \paragraph{\texorpdfstring{Implementation (from \texttt{sim\_backstepping.m})}{Implementation (from sim\_backstepping.m)}}\label{implementation-from-sim_backstepping.m}}
 
-\% Backstepping step 1: virtual control alpha1 = -k1*e1
-e1 = q - q\_des;
-alpha = -k1*e1; \% virtual control (dq\_d = 0 here)
-e2 = dq - alpha; \% z2 = x2 - alpha1
-dalpha = -k1*dq; \% d/dt of virtual control
-\% Backstepping step 2: tau = M*(dalpha - k2*e2 - e1) + C*dq + G
-{[}M,C,G{]} = manipulator\_dyn(q, dq, p);
+\begin{verbatim}
+% Backstepping step 1: virtual control alpha1 = -k1*e1
+e1     = q - q_des;
+alpha  = -k1*e1;                          % virtual control (dq_d = 0 here)
+e2     = dq - alpha;                      % z2 = x2 - alpha1
+dalpha = -k1*dq;                          % d/dt of virtual control
+
+% Backstepping step 2: tau = M*(dalpha - k2*e2 - e1) + C*dq + G
+[M,C,G] = manipulator_dyn(q, dq, p);
 u = M*(dalpha - k2*e2 - e1) + C*dq + G;
-ddq = M \textbackslash{} (u - C*dq - G); \% plant
-\% Outer: fminsearch over z = {[}k1, k2{]}
-zOpt = fminsearch(@(z) bst\_manip\_cost(z, p, q\_des, T, dt), z0);
+ddq = M \ (u - C*dq - G);                 % plant
+
+% Outer: fminsearch over z = [k1, k2]
+zOpt = fminsearch(@(z) bst_manip_cost(z, p, q_des, T, dt), z0);
+\end{verbatim}
 
 \includegraphics{sims/figures/backstepping_results.png}
 
@@ -1597,22 +1624,25 @@ All of \(A_k, B_k, L_x, L_u, L_{xx}, L_{uu}, L_{ux}, \Phi_x, \Phi_{xx}\) are obt
 \hypertarget{implementation-in-sim_nmpc.m}{%
 \paragraph{\texorpdfstring{Implementation in \texttt{sim\_nmpc.m}}{Implementation in sim\_nmpc.m}}\label{implementation-in-sim_nmpc.m}}
 
-\% Wrapped iLQR call inside the closed-loop
+\begin{verbatim}
+% Wrapped iLQR call inside the closed-loop
 for k = 1:Nsim
-{[}\textasciitilde, U\_opt, \textasciitilde, \textasciitilde{]} = ilqr\_solve(fdyn, runCost, termCost, x, U\_seq, dt, opts);
-u = U\_opt(1,:)\textquotesingle; \% apply first control
-x = x + dt * fdyn(x, u); \% plant step
-U\_seq = {[}U\_opt(2:end,:); U\_opt(end,:){]}; \% warm-start (shift)
+    [~, U_opt, ~, ~] = ilqr_solve(fdyn, runCost, termCost, x, U_seq, dt, opts);
+    u = U_opt(1,:)';                          % apply first control
+    x = x + dt * fdyn(x, u);                  % plant step
+    U_seq = [U_opt(2:end,:); U_opt(end,:)];   % warm-start (shift)
 end
-\% Inside ilqr\_solve.m:
-\% backward pass:
-\% Quu = Luu + B\textquotesingle*Vxx*B + mu*I;
-\% {[}R, p{]} = chol(Quu); \% fails -\textgreater{} mu *= 4
-\% kt = -R \textbackslash{} (R\textquotesingle{} \textbackslash{} Qu); \% feedforward
-\% Kt = -R \textbackslash{} (R\textquotesingle{} \textbackslash{} Qux); \% feedback gain
-\% Vx = Qx + Kt\textquotesingle*Quu*kt + Kt\textquotesingle*Qu + Qux\textquotesingle*kt;
-\% Vxx = Qxx + Kt\textquotesingle*Quu*Kt + Kt\textquotesingle*Qux + Qux\textquotesingle*Kt;
-\% forward pass with line search on alpha: 1, 0.5, 0.25, ...
+
+% Inside ilqr_solve.m:
+%   backward pass:
+%     Quu = Luu + B'*Vxx*B + mu*I;
+%     [R, p] = chol(Quu);                     % fails -> mu *= 4
+%     kt = -R \ (R' \ Qu);                    % feedforward
+%     Kt = -R \ (R' \ Qux);                   % feedback gain
+%     Vx  = Qx + Kt'*Quu*kt + Kt'*Qu + Qux'*kt;
+%     Vxx = Qxx + Kt'*Quu*Kt + Kt'*Qux + Qux'*Kt;
+%   forward pass with line search on alpha: 1, 0.5, 0.25, ...
+\end{verbatim}
 
 \hypertarget{worked-numerical-example-ilqr-on-the-single-link-arm}{%
 \subsubsection{9.5 Worked numerical example --- iLQR on the single-link arm}\label{worked-numerical-example-ilqr-on-the-single-link-arm}}
@@ -1812,16 +1842,20 @@ Optimizes over a distribution of uncertain parameters rather than a worst case -
 
 All simulations live in \texttt{week\_08/sims/} and run on base MATLAB (no toolboxes beyond Control System Toolbox required). They use \texttt{fminsearch} for the parameter optimization and explicit Euler or \texttt{ode}-style integration for the dynamics.
 
-\% From MATLAB, cd to the lab directory
-cd /home/it-services/auto\_control\_ws/week\_08/sims
-\% Run everything (\textasciitilde30 s on a modern laptop)
-run\_all
-\% Or run a single controller
-sim\_smc \% sliding mode
-sim\_adaptive \% adaptive / MRAC
-sim\_robust \% robust min-max
-sim\_backstepping \% backstepping
-sim\_nmpc \% nonlinear MPC
+\begin{verbatim}
+% From MATLAB, cd to the lab directory
+cd /home/it-services/auto_control_ws/week_08/sims
+
+% Run everything (~30 s on a modern laptop)
+run_all
+
+% Or run a single controller
+sim_smc          % sliding mode
+sim_adaptive     % adaptive / MRAC
+sim_robust       % robust min-max
+sim_backstepping % backstepping
+sim_nmpc         % nonlinear MPC
+\end{verbatim}
 
 \hypertarget{activity-1-smc-pareto-sweep-15-min}{%
 \subsubsection{Activity 1 --- SMC Pareto sweep (15 min)}\label{activity-1-smc-pareto-sweep-15-min}}

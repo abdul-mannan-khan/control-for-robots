@@ -1,6 +1,4 @@
 % ----- auto-generated from week_01/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
 \chapter{Manipulator Dynamics and Computed-Torque Control (Week 1)}
 \labch{week_01}
 
@@ -131,6 +129,7 @@ For an \(n\)-DOF rigid-body manipulator, the Lagrangian \(\mathcal{L} = T - V\) 
 
 \[ M(q)\,\ddot{q} \;+\; C(q,\dot{q})\,\dot{q} \;+\; G(q) \;=\; \tau \]
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Symbol & Name & Dimension & Physical Meaning \\
@@ -143,7 +142,7 @@ Symbol & Name & Dimension & Physical Meaning \\
 \(C(q,\dot{q})\) & Coriolis \& centrifugal matrix & \(n \times n\) & Velocity-dependent coupling forces between joints \\
 \(G(q)\) & Gravity vector & \(n \times 1\) & Torques required to hold the arm against gravity \\
 \(\tau\) & Joint torques & \(n \times 1\) & Control inputs (what we design) \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{A Concrete Example: 2-DOF Planar Manipulator}
 
@@ -254,6 +253,7 @@ For each joint, the characteristic equation is \(s^2 + k_d\,s + k_p = 0\). Compa
 
 \[ k_p = \omega_n^2, \qquad k_d = 2\zeta\omega_n \]
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llllll@{}}
 \toprule\noalign{}
 Design Choice & \(\zeta\) & \(\omega_n\) & \(K_P\) & \(K_D\) & Behaviour \\
@@ -264,7 +264,7 @@ Design Choice & \(\zeta\) & \(\omega_n\) & \(K_P\) & \(K_D\) & Behaviour \\
 Underdamped & 0.5 & 10 & 100 & 10 & Fast but oscillatory \\
 Critically damped & 1.0 & 10 & 100 & 20 & Fastest without overshoot ✓ \\
 Overdamped & 2.0 & 10 & 100 & 40 & Sluggish but smooth \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Lyapunov Stability Proof}
 
@@ -313,34 +313,43 @@ We will now implement the computed torque controller for a 2-DOF manipulator ste
 
 \subsection{System Parameters}
 
-\% ===== System Parameters =====
+\begin{verbatim}
+% ===== System Parameters =====
 clear all; close all; clc;
-params.m1 = 1; \% Mass of link 1 (kg)
-params.m2 = 1; \% Mass of link 2 (kg)
-params.l1 = 1; \% Length of link 1 (m)
-params.l2 = 1; \% Length of link 2 (m)
-params.g = 9.81; \% Gravitational acceleration (m/s\^{}2)
-\% Control gains (critically damped, wn = 7.07)
-params.Kp = diag({[}50 50{]}); \% Kp = wn\^{}2
-params.Kd = diag({[}20 20{]}); \% Kd = 2*zeta*wn (zeta ≈ 1.4)
-\% Simulation setup
-t\_span = 0:0.01:20; \% 20 seconds, 10 ms step
-q0 = {[}0; 0{]}; \% Initial joint angles
-dq0 = {[}0; 0{]}; \% Initial joint velocities
-x0 = {[}q0; dq0{]}; \% State vector {[}q1; q2; dq1; dq2{]}
+
+params.m1 = 1;      % Mass of link 1 (kg)
+params.m2 = 1;      % Mass of link 2 (kg)
+params.l1 = 1;      % Length of link 1 (m)
+params.l2 = 1;      % Length of link 2 (m)
+params.g  = 9.81;   % Gravitational acceleration (m/s^2)
+
+% Control gains (critically damped, wn = 7.07)
+params.Kp = diag([50 50]);   % Kp = wn^2
+params.Kd = diag([20 20]);   % Kd = 2*zeta*wn  (zeta ≈ 1.4)
+
+% Simulation setup
+t_span = 0:0.01:20;          % 20 seconds, 10 ms step
+q0  = [0; 0];                % Initial joint angles
+dq0 = [0; 0];                % Initial joint velocities
+x0  = [q0; dq0];             % State vector [q1; q2; dq1; dq2]
+\end{verbatim}
 
 \subsection{Desired Trajectory Functions}
 
-\% ===== Desired Trajectory =====
-qd = @(t) {[}0.5*sin(t); 0.5*cos(t){]};
-dqd = @(t) {[}0.5*cos(t); -0.5*sin(t){]};
-ddqd = @(t) {[}-0.5*sin(t); -0.5*cos(t){]};
+\begin{verbatim}
+% ===== Desired Trajectory =====
+qd   = @(t) [0.5*sin(t);  0.5*cos(t)];
+dqd  = @(t) [0.5*cos(t); -0.5*sin(t)];
+ddqd = @(t) [-0.5*sin(t); -0.5*cos(t)];
+\end{verbatim}
 
 \subsection{Dynamics with Computed Torque Controller}
 
 \subsubsection{Pseudocode}
 
-📋 PSEUDOCODE --- Computed Torque Controller
+\begin{verbatim}
+                    📋 PSEUDOCODE — Computed Torque Controller
+\end{verbatim}
 
 FUNCTION manipulator\_dynamics(t, state, params):
 EXTRACT q = state{[}1:2{]}, dq = state{[}3:4{]}
@@ -357,73 +366,91 @@ RETURN {[}dq; ddq{]}
 
 \subsubsection{MATLAB Code}
 
-function dx = manipulator\_dynamics(t, x, params, qd, dqd, ddqd)
-q = x(1:2); \% Joint angles
-dq = x(3:4); \% Joint velocities
-\% Desired trajectory at current time
-q\_des = qd(t);
-dq\_des = dqd(t);
-ddq\_des = ddqd(t);
-\% Tracking errors
-e = q\_des - q;
-de = dq\_des - dq;
-\% -\/-\/- Build the Dynamic Model -\/-\/-
-m1 = params.m1; m2 = params.m2;
-l1 = params.l1; l2 = params.l2;
-g = params.g;
-\% Mass matrix M(q)
-M11 = m1*l1\^{}2 + m2*(l1\^{}2 + l2\^{}2 + 2*l1*l2*cos(q(2)));
-M12 = m2*(l2\^{}2 + l1*l2*cos(q(2)));
-M22 = m2*l2\^{}2;
-M = {[}M11, M12; M12, M22{]};
-\% Coriolis matrix C(q, dq)
-h = m2*l1*l2*sin(q(2));
-C = {[}-h*dq(2), -h*(dq(1)+dq(2));
-h*dq(1), 0 {]};
-\% Gravity vector G(q)
-G = {[}(m1+m2)*g*l1*cos(q(1)) + m2*g*l2*cos(q(1)+q(2));
-m2*g*l2*cos(q(1)+q(2)) {]};
-\% -\/-\/- Computed Torque Control Law -\/-\/-
-a\_cmd = ddq\_des + params.Kd*de + params.Kp*e;
-tau = M * a\_cmd + C * dq + G;
-\% -\/-\/- Forward Dynamics -\/-\/-
-ddq = M \textbackslash{} (tau - C*dq - G);
-dx = {[}dq; ddq{]};
+\begin{verbatim}
+function dx = manipulator_dynamics(t, x, params, qd, dqd, ddqd)
+    q  = x(1:2);       % Joint angles
+    dq = x(3:4);       % Joint velocities
+
+    % Desired trajectory at current time
+    q_des   = qd(t);
+    dq_des  = dqd(t);
+    ddq_des = ddqd(t);
+
+    % Tracking errors
+    e  = q_des - q;
+    de = dq_des - dq;
+
+    % --- Build the Dynamic Model ---
+    m1 = params.m1;  m2 = params.m2;
+    l1 = params.l1;  l2 = params.l2;
+    g  = params.g;
+
+    % Mass matrix M(q)
+    M11 = m1*l1^2 + m2*(l1^2 + l2^2 + 2*l1*l2*cos(q(2)));
+    M12 = m2*(l2^2 + l1*l2*cos(q(2)));
+    M22 = m2*l2^2;
+    M   = [M11, M12; M12, M22];
+
+    % Coriolis matrix C(q, dq)
+    h = m2*l1*l2*sin(q(2));
+    C = [-h*dq(2),  -h*(dq(1)+dq(2));
+          h*dq(1),   0               ];
+
+    % Gravity vector G(q)
+    G = [(m1+m2)*g*l1*cos(q(1)) + m2*g*l2*cos(q(1)+q(2));
+          m2*g*l2*cos(q(1)+q(2))                          ];
+
+    % --- Computed Torque Control Law ---
+    a_cmd = ddq_des + params.Kd*de + params.Kp*e;
+    tau   = M * a_cmd + C * dq + G;
+
+    % --- Forward Dynamics ---
+    ddq = M \ (tau - C*dq - G);
+
+    dx = [dq; ddq];
 end
+\end{verbatim}
 
 \textbf{Why \texttt{M\textbackslash{}b} instead of \texttt{inv(M)*b}?} The backslash operator is numerically more stable and faster. Never invert the mass matrix explicitly in production code.
 
 \subsection{Run Simulation \& Plot}
 
-\% ===== Run ODE45 =====
-{[}t, x{]} = ode45(@(t,x) manipulator\_dynamics(t, x, params, qd, dqd, ddqd), ...
-t\_span, x0);
-\% ===== Compute desired trajectory for plotting =====
-qd\_vals = zeros(length(t), 2);
+\begin{verbatim}
+% ===== Run ODE45 =====
+[t, x] = ode45(@(t,x) manipulator_dynamics(t, x, params, qd, dqd, ddqd), ...
+               t_span, x0);
+
+% ===== Compute desired trajectory for plotting =====
+qd_vals = zeros(length(t), 2);
 for i = 1:length(t)
-qd\_vals(i,:) = qd(t(i))\textquotesingle;
+    qd_vals(i,:) = qd(t(i))';
 end
-\% ===== Plot: Joint Angles =====
-figure(\textquotesingle Position\textquotesingle, {[}100 100 1200 500{]});
+
+% ===== Plot: Joint Angles =====
+figure('Position', [100 100 1200 500]);
+
 subplot(1,2,1);
-plot(t, x(:,1), \textquotesingle b\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5); hold on;
-plot(t, x(:,2), \textquotesingle r\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5);
-plot(t, qd\_vals(:,1), \textquotesingle b-\/-\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.2);
-plot(t, qd\_vals(:,2), \textquotesingle r-\/-\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.2);
-xlabel(\textquotesingle Time (s)\textquotesingle); ylabel(\textquotesingle Angle (rad)\textquotesingle);
-title(\textquotesingle Joint Angles: Actual vs Desired\textquotesingle);
-legend(\textquotesingle q\_1\textquotesingle, \textquotesingle q\_2\textquotesingle, \textquotesingle q\_\{1,d\}\textquotesingle, \textquotesingle q\_\{2,d\}\textquotesingle);
+plot(t, x(:,1), 'b', 'LineWidth', 1.5); hold on;
+plot(t, x(:,2), 'r', 'LineWidth', 1.5);
+plot(t, qd_vals(:,1), 'b--', 'LineWidth', 1.2);
+plot(t, qd_vals(:,2), 'r--', 'LineWidth', 1.2);
+xlabel('Time (s)'); ylabel('Angle (rad)');
+title('Joint Angles: Actual vs Desired');
+legend('q_1', 'q_2', 'q_{1,d}', 'q_{2,d}');
 grid on;
-\% ===== Plot: Tracking Error =====
+
+% ===== Plot: Tracking Error =====
 subplot(1,2,2);
-e\_vals = qd\_vals - x(:,1:2);
-plot(t, e\_vals(:,1), \textquotesingle b\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5); hold on;
-plot(t, e\_vals(:,2), \textquotesingle r\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5);
-xlabel(\textquotesingle Time (s)\textquotesingle); ylabel(\textquotesingle Error (rad)\textquotesingle);
-title(\textquotesingle Tracking Error\textquotesingle);
-legend(\textquotesingle e\_1\textquotesingle, \textquotesingle e\_2\textquotesingle);
+e_vals = qd_vals - x(:,1:2);
+plot(t, e_vals(:,1), 'b', 'LineWidth', 1.5); hold on;
+plot(t, e_vals(:,2), 'r', 'LineWidth', 1.5);
+xlabel('Time (s)'); ylabel('Error (rad)');
+title('Tracking Error');
+legend('e_1', 'e_2');
 grid on;
-sgtitle(\textquotesingle Computed Torque Control --- 2-DOF Manipulator\textquotesingle);
+
+sgtitle('Computed Torque Control — 2-DOF Manipulator');
+\end{verbatim}
 
 \textbf{Expected Result:} After a brief transient (≈ 1--2 s), both joint errors should converge to near zero and the actual trajectory should overlay the desired trajectory almost perfectly.
 
@@ -449,22 +476,29 @@ To appreciate why computed torque is superior, let us compare three controllers 
 
 \subsection{Controller A: PD Only}
 
-\% Inside dynamics function, replace control law with:
+\begin{verbatim}
+% Inside dynamics function, replace control law with:
 tau = params.Kp * e + params.Kd * de;
-\% No model terms --- ignores M, C, G completely
+% No model terms — ignores M, C, G completely
+\end{verbatim}
 
 \subsection{Controller B: PD + Gravity Compensation}
 
-\% Inside dynamics function, replace control law with:
+\begin{verbatim}
+% Inside dynamics function, replace control law with:
 tau = params.Kp * e + params.Kd * de + G;
-\% Compensates gravity but ignores Coriolis and inertia coupling
+% Compensates gravity but ignores Coriolis and inertia coupling
+\end{verbatim}
 
 \subsection{Controller C: Computed Torque (Full)}
 
-\% Full computed torque (already implemented above):
-a\_cmd = ddq\_des + params.Kd * de + params.Kp * e;
-tau = M * a\_cmd + C * dq + G;
+\begin{verbatim}
+% Full computed torque (already implemented above):
+a_cmd = ddq_des + params.Kd * de + params.Kp * e;
+tau   = M * a_cmd + C * dq + G;
+\end{verbatim}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
 Controller & Model Knowledge & Steady-State Error & Transient Error & Coupling Rejection \\
@@ -475,7 +509,7 @@ Controller & Model Knowledge & Steady-State Error & Transient Error & Coupling R
 PD Only & None & Non-zero (gravity droop) & Large & Poor \\
 PD + Gravity & \(G(q)\) & Zero at setpoints & Moderate & Moderate \\
 Computed Torque & \(M, C, G\) & Zero & Small (tunable) & Excellent ✓ \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsubsection{Hands-On Activity 2 (15 min)}
 
@@ -535,64 +569,85 @@ The error no longer converges to zero --- it is driven by the perturbation \(d(t
 
 We simulate the scenario where the \textbf{true} plant has \(m_2 = 2\,\text{kg}\) but the controller still assumes \(m_2 = 1\,\text{kg}\).
 
-\% ===== Robustness Test: Payload Mismatch =====
-\% True plant parameters (what reality is)
-params\_true = params;
-params\_true.m2 = 2; \% True mass of link 2 is DOUBLE
-\% Controller still uses params (m2 = 1) for its model
-\% We need a modified dynamics function:
-function dx = manipulator\_robust\_test(t, x, params\_ctrl, params\_true, qd, dqd, ddqd)
-q = x(1:2);
-dq = x(3:4);
-q\_des = qd(t);
-dq\_des = dqd(t);
-ddq\_des = ddqd(t);
-e = q\_des - q;
-de = dq\_des - dq;
-\% -\/-\/- Controller uses ESTIMATED model (params\_ctrl) -\/-\/-
-{[}M\_hat, C\_hat, G\_hat{]} = build\_model(q, dq, params\_ctrl);
-a\_cmd = ddq\_des + params\_ctrl.Kd*de + params\_ctrl.Kp*e;
-tau = M\_hat * a\_cmd + C\_hat * dq + G\_hat;
-\% -\/-\/- Plant uses TRUE model (params\_true) -\/-\/-
-{[}M\_true, C\_true, G\_true{]} = build\_model(q, dq, params\_true);
-ddq = M\_true \textbackslash{} (tau - C\_true*dq - G\_true);
-dx = {[}dq; ddq{]};
+\begin{verbatim}
+% ===== Robustness Test: Payload Mismatch =====
+% True plant parameters (what reality is)
+params_true = params;
+params_true.m2 = 2;    % True mass of link 2 is DOUBLE
+
+% Controller still uses params (m2 = 1) for its model
+% We need a modified dynamics function:
+
+function dx = manipulator_robust_test(t, x, params_ctrl, params_true, qd, dqd, ddqd)
+    q  = x(1:2);
+    dq = x(3:4);
+    
+    q_des   = qd(t);
+    dq_des  = dqd(t);
+    ddq_des = ddqd(t);
+    e  = q_des - q;
+    de = dq_des - dq;
+    
+    % --- Controller uses ESTIMATED model (params_ctrl) ---
+    [M_hat, C_hat, G_hat] = build_model(q, dq, params_ctrl);
+    a_cmd = ddq_des + params_ctrl.Kd*de + params_ctrl.Kp*e;
+    tau   = M_hat * a_cmd + C_hat * dq + G_hat;
+    
+    % --- Plant uses TRUE model (params_true) ---
+    [M_true, C_true, G_true] = build_model(q, dq, params_true);
+    ddq = M_true \ (tau - C_true*dq - G_true);
+    
+    dx = [dq; ddq];
 end
-function {[}M, C, G{]} = build\_model(q, dq, p)
-M11 = p.m1*p.l1\^{}2 + p.m2*(p.l1\^{}2 + p.l2\^{}2 + 2*p.l1*p.l2*cos(q(2)));
-M12 = p.m2*(p.l2\^{}2 + p.l1*p.l2*cos(q(2)));
-M22 = p.m2*p.l2\^{}2;
-M = {[}M11, M12; M12, M22{]};
-h = p.m2*p.l1*p.l2*sin(q(2));
-C = {[}-h*dq(2), -h*(dq(1)+dq(2)); h*dq(1), 0{]};
-G = {[}(p.m1+p.m2)*p.g*p.l1*cos(q(1)) + p.m2*p.g*p.l2*cos(q(1)+q(2));
-p.m2*p.g*p.l2*cos(q(1)+q(2)){]};
+
+function [M, C, G] = build_model(q, dq, p)
+    M11 = p.m1*p.l1^2 + p.m2*(p.l1^2 + p.l2^2 + 2*p.l1*p.l2*cos(q(2)));
+    M12 = p.m2*(p.l2^2 + p.l1*p.l2*cos(q(2)));
+    M22 = p.m2*p.l2^2;
+    M   = [M11, M12; M12, M22];
+    
+    h = p.m2*p.l1*p.l2*sin(q(2));
+    C = [-h*dq(2), -h*(dq(1)+dq(2)); h*dq(1), 0];
+    
+    G = [(p.m1+p.m2)*p.g*p.l1*cos(q(1)) + p.m2*p.g*p.l2*cos(q(1)+q(2));
+          p.m2*p.g*p.l2*cos(q(1)+q(2))];
 end
+\end{verbatim}
 
 \subsection{Experiment: Adding Joint Friction}
 
-\% ===== Add Coulomb + Viscous Friction =====
-\% After computing ddq from the model, add friction terms:
-b\_viscous = 0.5; \% Viscous friction coefficient
-f\_coulomb = 0.3; \% Coulomb friction magnitude
-\% Friction torque (not modelled by controller)
-tau\_friction = b\_viscous * dq + f\_coulomb * sign(dq);
-\% Modified acceleration (true plant sees friction)
-ddq = M\_true \textbackslash{} (tau - C\_true*dq - G\_true - tau\_friction);
+\begin{verbatim}
+% ===== Add Coulomb + Viscous Friction =====
+% After computing ddq from the model, add friction terms:
+
+b_viscous = 0.5;      % Viscous friction coefficient
+f_coulomb = 0.3;      % Coulomb friction magnitude
+
+% Friction torque (not modelled by controller)
+tau_friction = b_viscous * dq + f_coulomb * sign(dq);
+
+% Modified acceleration (true plant sees friction)
+ddq = M_true \ (tau - C_true*dq - G_true - tau_friction);
+\end{verbatim}
 
 \subsection{Experiment: External Disturbance Pulse}
 
-\% ===== External Disturbance =====
-\% Simulate a sudden impact at t = 10 s lasting 0.5 s
-if t \textgreater= 10 \&\& t \textless= 10.5
-tau\_dist = {[}5; 3{]}; \% Disturbance torque (N·m)
+\begin{verbatim}
+% ===== External Disturbance =====
+% Simulate a sudden impact at t = 10 s lasting 0.5 s
+
+if t >= 10 && t <= 10.5
+    tau_dist = [5; 3];   % Disturbance torque (N·m)
 else
-tau\_dist = {[}0; 0{]};
+    tau_dist = [0; 0];
 end
-ddq = M\_true \textbackslash{} (tau - C\_true*dq - G\_true + tau\_dist);
+
+ddq = M_true \ (tau - C_true*dq - G_true + tau_dist);
+\end{verbatim}
 
 \subsection{Summary of Robustness Results}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Scenario & Peak Error (rad) & Steady-State Error & Stability \\
@@ -605,9 +660,39 @@ Payload ×2 & ≈ 0.08 -- 0.15 & Small oscillatory & Bounded (stable) \\
 Joint friction & ≈ 0.03 -- 0.06 & Small bias & Bounded (stable) \\
 Disturbance pulse & ≈ 0.10 (at impact) & Returns to ≈ 0 & ISS (input-to-state stable) \\
 Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with low gains \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Rule of Thumb:} Higher gains (\(K_P, K_D\)) improve robustness by rejecting perturbations faster, but they also amplify sensor noise and demand higher torques. Controller design is always a trade-off between performance, robustness, and actuator limits.
+
+
+% --- auto-generated simulation figures ---
+\section{Simulation Results}
+
+The figures below are the output of the MATLAB (or Python) simulation scripts that accompany this lecture. Each figure is reproducible by running the corresponding script in the companion repository; see Section~\ref{sec:repository} of the preface for instructions.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_01/manipulator_tracking.png}
+    \caption{Manipulator joint-space tracking.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_01/mobile_robot_tracking.png}
+    \caption{Differential-drive mobile robot trajectory tracking.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_01/performance_summary.png}
+    \caption{Performance summary across the three robotic platforms.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_01/quadrotor_tracking.png}
+    \caption{Quadrotor position / attitude tracking.}
+\end{figure}
 
 \section{Summary and Next Steps}
 
@@ -635,6 +720,7 @@ Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with
 
 Create a single MATLAB figure with a 3×2 subplot layout:
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 & Column 1: Joint Angles & Column 2: Tracking Error \\
@@ -645,7 +731,7 @@ Create a single MATLAB figure with a 3×2 subplot layout:
 \textbf{Row 1} & PD Only --- actual vs desired & PD Only --- error \\
 \textbf{Row 2} & PD + Gravity --- actual vs desired & PD + Gravity --- error \\
 \textbf{Row 3} & Computed Torque --- actual vs desired & Computed Torque --- error \\
-\end{longtable}
+\end{longtable}\endgroup
 
 Use the same gains and trajectory for all three. Include a title, legends, and axis labels on every subplot.
 
@@ -770,6 +856,7 @@ Click to reveal answers
 
 \subsection{Key Equations to Remember}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}ll@{}}
 \toprule\noalign{}
 Equation & Description \\
@@ -782,7 +869,7 @@ Equation & Description \\
 \(\ddot{e} + K_D\dot{e} + K_P e = 0\) & Closed-loop error dynamics (perfect model) \\
 \(V = \tfrac{1}{2}\dot{e}^T M \dot{e} + \tfrac{1}{2}e^T K_P e\) & Lyapunov function \\
 \(\dot{V} = -\dot{e}^T K_D \dot{e} \leq 0\) & Lyapunov derivative (guarantees stability) \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Next Week: Advanced Control Techniques}
 

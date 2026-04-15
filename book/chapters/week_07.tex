@@ -1,6 +1,4 @@
 % ----- auto-generated from week_07/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
 \chapter{Backstepping Control (Week 7)}
 \labch{week_07}
 
@@ -132,6 +130,7 @@ Instead of identifying \emph{what} the uncertainty is (as adaptive control does)
 
 \textbf{Trade-off:}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Aspect & Adaptive Control & Robust Control \\
@@ -145,7 +144,7 @@ Control effort & Decreases as estimates converge & Remains high (constant worst-
 Chattering & None (smooth update law) & Possible with discontinuous sign function \\
 Unstructured uncertainty & Cannot handle (requires linear parameterisation) & Handles any bounded disturbance \\
 Convergence & Asymptotic (with PE: exponential) & Finite-time to sliding surface \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Learning Outcomes}
 
@@ -361,7 +360,9 @@ which guarantees global asymptotic stability of \((z_1, z_2) = (0,0)\) by Lyapun
 
 For an \(n\)-dimensional strict-feedback system, the procedure generalises recursively:
 
-Algorithm: n-Step Backstepping
+\begin{verbatim}
+                Algorithm: n-Step Backstepping
+\end{verbatim}
 
 For i = 1, 2, ..., n:
 1. Define error: z\_i = x\_i - alpha\_\{i-1\} (where alpha\_0 = x\_\{1,ref\})
@@ -547,23 +548,28 @@ Both \(z_1 \to 0\) and \(z_2 \to 0\) asymptotically, which means \(q \to q_d\) a
 
 \subsection{MATLAB Implementation}
 
-\% Backstepping controller for 2-DOF manipulator
-function tau = backstepping\_manipulator(t, q, dq, params)
-\% Desired trajectory
-qd = {[}0.5*sin(t); 0.5*cos(t){]};
-dqd = {[}0.5*cos(t); -0.5*sin(t){]};
-ddqd = {[}-0.5*sin(t); -0.5*cos(t){]};
-\% Errors
-z1 = q - qd; \% Position error
-dz1 = dq - dqd; \% Velocity of position error
-alpha1 = dqd - params.k1 * z1; \% Virtual control (desired velocity)
-z2 = dq - alpha1; \% Velocity error (= dz1 + k1*z1)
-\% Dynamics matrices
-{[}M, C, G{]} = manipulator\_dynamics\_matrices(q, dq, params);
-\% Backstepping control law
-tau = M * (ddqd - params.k1*dz1 - params.k2*z2) ...
-+ C * alpha1 + G - z1;
+\begin{verbatim}
+% Backstepping controller for 2-DOF manipulator
+function tau = backstepping_manipulator(t, q, dq, params)
+    % Desired trajectory
+    qd   = [0.5*sin(t); 0.5*cos(t)];
+    dqd  = [0.5*cos(t); -0.5*sin(t)];
+    ddqd = [-0.5*sin(t); -0.5*cos(t)];
+
+    % Errors
+    z1 = q - qd;                          % Position error
+    dz1 = dq - dqd;                       % Velocity of position error
+    alpha1 = dqd - params.k1 * z1;        % Virtual control (desired velocity)
+    z2 = dq - alpha1;                      % Velocity error (= dz1 + k1*z1)
+
+    % Dynamics matrices
+    [M, C, G] = manipulator_dynamics_matrices(q, dq, params);
+
+    % Backstepping control law
+    tau = M * (ddqd - params.k1*dz1 - params.k2*z2) ...
+        + C * alpha1 + G - z1;
 end
+\end{verbatim}
 
 \textbf{Implementation note:} The term \(-z_1\) in the control law is the
 "cross-coupling cancellation" term that arises from the backstepping procedure.
@@ -688,14 +694,17 @@ For \(v_r > 0\) and using the fact that \(\frac{\sin e_3}{e_3}\) is bounded, wit
 
 \subsection{MATLAB Implementation}
 
-\% Backstepping controller for unicycle mobile robot
-function {[}v, omega{]} = backstepping\_mobile\_robot(e1, e2, e3, v\_r, omega\_r, params)
-\% e1: longitudinal error (body frame)
-\% e2: lateral error (body frame)
-\% e3: heading error
-v = v\_r * cos(e3) + params.k1 * e1;
-omega = omega\_r + params.k2 * v\_r * e2 + params.k3 * sin(e3);
+\begin{verbatim}
+% Backstepping controller for unicycle mobile robot
+function [v, omega] = backstepping_mobile_robot(e1, e2, e3, v_r, omega_r, params)
+    % e1: longitudinal error (body frame)
+    % e2: lateral error (body frame)
+    % e3: heading error
+
+    v     = v_r * cos(e3) + params.k1 * e1;
+    omega = omega_r + params.k2 * v_r * e2 + params.k3 * sin(e3);
 end
+\end{verbatim}
 
 \section{Backstepping for Quadrotor Drone}
 
@@ -812,42 +821,117 @@ This yields the overall Lyapunov function:
 
 \subsection{MATLAB Implementation}
 
-\% Backstepping controller for quadrotor
-function {[}T, tau\_b{]} = backstepping\_quadrotor(state, ref, params)
-\% State: {[}x y z vx vy vz phi theta psi p q r{]}
-pos = state(1:3); vel = state(4:6);
-phi = state(7); theta = state(8); psi = state(9);
-omega\_b = state(10:12);
-\% Reference
-pos\_d = ref.pos; vel\_d = ref.vel; acc\_d = ref.acc; psi\_d = ref.psi;
-\% -\/-\/- Outer loop: Position backstepping -\/-\/-
-z1 = pos - pos\_d;
-dz1 = vel - vel\_d;
-alpha1 = vel\_d - params.kp1 * z1; \% Virtual velocity
-z2 = vel - alpha1; \% Velocity error
-\% Desired acceleration
-a\_des = acc\_d - params.kp1*dz1 - z1 - params.kp2*z2 + {[}0;0;params.g{]};
-\% Thrust
-T = params.m * norm(a\_des);
-\% Desired orientation from a\_des
-z\_B\_des = a\_des / norm(a\_des);
-phi\_d = asin(z\_B\_des(1)*sin(psi\_d) - z\_B\_des(2)*cos(psi\_d));
-theta\_d = atan2(z\_B\_des(1)*cos(psi\_d)+z\_B\_des(2)*sin(psi\_d), z\_B\_des(3));
-\% -\/-\/- Inner loop: Attitude backstepping -\/-\/-
-Phi = {[}phi; theta; psi{]};
-Phi\_d = {[}phi\_d; theta\_d; psi\_d{]};
-z3 = Phi - Phi\_d;
-alpha3 = -params.ka1 * z3; \% Desired angular rate
-z4 = omega\_b - alpha3;
-\% Body torques
-J = diag({[}params.Ixx, params.Iyy, params.Izz{]});
-tau\_b = J * (-params.ka1*(-params.ka1*z3 - z4*0) - params.ka2*z4) ...
-+ cross(omega\_b, J*omega\_b) - z3;
+\begin{verbatim}
+% Backstepping controller for quadrotor
+function [T, tau_b] = backstepping_quadrotor(state, ref, params)
+    % State: [x y z vx vy vz phi theta psi p q r]
+    pos = state(1:3);  vel = state(4:6);
+    phi = state(7); theta = state(8); psi = state(9);
+    omega_b = state(10:12);
+
+    % Reference
+    pos_d = ref.pos;  vel_d = ref.vel;  acc_d = ref.acc;  psi_d = ref.psi;
+
+    % --- Outer loop: Position backstepping ---
+    z1 = pos - pos_d;
+    dz1 = vel - vel_d;
+    alpha1 = vel_d - params.kp1 * z1;         % Virtual velocity
+    z2 = vel - alpha1;                          % Velocity error
+
+    % Desired acceleration
+    a_des = acc_d - params.kp1*dz1 - z1 - params.kp2*z2 + [0;0;params.g];
+
+    % Thrust
+    T = params.m * norm(a_des);
+
+    % Desired orientation from a_des
+    z_B_des = a_des / norm(a_des);
+    phi_d   = asin(z_B_des(1)*sin(psi_d) - z_B_des(2)*cos(psi_d));
+    theta_d = atan2(z_B_des(1)*cos(psi_d)+z_B_des(2)*sin(psi_d), z_B_des(3));
+
+    % --- Inner loop: Attitude backstepping ---
+    Phi = [phi; theta; psi];
+    Phi_d = [phi_d; theta_d; psi_d];
+    z3 = Phi - Phi_d;
+    alpha3 = -params.ka1 * z3;                 % Desired angular rate
+    z4 = omega_b - alpha3;
+
+    % Body torques
+    J = diag([params.Ixx, params.Iyy, params.Izz]);
+    tau_b = J * (-params.ka1*(-params.ka1*z3 - z4*0) - params.ka2*z4) ...
+          + cross(omega_b, J*omega_b) - z3;
 end
+\end{verbatim}
 
 \textbf{Practical note:} In real implementations, the desired angles \((\phi_d, \theta_d)\)
 must be saturated (typically to \(\pm 30^\circ\)) to prevent aggressive manoeuvres.
 The thrust \(T\) must also be clamped to \([0, T_{\max}]\).
+
+
+% --- auto-generated simulation figures ---
+\section{Simulation Results}
+
+The figures below are the output of the MATLAB (or Python) simulation scripts that accompany this lecture. Each figure is reproducible by running the corresponding script in the companion repository; see Section~\ref{sec:repository} of the preface for instructions.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Comparative_Study_With_Model_Uncertainty.png}
+    \caption{Comparative study with model uncertainty.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Manipulator_Backstepping_Control.png}
+    \caption{Manipulator backstepping control.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Mobile_Robot_Backstepping_Control.png}
+    \caption{Mobile robot backstepping control.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quad_Attitude_Control.png}
+    \caption{Quad attitude control.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quad_Backstepping_Errors.png}
+    \caption{Quad backstepping errors.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quad_Control_Effort.png}
+    \caption{Quad control effort.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quad_Error_Control_Correlation.png}
+    \caption{Quad error control correlation.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quad_Position_Error_Dynamics.png}
+    \caption{Quad position error dynamics.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quad_Summary.png}
+    \caption{Quad summary.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth,keepaspectratio]{images/week_07/Quadrotor_Backstepping_Control.png}
+    \caption{Quadrotor backstepping control.}
+\end{figure}
 
 \section{Summary and Next Steps}
 
@@ -937,6 +1021,7 @@ steps equals the relative degree from the output to the input.
 
 \subsection{Summary: Comparison of All Five Control Methods}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llllll@{}}
 \toprule\noalign{}
 Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Backstepping (Wk5) \\
@@ -953,7 +1038,7 @@ Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Bac
 \textbf{Key advantage} & Simple, well-understood & Handles constraints and preview & Self-tuning for unknown parameters & Guaranteed performance under uncertainty & Systematic design with constructive stability proof \\
 \textbf{Key limitation} & No robustness to model error & Computational cost, model dependence & Needs persistent excitation, structured uncertainty & Conservative (worst-case design), chattering & Complexity explosion in \(\dot{\alpha}_i\) for high-order systems \\
 \textbf{Control law form} & \(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\) & \(u^* = \arg\min_{u} \sum_{k} \|x_k - x_r\|^2_Q + \|u_k\|^2_R\) & \(\tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\hat{\theta} - K_D s\) & \(\tau = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K_D s + \rho\frac{s}{\|s\|}\) & \(\tau = M[\ddot{q}_d - K_1\dot{z}_1 - K_2 z_2] + C\alpha_1 + G - z_1\) \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Figure 8:} Side-by-side comparison of feedback linearization (cancels all nonlinearities) versus backstepping (exploits useful nonlinearities with constructive Lyapunov guarantees).
 

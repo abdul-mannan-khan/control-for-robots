@@ -1292,14 +1292,18 @@ Week & Topic & Key Concept & Robot System \\
 \hypertarget{build-and-source}{%
 \subsubsection{Build and Source}\label{build-and-source}}
 
-cd \textasciitilde/auto\_control\_ws
-colcon build -\/-packages-select week\_12\_capstone
+\begin{verbatim}
+cd ~/auto_control_ws
+colcon build --packages-select week_12_capstone
 source install/setup.bash
+\end{verbatim}
 
 \hypertarget{launch-the-demo}{%
 \subsubsection{Launch the Demo}\label{launch-the-demo}}
 
-ros2 launch week\_12\_capstone demo.launch.py
+\begin{verbatim}
+ros2 launch week_12_capstone demo.launch.py
+\end{verbatim}
 
 This command replays the recorded multi-sensor bag data at 2x speed, starts three solution nodes (sensor fusion, mission planner, controller), and opens RViz2 with a preconfigured layout.
 

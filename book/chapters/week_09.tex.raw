@@ -244,117 +244,142 @@ For digital implementation at sample rate \(T_s\), we use the discrete approxima
 
 The following is a complete PID controller node for mobile robot position tracking. It subscribes to \texttt{/odom} for current state and publishes \texttt{/cmd\_vel} for velocity commands:
 
-\#!/usr/bin/env python3
+\begin{verbatim}
+#!/usr/bin/env python3
 """PID Controller Node for position tracking.
-Subscribes: /odom (nav\_msgs/Odometry), /reference (geometry\_msgs/PoseStamped)
-Publishes: /cmd\_vel (geometry\_msgs/Twist)
+Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
+Publishes:  /cmd_vel (geometry_msgs/Twist)
 """
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-from geometry\_msgs.msg import Twist, PoseStamped
-from nav\_msgs.msg import Odometry
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Odometry
 import numpy as np
 import math
+
+
 class PIDControllerNode(Node):
-def \_\_init\_\_(self):
-super().\_\_init\_\_(\textquotesingle pid\_controller\textquotesingle)
-\# Declare parameters (tunable at runtime via ros2 param set)
-self.declare\_parameter(\textquotesingle kp\textquotesingle, 1.0)
-self.declare\_parameter(\textquotesingle ki\textquotesingle, 0.1)
-self.declare\_parameter(\textquotesingle kd\textquotesingle, 0.5)
-self.declare\_parameter(\textquotesingle control\_rate\textquotesingle, 50.0)
-self.declare\_parameter(\textquotesingle max\_linear\_vel\textquotesingle, 1.0)
-self.declare\_parameter(\textquotesingle max\_angular\_vel\textquotesingle, 1.0)
-self.declare\_parameter(\textquotesingle integral\_clamp\textquotesingle, 10.0)
-\# Get parameters
-self.kp = self.get\_parameter(\textquotesingle kp\textquotesingle).value
-self.ki = self.get\_parameter(\textquotesingle ki\textquotesingle).value
-self.kd = self.get\_parameter(\textquotesingle kd\textquotesingle).value
-rate = self.get\_parameter(\textquotesingle control\_rate\textquotesingle).value
-self.max\_lin = self.get\_parameter(\textquotesingle max\_linear\_vel\textquotesingle).value
-self.max\_ang = self.get\_parameter(\textquotesingle max\_angular\_vel\textquotesingle).value
-self.int\_clamp = self.get\_parameter(\textquotesingle integral\_clamp\textquotesingle).value
-\# State variables
-self.error\_integral = np.zeros(2)
-self.prev\_error = np.zeros(2)
-self.current\_pose = None
-self.current\_yaw = 0.0
-self.reference = np.array({[}2.0, 1.0{]}) \# default target {[}x, y{]}
-\# QoS for control: best-effort for low latency
-control\_qos = QoSProfile(
-reliability=ReliabilityPolicy.BEST\_EFFORT,
-history=HistoryPolicy.KEEP\_LAST,
-depth=1
-)
-\# Publishers and subscribers
-self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
-self.odom\_sub = self.create\_subscription(
-Odometry, \textquotesingle/odom\textquotesingle, self.odom\_callback, control\_qos)
-self.ref\_sub = self.create\_subscription(
-PoseStamped, \textquotesingle/reference\textquotesingle, self.ref\_callback, 10)
-\# Control timer
-self.dt = 1.0 / rate
-self.timer = self.create\_timer(self.dt, self.control\_loop)
-self.get\_logger().info(
-f\textquotesingle PID Controller initialized: Kp=\{self.kp\}, Ki=\{self.ki\}, \textquotesingle{}
-f\textquotesingle Kd=\{self.kd\}, rate=\{rate\}Hz\textquotesingle)
-def quaternion\_to\_yaw(self, q):
-"""Extract yaw angle from quaternion."""
-siny\_cosp = 2.0 * (q.w * q.z + q.x * q.y)
-cosy\_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
-return math.atan2(siny\_cosp, cosy\_cosp)
-def ref\_callback(self, msg):
-"""Update reference position from incoming message."""
-self.reference = np.array({[}
-msg.pose.position.x, msg.pose.position.y{]})
-def odom\_callback(self, msg):
-"""Update current pose from odometry."""
-self.current\_pose = np.array({[}
-msg.pose.pose.position.x,
-msg.pose.pose.position.y{]})
-self.current\_yaw = self.quaternion\_to\_yaw(
-msg.pose.pose.orientation)
-def control\_loop(self):
-"""Timer callback: compute PID output and publish cmd\_vel."""
-if self.current\_pose is None:
-return
-\# Compute error
-error = self.reference - self.current\_pose
-\# Integral with anti-windup (clamping)
-self.error\_integral += error * self.dt
-self.error\_integral = np.clip(
-self.error\_integral, -self.int\_clamp, self.int\_clamp)
-\# Derivative (backward difference)
-error\_derivative = (error - self.prev\_error) / self.dt
-\# PID output
-control = (self.kp * error
-+ self.ki * self.error\_integral
-+ self.kd * error\_derivative)
-\# Transform to robot frame (body-frame velocities)
-cos\_yaw = math.cos(self.current\_yaw)
-sin\_yaw = math.sin(self.current\_yaw)
-v\_x = cos\_yaw * control{[}0{]} + sin\_yaw * control{[}1{]}
-omega = -sin\_yaw * control{[}0{]} + cos\_yaw * control{[}1{]}
-\# Publish command with saturation
-cmd = Twist()
-cmd.linear.x = float(np.clip(v\_x, -self.max\_lin, self.max\_lin))
-cmd.angular.z = float(np.clip(omega, -self.max\_ang, self.max\_ang))
-self.cmd\_pub.publish(cmd)
-\# Update previous error
-self.prev\_error = error.copy()
+    def __init__(self):
+        super().__init__('pid_controller')
+
+        # Declare parameters (tunable at runtime via ros2 param set)
+        self.declare_parameter('kp', 1.0)
+        self.declare_parameter('ki', 0.1)
+        self.declare_parameter('kd', 0.5)
+        self.declare_parameter('control_rate', 50.0)
+        self.declare_parameter('max_linear_vel', 1.0)
+        self.declare_parameter('max_angular_vel', 1.0)
+        self.declare_parameter('integral_clamp', 10.0)
+
+        # Get parameters
+        self.kp = self.get_parameter('kp').value
+        self.ki = self.get_parameter('ki').value
+        self.kd = self.get_parameter('kd').value
+        rate = self.get_parameter('control_rate').value
+        self.max_lin = self.get_parameter('max_linear_vel').value
+        self.max_ang = self.get_parameter('max_angular_vel').value
+        self.int_clamp = self.get_parameter('integral_clamp').value
+
+        # State variables
+        self.error_integral = np.zeros(2)
+        self.prev_error = np.zeros(2)
+        self.current_pose = None
+        self.current_yaw = 0.0
+        self.reference = np.array([2.0, 1.0])  # default target [x, y]
+
+        # QoS for control: best-effort for low latency
+        control_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
+        # Publishers and subscribers
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, control_qos)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+
+        # Control timer
+        self.dt = 1.0 / rate
+        self.timer = self.create_timer(self.dt, self.control_loop)
+        self.get_logger().info(
+            f'PID Controller initialized: Kp={self.kp}, Ki={self.ki}, '
+            f'Kd={self.kd}, rate={rate}Hz')
+
+    def quaternion_to_yaw(self, q):
+        """Extract yaw angle from quaternion."""
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        return math.atan2(siny_cosp, cosy_cosp)
+
+    def ref_callback(self, msg):
+        """Update reference position from incoming message."""
+        self.reference = np.array([
+            msg.pose.position.x, msg.pose.position.y])
+
+    def odom_callback(self, msg):
+        """Update current pose from odometry."""
+        self.current_pose = np.array([
+            msg.pose.pose.position.x,
+            msg.pose.pose.position.y])
+        self.current_yaw = self.quaternion_to_yaw(
+            msg.pose.pose.orientation)
+
+    def control_loop(self):
+        """Timer callback: compute PID output and publish cmd_vel."""
+        if self.current_pose is None:
+            return
+
+        # Compute error
+        error = self.reference - self.current_pose
+
+        # Integral with anti-windup (clamping)
+        self.error_integral += error * self.dt
+        self.error_integral = np.clip(
+            self.error_integral, -self.int_clamp, self.int_clamp)
+
+        # Derivative (backward difference)
+        error_derivative = (error - self.prev_error) / self.dt
+
+        # PID output
+        control = (self.kp * error
+                   + self.ki * self.error_integral
+                   + self.kd * error_derivative)
+
+        # Transform to robot frame (body-frame velocities)
+        cos_yaw = math.cos(self.current_yaw)
+        sin_yaw = math.sin(self.current_yaw)
+        v_x = cos_yaw * control[0] + sin_yaw * control[1]
+        omega = -sin_yaw * control[0] + cos_yaw * control[1]
+
+        # Publish command with saturation
+        cmd = Twist()
+        cmd.linear.x = float(np.clip(v_x, -self.max_lin, self.max_lin))
+        cmd.angular.z = float(np.clip(omega, -self.max_ang, self.max_ang))
+        self.cmd_pub.publish(cmd)
+
+        # Update previous error
+        self.prev_error = error.copy()
+
+
 def main(args=None):
-rclpy.init(args=args)
-node = PIDControllerNode()
-try:
-rclpy.spin(node)
-except KeyboardInterrupt:
-pass
-finally:
-node.destroy\_node()
-rclpy.shutdown()
-if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
-main()
+    rclpy.init(args=args)
+    node = PIDControllerNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+\end{verbatim}
 
 \hypertarget{real-time-considerations}{%
 \subsubsection{2.3 Real-Time Considerations}\label{real-time-considerations}}
@@ -407,139 +432,168 @@ In Python, we use \texttt{scipy.linalg.solve\_continuous\_are} (for CARE) or \te
 \hypertarget{ros2-implementation-1}{%
 \subsubsection{3.2 ROS2 Implementation}\label{ros2-implementation-1}}
 
-\#!/usr/bin/env python3
+\begin{verbatim}
+#!/usr/bin/env python3
 """LQR Controller Node for state-space position/velocity tracking.
-Subscribes: /odom (nav\_msgs/Odometry), /reference (geometry\_msgs/PoseStamped)
-Publishes: /cmd\_vel (geometry\_msgs/Twist), /lqr\_gain (std\_msgs/Float64MultiArray)
-State vector: {[}x, y, theta, v\_x, omega{]}
+Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
+Publishes:  /cmd_vel (geometry_msgs/Twist), /lqr_gain (std_msgs/Float64MultiArray)
+
+State vector: [x, y, theta, v_x, omega]
 """
 import rclpy
 from rclpy.node import Node
-from geometry\_msgs.msg import Twist, PoseStamped
-from nav\_msgs.msg import Odometry
-from std\_msgs.msg import Float64MultiArray
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Float64MultiArray
 import numpy as np
 import math
+
 try:
-from scipy.linalg import solve\_continuous\_are, solve\_discrete\_are
-HAS\_SCIPY = True
+    from scipy.linalg import solve_continuous_are, solve_discrete_are
+    HAS_SCIPY = True
 except ImportError:
-HAS\_SCIPY = False
+    HAS_SCIPY = False
+
+
 class LQRControllerNode(Node):
-def \_\_init\_\_(self):
-super().\_\_init\_\_(\textquotesingle lqr\_controller\textquotesingle)
-\# Parameters
-self.declare\_parameter(\textquotesingle Q\_diag\textquotesingle, {[}10.0, 10.0, 5.0, 1.0, 1.0{]})
-self.declare\_parameter(\textquotesingle R\_diag\textquotesingle, {[}1.0, 1.0{]})
-self.declare\_parameter(\textquotesingle control\_rate\textquotesingle, 50.0)
-self.declare\_parameter(\textquotesingle max\_linear\_vel\textquotesingle, 1.0)
-self.declare\_parameter(\textquotesingle max\_angular\_vel\textquotesingle, 1.5)
-self.declare\_parameter(\textquotesingle dt\textquotesingle, 0.02)
-Q\_diag = self.get\_parameter(\textquotesingle Q\_diag\textquotesingle).value
-R\_diag = self.get\_parameter(\textquotesingle R\_diag\textquotesingle).value
-rate = self.get\_parameter(\textquotesingle control\_rate\textquotesingle).value
-self.max\_lin = self.get\_parameter(\textquotesingle max\_linear\_vel\textquotesingle).value
-self.max\_ang = self.get\_parameter(\textquotesingle max\_angular\_vel\textquotesingle).value
-self.dt = self.get\_parameter(\textquotesingle dt\textquotesingle).value
-self.n\_states = 5 \# {[}x, y, theta, v\_x, omega{]}
-self.n\_inputs = 2 \# {[}linear\_accel, angular\_accel{]}
-self.Q = np.diag(Q\_diag)
-self.R = np.diag(R\_diag)
-\# Compute LQR gain at operating point (linearised unicycle)
-self.K = self.\_compute\_lqr\_gain()
-\# State and reference
-self.state = np.zeros(self.n\_states)
-self.ref\_state = np.zeros(self.n\_states)
-self.prev\_pos = None
-self.prev\_yaw = None
-self.prev\_time = None
-\# ROS2 interfaces
-self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
-self.gain\_pub = self.create\_publisher(
-Float64MultiArray, \textquotesingle/lqr\_gain\textquotesingle, 10)
-self.odom\_sub = self.create\_subscription(
-Odometry, \textquotesingle/odom\textquotesingle, self.odom\_callback, 10)
-self.ref\_sub = self.create\_subscription(
-PoseStamped, \textquotesingle/reference\textquotesingle, self.ref\_callback, 10)
-\# Control timer
-self.timer = self.create\_timer(1.0 / rate, self.control\_loop)
-self.get\_logger().info(
-f\textquotesingle LQR Controller started (scipy=\{HAS\_SCIPY\})\textquotesingle)
-self.get\_logger().info(f\textquotesingle Gain K:\textbackslash n\{self.K\}\textquotesingle)
-def \_compute\_lqr\_gain(self):
-"""Compute LQR gain by linearising about v0, omega0 = 0."""
-if not HAS\_SCIPY:
-self.get\_logger().warn(
-\textquotesingle scipy not available; using zero gain\textquotesingle)
-return np.zeros((self.n\_inputs, self.n\_states))
-\# Linearised unicycle model about (v0=0, omega0=0, theta0=0)
-\# dx = v*cos(theta) -\textgreater{} linearised: dx = v
-\# dy = v*sin(theta) -\textgreater{} linearised: dy = v*theta
-\# dtheta = omega
-\# dv = u1 (linear accel)
-\# domega = u2 (angular accel)
-v0 = 0.5 \# nominal forward speed
-A\_c = np.array({[}
-{[}0, 0, 0, 1, 0{]}, \# dx/dt \textasciitilde{} v
-{[}0, 0, v0, 0, 0{]}, \# dy/dt \textasciitilde{} v0*theta
-{[}0, 0, 0, 0, 1{]}, \# dtheta/dt = omega
-{[}0, 0, 0, 0, 0{]}, \# dv/dt = u1
-{[}0, 0, 0, 0, 0{]}, \# domega/dt = u2
-{]})
-B\_c = np.array({[}
-{[}0, 0{]},
-{[}0, 0{]},
-{[}0, 0{]},
-{[}1, 0{]},
-{[}0, 1{]},
-{]})
-\# Solve CARE
-P = solve\_continuous\_are(A\_c, B\_c, self.Q, self.R)
-K = np.linalg.inv(self.R) @ B\_c.T @ P
-return K
-def quaternion\_to\_yaw(self, q):
-siny = 2.0 * (q.w * q.z + q.x * q.y)
-cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
-return math.atan2(siny, cosy)
-def ref\_callback(self, msg):
-self.ref\_state{[}0{]} = msg.pose.position.x
-self.ref\_state{[}1{]} = msg.pose.position.y
-self.ref\_state{[}2{]} = self.quaternion\_to\_yaw(msg.pose.orientation)
-def odom\_callback(self, msg):
-"""Extract full state {[}x, y, theta, v\_x, omega{]} from odom."""
-x = msg.pose.pose.position.x
-y = msg.pose.pose.position.y
-yaw = self.quaternion\_to\_yaw(msg.pose.pose.orientation)
-vx = msg.twist.twist.linear.x
-omega = msg.twist.twist.angular.z
-self.state = np.array({[}x, y, yaw, vx, omega{]})
-def control\_loop(self):
-"""Compute u = -K @ (state - ref\_state) and publish."""
-error\_state = self.state - self.ref\_state
-\# Wrap angle error to {[}-pi, pi{]}
-error\_state{[}2{]} = math.atan2(
-math.sin(error\_state{[}2{]}), math.cos(error\_state{[}2{]}))
-u = -self.K @ error\_state
-cmd = Twist()
-cmd.linear.x = float(np.clip(u{[}0{]}, -self.max\_lin, self.max\_lin))
-cmd.angular.z = float(np.clip(u{[}1{]}, -self.max\_ang, self.max\_ang))
-self.cmd\_pub.publish(cmd)
-\# Publish gain for monitoring
-gain\_msg = Float64MultiArray()
-gain\_msg.data = self.K.flatten().tolist()
-self.gain\_pub.publish(gain\_msg)
+    def __init__(self):
+        super().__init__('lqr_controller')
+
+        # Parameters
+        self.declare_parameter('Q_diag', [10.0, 10.0, 5.0, 1.0, 1.0])
+        self.declare_parameter('R_diag', [1.0, 1.0])
+        self.declare_parameter('control_rate', 50.0)
+        self.declare_parameter('max_linear_vel', 1.0)
+        self.declare_parameter('max_angular_vel', 1.5)
+        self.declare_parameter('dt', 0.02)
+
+        Q_diag = self.get_parameter('Q_diag').value
+        R_diag = self.get_parameter('R_diag').value
+        rate = self.get_parameter('control_rate').value
+        self.max_lin = self.get_parameter('max_linear_vel').value
+        self.max_ang = self.get_parameter('max_angular_vel').value
+        self.dt = self.get_parameter('dt').value
+
+        self.n_states = 5   # [x, y, theta, v_x, omega]
+        self.n_inputs = 2   # [linear_accel, angular_accel]
+        self.Q = np.diag(Q_diag)
+        self.R = np.diag(R_diag)
+
+        # Compute LQR gain at operating point (linearised unicycle)
+        self.K = self._compute_lqr_gain()
+
+        # State and reference
+        self.state = np.zeros(self.n_states)
+        self.ref_state = np.zeros(self.n_states)
+        self.prev_pos = None
+        self.prev_yaw = None
+        self.prev_time = None
+
+        # ROS2 interfaces
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.gain_pub = self.create_publisher(
+            Float64MultiArray, '/lqr_gain', 10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, 10)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+
+        # Control timer
+        self.timer = self.create_timer(1.0 / rate, self.control_loop)
+        self.get_logger().info(
+            f'LQR Controller started (scipy={HAS_SCIPY})')
+        self.get_logger().info(f'Gain K:\n{self.K}')
+
+    def _compute_lqr_gain(self):
+        """Compute LQR gain by linearising about v0, omega0 = 0."""
+        if not HAS_SCIPY:
+            self.get_logger().warn(
+                'scipy not available; using zero gain')
+            return np.zeros((self.n_inputs, self.n_states))
+
+        # Linearised unicycle model about (v0=0, omega0=0, theta0=0)
+        #   dx = v*cos(theta)  ->  linearised: dx = v
+        #   dy = v*sin(theta)  ->  linearised: dy = v*theta
+        #   dtheta = omega
+        #   dv = u1 (linear accel)
+        #   domega = u2 (angular accel)
+        v0 = 0.5  # nominal forward speed
+        A_c = np.array([
+            [0, 0, 0,    1,  0],   # dx/dt ~ v
+            [0, 0, v0,   0,  0],   # dy/dt ~ v0*theta
+            [0, 0, 0,    0,  1],   # dtheta/dt = omega
+            [0, 0, 0,    0,  0],   # dv/dt = u1
+            [0, 0, 0,    0,  0],   # domega/dt = u2
+        ])
+        B_c = np.array([
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [1, 0],
+            [0, 1],
+        ])
+
+        # Solve CARE
+        P = solve_continuous_are(A_c, B_c, self.Q, self.R)
+        K = np.linalg.inv(self.R) @ B_c.T @ P
+        return K
+
+    def quaternion_to_yaw(self, q):
+        siny = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        return math.atan2(siny, cosy)
+
+    def ref_callback(self, msg):
+        self.ref_state[0] = msg.pose.position.x
+        self.ref_state[1] = msg.pose.position.y
+        self.ref_state[2] = self.quaternion_to_yaw(msg.pose.orientation)
+
+    def odom_callback(self, msg):
+        """Extract full state [x, y, theta, v_x, omega] from odom."""
+        x = msg.pose.pose.position.x
+        y = msg.pose.pose.position.y
+        yaw = self.quaternion_to_yaw(msg.pose.pose.orientation)
+        vx = msg.twist.twist.linear.x
+        omega = msg.twist.twist.angular.z
+
+        self.state = np.array([x, y, yaw, vx, omega])
+
+    def control_loop(self):
+        """Compute u = -K @ (state - ref_state) and publish."""
+        error_state = self.state - self.ref_state
+
+        # Wrap angle error to [-pi, pi]
+        error_state[2] = math.atan2(
+            math.sin(error_state[2]), math.cos(error_state[2]))
+
+        u = -self.K @ error_state
+
+        cmd = Twist()
+        cmd.linear.x = float(np.clip(u[0], -self.max_lin, self.max_lin))
+        cmd.angular.z = float(np.clip(u[1], -self.max_ang, self.max_ang))
+        self.cmd_pub.publish(cmd)
+
+        # Publish gain for monitoring
+        gain_msg = Float64MultiArray()
+        gain_msg.data = self.K.flatten().tolist()
+        self.gain_pub.publish(gain_msg)
+
+
 def main(args=None):
-rclpy.init(args=args)
-node = LQRControllerNode()
-try:
-rclpy.spin(node)
-except KeyboardInterrupt:
-pass
-finally:
-node.destroy\_node()
-rclpy.shutdown()
-if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
-main()
+    rclpy.init(args=args)
+    node = LQRControllerNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+\end{verbatim}
 
 \hypertarget{pid-vs-lqr-comparison}{%
 \subsubsection{3.3 PID vs LQR Comparison}\label{pid-vs-lqr-comparison}}
@@ -583,180 +637,213 @@ For unconstrained linear MPC, the solution is equivalent to time-varying LQR. Fo
 \hypertarget{ros2-implementation-2}{%
 \subsubsection{4.2 ROS2 Implementation}\label{ros2-implementation-2}}
 
-\#!/usr/bin/env python3
+\begin{verbatim}
+#!/usr/bin/env python3
 """MPC Controller Node with predicted trajectory visualisation.
-Subscribes: /odom (nav\_msgs/Odometry), /reference (geometry\_msgs/PoseStamped)
-Publishes: /cmd\_vel (geometry\_msgs/Twist),
-/predicted\_trajectory (nav\_msgs/Path),
-/mpc\_cost (std\_msgs/Float64)
-State: {[}x, y, vx, vy{]} Input: {[}ax, ay{]}
+Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
+Publishes:  /cmd_vel (geometry_msgs/Twist),
+            /predicted_trajectory (nav_msgs/Path),
+            /mpc_cost (std_msgs/Float64)
+
+State: [x, y, vx, vy]   Input: [ax, ay]
 """
 import rclpy
 from rclpy.node import Node
-from geometry\_msgs.msg import Twist, PoseStamped
-from nav\_msgs.msg import Odometry, Path
-from std\_msgs.msg import Float64
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Odometry, Path
+from std_msgs.msg import Float64
 import numpy as np
 import math
 import time as pytime
+
 try:
-from scipy.optimize import minimize
-HAS\_SCIPY = True
+    from scipy.optimize import minimize
+    HAS_SCIPY = True
 except ImportError:
-HAS\_SCIPY = False
+    HAS_SCIPY = False
+
+
 class MPCControllerNode(Node):
-def \_\_init\_\_(self):
-super().\_\_init\_\_(\textquotesingle mpc\_controller\textquotesingle)
-\# Parameters
-self.declare\_parameter(\textquotesingle horizon\_N\textquotesingle, 10)
-self.declare\_parameter(\textquotesingle dt\textquotesingle, 0.1)
-self.declare\_parameter(\textquotesingle Q\_diag\textquotesingle, {[}10.0, 10.0, 1.0, 1.0{]})
-self.declare\_parameter(\textquotesingle R\_diag\textquotesingle, {[}0.1, 0.1{]})
-self.declare\_parameter(\textquotesingle Qf\_multiplier\textquotesingle, 10.0)
-self.declare\_parameter(\textquotesingle u\_min\textquotesingle, -2.0)
-self.declare\_parameter(\textquotesingle u\_max\textquotesingle, 2.0)
-self.declare\_parameter(\textquotesingle max\_linear\_vel\textquotesingle, 1.0)
-self.declare\_parameter(\textquotesingle control\_rate\textquotesingle, 20.0)
-self.N = self.get\_parameter(\textquotesingle horizon\_N\textquotesingle).value
-self.dt = self.get\_parameter(\textquotesingle dt\textquotesingle).value
-Q\_diag = self.get\_parameter(\textquotesingle Q\_diag\textquotesingle).value
-R\_diag = self.get\_parameter(\textquotesingle R\_diag\textquotesingle).value
-Qf\_mult = self.get\_parameter(\textquotesingle Qf\_multiplier\textquotesingle).value
-self.u\_min = self.get\_parameter(\textquotesingle u\_min\textquotesingle).value
-self.u\_max = self.get\_parameter(\textquotesingle u\_max\textquotesingle).value
-self.max\_lin = self.get\_parameter(\textquotesingle max\_linear\_vel\textquotesingle).value
-rate = self.get\_parameter(\textquotesingle control\_rate\textquotesingle).value
-self.n\_states = 4 \# {[}x, y, vx, vy{]}
-self.n\_inputs = 2 \# {[}ax, ay{]}
-self.Q = np.diag(Q\_diag)
-self.R = np.diag(R\_diag)
-self.Qf = Qf\_mult * self.Q \# terminal cost
-\# Discrete double-integrator model
-\# x\_\{k+1\} = A\_d * x\_k + B\_d * u\_k
-self.A\_d = np.array({[}
-{[}1, 0, self.dt, 0 {]},
-{[}0, 1, 0, self.dt{]},
-{[}0, 0, 1, 0 {]},
-{[}0, 0, 0, 1 {]},
-{]})
-self.B\_d = np.array({[}
-{[}0.5*self.dt**2, 0 {]},
-{[}0, 0.5*self.dt**2 {]},
-{[}self.dt, 0 {]},
-{[}0, self.dt {]},
-{]})
-\# State and reference
-self.state = np.zeros(self.n\_states)
-self.ref\_state = np.zeros(self.n\_states)
-self.prev\_pos = None
-self.prev\_time = None
-\# ROS2 interfaces
-self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
-self.path\_pub = self.create\_publisher(
-Path, \textquotesingle/predicted\_trajectory\textquotesingle, 10)
-self.cost\_pub = self.create\_publisher(Float64, \textquotesingle/mpc\_cost\textquotesingle, 10)
-self.odom\_sub = self.create\_subscription(
-Odometry, \textquotesingle/odom\textquotesingle, self.odom\_callback, 10)
-self.ref\_sub = self.create\_subscription(
-PoseStamped, \textquotesingle/reference\textquotesingle, self.ref\_callback, 10)
-\# Control timer
-self.timer = self.create\_timer(1.0 / rate, self.control\_loop)
-self.get\_logger().info(
-f\textquotesingle MPC Controller: N=\{self.N\}, dt=\{self.dt\}, \textquotesingle{}
-f\textquotesingle rate=\{rate\}Hz, scipy=\{HAS\_SCIPY\}\textquotesingle)
-def ref\_callback(self, msg):
-self.ref\_state{[}0{]} = msg.pose.position.x
-self.ref\_state{[}1{]} = msg.pose.position.y
-def odom\_callback(self, msg):
-pos = np.array({[}msg.pose.pose.position.x,
-msg.pose.pose.position.y{]})
-vx = msg.twist.twist.linear.x
-yaw\_q = msg.pose.pose.orientation
-siny = 2.0 * (yaw\_q.w * yaw\_q.z + yaw\_q.x * yaw\_q.y)
-cosy = 1.0 - 2.0 * (yaw\_q.y**2 + yaw\_q.z**2)
-yaw = math.atan2(siny, cosy)
-self.state = np.array({[}
-pos{[}0{]}, pos{[}1{]},
-vx * math.cos(yaw), vx * math.sin(yaw){]})
-def dynamics(self, x, u):
-"""Discrete dynamics: x\_\{k+1\} = A\_d x\_k + B\_d u\_k."""
-return self.A\_d @ x + self.B\_d @ u
-def mpc\_cost\_fn(self, u\_flat):
-"""Cost function for scipy.optimize.minimize."""
-U = u\_flat.reshape(self.N, self.n\_inputs)
-x = self.state.copy()
-cost = 0.0
-for k in range(self.N):
-e = x - self.ref\_state
-cost += e @ self.Q @ e + U{[}k{]} @ self.R @ U{[}k{]}
-x = self.dynamics(x, U{[}k{]})
-\# Terminal cost
-e\_f = x - self.ref\_state
-cost += e\_f @ self.Qf @ e\_f
-return cost
-def solve\_mpc(self):
-"""Solve the MPC optimisation problem."""
-if not HAS\_SCIPY:
-return np.zeros(self.n\_inputs), 0.0, {[}{]}
-u0 = np.zeros(self.N * self.n\_inputs)
-bounds = {[}(self.u\_min, self.u\_max){]} * (self.N * self.n\_inputs)
-result = minimize(
-self.mpc\_cost\_fn, u0,
-method=\textquotesingle SLSQP\textquotesingle, bounds=bounds,
-options=\{\textquotesingle maxiter\textquotesingle: 50, \textquotesingle ftol\textquotesingle: 1e-6\})
-U\_opt = result.x.reshape(self.N, self.n\_inputs)
-\# Compute predicted trajectory for visualisation
-predicted = {[}{]}
-x = self.state.copy()
-for k in range(self.N):
-x = self.dynamics(x, U\_opt{[}k{]})
-predicted.append(x{[}:2{]}.copy())
-return U\_opt{[}0{]}, result.fun, predicted
-def control\_loop(self):
-"""Timer callback: solve MPC and publish."""
-t\_start = pytime.monotonic()
-u\_opt, cost, predicted = self.solve\_mpc()
-solve\_time = (pytime.monotonic() - t\_start) * 1000
-\# Publish velocity command
-cmd = Twist()
-\# Convert acceleration to velocity increment
-vx\_cmd = self.state{[}2{]} + u\_opt{[}0{]} * self.dt
-vy\_cmd = self.state{[}3{]} + u\_opt{[}1{]} * self.dt
-speed = math.sqrt(vx\_cmd**2 + vy\_cmd**2)
-heading = math.atan2(vy\_cmd, vx\_cmd)
-cmd.linear.x = float(np.clip(speed, -self.max\_lin, self.max\_lin))
-cmd.angular.z = float(np.clip(heading, -math.pi, math.pi))
-self.cmd\_pub.publish(cmd)
-\# Publish cost
-cost\_msg = Float64()
-cost\_msg.data = cost
-self.cost\_pub.publish(cost\_msg)
-\# Publish predicted trajectory for RViz
-if predicted:
-path\_msg = Path()
-path\_msg.header.stamp = self.get\_clock().now().to\_msg()
-path\_msg.header.frame\_id = \textquotesingle odom\textquotesingle{}
-for pt in predicted:
-pose = PoseStamped()
-pose.header = path\_msg.header
-pose.pose.position.x = float(pt{[}0{]})
-pose.pose.position.y = float(pt{[}1{]})
-path\_msg.poses.append(pose)
-self.path\_pub.publish(path\_msg)
-self.get\_logger().debug(
-f\textquotesingle MPC solved in \{solve\_time:.1f\}ms, cost=\{cost:.3f\}\textquotesingle)
+    def __init__(self):
+        super().__init__('mpc_controller')
+
+        # Parameters
+        self.declare_parameter('horizon_N', 10)
+        self.declare_parameter('dt', 0.1)
+        self.declare_parameter('Q_diag', [10.0, 10.0, 1.0, 1.0])
+        self.declare_parameter('R_diag', [0.1, 0.1])
+        self.declare_parameter('Qf_multiplier', 10.0)
+        self.declare_parameter('u_min', -2.0)
+        self.declare_parameter('u_max', 2.0)
+        self.declare_parameter('max_linear_vel', 1.0)
+        self.declare_parameter('control_rate', 20.0)
+
+        self.N = self.get_parameter('horizon_N').value
+        self.dt = self.get_parameter('dt').value
+        Q_diag = self.get_parameter('Q_diag').value
+        R_diag = self.get_parameter('R_diag').value
+        Qf_mult = self.get_parameter('Qf_multiplier').value
+        self.u_min = self.get_parameter('u_min').value
+        self.u_max = self.get_parameter('u_max').value
+        self.max_lin = self.get_parameter('max_linear_vel').value
+        rate = self.get_parameter('control_rate').value
+
+        self.n_states = 4  # [x, y, vx, vy]
+        self.n_inputs = 2  # [ax, ay]
+        self.Q = np.diag(Q_diag)
+        self.R = np.diag(R_diag)
+        self.Qf = Qf_mult * self.Q  # terminal cost
+
+        # Discrete double-integrator model
+        # x_{k+1} = A_d * x_k + B_d * u_k
+        self.A_d = np.array([
+            [1, 0, self.dt, 0      ],
+            [0, 1, 0,       self.dt],
+            [0, 0, 1,       0      ],
+            [0, 0, 0,       1      ],
+        ])
+        self.B_d = np.array([
+            [0.5*self.dt**2, 0              ],
+            [0,              0.5*self.dt**2 ],
+            [self.dt,        0              ],
+            [0,              self.dt         ],
+        ])
+
+        # State and reference
+        self.state = np.zeros(self.n_states)
+        self.ref_state = np.zeros(self.n_states)
+        self.prev_pos = None
+        self.prev_time = None
+
+        # ROS2 interfaces
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.path_pub = self.create_publisher(
+            Path, '/predicted_trajectory', 10)
+        self.cost_pub = self.create_publisher(Float64, '/mpc_cost', 10)
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.odom_callback, 10)
+        self.ref_sub = self.create_subscription(
+            PoseStamped, '/reference', self.ref_callback, 10)
+
+        # Control timer
+        self.timer = self.create_timer(1.0 / rate, self.control_loop)
+        self.get_logger().info(
+            f'MPC Controller: N={self.N}, dt={self.dt}, '
+            f'rate={rate}Hz, scipy={HAS_SCIPY}')
+
+    def ref_callback(self, msg):
+        self.ref_state[0] = msg.pose.position.x
+        self.ref_state[1] = msg.pose.position.y
+
+    def odom_callback(self, msg):
+        pos = np.array([msg.pose.pose.position.x,
+                        msg.pose.pose.position.y])
+        vx = msg.twist.twist.linear.x
+        yaw_q = msg.pose.pose.orientation
+        siny = 2.0 * (yaw_q.w * yaw_q.z + yaw_q.x * yaw_q.y)
+        cosy = 1.0 - 2.0 * (yaw_q.y**2 + yaw_q.z**2)
+        yaw = math.atan2(siny, cosy)
+        self.state = np.array([
+            pos[0], pos[1],
+            vx * math.cos(yaw), vx * math.sin(yaw)])
+
+    def dynamics(self, x, u):
+        """Discrete dynamics: x_{k+1} = A_d x_k + B_d u_k."""
+        return self.A_d @ x + self.B_d @ u
+
+    def mpc_cost_fn(self, u_flat):
+        """Cost function for scipy.optimize.minimize."""
+        U = u_flat.reshape(self.N, self.n_inputs)
+        x = self.state.copy()
+        cost = 0.0
+        for k in range(self.N):
+            e = x - self.ref_state
+            cost += e @ self.Q @ e + U[k] @ self.R @ U[k]
+            x = self.dynamics(x, U[k])
+        # Terminal cost
+        e_f = x - self.ref_state
+        cost += e_f @ self.Qf @ e_f
+        return cost
+
+    def solve_mpc(self):
+        """Solve the MPC optimisation problem."""
+        if not HAS_SCIPY:
+            return np.zeros(self.n_inputs), 0.0, []
+
+        u0 = np.zeros(self.N * self.n_inputs)
+        bounds = [(self.u_min, self.u_max)] * (self.N * self.n_inputs)
+
+        result = minimize(
+            self.mpc_cost_fn, u0,
+            method='SLSQP', bounds=bounds,
+            options={'maxiter': 50, 'ftol': 1e-6})
+
+        U_opt = result.x.reshape(self.N, self.n_inputs)
+
+        # Compute predicted trajectory for visualisation
+        predicted = []
+        x = self.state.copy()
+        for k in range(self.N):
+            x = self.dynamics(x, U_opt[k])
+            predicted.append(x[:2].copy())
+
+        return U_opt[0], result.fun, predicted
+
+    def control_loop(self):
+        """Timer callback: solve MPC and publish."""
+        t_start = pytime.monotonic()
+        u_opt, cost, predicted = self.solve_mpc()
+        solve_time = (pytime.monotonic() - t_start) * 1000
+
+        # Publish velocity command
+        cmd = Twist()
+        # Convert acceleration to velocity increment
+        vx_cmd = self.state[2] + u_opt[0] * self.dt
+        vy_cmd = self.state[3] + u_opt[1] * self.dt
+        speed = math.sqrt(vx_cmd**2 + vy_cmd**2)
+        heading = math.atan2(vy_cmd, vx_cmd)
+
+        cmd.linear.x = float(np.clip(speed, -self.max_lin, self.max_lin))
+        cmd.angular.z = float(np.clip(heading, -math.pi, math.pi))
+        self.cmd_pub.publish(cmd)
+
+        # Publish cost
+        cost_msg = Float64()
+        cost_msg.data = cost
+        self.cost_pub.publish(cost_msg)
+
+        # Publish predicted trajectory for RViz
+        if predicted:
+            path_msg = Path()
+            path_msg.header.stamp = self.get_clock().now().to_msg()
+            path_msg.header.frame_id = 'odom'
+            for pt in predicted:
+                pose = PoseStamped()
+                pose.header = path_msg.header
+                pose.pose.position.x = float(pt[0])
+                pose.pose.position.y = float(pt[1])
+                path_msg.poses.append(pose)
+            self.path_pub.publish(path_msg)
+
+        self.get_logger().debug(
+            f'MPC solved in {solve_time:.1f}ms, cost={cost:.3f}')
+
+
 def main(args=None):
-rclpy.init(args=args)
-node = MPCControllerNode()
-try:
-rclpy.spin(node)
-except KeyboardInterrupt:
-pass
-finally:
-node.destroy\_node()
-rclpy.shutdown()
-if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
-main()
+    rclpy.init(args=args)
+    node = MPCControllerNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+\end{verbatim}
 
 \hypertarget{mpc-node-internal-loop}{%
 \subsubsection{4.3 MPC Node Internal Loop}\label{mpc-node-internal-loop}}
@@ -810,13 +897,17 @@ The provided file \texttt{w11\_exercises/task\_nmpc\_node.py} is a minimal NMPC 
 \hypertarget{b.2-running-the-nmpc-node}{%
 \subsubsection{4b.2 Running the NMPC Node}\label{b.2-running-the-nmpc-node}}
 
-cd /home/it-services/auto\_control\_ws
+\begin{verbatim}
+cd /home/it-services/auto_control_ws
 source /opt/ros/jazzy/setup.bash
-colcon build -\/-packages-select week\_11\_control\_systems
+colcon build --packages-select week_11_control_systems
 source install/setup.bash
-\# Launch TurtleBot3 sim (Gazebo or Webots), then:
-ros2 run week\_11\_control\_systems task\_nmpc\_node
-\# Observe /cmd\_vel at 10 Hz; iLQR convergence logged to stderr
+
+# Launch TurtleBot3 sim (Gazebo or Webots), then:
+ros2 run week_11_control_systems task_nmpc_node
+
+# Observe /cmd_vel at 10 Hz; iLQR convergence logged to stderr
+\end{verbatim}
 
 \hypertarget{b.3-mapping-to-week-8-9-derivation}{%
 \subsubsection{4b.3 Mapping to Week 8 §9 Derivation}\label{b.3-mapping-to-week-8-9-derivation}}
@@ -932,7 +1023,9 @@ LQR & 8 & Linear state-space & 1 matrix multiply & \textasciitilde100 & numpy, s
 
 The following launch file allows switching between controllers using a command-line argument:
 
-Launch File: controller\_selector.launch.py
+\begin{verbatim}
+                    Launch File: controller_selector.launch.py
+\end{verbatim}
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
@@ -1221,14 +1314,18 @@ Industry standard & Automotive, aerospace & Robotics, drones, warehouse automati
 \hypertarget{build-and-source}{%
 \subsubsection{Build and Source}\label{build-and-source}}
 
-cd \textasciitilde/auto\_control\_ws
-colcon build -\/-packages-select week\_11\_control\_systems
+\begin{verbatim}
+cd ~/auto_control_ws
+colcon build --packages-select week_11_control_systems
 source install/setup.bash
+\end{verbatim}
 
 \hypertarget{launch-the-demo}{%
 \subsubsection{Launch the Demo}\label{launch-the-demo}}
 
-ros2 launch week\_11\_control\_systems demo.launch.py
+\begin{verbatim}
+ros2 launch week_11_control_systems demo.launch.py
+\end{verbatim}
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (PID, LQR, MPC), and opens RViz2 with a preconfigured layout.
 

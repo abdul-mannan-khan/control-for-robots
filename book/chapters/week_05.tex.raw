@@ -550,83 +550,105 @@ Since \(s = \dot{e} + \Lambda e\), the position tracking error is ultimately bou
 \hypertarget{matlab-implementation}{%
 \subsubsection{4.5 MATLAB Implementation}\label{matlab-implementation}}
 
-\%\% Robust Computed Torque Control for 2-DOF Manipulator
-\% Parameters
+\begin{verbatim}
+%% Robust Computed Torque Control for 2-DOF Manipulator
+% Parameters
 m1 = 2.0; m2 = 1.5; l1 = 1.0; l2 = 0.8; g = 9.81;
-\% Nominal (imperfect) model
-m1\_hat = 1.8; m2\_hat = 1.3; l1\_hat = 1.0; l2\_hat = 0.8;
-\% Controller gains
-Kp = diag({[}100, 100{]}); Kd = diag({[}40, 40{]});
-Lambda = diag({[}10, 10{]});
-rho0 = 15.0; \% uncertainty bound
-epsilon = 0.01; \% boundary layer
-\% Desired trajectory: sinusoidal
-qd = @(t) {[}sin(t); 0.5*cos(t){]};
-qd\_d = @(t) {[}cos(t); -0.5*sin(t){]};
-qd\_dd= @(t) {[}-sin(t); -0.5*cos(t){]};
-\% Disturbance
-d\_max = 5.0;
-dist = @(t) d\_max * {[}sin(3*t); cos(2*t){]};
-\% ODE: state = {[}q1; q2; dq1; dq2{]}
-odefun = @(t, x) manipulator\_robust\_ode(t, x, ...
-m1, m2, l1, l2, g, ...
-m1\_hat, m2\_hat, l1\_hat, l2\_hat, ...
-Kp, Kd, Lambda, rho0, epsilon, ...
-qd, qd\_d, qd\_dd, dist);
-{[}t, X{]} = ode45(odefun, {[}0 10{]}, {[}0.5; -0.3; 0; 0{]});
-\% Plot tracking errors
-e1 = arrayfun(@(i) qd(t(i)), 1:length(t), \textquotesingle Un\textquotesingle, 0);
-e1 = cell2mat(e1\textquotesingle)\textquotesingle{} - X(:,1:2)\textquotesingle;
-figure; plot(t, e1\textquotesingle); legend(\textquotesingle e\_1\textquotesingle,\textquotesingle e\_2\textquotesingle);
-xlabel(\textquotesingle Time {[}s{]}\textquotesingle); ylabel(\textquotesingle Error {[}rad{]}\textquotesingle);
-title(\textquotesingle Robust Control: Tracking Error\textquotesingle);
+% Nominal (imperfect) model
+m1_hat = 1.8; m2_hat = 1.3; l1_hat = 1.0; l2_hat = 0.8;
 
-function dx = manipulator\_robust\_ode(t, x, ...
-m1, m2, l1, l2, g, ...
-m1\_hat, m2\_hat, l1\_hat, l2\_hat, ...
-Kp, Kd, Lambda, rho0, epsilon, ...
-qd\_fun, qd\_d\_fun, qd\_dd\_fun, dist\_fun)
-q = x(1:2); dq = x(3:4);
-q1 = q(1); q2 = q(2);
-\% TRUE dynamics matrices
-M = {[}(m1+m2)*l1\^{}2+m2*l2\^{}2+2*m2*l1*l2*cos(q2), m2*l2\^{}2+m2*l1*l2*cos(q2);
-m2*l2\^{}2+m2*l1*l2*cos(q2), m2*l2\^{}2{]};
-C = {[}-m2*l1*l2*dq(2)*sin(q2), -m2*l1*l2*(dq(1)+dq(2))*sin(q2);
-m2*l1*l2*dq(1)*sin(q2), 0{]};
-G\_vec = {[}(m1+m2)*g*l1*cos(q1)+m2*g*l2*cos(q1+q2);
-m2*g*l2*cos(q1+q2){]};
-\% NOMINAL (hat) dynamics matrices
-Mh = {[}(m1\_hat+m2\_hat)*l1\_hat\^{}2+m2\_hat*l2\_hat\^{}2+2*m2\_hat*l1\_hat*l2\_hat*cos(q2), ...
-m2\_hat*l2\_hat\^{}2+m2\_hat*l1\_hat*l2\_hat*cos(q2);
-m2\_hat*l2\_hat\^{}2+m2\_hat*l1\_hat*l2\_hat*cos(q2), m2\_hat*l2\_hat\^{}2{]};
-Ch = {[}-m2\_hat*l1\_hat*l2\_hat*dq(2)*sin(q2), ...
--m2\_hat*l1\_hat*l2\_hat*(dq(1)+dq(2))*sin(q2);
-m2\_hat*l1\_hat*l2\_hat*dq(1)*sin(q2), 0{]};
-Gh = {[}(m1\_hat+m2\_hat)*g*l1\_hat*cos(q1)+m2\_hat*g*l2\_hat*cos(q1+q2);
-m2\_hat*g*l2\_hat*cos(q1+q2){]};
-\% Desired trajectory
-qd = qd\_fun(t);
-qd\_d = qd\_d\_fun(t);
-qd\_dd = qd\_dd\_fun(t);
-\% Errors
-e = q - qd;
-ed = dq - qd\_d;
-\% Sliding variable
-s = ed + Lambda * e;
-\% Reference velocity/acceleration
-dqr = qd\_d - Lambda * e;
-ddqr = qd\_dd - Lambda * ed;
-\% Robust term (smooth approximation)
-s\_norm = norm(s);
-tau\_robust = -rho0 * s / (s\_norm + epsilon);
-\% Control law
-tau = Mh * ddqr + Ch * dqr + Gh - Kd * s + tau\_robust;
-\% Disturbance
-d = dist\_fun(t);
-\% True dynamics: M*ddq + C*dq + G = tau + d
-ddq = M \textbackslash{} (tau + d - C*dq - G\_vec);
-dx = {[}dq; ddq{]};
+% Controller gains
+Kp = diag([100, 100]);   Kd = diag([40, 40]);
+Lambda = diag([10, 10]);
+rho0 = 15.0;  % uncertainty bound
+epsilon = 0.01;  % boundary layer
+
+% Desired trajectory: sinusoidal
+qd   = @(t) [sin(t); 0.5*cos(t)];
+qd_d = @(t) [cos(t); -0.5*sin(t)];
+qd_dd= @(t) [-sin(t); -0.5*cos(t)];
+
+% Disturbance
+d_max = 5.0;
+dist  = @(t) d_max * [sin(3*t); cos(2*t)];
+
+% ODE: state = [q1; q2; dq1; dq2]
+odefun = @(t, x) manipulator_robust_ode(t, x, ...
+    m1, m2, l1, l2, g, ...
+    m1_hat, m2_hat, l1_hat, l2_hat, ...
+    Kp, Kd, Lambda, rho0, epsilon, ...
+    qd, qd_d, qd_dd, dist);
+
+[t, X] = ode45(odefun, [0 10], [0.5; -0.3; 0; 0]);
+
+% Plot tracking errors
+e1 = arrayfun(@(i) qd(t(i)), 1:length(t), 'Un', 0);
+e1 = cell2mat(e1')' - X(:,1:2)';
+figure; plot(t, e1'); legend('e_1','e_2');
+xlabel('Time [s]'); ylabel('Error [rad]');
+title('Robust Control: Tracking Error');
+\end{verbatim}
+
+\begin{verbatim}
+function dx = manipulator_robust_ode(t, x, ...
+    m1, m2, l1, l2, g, ...
+    m1_hat, m2_hat, l1_hat, l2_hat, ...
+    Kp, Kd, Lambda, rho0, epsilon, ...
+    qd_fun, qd_d_fun, qd_dd_fun, dist_fun)
+
+    q  = x(1:2);  dq = x(3:4);
+    q1 = q(1); q2 = q(2);
+
+    % TRUE dynamics matrices
+    M = [(m1+m2)*l1^2+m2*l2^2+2*m2*l1*l2*cos(q2), m2*l2^2+m2*l1*l2*cos(q2);
+         m2*l2^2+m2*l1*l2*cos(q2),                  m2*l2^2];
+    C = [-m2*l1*l2*dq(2)*sin(q2), -m2*l1*l2*(dq(1)+dq(2))*sin(q2);
+          m2*l1*l2*dq(1)*sin(q2),  0];
+    G_vec = [(m1+m2)*g*l1*cos(q1)+m2*g*l2*cos(q1+q2);
+              m2*g*l2*cos(q1+q2)];
+
+    % NOMINAL (hat) dynamics matrices
+    Mh = [(m1_hat+m2_hat)*l1_hat^2+m2_hat*l2_hat^2+2*m2_hat*l1_hat*l2_hat*cos(q2), ...
+            m2_hat*l2_hat^2+m2_hat*l1_hat*l2_hat*cos(q2);
+           m2_hat*l2_hat^2+m2_hat*l1_hat*l2_hat*cos(q2), m2_hat*l2_hat^2];
+    Ch = [-m2_hat*l1_hat*l2_hat*dq(2)*sin(q2), ...
+           -m2_hat*l1_hat*l2_hat*(dq(1)+dq(2))*sin(q2);
+            m2_hat*l1_hat*l2_hat*dq(1)*sin(q2), 0];
+    Gh = [(m1_hat+m2_hat)*g*l1_hat*cos(q1)+m2_hat*g*l2_hat*cos(q1+q2);
+           m2_hat*g*l2_hat*cos(q1+q2)];
+
+    % Desired trajectory
+    qd    = qd_fun(t);
+    qd_d  = qd_d_fun(t);
+    qd_dd = qd_dd_fun(t);
+
+    % Errors
+    e  = q - qd;
+    ed = dq - qd_d;
+
+    % Sliding variable
+    s = ed + Lambda * e;
+
+    % Reference velocity/acceleration
+    dqr   = qd_d - Lambda * e;
+    ddqr  = qd_dd - Lambda * ed;
+
+    % Robust term (smooth approximation)
+    s_norm = norm(s);
+    tau_robust = -rho0 * s / (s_norm + epsilon);
+
+    % Control law
+    tau = Mh * ddqr + Ch * dqr + Gh - Kd * s + tau_robust;
+
+    % Disturbance
+    d = dist_fun(t);
+
+    % True dynamics: M*ddq + C*dq + G = tau + d
+    ddq = M \ (tau + d - C*dq - G_vec);
+
+    dx = [dq; ddq];
 end
+\end{verbatim}
 
 \hypertarget{section-5-part-3-robust-control-for-mobile-robot}{%
 \subsection{Section 5 --- Part 3: Robust Control for Mobile Robot}\label{section-5-part-3-robust-control-for-mobile-robot}}
@@ -717,61 +739,77 @@ Without going through every step (see the manipulator proof for the pattern), th
 \hypertarget{matlab-implementation-1}{%
 \subsubsection{5.5 MATLAB Implementation}\label{matlab-implementation-1}}
 
-\%\% Robust Tracking Control for Unicycle Mobile Robot
-\% Reference: circular trajectory
-R = 2; omega\_ref = 0.5;
-xr = @(t) R*cos(omega\_ref*t);
-yr = @(t) R*sin(omega\_ref*t);
-dxr = @(t) -R*omega\_ref*sin(omega\_ref*t);
-dyr = @(t) R*omega\_ref*cos(omega\_ref*t);
-thr = @(t) omega\_ref*t + pi/2;
-vr = @(t) R*omega\_ref;
-wr = @(t) omega\_ref;
-\% Disturbance (wheel slip + terrain)
-d\_mob = @(t) 0.3*{[}sin(5*t); cos(3*t); 0.2*sin(7*t){]};
-\% Controller gains
+\begin{verbatim}
+%% Robust Tracking Control for Unicycle Mobile Robot
+% Reference: circular trajectory
+R = 2; omega_ref = 0.5;
+xr   = @(t) R*cos(omega_ref*t);
+yr   = @(t) R*sin(omega_ref*t);
+dxr  = @(t) -R*omega_ref*sin(omega_ref*t);
+dyr  = @(t)  R*omega_ref*cos(omega_ref*t);
+thr  = @(t) omega_ref*t + pi/2;
+vr   = @(t) R*omega_ref;
+wr   = @(t) omega_ref;
+
+% Disturbance (wheel slip + terrain)
+d_mob = @(t) 0.3*[sin(5*t); cos(3*t); 0.2*sin(7*t)];
+
+% Controller gains
 k1 = 5; k2 = 3; k3 = 5;
-rho\_v = 0.5; rho\_w = 0.3;
-eps\_v = 0.01; eps\_w = 0.01;
-odefun\_mob = @(t, x) mobile\_robust\_ode(t, x, ...
-xr, yr, thr, vr, wr, k1, k2, k3, ...
-rho\_v, rho\_w, eps\_v, eps\_w, d\_mob);
-{[}t\_m, X\_m{]} = ode45(odefun\_mob, {[}0 20{]}, {[}3; 0; 0{]});
-\% Plot trajectory
+rho_v = 0.5; rho_w = 0.3;
+eps_v = 0.01; eps_w = 0.01;
+
+odefun_mob = @(t, x) mobile_robust_ode(t, x, ...
+    xr, yr, thr, vr, wr, k1, k2, k3, ...
+    rho_v, rho_w, eps_v, eps_w, d_mob);
+
+[t_m, X_m] = ode45(odefun_mob, [0 20], [3; 0; 0]);
+
+% Plot trajectory
 figure; hold on;
 tt = linspace(0,20,500);
-plot(arrayfun(xr,tt), arrayfun(yr,tt), \textquotesingle b-\/-\textquotesingle, \textquotesingle LineWidth\textquotesingle, 2);
-plot(X\_m(:,1), X\_m(:,2), \textquotesingle r\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5);
-legend(\textquotesingle Reference\textquotesingle,\textquotesingle Robust\textquotesingle); xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle);
-title(\textquotesingle Mobile Robot: Robust Tracking\textquotesingle);
+plot(arrayfun(xr,tt), arrayfun(yr,tt), 'b--', 'LineWidth', 2);
+plot(X_m(:,1), X_m(:,2), 'r', 'LineWidth', 1.5);
+legend('Reference','Robust'); xlabel('x'); ylabel('y');
+title('Mobile Robot: Robust Tracking');
+\end{verbatim}
 
-function dx = mobile\_robust\_ode(t, x, ...
-xr\_fun, yr\_fun, thr\_fun, vr\_fun, wr\_fun, ...
-k1, k2, k3, rho\_v, rho\_w, eps\_v, eps\_w, dist\_fun)
-px = x(1); py = x(2); th = x(3);
-\% Reference
-xr\_val = xr\_fun(t); yr\_val = yr\_fun(t);
-thr\_val = thr\_fun(t); vr\_val = vr\_fun(t); wr\_val = wr\_fun(t);
-\% Body-frame error
-dx\_err = xr\_val - px;
-dy\_err = yr\_val - py;
-ex = cos(th)*dx\_err + sin(th)*dy\_err;
-ey = -sin(th)*dx\_err + cos(th)*dy\_err;
-eth = thr\_val - th;
-eth = atan2(sin(eth), cos(eth)); \% wrap to {[}-pi, pi{]}
-\% Nominal controller
-v\_nom = vr\_val*cos(eth) + k1*ex;
-w\_nom = wr\_val + vr\_val*(k2*ey + k3*sin(eth));
-\% Robust augmentation
-v = v\_nom + rho\_v * ex / (abs(ex) + eps\_v);
-w = w\_nom + rho\_w * eth / (abs(eth) + eps\_w);
-\% Disturbance
-d = dist\_fun(t);
-\% Disturbed kinematics
-dx = {[}v*cos(th) + d(1);
-v*sin(th) + d(2);
-w + d(3){]};
+\begin{verbatim}
+function dx = mobile_robust_ode(t, x, ...
+    xr_fun, yr_fun, thr_fun, vr_fun, wr_fun, ...
+    k1, k2, k3, rho_v, rho_w, eps_v, eps_w, dist_fun)
+
+    px = x(1); py = x(2); th = x(3);
+
+    % Reference
+    xr_val  = xr_fun(t);   yr_val  = yr_fun(t);
+    thr_val = thr_fun(t);  vr_val  = vr_fun(t);  wr_val = wr_fun(t);
+
+    % Body-frame error
+    dx_err = xr_val - px;
+    dy_err = yr_val - py;
+    ex =  cos(th)*dx_err + sin(th)*dy_err;
+    ey = -sin(th)*dx_err + cos(th)*dy_err;
+    eth = thr_val - th;
+    eth = atan2(sin(eth), cos(eth));  % wrap to [-pi, pi]
+
+    % Nominal controller
+    v_nom = vr_val*cos(eth) + k1*ex;
+    w_nom = wr_val + vr_val*(k2*ey + k3*sin(eth));
+
+    % Robust augmentation
+    v = v_nom + rho_v * ex / (abs(ex) + eps_v);
+    w = w_nom + rho_w * eth / (abs(eth) + eps_w);
+
+    % Disturbance
+    d = dist_fun(t);
+
+    % Disturbed kinematics
+    dx = [v*cos(th) + d(1);
+          v*sin(th) + d(2);
+          w          + d(3)];
 end
+\end{verbatim}
 
 \hypertarget{section-6-part-4-robust-control-for-quadrotor-drone}{%
 \subsection{Section 6 --- Part 4: Robust Control for Quadrotor Drone}\label{section-6-part-4-robust-control-for-quadrotor-drone}}
@@ -844,114 +882,139 @@ For each Euler angle (showing roll \(\phi\)):
 \hypertarget{matlab-implementation-2}{%
 \subsubsection{6.5 MATLAB Implementation}\label{matlab-implementation-2}}
 
-\%\% Robust Control for Quadrotor with Wind Disturbance
-\% Drone parameters
-m\_d = 1.5; g = 9.81; Ixx = 0.03; Iyy = 0.03; Izz = 0.05;
-\% Gains: position
-kd\_z = 15; lam\_z = 5; rho\_z = 8; eps\_z = 0.01;
-kd\_x = 10; lam\_x = 4; rho\_x = 5; eps\_x = 0.01;
-kd\_y = 10; lam\_y = 4; rho\_y = 5; eps\_y = 0.01;
-\% Gains: attitude
-kd\_phi = 20; lam\_phi = 8; rho\_phi = 1; eps\_phi = 0.005;
-kd\_th = 20; lam\_th = 8; rho\_th = 1; eps\_th = 0.005;
-kd\_psi = 10; lam\_psi = 5; rho\_psi = 0.5; eps\_psi= 0.005;
-\% Desired trajectory
-pd = @(t) {[}2*sin(0.3*t); 2*cos(0.3*t); 1+0.5*sin(0.2*t){]};
-dpd = @(t) {[}0.6*cos(0.3*t); -0.6*sin(0.3*t); 0.1*cos(0.2*t){]};
-ddpd= @(t) {[}-0.18*sin(0.3*t); -0.18*cos(0.3*t); -0.02*sin(0.2*t){]};
-\% Wind disturbance
-f\_wind = @(t) {[}3*sin(2*t+1); 2*cos(1.5*t); 1.5*sin(t){]};
-tau\_wind = @(t) {[}0.3*sin(4*t); 0.2*cos(3*t); 0.1*sin(2*t){]};
-\% state = {[}x y z dx dy dz phi theta psi dphi dtheta dpsi{]}
-x0 = {[}0;0;0; 0;0;0; 0;0;0; 0;0;0{]};
-odefun\_drone = @(t,x) drone\_robust\_ode(t, x, m\_d, g, ...
-Ixx, Iyy, Izz, ...
-kd\_z, lam\_z, rho\_z, eps\_z, ...
-kd\_x, lam\_x, rho\_x, eps\_x, ...
-kd\_y, lam\_y, rho\_y, eps\_y, ...
-kd\_phi, lam\_phi, rho\_phi, eps\_phi, ...
-kd\_th, lam\_th, rho\_th, eps\_th, ...
-kd\_psi, lam\_psi, rho\_psi, eps\_psi, ...
-pd, dpd, ddpd, f\_wind, tau\_wind);
-{[}t\_d, X\_d{]} = ode45(odefun\_drone, {[}0 20{]}, x0);
-figure;
-plot3(X\_d(:,1), X\_d(:,2), X\_d(:,3), \textquotesingle r\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5); hold on;
-tt = linspace(0,20,500);
-ref = cell2mat(arrayfun(pd, tt, \textquotesingle Un\textquotesingle, 0));
-plot3(ref(1,:), ref(2,:), ref(3,:), \textquotesingle b-\/-\textquotesingle, \textquotesingle LineWidth\textquotesingle, 2);
-legend(\textquotesingle Robust\textquotesingle,\textquotesingle Reference\textquotesingle); xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle); zlabel(\textquotesingle z\textquotesingle);
-title(\textquotesingle Quadrotor: Robust Tracking under Wind\textquotesingle); grid on;
+\begin{verbatim}
+%% Robust Control for Quadrotor with Wind Disturbance
+% Drone parameters
+m_d = 1.5; g = 9.81; Ixx = 0.03; Iyy = 0.03; Izz = 0.05;
 
-function dx = drone\_robust\_ode(t, x, m, g, ...
-Ixx, Iyy, Izz, ...
-kd\_z, lam\_z, rho\_z, eps\_z, ...
-kd\_x, lam\_x, rho\_x, eps\_x, ...
-kd\_y, lam\_y, rho\_y, eps\_y, ...
-kd\_phi, lam\_phi, rho\_phi, eps\_phi, ...
-kd\_th, lam\_th, rho\_th, eps\_th, ...
-kd\_psi, lam\_psi, rho\_psi, eps\_psi, ...
-pd\_fun, dpd\_fun, ddpd\_fun, f\_wind\_fun, tau\_wind\_fun)
-pos = x(1:3); vel = x(4:6);
-phi = x(7); theta = x(8); psi = x(9);
-omega = x(10:12); \% dphi, dtheta, dpsi
-\% Desired
-p\_d = pd\_fun(t); dp\_d = dpd\_fun(t); ddp\_d = ddpd\_fun(t);
-psi\_d = 0; dpsi\_d = 0; ddpsi\_d = 0;
-\% Position errors
-ep = p\_d - pos;
-dep = dp\_d - vel;
-\% -\/-\/- Z-axis (altitude) robust controller -\/-\/-
-sz = dep(3) + lam\_z*ep(3);
-T = m*(ddp\_d(3) + lam\_z*dep(3) + kd\_z*sz) + m*g ...
-+ rho\_z*sz/(abs(sz)+eps\_z);
-T = max(T, 0.1); \% thrust must be positive
-\% -\/-\/- X-axis robust controller -\textgreater{} desired theta -\/-\/-
-sx = dep(1) + lam\_x*ep(1);
-ax\_cmd = ddp\_d(1) + lam\_x*dep(1) + kd\_x*sx + rho\_x*sx/(abs(sx)+eps\_x);
-theta\_d = m*ax\_cmd / T;
-theta\_d = max(min(theta\_d, 0.5), -0.5); \% saturate
-\% -\/-\/- Y-axis robust controller -\textgreater{} desired phi -\/-\/-
-sy = dep(2) + lam\_y*ep(2);
-ay\_cmd = ddp\_d(2) + lam\_y*dep(2) + kd\_y*sy + rho\_y*sy/(abs(sy)+eps\_y);
-phi\_d = -m*ay\_cmd / T;
-phi\_d = max(min(phi\_d, 0.5), -0.5);
-\% -\/-\/- Attitude robust controllers -\/-\/-
-\% Roll
-e\_phi = phi\_d - phi;
-de\_phi = 0 - omega(1); \% dphi\_d approx 0
-s\_phi = de\_phi + lam\_phi*e\_phi;
-tau\_phi = Ixx*(lam\_phi*de\_phi + kd\_phi*s\_phi) ...
-+ rho\_phi*s\_phi/(abs(s\_phi)+eps\_phi);
-\% Pitch
-e\_th = theta\_d - theta;
-de\_th = 0 - omega(2);
-s\_th = de\_th + lam\_th*e\_th;
-tau\_th = Iyy*(lam\_th*de\_th + kd\_th*s\_th) ...
-+ rho\_th*s\_th/(abs(s\_th)+eps\_th);
-\% Yaw
-e\_psi = psi\_d - psi;
-de\_psi = dpsi\_d - omega(3);
-s\_psi = de\_psi + lam\_psi*e\_psi;
-tau\_psi = Izz*(lam\_psi*de\_psi + kd\_psi*s\_psi) ...
-+ rho\_psi*s\_psi/(abs(s\_psi)+eps\_psi);
-\% Wind
-fw = f\_wind\_fun(t);
-tw = tau\_wind\_fun(t);
-\% Translational dynamics
-\% Rotation matrix (ZYX convention)
-R = {[}cos(psi)*cos(theta), cos(psi)*sin(theta)*sin(phi)-sin(psi)*cos(phi), ...
-cos(psi)*sin(theta)*cos(phi)+sin(psi)*sin(phi);
-sin(psi)*cos(theta), sin(psi)*sin(theta)*sin(phi)+cos(psi)*cos(phi), ...
-sin(psi)*sin(theta)*cos(phi)-cos(psi)*sin(phi);
--sin(theta), cos(theta)*sin(phi), cos(theta)*cos(phi){]};
-thrust\_body = {[}0; 0; T{]};
-accel = {[}0;0;-g{]} + R*thrust\_body/m + fw/m;
-\% Rotational dynamics (simplified Euler)
-domega = {[}( tau\_phi + tw(1) - (Izz-Iyy)*omega(2)*omega(3) ) / Ixx;
-( tau\_th + tw(2) - (Ixx-Izz)*omega(1)*omega(3) ) / Iyy;
-( tau\_psi + tw(3) - (Iyy-Ixx)*omega(1)*omega(2) ) / Izz{]};
-dx = {[}vel; accel; omega; domega{]};
+% Gains: position
+kd_z = 15; lam_z = 5; rho_z = 8; eps_z = 0.01;
+kd_x = 10; lam_x = 4; rho_x = 5; eps_x = 0.01;
+kd_y = 10; lam_y = 4; rho_y = 5; eps_y = 0.01;
+
+% Gains: attitude
+kd_phi = 20; lam_phi = 8; rho_phi = 1; eps_phi = 0.005;
+kd_th  = 20; lam_th  = 8; rho_th  = 1; eps_th  = 0.005;
+kd_psi = 10; lam_psi = 5; rho_psi = 0.5; eps_psi= 0.005;
+
+% Desired trajectory
+pd  = @(t) [2*sin(0.3*t); 2*cos(0.3*t); 1+0.5*sin(0.2*t)];
+dpd = @(t) [0.6*cos(0.3*t); -0.6*sin(0.3*t); 0.1*cos(0.2*t)];
+ddpd= @(t) [-0.18*sin(0.3*t); -0.18*cos(0.3*t); -0.02*sin(0.2*t)];
+
+% Wind disturbance
+f_wind = @(t) [3*sin(2*t+1); 2*cos(1.5*t); 1.5*sin(t)];
+tau_wind = @(t) [0.3*sin(4*t); 0.2*cos(3*t); 0.1*sin(2*t)];
+
+% state = [x y z dx dy dz phi theta psi dphi dtheta dpsi]
+x0 = [0;0;0; 0;0;0; 0;0;0; 0;0;0];
+odefun_drone = @(t,x) drone_robust_ode(t, x, m_d, g, ...
+    Ixx, Iyy, Izz, ...
+    kd_z, lam_z, rho_z, eps_z, ...
+    kd_x, lam_x, rho_x, eps_x, ...
+    kd_y, lam_y, rho_y, eps_y, ...
+    kd_phi, lam_phi, rho_phi, eps_phi, ...
+    kd_th,  lam_th,  rho_th,  eps_th, ...
+    kd_psi, lam_psi, rho_psi, eps_psi, ...
+    pd, dpd, ddpd, f_wind, tau_wind);
+
+[t_d, X_d] = ode45(odefun_drone, [0 20], x0);
+
+figure;
+plot3(X_d(:,1), X_d(:,2), X_d(:,3), 'r', 'LineWidth', 1.5); hold on;
+tt = linspace(0,20,500);
+ref = cell2mat(arrayfun(pd, tt, 'Un', 0));
+plot3(ref(1,:), ref(2,:), ref(3,:), 'b--', 'LineWidth', 2);
+legend('Robust','Reference'); xlabel('x'); ylabel('y'); zlabel('z');
+title('Quadrotor: Robust Tracking under Wind'); grid on;
+\end{verbatim}
+
+\begin{verbatim}
+function dx = drone_robust_ode(t, x, m, g, ...
+    Ixx, Iyy, Izz, ...
+    kd_z, lam_z, rho_z, eps_z, ...
+    kd_x, lam_x, rho_x, eps_x, ...
+    kd_y, lam_y, rho_y, eps_y, ...
+    kd_phi, lam_phi, rho_phi, eps_phi, ...
+    kd_th,  lam_th,  rho_th,  eps_th, ...
+    kd_psi, lam_psi, rho_psi, eps_psi, ...
+    pd_fun, dpd_fun, ddpd_fun, f_wind_fun, tau_wind_fun)
+
+    pos = x(1:3); vel = x(4:6);
+    phi = x(7); theta = x(8); psi = x(9);
+    omega = x(10:12);  % dphi, dtheta, dpsi
+
+    % Desired
+    p_d  = pd_fun(t);   dp_d = dpd_fun(t);  ddp_d = ddpd_fun(t);
+    psi_d = 0;  dpsi_d = 0;  ddpsi_d = 0;
+
+    % Position errors
+    ep  = p_d - pos;
+    dep = dp_d - vel;
+
+    % --- Z-axis (altitude) robust controller ---
+    sz = dep(3) + lam_z*ep(3);
+    T = m*(ddp_d(3) + lam_z*dep(3) + kd_z*sz) + m*g ...
+        + rho_z*sz/(abs(sz)+eps_z);
+    T = max(T, 0.1);  % thrust must be positive
+
+    % --- X-axis robust controller -> desired theta ---
+    sx = dep(1) + lam_x*ep(1);
+    ax_cmd = ddp_d(1) + lam_x*dep(1) + kd_x*sx + rho_x*sx/(abs(sx)+eps_x);
+    theta_d = m*ax_cmd / T;
+    theta_d = max(min(theta_d, 0.5), -0.5);  % saturate
+
+    % --- Y-axis robust controller -> desired phi ---
+    sy = dep(2) + lam_y*ep(2);
+    ay_cmd = ddp_d(2) + lam_y*dep(2) + kd_y*sy + rho_y*sy/(abs(sy)+eps_y);
+    phi_d = -m*ay_cmd / T;
+    phi_d = max(min(phi_d, 0.5), -0.5);
+
+    % --- Attitude robust controllers ---
+    % Roll
+    e_phi = phi_d - phi;
+    de_phi = 0 - omega(1);  % dphi_d approx 0
+    s_phi = de_phi + lam_phi*e_phi;
+    tau_phi = Ixx*(lam_phi*de_phi + kd_phi*s_phi) ...
+              + rho_phi*s_phi/(abs(s_phi)+eps_phi);
+
+    % Pitch
+    e_th = theta_d - theta;
+    de_th = 0 - omega(2);
+    s_th = de_th + lam_th*e_th;
+    tau_th = Iyy*(lam_th*de_th + kd_th*s_th) ...
+             + rho_th*s_th/(abs(s_th)+eps_th);
+
+    % Yaw
+    e_psi = psi_d - psi;
+    de_psi = dpsi_d - omega(3);
+    s_psi = de_psi + lam_psi*e_psi;
+    tau_psi = Izz*(lam_psi*de_psi + kd_psi*s_psi) ...
+              + rho_psi*s_psi/(abs(s_psi)+eps_psi);
+
+    % Wind
+    fw  = f_wind_fun(t);
+    tw  = tau_wind_fun(t);
+
+    % Translational dynamics
+    % Rotation matrix (ZYX convention)
+    R = [cos(psi)*cos(theta), cos(psi)*sin(theta)*sin(phi)-sin(psi)*cos(phi), ...
+         cos(psi)*sin(theta)*cos(phi)+sin(psi)*sin(phi);
+         sin(psi)*cos(theta), sin(psi)*sin(theta)*sin(phi)+cos(psi)*cos(phi), ...
+         sin(psi)*sin(theta)*cos(phi)-cos(psi)*sin(phi);
+         -sin(theta), cos(theta)*sin(phi), cos(theta)*cos(phi)];
+
+    thrust_body = [0; 0; T];
+    accel = [0;0;-g] + R*thrust_body/m + fw/m;
+
+    % Rotational dynamics (simplified Euler)
+    domega = [( tau_phi + tw(1) - (Izz-Iyy)*omega(2)*omega(3) ) / Ixx;
+              ( tau_th  + tw(2) - (Ixx-Izz)*omega(1)*omega(3) ) / Iyy;
+              ( tau_psi + tw(3) - (Iyy-Ixx)*omega(1)*omega(2) ) / Izz];
+
+    dx = [vel; accel; omega; domega];
 end
+\end{verbatim}
 
 \hypertarget{section-7-matlab-activities}{%
 \subsection{Section 7 --- MATLAB Activities}\label{section-7-matlab-activities}}

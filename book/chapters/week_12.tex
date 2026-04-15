@@ -1,6 +1,4 @@
 % ----- auto-generated from week_12/Week*.html via pandoc -----
-\setchapterimage[6cm]{}
-\setchapterpreamble[u]{\margintoc}
 \chapter{Controller Comparison and Industry Applications (Week 12)}
 \labch{week_12}
 
@@ -19,6 +17,7 @@ Pre-Interview Technical Assessment • Estimated Time: 3 Hours
 
 \subsection{Provided Bag Data}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Topic & Message Type & Rate & Description \\
@@ -31,7 +30,7 @@ Topic & Message Type & Rate & Description \\
 \texttt{/odom} & nav\_msgs/Odometry & 50 Hz & Visual-inertial odometry \\
 \texttt{/camera/image} & sensor\_msgs/Image & 10 Hz & Forward-facing camera images \\
 \texttt{/lidar\_points} & sensor\_msgs/PointCloud2 & 10 Hz & 3D LiDAR point cloud \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Deliverables}
 
@@ -235,6 +234,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 To compare controllers rigorously, we define nine metrics. Each is rated on a 1--5 scale in the comparison table that follows.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Metric & Definition & Measured By \\
@@ -251,7 +251,7 @@ Metric & Definition & Measured By \\
 \textbf{Model Dependency} & How sensitive performance is to model accuracy. High = poor model means poor performance. & Degradation under mismatch \\
 \textbf{Control Smoothness} & Continuity of the control signal. Discontinuous signals cause actuator wear. & \(\|\dot{u}\|_2\), total variation \\
 \textbf{Stability Guarantees} & Rigour of theoretical stability proof (Lyapunov, global/local, under uncertainty). & Type: asymptotic, ISS, etc. \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Head-to-Head Comparison Table}
 
@@ -259,6 +259,7 @@ The \textbf{centerpiece} of this comparison. Each controller is rated 1--5 stars
 
 \textbf{Reading the stars:} ★ = poor/low, ★★★ = moderate, ★★★★★ = excellent/high. For Computational Cost and Model Dependency, ★ = cheap/independent (good) and ★★★★★ = expensive/dependent (challenging).
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
@@ -308,7 +309,7 @@ NL Optimization
 \end{minipage} & ★★★★★ & ★★★★☆ & ★★☆☆☆ & ★★★☆☆ & ★★★☆☆ & ★★★☆☆ & ★★★★☆ \\
 \textbf{Control Smoothness} & ★★★★★ & ★★★★☆ & ★★★★☆ & ★★★★★ & ★★★★★ & ★★☆☆☆ & ★★★★★ \\
 \textbf{Stability Guarantees} & ★★★★☆ & ★★★★☆ & ★★★★★ & ★★★★★ & ★★★★★ & ★★★★★ & ★★★★★ \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Key observations:}
 
@@ -344,6 +345,7 @@ The abstract ratings come alive when grounded in specific robotic platforms. Her
 
 Dynamics: \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\). Key challenges: coupling, configuration-dependent inertia, payload uncertainty.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
 Controller & RMSE (nominal) & RMSE (+50\% payload) & Computation & Constraint \\
@@ -358,7 +360,7 @@ Controller & RMSE (nominal) & RMSE (+50\% payload) & Computation & Constraint \\
 \textbf{Backstepping} & 0.003 rad & 0.015 rad & 0.08 ms & Possible \\
 \textbf{SMC} & 0.005 rad & 0.008 rad & 0.04 ms & Possible \\
 \textbf{NL Optimization} & 0.01 rad & 0.05 rad & 0.02 ms & Possible \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Discussion:} CTC delivers 0.001 rad nominal but degrades 80x under payload change. Adaptive converges to 0.005 rad even under 50\% payload uncertainty --- best for variable payloads. MPC is the only method guaranteeing zero constraint violations. LQR is fastest (0.02 ms) but limited to near-equilibrium.
 
@@ -366,6 +368,7 @@ Controller & RMSE (nominal) & RMSE (+50\% payload) & Computation & Constraint \\
 
 Kinematics: \(\dot{x}=v\cos\theta,\;\dot{y}=v\sin\theta,\;\dot{\theta}=\omega\). Key challenges: nonholonomic constraints, obstacle avoidance, velocity limits.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
 Controller & Trajectory RMSE & Cross-track & Obstacle Handling & Computation \\
@@ -380,7 +383,7 @@ Controller & Trajectory RMSE & Cross-track & Obstacle Handling & Computation \\
 \textbf{Backstepping} & 0.015 m & 0.01 m & None & 0.06 ms \\
 \textbf{SMC} & 0.02 m & 0.015 m & None & 0.03 ms \\
 \textbf{NL Optimization} & 0.03 m & 0.02 m & None & 0.02 ms \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Discussion:} MPC dominates constrained navigation --- the only method integrating obstacle avoidance directly. Backstepping is naturally suited to the nonholonomic strict-feedback structure. Adaptive excels when terrain changes (indoor to outdoor).
 
@@ -388,6 +391,7 @@ Controller & Trajectory RMSE & Cross-track & Obstacle Handling & Computation \\
 
 6-DOF dynamics, 4 inputs (underactuated). Key challenges: underactuation, coupled translational-rotational dynamics, wind disturbances, high-rate attitude control.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
 Controller & Hover RMS & Traj. RMSE & Wind (5 m/s gust) & Computation \\
@@ -402,7 +406,7 @@ Controller & Hover RMS & Traj. RMSE & Wind (5 m/s gust) & Computation \\
 \textbf{Backstepping} & 0.006 m & 0.025 m & 0.09 m dev. & 0.12 ms \\
 \textbf{SMC} & 0.01 m & 0.03 m & 0.04 m dev. & 0.08 ms \\
 \textbf{NL Optimization} & 0.004 m & 0.06 m & 0.12 m dev. & 0.03 ms \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Discussion:} LQR achieves best hover stability (0.004 m) with minimal computation --- the industry standard for inner attitude loops. MPC achieves best trajectory tracking (0.02 m) for aggressive manoeuvres. SMC produces smallest wind deviation (0.04 m) thanks to invariance property. LQR extends flight time by 10--15\% via energy-optimal control.
 
@@ -752,6 +756,7 @@ The professor specifically requested \textbf{"plenty of examples."} This section
 
 This comprehensive table maps 16 industry sectors to all 7 controllers. \textbf{P} = Primary method, \textbf{S} = Secondary/supporting, \textbf{E} = Emerging use, \textbf{---} = Not typically used.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llllllll@{}}
 \toprule\noalign{}
 Industry Sector & CTC & MPC & Adaptive & H-inf & Backstep & SMC & NL Optimization \\
@@ -775,7 +780,7 @@ Industry Sector & CTC & MPC & Adaptive & H-inf & Backstep & SMC & NL Optimizatio
 \textbf{Power / Energy} & --- & \textbf{P} & \textbf{P} & \textbf{P} & --- & --- & S \\
 \textbf{Consumer Electronics} & --- & E & S & --- & --- & --- & \textbf{P} \\
 \textbf{Agricultural Robots} & --- & S & \textbf{P} & --- & --- & S & S \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Key insight:} MPC appears as Primary in 8 of 16 sectors --- it is the most broadly applicable advanced controller. Nonlinear Control Optimization (iLQR / NMPC) is Primary or Secondary where the plant is strongly nonlinear and a model is available. Adaptive control dominates where parameters change (manufacturing, medical, agriculture). H-infinity leads in safety-critical domains (aviation, nuclear, surgical).
 
@@ -795,6 +800,7 @@ The complete pipeline: Perception → State Estimation → Planning → \textbf{
 
 \subsection{Tier 1 --- Direct Alignment (Must-Do)}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 ROS 2 Week & ROS 2 Topic & Control Weeks & Why They Align \\
@@ -804,10 +810,11 @@ ROS 2 Week & ROS 2 Topic & Control Weeks & Why They Align \\
 \endlastfoot
 \textbf{Week 11} & Control Systems: PID to MPC & W1, W3, W8 & 1:1 implementation of PID, LQR, LQG, MPC as ROS 2 controller nodes. Exercise 1: PID node publishing \texttt{/cmd\_vel}; Exercise 3: MPC trajectory tracker. \\
 \textbf{Week 6} & Quadrotor Dynamics \& Attitude & W1--W8 & Implements the quadrotor plant model. All 7 controllers are applied to this platform throughout the control course. \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Tier 2 --- Strong Complementary}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 ROS 2 Week & ROS 2 Topic & Control Weeks & Why They Complement \\
@@ -819,10 +826,11 @@ ROS 2 Week & ROS 2 Topic & Control Weeks & Why They Complement \\
 \textbf{Week 5} & Navigation Stack (Nav2) & W3 (MPC) & DWA local planner is conceptually MPC with sampled action space. Costmap integration shows real constraint handling. \\
 \textbf{Week 9} & EGO-Planner \& Traj. Optim. & W3, W8 & B-spline trajectory optimisation generates references that MPC and LQR controllers track. \\
 \textbf{Week 7} & PX4/ArduPilot Integration & W1--W8 & PX4 SITL provides a realistic flight controller testbed. Offboard mode lets your controller run as the outer loop. \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Tier 3 --- Supporting Context}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 ROS 2 Week & ROS 2 Topic & How It Supports Control \\
@@ -836,7 +844,7 @@ ROS 2 Week & ROS 2 Topic & How It Supports Control \\
 \textbf{Week 8} & 3D Path Planning & Generates reference trajectories \(x_{\text{ref}}(t)\) for controllers to track. \\
 \textbf{Week 10} & Computer Vision & Enables visual servoing and image-based control. \\
 \textbf{Week 12} & System Integration Capstone & Full pipeline: all modules connected into an autonomous mission. \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Study Strategy:} Complete \textbf{Tier 1} (ROS 2 Weeks 6 and 11) first. Then pick Tier 2 weeks based on your target sector (Weeks 2+5 for ground robots, Weeks 7+9 for drones). Tier 3 rounds out your portfolio.
 
@@ -882,6 +890,7 @@ Control Theory (rigorous mathematical foundations) + ROS 2 Implementation (worki
 
 The companion ROS 2 course concludes with a system integration capstone in \texttt{src/ros2\_robotics\_course/week\_12/}. The lab exercises bridge every ROS 2 week into a single autonomous mission.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Lab Exercise & Description & Control Course Link \\
@@ -895,7 +904,7 @@ Lab Exercise & Description & Control Course Link \\
 \textbf{Exercise 4: Autonomous Mission} & Execute a complete mission: takeoff, navigate waypoints, avoid obstacles, land. & Full control course integration \\
 \textbf{Exercise 5: Stress Testing} & Inject disturbances (wind, sensor dropout, parameter change). Evaluate robustness. & Week 5: Robust, Week 6: SMC \\
 \textbf{Exercise 6: Comprehensive Evaluation} & Quantitative comparison: tracking RMSE, computation time, constraint violations, energy usage. & Section 3: Performance metrics \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Integration is the hardest part:} Research shows that integration and testing consume 40--60\% of total project time in robotics. The "last 10\%" of making a system work reliably often takes as long as the first 90\%. Start early.
 
@@ -971,6 +980,7 @@ Pick one company from the list below. Prepare a 5-minute presentation addressing
   Covariant (warehouse manipulation)
 \end{itemize}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Question & What to Address & Marks \\
@@ -982,7 +992,7 @@ Question & What to Address & Marks \\
 \textbf{2. What control method(s)?} & Identify algorithms (papers, patents, job postings). Map to our 7 methods. & 10 \\
 \textbf{3. Key challenges?} & What makes the control problem hard? & 5 \\
 \textbf{4. How would you improve it?} & Propose a concrete improvement using course controllers. Explain trade-offs. & 10 \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Research Tips:} Check IEEE/RSS/ICRA papers, Google Patents, job descriptions (filter "control engineer"), and YouTube conference talks.
 
@@ -1044,6 +1054,7 @@ Pick your \textbf{best controller implementation} from Weeks 9--11 and prepare a
 
 This course has taken you from the foundations of model-based control through seven distinct control methodologies, applied each to three robot systems, and connected theory to practice through ROS 2 implementation.
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Week & Topic & Key Concept & Robot System \\
@@ -1063,7 +1074,7 @@ Week & Topic & Key Concept & Robot System \\
 10 & ROS 2 Quadrotor Control & Cascaded control, PX4 integration, attitude loops & Quadrotor in Gazebo \\
 11 & ROS 2 Navigation \& Mobile Control & Nav2, DWA, AMCL, path planning + control & Mobile Robot in Gazebo \\
 12 & \textbf{Capstone: Comparison \& Integration} & Controller selection, industry applications, full pipeline & All systems integrated \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{What to Study Next}
 
@@ -1147,18 +1158,23 @@ Week & Topic & Key Concept & Robot System \\
 
 \subsection{Build and Source}
 
-cd \textasciitilde/auto\_control\_ws
-colcon build -\/-packages-select week\_12\_capstone
+\begin{verbatim}
+cd ~/auto_control_ws
+colcon build --packages-select week_12_capstone
 source install/setup.bash
+\end{verbatim}
 
 \subsection{Launch the Demo}
 
-ros2 launch week\_12\_capstone demo.launch.py
+\begin{verbatim}
+ros2 launch week_12_capstone demo.launch.py
+\end{verbatim}
 
 This command replays the recorded multi-sensor bag data at 2x speed, starts three solution nodes (sensor fusion, mission planner, controller), and opens RViz2 with a preconfigured layout.
 
 \subsection{ROS2 Topics}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
 Topic & Type & Source & Description \\
@@ -1173,7 +1189,7 @@ Topic & Type & Source & Description \\
 \texttt{/lidar\_points} & sensor\_msgs/PointCloud2 & Bag & LiDAR point cloud at 10 Hz \\
 \texttt{/cmd\_vel} & geometry\_msgs/Twist & Nodes & Controller velocity commands \\
 \texttt{/fused\_state} & nav\_msgs/Odometry & Nodes & EKF fused state estimate \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \subsection{Expected RViz2 Output}
 
@@ -1277,6 +1293,7 @@ AMCL is a particle filter implementation for robot localisation given a known ma
 
 \textbf{(b) AMCL vs EKF comparison:}
 
+\begingroup\footnotesize
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
 Feature & AMCL (Particle Filter) & EKF (Kalman Filter) \\
@@ -1289,7 +1306,7 @@ Global localisation & Yes (particles spread globally) & No (requires initial est
 Computational cost & O(N) per step, N = 500--5000 & O(n\^{}3) per step, n = state dim \\
 Nonlinearity handling & Exact (samples from true distribution) & Approximate (first-order Taylor) \\
 Curse of dimensionality & Scales poorly beyond \textasciitilde6D & Scales well to high dimensions \\
-\end{longtable}
+\end{longtable}\endgroup
 
 \textbf{Prefer AMCL when:} (1) the initial pose is unknown (global localisation / kidnapped robot), (2) the environment has symmetries causing multimodal distributions, (3) the state space is low-dimensional (2D + heading). \textbf{Prefer EKF when:} (1) the state is high-dimensional (6-DOF drone), (2) good initial estimates are available, (3) real-time performance is critical on embedded hardware.
 

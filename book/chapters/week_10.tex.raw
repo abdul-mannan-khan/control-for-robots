@@ -270,45 +270,48 @@ Topic Name & Message Type & Publisher & Subscriber(s) & Rate (Hz) \\
 \hypertarget{launch-file-for-cascaded-system}{%
 \subsubsection{4.4 Launch File for Cascaded System}\label{launch-file-for-cascaded-system}}
 
-{from} launch {import} LaunchDescription
-{from} launch\_ros.actions {import} Node
-{def} {generate\_launch\_description}():
-{return} LaunchDescription({[}
-{\# Quadrotor physics simulation}
-Node(
-package={\textquotesingle quadrotor\_control\textquotesingle{}},
-executable={\textquotesingle quadrotor\_sim\_node\textquotesingle{}},
-name={\textquotesingle quadrotor\_sim\textquotesingle{}},
-parameters={[}\{{\textquotesingle dt\textquotesingle{}}: 0.001, {\textquotesingle mass\textquotesingle{}}: 1.0\}{]},
-),
-{\# Position controller (outer loop, 50 Hz)}
-Node(
-package={\textquotesingle quadrotor\_control\textquotesingle{}},
-executable={\textquotesingle position\_controller\_node\textquotesingle{}},
-name={\textquotesingle position\_controller\textquotesingle{}},
-parameters={[}\{{\textquotesingle rate\textquotesingle{}}: 50.0, {\textquotesingle kp\_xy\textquotesingle{}}: 1.5, {\textquotesingle kd\_xy\textquotesingle{}}: 1.0\}{]},
-),
-{\# Attitude controller (middle loop, 250 Hz)}
-Node(
-package={\textquotesingle quadrotor\_control\textquotesingle{}},
-executable={\textquotesingle attitude\_controller\_node\textquotesingle{}},
-name={\textquotesingle attitude\_controller\textquotesingle{}},
-parameters={[}\{{\textquotesingle rate\textquotesingle{}}: 250.0, {\textquotesingle kp\_roll\textquotesingle{}}: 6.0\}{]},
-),
-{\# Rate controller (inner loop, 500 Hz)}
-Node(
-package={\textquotesingle quadrotor\_control\textquotesingle{}},
-executable={\textquotesingle rate\_controller\_node\textquotesingle{}},
-name={\textquotesingle rate\_controller\textquotesingle{}},
-parameters={[}\{{\textquotesingle rate\textquotesingle{}}: 500.0\}{]},
-),
-{\# Motor mixer}
-Node(
-package={\textquotesingle quadrotor\_control\textquotesingle{}},
-executable={\textquotesingle motor\_mixer\_node\textquotesingle{}},
-name={\textquotesingle motor\_mixer\textquotesingle{}},
-),
-{]})
+\begin{verbatim}
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        # Quadrotor physics simulation
+        Node(
+            package='quadrotor_control',
+            executable='quadrotor_sim_node',
+            name='quadrotor_sim',
+            parameters=[{'dt': 0.001, 'mass': 1.0}],
+        ),
+        # Position controller (outer loop, 50 Hz)
+        Node(
+            package='quadrotor_control',
+            executable='position_controller_node',
+            name='position_controller',
+            parameters=[{'rate': 50.0, 'kp_xy': 1.5, 'kd_xy': 1.0}],
+        ),
+        # Attitude controller (middle loop, 250 Hz)
+        Node(
+            package='quadrotor_control',
+            executable='attitude_controller_node',
+            name='attitude_controller',
+            parameters=[{'rate': 250.0, 'kp_roll': 6.0}],
+        ),
+        # Rate controller (inner loop, 500 Hz)
+        Node(
+            package='quadrotor_control',
+            executable='rate_controller_node',
+            name='rate_controller',
+            parameters=[{'rate': 500.0}],
+        ),
+        # Motor mixer
+        Node(
+            package='quadrotor_control',
+            executable='motor_mixer_node',
+            name='motor_mixer',
+        ),
+    ])
+\end{verbatim}
 
 \hypertarget{section-5-part-3-implementing-pid-attitude-controller-in-ros2}{%
 \subsection{Section 5: Part 3 --- Implementing PID Attitude Controller in ROS2}\label{section-5-part-3-implementing-pid-attitude-controller-in-ros2}}
@@ -318,86 +321,95 @@ Below is a complete ROS2 Python node implementing a cascaded PID attitude contro
 \hypertarget{full-pid-attitude-controller-node}{%
 \subsubsection{5.1 Full PID Attitude Controller Node}\label{full-pid-attitude-controller-node}}
 
-{\#!/usr/bin/env python3}
-{"""PID Attitude Controller - ROS2 Node for Quadrotor."""}
-{import} rclpy
-{from} rclpy.node {import} Node
-{from} sensor\_msgs.msg {import} Imu
-{from} geometry\_msgs.msg {import} Vector3
-{from} std\_msgs.msg {import} Float64MultiArray
-{import} numpy {as} np
-{from} math {import} atan2, asin, sqrt
-{class} {PIDAttitudeController}(Node):
-{def} {\_\_init\_\_}(self):
-{super}().\_\_init\_\_({\textquotesingle pid\_attitude\_controller\textquotesingle{}})
-{\# PID gains: {[}roll, pitch, yaw{]}}
-self.kp = np.array({[}6.0, 6.0, 3.0{]})
-self.ki = np.array({[}0.5, 0.5, 0.2{]})
-self.kd = np.array({[}2.0, 2.0, 1.0{]})
-self.integral = np.zeros(3)
-self.prev\_error = np.zeros(3)
-self.integral\_limit = 2.0
-self.des\_rpy = np.zeros(3) {\# desired roll, pitch, yaw}
-self.cur\_rpy = np.zeros(3) {\# current roll, pitch, yaw}
-self.cur\_rates = np.zeros(3) {\# current angular rates}
-{\# Complementary filter state}
-self.alpha = 0.98
-self.cf\_rpy = np.zeros(3)
-self.cf\_init = {False}
-{\# Subscribers}
-self.create\_subscription(Imu, {\textquotesingle/imu\textquotesingle{}}, self.imu\_cb, 10)
-self.create\_subscription(Vector3, {\textquotesingle/attitude\_cmd\textquotesingle{}}, self.cmd\_cb, 10)
-{\# Publisher}
-self.cmd\_pub = self.create\_publisher(Float64MultiArray, {\textquotesingle/motor\_cmd\textquotesingle{}}, 10)
-{\# Timer at 250 Hz}
-self.dt = 1.0 / 250.0
-self.create\_timer(self.dt, self.control\_loop)
-self.get\_logger().info({\textquotesingle PID Attitude Controller started at 250 Hz\textquotesingle{}})
-{def} {quat\_to\_euler}(self, q):
-{"""Convert quaternion (x,y,z,w) to Euler (roll, pitch, yaw)."""}
-x, y, z, w = q.x, q.y, q.z, q.w
-sinr = 2.0 * (w * x + y * z)
-cosr = 1.0 - 2.0 * (x * x + y * y)
-roll = atan2(sinr, cosr)
-sinp = 2.0 * (w * y - z * x)
-pitch = asin(max(-1.0, min(1.0, sinp)))
-siny = 2.0 * (w * z + x * y)
-cosy = 1.0 - 2.0 * (y * y + z * z)
-yaw = atan2(siny, cosy)
-{return} np.array({[}roll, pitch, yaw{]})
-{def} {imu\_cb}(self, msg):
-{"""Process IMU: complementary filter for attitude."""}
-accel\_rpy = self.quat\_to\_euler(msg.orientation)
-gyro = np.array({[}msg.angular\_velocity.x,
-msg.angular\_velocity.y,
-msg.angular\_velocity.z{]})
-self.cur\_rates = gyro
-{if not} self.cf\_init:
-self.cf\_rpy = accel\_rpy
-self.cf\_init = {True}
-{else}:
-self.cf\_rpy = (self.alpha * (self.cf\_rpy + gyro * self.dt)
-+ (1 - self.alpha) * accel\_rpy)
-self.cur\_rpy = self.cf\_rpy
-{def} {cmd\_cb}(self, msg):
-self.des\_rpy = np.array({[}msg.x, msg.y, msg.z{]})
-{def} {control\_loop}(self):
-error = self.des\_rpy - self.cur\_rpy
-self.integral += error * self.dt
-self.integral = np.clip(self.integral, -self.integral\_limit,
-self.integral\_limit)
-derivative = -self.cur\_rates {\# use gyro directly}
-torque = (self.kp * error + self.ki * self.integral
-+ self.kd * derivative)
-msg = Float64MultiArray()
-msg.data = torque.tolist()
-self.cmd\_pub.publish(msg)
-{def} {main}():
-rclpy.init()
-rclpy.spin(PIDAttitudeController())
-rclpy.shutdown()
-{if} \_\_name\_\_ == {\textquotesingle\_\_main\_\_\textquotesingle{}}:
-main()
+\begin{verbatim}
+#!/usr/bin/env python3
+"""PID Attitude Controller - ROS2 Node for Quadrotor."""
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Vector3
+from std_msgs.msg import Float64MultiArray
+import numpy as np
+from math import atan2, asin, sqrt
+
+class PIDAttitudeController(Node):
+    def __init__(self):
+        super().__init__('pid_attitude_controller')
+        # PID gains: [roll, pitch, yaw]
+        self.kp = np.array([6.0, 6.0, 3.0])
+        self.ki = np.array([0.5, 0.5, 0.2])
+        self.kd = np.array([2.0, 2.0, 1.0])
+        self.integral = np.zeros(3)
+        self.prev_error = np.zeros(3)
+        self.integral_limit = 2.0
+        self.des_rpy = np.zeros(3)  # desired roll, pitch, yaw
+        self.cur_rpy = np.zeros(3)  # current roll, pitch, yaw
+        self.cur_rates = np.zeros(3)  # current angular rates
+        # Complementary filter state
+        self.alpha = 0.98
+        self.cf_rpy = np.zeros(3)
+        self.cf_init = False
+        # Subscribers
+        self.create_subscription(Imu, '/imu', self.imu_cb, 10)
+        self.create_subscription(Vector3, '/attitude_cmd', self.cmd_cb, 10)
+        # Publisher
+        self.cmd_pub = self.create_publisher(Float64MultiArray, '/motor_cmd', 10)
+        # Timer at 250 Hz
+        self.dt = 1.0 / 250.0
+        self.create_timer(self.dt, self.control_loop)
+        self.get_logger().info('PID Attitude Controller started at 250 Hz')
+
+    def quat_to_euler(self, q):
+        """Convert quaternion (x,y,z,w) to Euler (roll, pitch, yaw)."""
+        x, y, z, w = q.x, q.y, q.z, q.w
+        sinr = 2.0 * (w * x + y * z)
+        cosr = 1.0 - 2.0 * (x * x + y * y)
+        roll = atan2(sinr, cosr)
+        sinp = 2.0 * (w * y - z * x)
+        pitch = asin(max(-1.0, min(1.0, sinp)))
+        siny = 2.0 * (w * z + x * y)
+        cosy = 1.0 - 2.0 * (y * y + z * z)
+        yaw = atan2(siny, cosy)
+        return np.array([roll, pitch, yaw])
+
+    def imu_cb(self, msg):
+        """Process IMU: complementary filter for attitude."""
+        accel_rpy = self.quat_to_euler(msg.orientation)
+        gyro = np.array([msg.angular_velocity.x,
+                         msg.angular_velocity.y,
+                         msg.angular_velocity.z])
+        self.cur_rates = gyro
+        if not self.cf_init:
+            self.cf_rpy = accel_rpy
+            self.cf_init = True
+        else:
+            self.cf_rpy = (self.alpha * (self.cf_rpy + gyro * self.dt)
+                          + (1 - self.alpha) * accel_rpy)
+        self.cur_rpy = self.cf_rpy
+
+    def cmd_cb(self, msg):
+        self.des_rpy = np.array([msg.x, msg.y, msg.z])
+
+    def control_loop(self):
+        error = self.des_rpy - self.cur_rpy
+        self.integral += error * self.dt
+        self.integral = np.clip(self.integral, -self.integral_limit,
+                                self.integral_limit)
+        derivative = -self.cur_rates  # use gyro directly
+        torque = (self.kp * error + self.ki * self.integral
+                  + self.kd * derivative)
+        msg = Float64MultiArray()
+        msg.data = torque.tolist()
+        self.cmd_pub.publish(msg)
+
+def main():
+    rclpy.init()
+    rclpy.spin(PIDAttitudeController())
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+\end{verbatim}
 
 \hypertarget{complementary-filter-for-attitude-estimation}{%
 \subsubsection{5.2 Complementary Filter for Attitude Estimation}\label{complementary-filter-for-attitude-estimation}}
@@ -638,23 +650,25 @@ The simulation uses the \texttt{quadrotor\_sim.py} physics engine from the ROS2 
 
 The simulation node publishes sensor data and subscribes to motor commands:
 
-{\# quadrotor\_sim\_node.py - Wraps quadrotor\_sim.py as a ROS2 node}
-{class} {QuadrotorSimNode}(Node):
-{def} {\_\_init\_\_}(self):
-{super}().\_\_init\_\_({\textquotesingle quadrotor\_sim\textquotesingle{}})
-{\# Publishers: sensor data}
-self.odom\_pub = self.create\_publisher(Odometry, {\textquotesingle/odom\textquotesingle{}}, 10)
-self.imu\_pub = self.create\_publisher(Imu, {\textquotesingle/imu\textquotesingle{}}, 10)
-{\# Subscriber: motor commands}
-self.create\_subscription(Float64MultiArray,
-{\textquotesingle/motor\_speeds\textquotesingle{}}, self.motor\_cb, 10)
-{\# TF broadcaster for RViz2}
-self.tf\_broadcaster = TransformBroadcaster(self)
-{\# Simulation state}
-self.state = np.zeros(12)
-self.state{[}2{]} = 0.0 {\# start on ground}
-self.params = QuadrotorParams()
-self.create\_timer(0.001, self.step\_sim) {\# 1 kHz physics}
+\begin{verbatim}
+# quadrotor_sim_node.py - Wraps quadrotor_sim.py as a ROS2 node
+class QuadrotorSimNode(Node):
+    def __init__(self):
+        super().__init__('quadrotor_sim')
+        # Publishers: sensor data
+        self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
+        self.imu_pub  = self.create_publisher(Imu, '/imu', 10)
+        # Subscriber: motor commands
+        self.create_subscription(Float64MultiArray,
+                                 '/motor_speeds', self.motor_cb, 10)
+        # TF broadcaster for RViz2
+        self.tf_broadcaster = TransformBroadcaster(self)
+        # Simulation state
+        self.state = np.zeros(12)
+        self.state[2] = 0.0  # start on ground
+        self.params = QuadrotorParams()
+        self.create_timer(0.001, self.step_sim)  # 1 kHz physics
+\end{verbatim}
 
 \hypertarget{visualization-in-rviz2}{%
 \subsubsection{7.3 Visualization in RViz2}\label{visualization-in-rviz2}}
@@ -672,13 +686,17 @@ self.create\_timer(0.001, self.step\_sim) {\# 1 kHz physics}
 \hypertarget{recording-flight-data-with-rosbag2}{%
 \subsubsection{7.4 Recording Flight Data with rosbag2}\label{recording-flight-data-with-rosbag2}}
 
-{\# Record all relevant topics during a flight test}
-ros2 bag record /odom /imu /attitude\_cmd /rate\_cmd /motor\_cmd /motor\_speeds \textbackslash{}
--o flight\_test\_pid\_hover
-{\# Replay for post-flight analysis}
-ros2 bag play flight\_test\_pid\_hover
-{\# Convert to CSV for MATLAB/Python plotting}
-ros2 bag convert -i flight\_test\_pid\_hover -o flight\_data.csv
+\begin{verbatim}
+# Record all relevant topics during a flight test
+ros2 bag record /odom /imu /attitude_cmd /rate_cmd /motor_cmd /motor_speeds \
+    -o flight_test_pid_hover
+
+# Replay for post-flight analysis
+ros2 bag play flight_test_pid_hover
+
+# Convert to CSV for MATLAB/Python plotting
+ros2 bag convert -i flight_test_pid_hover -o flight_data.csv
+\end{verbatim}
 
 \hypertarget{lab-exercises-from-ros2-robotics-course-week-6}{%
 \subsubsection{7.5 Lab Exercises from ROS2 Robotics Course (Week 6)}\label{lab-exercises-from-ros2-robotics-course-week-6}}
@@ -735,12 +753,16 @@ Task 7 & \texttt{task7\_full\_simulation.py} & Full simulation: fly a square tra
   \end{itemize}
 \end{enumerate}
 
-{\# Terminal 1: Launch simulation + controllers}
-ros2 launch quadrotor\_control cascaded\_hover.launch.py
-{\# Terminal 2: Record data}
-ros2 bag record /odom /imu /attitude\_cmd /motor\_cmd -o hover\_test\_pid
-{\# Terminal 3: Monitor in real-time}
-ros2 topic echo /odom -\/-field pose.pose.position
+\begin{verbatim}
+# Terminal 1: Launch simulation + controllers
+ros2 launch quadrotor_control cascaded_hover.launch.py
+
+# Terminal 2: Record data
+ros2 bag record /odom /imu /attitude_cmd /motor_cmd -o hover_test_pid
+
+# Terminal 3: Monitor in real-time
+ros2 topic echo /odom --field pose.pose.position
+\end{verbatim}
 
 \hypertarget{activity-2-trajectory-tracking-pid-vs-lqr-vs-mpc}{%
 \subsubsection{Activity 2: Trajectory Tracking --- PID vs LQR vs MPC}\label{activity-2-trajectory-tracking-pid-vs-lqr-vs-mpc}}
@@ -801,15 +823,16 @@ ros2 topic echo /odom -\/-field pose.pose.position
 \textbf{Objective:} Add a simulated constant wind disturbance and compare rejection performance.
 
 \begin{enumerate}
-\tightlist
 \item
   Modify \texttt{quadrotor\_sim\_node.py} to add a constant external force:
 
-  {\# In quadrotor\_dynamics(), add wind force (3 m/s in x)}
-  wind\_speed = 3.0 {\# m/s in world x-direction}
-  drag\_coeff = 0.1 {\# N/(m/s)}
-  F\_wind = np.array({[}drag\_coeff * wind\_speed, 0.0, 0.0{]})
-  acc += F\_wind / m {\# add to translational acceleration}
+\begin{verbatim}
+# In quadrotor_dynamics(), add wind force (3 m/s in x)
+wind_speed = 3.0  # m/s in world x-direction
+drag_coeff = 0.1  # N/(m/s)
+F_wind = np.array([drag_coeff * wind_speed, 0.0, 0.0])
+acc += F_wind / m  # add to translational acceleration
+\end{verbatim}
 \item
   Implement SMC attitude controller:
 
@@ -917,14 +940,18 @@ Next week we move to \textbf{Multi-Robot Coordination and Formation Control}. We
 \hypertarget{build-and-source}{%
 \subsubsection{Build and Source}\label{build-and-source}}
 
-cd \textasciitilde/auto\_control\_ws
-colcon build -\/-packages-select week\_06\_quadrotor\_dynamics
+\begin{verbatim}
+cd ~/auto_control_ws
+colcon build --packages-select week_06_quadrotor_dynamics
 source install/setup.bash
+\end{verbatim}
 
 \hypertarget{launch-the-demo}{%
 \subsubsection{Launch the Demo}\label{launch-the-demo}}
 
-ros2 launch week\_06\_quadrotor\_dynamics demo.launch.py
+\begin{verbatim}
+ros2 launch week_06_quadrotor_dynamics demo.launch.py
+\end{verbatim}
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (attitude estimation, PID control, motor mixing), and opens RViz2 with a preconfigured layout.
 

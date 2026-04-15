@@ -288,122 +288,134 @@ Anticipation & Myopic (reacts to immediate surroundings) & Looks ahead (anticipa
 \hypertarget{ros2-implementation-simplified-dwa-local-planner-node}{%
 \subsubsection{4.5 ROS2 Implementation --- Simplified DWA Local Planner Node}\label{ros2-implementation-simplified-dwa-local-planner-node}}
 
-\#!/usr/bin/env python3
+\begin{verbatim}
+#!/usr/bin/env python3
 """Simplified DWA local planner node for ROS2.
-Subscribes to /odom and /plan, publishes /cmd\_vel.
+Subscribes to /odom and /plan, publishes /cmd_vel.
 Demonstrates DWA as optimization-based control."""
+
 import rclpy
 from rclpy.node import Node
 import numpy as np
 import math
-from nav\_msgs.msg import Odometry, Path
-from geometry\_msgs.msg import Twist
-from sensor\_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry, Path
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+
 class DWAControllerNode(Node):
-def \_\_init\_\_(self):
-super().\_\_init\_\_(\textquotesingle dwa\_controller\textquotesingle)
-\# DWA parameters
-self.max\_v = 0.5; self.min\_v = 0.0
-self.max\_w = 1.0; self.max\_accel = 0.5; self.max\_w\_accel = 1.0
-self.v\_res = 0.05; self.w\_res = 0.1
-self.dt = 0.1; self.predict\_time = 2.0
-self.alpha = 1.0; self.beta = 0.8; self.gamma = 0.5 \# heading, clearance, velocity
-self.robot\_radius = 0.18
-\# State
-self.x, self.y, self.th = 0.0, 0.0, 0.0
-self.cur\_v, self.cur\_w = 0.0, 0.0
-self.goal = None; self.obstacles = {[}{]}
-\# ROS2 interfaces
-self.create\_subscription(Odometry, \textquotesingle/odom\textquotesingle, self.odom\_cb, 10)
-self.create\_subscription(Path, \textquotesingle/plan\textquotesingle, self.path\_cb, 10)
-self.create\_subscription(LaserScan, \textquotesingle/scan\textquotesingle, self.scan\_cb, 10)
-self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
-self.timer = self.create\_timer(0.1, self.control\_loop) \# 10 Hz
-self.get\_logger().info(\textquotesingle DWA Controller started\textquotesingle)
-def odom\_cb(self, msg):
-self.x = msg.pose.pose.position.x
-self.y = msg.pose.pose.position.y
-q = msg.pose.pose.orientation
-self.th = 2.0 * math.atan2(q.z, q.w)
-self.cur\_v = msg.twist.twist.linear.x
-self.cur\_w = msg.twist.twist.angular.z
-def path\_cb(self, msg):
-if msg.poses:
-p = msg.poses{[}-1{]}.pose.position \# Use final pose as goal
-self.goal = (p.x, p.y)
-def scan\_cb(self, msg):
-obs = {[}{]}
-for i, r in enumerate(msg.ranges):
-if msg.range\_min \textless{} r \textless{} msg.range\_max:
-angle = msg.angle\_min + i * msg.angle\_increment
-ox = self.x + r * math.cos(self.th + angle)
-oy = self.y + r * math.sin(self.th + angle)
-obs.append((ox, oy))
-self.obstacles = obs
-def predict\_trajectory(self, v, w):
-"""Forward-simulate trajectory for predict\_time seconds."""
-x, y, th = self.x, self.y, self.th
-traj = {[}(x, y){]}
-for \_ in range(int(self.predict\_time / self.dt)):
-x += v * math.cos(th) * self.dt
-y += v * math.sin(th) * self.dt
-th += w * self.dt
-traj.append((x, y))
-return traj, th
-def score\_trajectory(self, traj, final\_th):
-"""Score: alpha*heading + beta*clearance + gamma*velocity."""
-if not self.goal:
-return -float(\textquotesingle inf\textquotesingle)
-ex, ey = traj{[}-1{]}
-\# Heading: alignment with goal
-goal\_angle = math.atan2(self.goal{[}1{]} - ey, self.goal{[}0{]} - ex)
-heading = math.pi - abs(goal\_angle - final\_th)
-heading = heading / math.pi \# normalise to {[}0, 1{]}
-\# Clearance: min distance to obstacles
-clearance = float(\textquotesingle inf\textquotesingle)
-for (px, py) in traj:
-for (ox, oy) in self.obstacles:
-d = math.hypot(px - ox, py - oy)
-clearance = min(clearance, d)
-if clearance \textless{} self.robot\_radius:
-return -float(\textquotesingle inf\textquotesingle) \# Collision!
-clearance = min(clearance, 3.0) / 3.0 \# normalise
-\# Velocity: prefer faster
-velocity = abs(traj{[}-1{]}{[}0{]} - traj{[}0{]}{[}0{]}) + abs(traj{[}-1{]}{[}1{]} - traj{[}0{]}{[}1{]})
-velocity = min(velocity, 1.0)
-return self.alpha * heading + self.beta * clearance + self.gamma * velocity
-def control\_loop(self):
-if self.goal is None:
-return
-if math.hypot(self.x - self.goal{[}0{]}, self.y - self.goal{[}1{]}) \textless{} 0.2:
-self.cmd\_pub.publish(Twist()); return \# Goal reached
-\# Dynamic window
-v\_lo = max(self.min\_v, self.cur\_v - self.max\_accel * self.dt)
-v\_hi = min(self.max\_v, self.cur\_v + self.max\_accel * self.dt)
-w\_lo = max(-self.max\_w, self.cur\_w - self.max\_w\_accel * self.dt)
-w\_hi = min(self.max\_w, self.cur\_w + self.max\_w\_accel * self.dt)
-\# Sample and score
-best\_v, best\_w, best\_score = 0.0, 0.0, -float(\textquotesingle inf\textquotesingle)
-v = v\_lo
-while v \textless= v\_hi:
-w = w\_lo
-while w \textless= w\_hi:
-traj, fth = self.predict\_trajectory(v, w)
-s = self.score\_trajectory(traj, fth)
-if s \textgreater{} best\_score:
-best\_score, best\_v, best\_w = s, v, w
-w += self.w\_res
-v += self.v\_res
-\# Publish best command
-cmd = Twist()
-cmd.linear.x = best\_v; cmd.angular.z = best\_w
-self.cmd\_pub.publish(cmd)
+    def __init__(self):
+        super().__init__('dwa_controller')
+        # DWA parameters
+        self.max_v = 0.5;  self.min_v = 0.0
+        self.max_w = 1.0;  self.max_accel = 0.5;  self.max_w_accel = 1.0
+        self.v_res = 0.05;  self.w_res = 0.1
+        self.dt = 0.1;  self.predict_time = 2.0
+        self.alpha = 1.0;  self.beta = 0.8;  self.gamma = 0.5  # heading, clearance, velocity
+        self.robot_radius = 0.18
+        # State
+        self.x, self.y, self.th = 0.0, 0.0, 0.0
+        self.cur_v, self.cur_w = 0.0, 0.0
+        self.goal = None;  self.obstacles = []
+        # ROS2 interfaces
+        self.create_subscription(Odometry, '/odom', self.odom_cb, 10)
+        self.create_subscription(Path, '/plan', self.path_cb, 10)
+        self.create_subscription(LaserScan, '/scan', self.scan_cb, 10)
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.timer = self.create_timer(0.1, self.control_loop)  # 10 Hz
+        self.get_logger().info('DWA Controller started')
+
+    def odom_cb(self, msg):
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        q = msg.pose.pose.orientation
+        self.th = 2.0 * math.atan2(q.z, q.w)
+        self.cur_v = msg.twist.twist.linear.x
+        self.cur_w = msg.twist.twist.angular.z
+
+    def path_cb(self, msg):
+        if msg.poses:
+            p = msg.poses[-1].pose.position  # Use final pose as goal
+            self.goal = (p.x, p.y)
+
+    def scan_cb(self, msg):
+        obs = []
+        for i, r in enumerate(msg.ranges):
+            if msg.range_min < r < msg.range_max:
+                angle = msg.angle_min + i * msg.angle_increment
+                ox = self.x + r * math.cos(self.th + angle)
+                oy = self.y + r * math.sin(self.th + angle)
+                obs.append((ox, oy))
+        self.obstacles = obs
+
+    def predict_trajectory(self, v, w):
+        """Forward-simulate trajectory for predict_time seconds."""
+        x, y, th = self.x, self.y, self.th
+        traj = [(x, y)]
+        for _ in range(int(self.predict_time / self.dt)):
+            x += v * math.cos(th) * self.dt
+            y += v * math.sin(th) * self.dt
+            th += w * self.dt
+            traj.append((x, y))
+        return traj, th
+
+    def score_trajectory(self, traj, final_th):
+        """Score: alpha*heading + beta*clearance + gamma*velocity."""
+        if not self.goal:
+            return -float('inf')
+        ex, ey = traj[-1]
+        # Heading: alignment with goal
+        goal_angle = math.atan2(self.goal[1] - ey, self.goal[0] - ex)
+        heading = math.pi - abs(goal_angle - final_th)
+        heading = heading / math.pi  # normalise to [0, 1]
+        # Clearance: min distance to obstacles
+        clearance = float('inf')
+        for (px, py) in traj:
+            for (ox, oy) in self.obstacles:
+                d = math.hypot(px - ox, py - oy)
+                clearance = min(clearance, d)
+        if clearance < self.robot_radius:
+            return -float('inf')  # Collision!
+        clearance = min(clearance, 3.0) / 3.0  # normalise
+        # Velocity: prefer faster
+        velocity = abs(traj[-1][0] - traj[0][0]) + abs(traj[-1][1] - traj[0][1])
+        velocity = min(velocity, 1.0)
+        return self.alpha * heading + self.beta * clearance + self.gamma * velocity
+
+    def control_loop(self):
+        if self.goal is None:
+            return
+        if math.hypot(self.x - self.goal[0], self.y - self.goal[1]) < 0.2:
+            self.cmd_pub.publish(Twist());  return  # Goal reached
+        # Dynamic window
+        v_lo = max(self.min_v, self.cur_v - self.max_accel * self.dt)
+        v_hi = min(self.max_v, self.cur_v + self.max_accel * self.dt)
+        w_lo = max(-self.max_w, self.cur_w - self.max_w_accel * self.dt)
+        w_hi = min(self.max_w, self.cur_w + self.max_w_accel * self.dt)
+        # Sample and score
+        best_v, best_w, best_score = 0.0, 0.0, -float('inf')
+        v = v_lo
+        while v <= v_hi:
+            w = w_lo
+            while w <= w_hi:
+                traj, fth = self.predict_trajectory(v, w)
+                s = self.score_trajectory(traj, fth)
+                if s > best_score:
+                    best_score, best_v, best_w = s, v, w
+                w += self.w_res
+            v += self.v_res
+        # Publish best command
+        cmd = Twist()
+        cmd.linear.x = best_v;  cmd.angular.z = best_w
+        self.cmd_pub.publish(cmd)
+
 def main(args=None):
-rclpy.init(args=args)
-rclpy.spin(DWAControllerNode())
-rclpy.shutdown()
-if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
-main()
+    rclpy.init(args=args)
+    rclpy.spin(DWAControllerNode())
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+\end{verbatim}
 
 \textbf{Tuning Guide:} The weights \(\alpha, \beta, \gamma\) dramatically affect robot behavior.
 High \(\alpha\) = aggressive goal-seeking (may clip obstacles).
@@ -486,14 +498,18 @@ The AMCL algorithm cycles through four steps:
 \hypertarget{ros2-amcl-configuration}{%
 \subsubsection{5.4 ROS2 AMCL Configuration}\label{ros2-amcl-configuration}}
 
-\# Launch AMCL for TurtleBot3 localization
-ros2 launch nav2\_bringup localization\_launch.py \textbackslash{}
-map:=/path/to/map.yaml \textbackslash{}
-params\_file:=/path/to/nav2\_params.yaml
+\begin{verbatim}
+# Launch AMCL for TurtleBot3 localization
+ros2 launch nav2_bringup localization_launch.py \
+    map:=/path/to/map.yaml \
+    params_file:=/path/to/nav2_params.yaml
+\end{verbatim}
 
 Key AMCL parameters in \texttt{nav2\_params.yaml}:
 
-AMCL Parameters (nav2\_params.yaml)
+\begin{verbatim}
+AMCL Parameters (nav2_params.yaml)
+\end{verbatim}
 
 amcl:
 ros\_\_parameters:
@@ -585,7 +601,9 @@ where:
 \hypertarget{nav2-costmap-configuration}{%
 \subsubsection{6.4 Nav2 Costmap Configuration}\label{nav2-costmap-configuration}}
 
-Costmap YAML Configuration (nav2\_params.yaml)
+\begin{verbatim}
+Costmap YAML Configuration (nav2_params.yaml)
+\end{verbatim}
 
 global\_costmap:
 global\_costmap:
@@ -686,7 +704,9 @@ Debugging & Hard with many states & Visual tools (Groot) show live tree state \\
 \hypertarget{nav2-bt-xml-configuration}{%
 \subsubsection{7.4 Nav2 BT XML Configuration}\label{nav2-bt-xml-configuration}}
 
-Default Nav2 Behavior Tree XML (navigate\_to\_pose\_w\_replanning.xml)
+\begin{verbatim}
+Default Nav2 Behavior Tree XML (navigate_to_pose_w_replanning.xml)
+\end{verbatim}
 
 \textless root main\_tree\_to\_execute="MainTree"\textgreater{}
 \textless BehaviorTree ID="MainTree"\textgreater{}
@@ -819,18 +839,23 @@ Exercise & File & Subscribes & Publishes & Key Function \\
 \textbf{Exercise 3: Path Follower (Pure Pursuit)} & \texttt{exercise3\_node.py} & \texttt{/planned\_path}, \texttt{/odom} & \texttt{/cmd\_vel} (Twist) & \texttt{pure\_pursuit()} --- Curvature: \(\kappa = 2 y_{\text{local}} / L^2\), then \(\omega = \kappa \cdot v\) \\
 \end{longtable}
 
-\# Running the ROS2 exercises
-\# Terminal 1: Play synthetic navigation bag data
-ros2 bag play week\_05/w05\_exercises/bag\_data/synthetic\_nav2/
-\# Terminal 2: Run the costmap generator
-ros2 run week\_05 exercise1\_node -\/-ros-args \textbackslash{}
--\/-params-file week\_05/w05\_exercises/config/params.yaml
-\# Terminal 3: Run the path planner
-ros2 run week\_05 exercise2\_node -\/-ros-args \textbackslash{}
--\/-params-file week\_05/w05\_exercises/config/params.yaml
-\# Terminal 4: Run the path follower
-ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
--\/-params-file week\_05/w05\_exercises/config/params.yaml
+\begin{verbatim}
+# Running the ROS2 exercises
+# Terminal 1: Play synthetic navigation bag data
+ros2 bag play week_05/w05_exercises/bag_data/synthetic_nav2/
+
+# Terminal 2: Run the costmap generator
+ros2 run week_05 exercise1_node --ros-args \
+    --params-file week_05/w05_exercises/config/params.yaml
+
+# Terminal 3: Run the path planner
+ros2 run week_05 exercise2_node --ros-args \
+    --params-file week_05/w05_exercises/config/params.yaml
+
+# Terminal 4: Run the path follower
+ros2 run week_05 exercise3_node --ros-args \
+    --params-file week_05/w05_exercises/config/params.yaml
+\end{verbatim}
 
 \hypertarget{section-10-hands-on-activities}{%
 \subsection{Section 10: Hands-On Activities}\label{section-10-hands-on-activities}}
@@ -841,18 +866,21 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 \textbf{Objective:} Set up the full Nav2 stack for TurtleBot3 in Gazebo and navigate through a maze environment.
 
 \begin{enumerate}
-\tightlist
 \item
   \textbf{Launch the simulation:}
 
-  \# Terminal 1: Launch TurtleBot3 in Gazebo maze world
-  export TURTLEBOT3\_MODEL=waffle
-  ros2 launch turtlebot3\_gazebo turtlebot3\_world.launch.py
-  \# Terminal 2: Launch Nav2 with default parameters
-  ros2 launch nav2\_bringup navigation\_launch.py \textbackslash{}
-  params\_file:=nav2\_params.yaml
-  \# Terminal 3: Launch RViz2 with Nav2 config
-  ros2 launch nav2\_bringup rviz\_launch.py
+\begin{verbatim}
+# Terminal 1: Launch TurtleBot3 in Gazebo maze world
+export TURTLEBOT3_MODEL=waffle
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+
+# Terminal 2: Launch Nav2 with default parameters
+ros2 launch nav2_bringup navigation_launch.py \
+    params_file:=nav2_params.yaml
+
+# Terminal 3: Launch RViz2 with Nav2 config
+ros2 launch nav2_bringup rviz_launch.py
+\end{verbatim}
 \item
   \textbf{Configure AMCL:} Set initial pose using the "2D Pose Estimate" tool in RViz. Observe the particle cloud converging as the robot moves.
 \item
@@ -881,7 +909,6 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 \textbf{Objective:} Replace the default DWA controller with your MPC controller from Week 9 and compare performance across three scenarios.
 
 \begin{enumerate}
-\tightlist
 \item
   \textbf{Set up MPC controller plugin:} Adapt your Week 9 MPC node to accept \texttt{/plan} (global path) and publish \texttt{/cmd\_vel}. Use the differential-drive kinematic model:
   \[ \dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \omega \]
@@ -894,11 +921,14 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 \item
   \textbf{Record and compare:}
 
-  \# Record rosbag during each run
-  ros2 bag record /cmd\_vel /odom /plan /local\_costmap/costmap -o dwa\_corridor
-  ros2 bag record /cmd\_vel /odom /plan /local\_costmap/costmap -o mpc\_corridor
-  \# Plot trajectories for comparison
-  python3 plot\_comparison.py dwa\_corridor mpc\_corridor
+\begin{verbatim}
+# Record rosbag during each run
+ros2 bag record /cmd_vel /odom /plan /local_costmap/costmap -o dwa_corridor
+ros2 bag record /cmd_vel /odom /plan /local_costmap/costmap -o mpc_corridor
+
+# Plot trajectories for comparison
+python3 plot_comparison.py dwa_corridor mpc_corridor
+\end{verbatim}
 \item
   \textbf{Analysis table:} Fill in for each scenario:
 
@@ -923,71 +953,78 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 \textbf{Objective:} Implement waypoint navigation using the Nav2 action server, visit 5 waypoints in order, and add recovery behavior when stuck.
 
 \begin{enumerate}
-\tightlist
 \item
   \textbf{Define waypoints:} Choose 5 waypoints that require navigating through different parts of the environment (corridors, open areas, near obstacles).
 \item
   \textbf{Write the waypoint navigation client:}
 
-  \#!/usr/bin/env python3
-  """Waypoint navigation client using Nav2 action server."""
-  import rclpy
-  from rclpy.node import Node
-  from rclpy.action import ActionClient
-  from nav2\_msgs.action import NavigateToPose
-  from geometry\_msgs.msg import PoseStamped
-  import time
-  class WaypointNavigator(Node):
-  def \_\_init\_\_(self):
-  super().\_\_init\_\_(\textquotesingle waypoint\_navigator\textquotesingle)
-  self.nav\_client = ActionClient(self, NavigateToPose, \textquotesingle navigate\_to\_pose\textquotesingle)
-  self.waypoints = {[}
-  (1.0, 0.5, 0.0), \# (x, y, yaw) in map frame
-  (2.0, 1.5, 1.57),
-  (1.5, 3.0, 3.14),
-  (0.0, 2.0, -1.57),
-  (0.5, 0.5, 0.0),
-  {]}
-  self.current\_wp = 0
-  self.max\_retries = 3
-  self.nav\_client.wait\_for\_server()
-  self.get\_logger().info(\textquotesingle Nav2 server ready. Starting mission.\textquotesingle)
-  self.navigate\_to\_next()
-  def create\_goal(self, x, y, yaw):
-  goal = NavigateToPose.Goal()
-  goal.pose = PoseStamped()
-  goal.pose.header.frame\_id = \textquotesingle map\textquotesingle{}
-  goal.pose.header.stamp = self.get\_clock().now().to\_msg()
-  goal.pose.pose.position.x = x
-  goal.pose.pose.position.y = y
-  goal.pose.pose.orientation.z = \_\_import\_\_(\textquotesingle math\textquotesingle).sin(yaw / 2)
-  goal.pose.pose.orientation.w = \_\_import\_\_(\textquotesingle math\textquotesingle).cos(yaw / 2)
-  return goal
-  def navigate\_to\_next(self):
-  if self.current\_wp \textgreater= len(self.waypoints):
-  self.get\_logger().info(\textquotesingle All waypoints reached! Mission complete.\textquotesingle)
-  return
-  x, y, yaw = self.waypoints{[}self.current\_wp{]}
-  self.get\_logger().info(f\textquotesingle Navigating to WP\{self.current\_wp\}: (\{x\}, \{y\})\textquotesingle)
-  goal = self.create\_goal(x, y, yaw)
-  future = self.nav\_client.send\_goal\_async(goal)
-  future.add\_done\_callback(self.goal\_response\_cb)
-  def goal\_response\_cb(self, future):
-  goal\_handle = future.result()
-  if not goal\_handle.accepted:
-  self.get\_logger().warn(\textquotesingle Goal rejected!\textquotesingle)
-  return
-  result\_future = goal\_handle.get\_result\_async()
-  result\_future.add\_done\_callback(self.result\_cb)
-  def result\_cb(self, future):
-  result = future.result()
-  self.get\_logger().info(f\textquotesingle WP\{self.current\_wp\} result: \{result.status\}\textquotesingle)
-  self.current\_wp += 1
-  self.navigate\_to\_next()
-  def main():
-  rclpy.init()
-  rclpy.spin(WaypointNavigator())
-  rclpy.shutdown()
+\begin{verbatim}
+#!/usr/bin/env python3
+"""Waypoint navigation client using Nav2 action server."""
+import rclpy
+from rclpy.node import Node
+from rclpy.action import ActionClient
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
+import time
+
+class WaypointNavigator(Node):
+    def __init__(self):
+        super().__init__('waypoint_navigator')
+        self.nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self.waypoints = [
+            (1.0, 0.5, 0.0),   # (x, y, yaw) in map frame
+            (2.0, 1.5, 1.57),
+            (1.5, 3.0, 3.14),
+            (0.0, 2.0, -1.57),
+            (0.5, 0.5, 0.0),
+        ]
+        self.current_wp = 0
+        self.max_retries = 3
+        self.nav_client.wait_for_server()
+        self.get_logger().info('Nav2 server ready. Starting mission.')
+        self.navigate_to_next()
+
+    def create_goal(self, x, y, yaw):
+        goal = NavigateToPose.Goal()
+        goal.pose = PoseStamped()
+        goal.pose.header.frame_id = 'map'
+        goal.pose.header.stamp = self.get_clock().now().to_msg()
+        goal.pose.pose.position.x = x
+        goal.pose.pose.position.y = y
+        goal.pose.pose.orientation.z = __import__('math').sin(yaw / 2)
+        goal.pose.pose.orientation.w = __import__('math').cos(yaw / 2)
+        return goal
+
+    def navigate_to_next(self):
+        if self.current_wp >= len(self.waypoints):
+            self.get_logger().info('All waypoints reached! Mission complete.')
+            return
+        x, y, yaw = self.waypoints[self.current_wp]
+        self.get_logger().info(f'Navigating to WP{self.current_wp}: ({x}, {y})')
+        goal = self.create_goal(x, y, yaw)
+        future = self.nav_client.send_goal_async(goal)
+        future.add_done_callback(self.goal_response_cb)
+
+    def goal_response_cb(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().warn('Goal rejected!')
+            return
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self.result_cb)
+
+    def result_cb(self, future):
+        result = future.result()
+        self.get_logger().info(f'WP{self.current_wp} result: {result.status}')
+        self.current_wp += 1
+        self.navigate_to_next()
+
+def main():
+    rclpy.init()
+    rclpy.spin(WaypointNavigator())
+    rclpy.shutdown()
+\end{verbatim}
 \item
   \textbf{Add recovery logic:} If a waypoint fails (timeout after 60s or rejection), retry up to 3 times. If still failing, skip and move to the next waypoint. Log all failures.
 \item
@@ -1075,14 +1112,18 @@ Every control method from Weeks 1--8 maps to a navigation role: PID (path follow
 \hypertarget{build-and-source}{%
 \subsubsection{Build and Source}\label{build-and-source}}
 
-cd \textasciitilde/auto\_control\_ws
-colcon build -\/-packages-select week\_05\_nav2
+\begin{verbatim}
+cd ~/auto_control_ws
+colcon build --packages-select week_05_nav2
 source install/setup.bash
+\end{verbatim}
 
 \hypertarget{launch-the-demo}{%
 \subsubsection{Launch the Demo}\label{launch-the-demo}}
 
-ros2 launch week\_05\_nav2 demo.launch.py
+\begin{verbatim}
+ros2 launch week_05_nav2 demo.launch.py
+\end{verbatim}
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (costmap builder, A* planner, path follower), and opens RViz2 with a preconfigured layout.
 

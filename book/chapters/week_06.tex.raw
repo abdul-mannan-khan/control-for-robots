@@ -617,36 +617,43 @@ This guarantees finite-time reaching and invariance of the sliding surface.
 \hypertarget{matlab-implementation-2-dof-manipulator-smc}{%
 \subsubsection{2.5 ~ MATLAB Implementation --- 2-DOF Manipulator SMC}\label{matlab-implementation-2-dof-manipulator-smc}}
 
-\%\% SMC for 2-DOF Manipulator
-\% Parameters
+\begin{verbatim}
+%% SMC for 2-DOF Manipulator
+% Parameters
 m1 = 1; m2 = 1; l1 = 1; l2 = 1; g = 9.81;
-Lambda = diag({[}10, 10{]}); \% sliding surface gain
-K\_smc = diag({[}20, 20{]}); \% switching gain
-phi = 0.05; \% boundary layer width
-use\_sat = true; \% true = sat(), false = sign()
-\% Desired trajectory
-qd = @(t) {[}sin(t); cos(t){]};
-qd\_d = @(t) {[}cos(t); -sin(t){]};
-qd\_dd= @(t) {[}-sin(t); -cos(t){]};
-\% Dynamics (inline for ODE)
-function {[}M, C, G\_vec{]} = manipulator\_dynamics(q, qd\_vec, m1, m2, l1, l2, g)
-c2 = cos(q(2)); s2 = sin(q(2));
-h = m2*l1*l2*c2;
-M = {[}m1*l1\^{}2 + m2*(l1\^{}2+l2\^{}2+2*l1*l2*c2), m2*(l2\^{}2+l1*l2*c2);
-m2*(l2\^{}2+l1*l2*c2), m2*l2\^{}2{]};
-C = {[}-m2*l1*l2*s2*qd\_vec(2), -m2*l1*l2*s2*(qd\_vec(1)+qd\_vec(2));
-m2*l1*l2*s2*qd\_vec(1), 0{]};
-G\_vec = {[}m1*g*l1*cos(q(1)) + m2*g*(l1*cos(q(1))+l2*cos(q(1)+q(2)));
-m2*g*l2*cos(q(1)+q(2)){]};
+Lambda = diag([10, 10]);        % sliding surface gain
+K_smc = diag([20, 20]);         % switching gain
+phi = 0.05;                     % boundary layer width
+use_sat = true;                 % true = sat(), false = sign()
+
+% Desired trajectory
+qd   = @(t) [sin(t); cos(t)];
+qd_d = @(t) [cos(t); -sin(t)];
+qd_dd= @(t) [-sin(t); -cos(t)];
+
+% Dynamics (inline for ODE)
+function [M, C, G_vec] = manipulator_dynamics(q, qd_vec, m1, m2, l1, l2, g)
+    c2 = cos(q(2)); s2 = sin(q(2));
+    h = m2*l1*l2*c2;
+    M = [m1*l1^2 + m2*(l1^2+l2^2+2*l1*l2*c2), m2*(l2^2+l1*l2*c2);
+         m2*(l2^2+l1*l2*c2),                    m2*l2^2];
+    C = [-m2*l1*l2*s2*qd_vec(2),  -m2*l1*l2*s2*(qd_vec(1)+qd_vec(2));
+          m2*l1*l2*s2*qd_vec(1),   0];
+    G_vec = [m1*g*l1*cos(q(1)) + m2*g*(l1*cos(q(1))+l2*cos(q(1)+q(2)));
+             m2*g*l2*cos(q(1)+q(2))];
 end
-\% ODE function
-odefun = @(t, x) smc\_manipulator\_ode(t, x, ...
-m1, m2, l1, l2, g, Lambda, K\_smc, phi, use\_sat, qd, qd\_d, qd\_dd);
-{[}T, X{]} = ode45(odefun, {[}0, 10{]}, {[}0.5; -0.5; 0; 0{]});
-\% Plot results
+
+% ODE function
+odefun = @(t, x) smc_manipulator_ode(t, x, ...
+    m1, m2, l1, l2, g, Lambda, K_smc, phi, use_sat, qd, qd_d, qd_dd);
+
+[T, X] = ode45(odefun, [0, 10], [0.5; -0.5; 0; 0]);
+
+% Plot results
 figure;
-subplot(2,1,1); plot(T, X(:,1:2)); legend(\textquotesingle q\_1\textquotesingle,\textquotesingle q\_2\textquotesingle); title(\textquotesingle Joint Angles\textquotesingle);
-subplot(2,1,2); plot(T, X(:,3:4)); legend(\textquotesingle dq\_1\textquotesingle,\textquotesingle dq\_2\textquotesingle); title(\textquotesingle Joint Velocities\textquotesingle);
+subplot(2,1,1); plot(T, X(:,1:2)); legend('q_1','q_2'); title('Joint Angles');
+subplot(2,1,2); plot(T, X(:,3:4)); legend('dq_1','dq_2'); title('Joint Velocities');
+\end{verbatim}
 
 \textbf{Note:} The complete ODE function \texttt{smc\_manipulator\_ode()} with all sub-functions is provided in the companion file \texttt{smc\_control\_simulation.m}.
 
@@ -740,20 +747,26 @@ For \(s_\omega = \dot{\alpha} + \lambda_\omega \alpha\): set \(\dot{s}_\omega = 
 \hypertarget{matlab-implementation}{%
 \subsubsection{3.5 ~ MATLAB Implementation}\label{matlab-implementation}}
 
-\%\% SMC for Mobile Robot (Unicycle)
-lambda\_v = 1.0; lambda\_w = 2.0;
-eta\_v = 0.5; eta\_w = 1.0;
-phi\_v = 0.05; phi\_w = 0.05;
-\% Desired circular trajectory
-xd = @(t) 2*cos(0.3*t); yd = @(t) 2*sin(0.3*t);
-xd\_d = @(t) -0.6*sin(0.3*t); yd\_d = @(t) 0.6*cos(0.3*t);
-odefun = @(t, x) smc\_mobile\_ode(t, x, lambda\_v, lambda\_w, ...
-eta\_v, eta\_w, phi\_v, phi\_w, xd, yd, xd\_d, yd\_d);
-{[}T, X{]} = ode45(odefun, {[}0 30{]}, {[}0; 0; pi/4{]});
+\begin{verbatim}
+%% SMC for Mobile Robot (Unicycle)
+lambda_v = 1.0;  lambda_w = 2.0;
+eta_v = 0.5;     eta_w = 1.0;
+phi_v = 0.05;    phi_w = 0.05;
+
+% Desired circular trajectory
+xd = @(t) 2*cos(0.3*t);   yd = @(t) 2*sin(0.3*t);
+xd_d = @(t) -0.6*sin(0.3*t); yd_d = @(t) 0.6*cos(0.3*t);
+
+odefun = @(t, x) smc_mobile_ode(t, x, lambda_v, lambda_w, ...
+    eta_v, eta_w, phi_v, phi_w, xd, yd, xd_d, yd_d);
+
+[T, X] = ode45(odefun, [0 30], [0; 0; pi/4]);
+
 figure;
-plot(X(:,1), X(:,2), \textquotesingle b-\textquotesingle, arrayfun(xd,T), arrayfun(yd,T), \textquotesingle r-\/-\textquotesingle);
-legend(\textquotesingle Actual\textquotesingle,\textquotesingle Desired\textquotesingle); title(\textquotesingle Mobile Robot SMC Tracking\textquotesingle);
+plot(X(:,1), X(:,2), 'b-', arrayfun(xd,T), arrayfun(yd,T), 'r--');
+legend('Actual','Desired'); title('Mobile Robot SMC Tracking');
 axis equal; grid on;
+\end{verbatim}
 
 \hypertarget{part-4-smc-for-quadrotor-drone-1}{%
 \subsection{Part 4 --- SMC for Quadrotor Drone}\label{part-4-smc-for-quadrotor-drone-1}}
@@ -881,28 +894,35 @@ The attitude SMC torques:
 \hypertarget{matlab-implementation-1}{%
 \subsubsection{4.3 ~ MATLAB Implementation}\label{matlab-implementation-1}}
 
-\%\% SMC for Quadrotor Drone
-\% Physical parameters
-m = 1.0; g\_val = 9.81; Ixx = 0.01; Iyy = 0.01; Izz = 0.02;
-l\_arm = 0.2; c\_drag = 0.01;
-\% SMC gains (position)
-lam\_pos = {[}2; 2; 3{]}; eta\_pos = {[}1; 1; 2{]}; k\_pos = {[}1; 1; 1{]};
-phi\_pos = {[}0.05; 0.05; 0.05{]};
-\% SMC gains (attitude)
-lam\_att = {[}8; 8; 4{]}; eta\_att = {[}2; 2; 1{]};
-phi\_att = {[}0.02; 0.02; 0.02{]};
-\% Desired trajectory: helix
-xd = @(t) cos(0.5*t); yd = @(t) sin(0.5*t); zd = @(t) 0.5*t;
-psi\_d = @(t) 0;
-x0 = {[}0;0;0; 0;0;0; 0;0;0; 0;0;0{]}; \% {[}x,y,z, dx,dy,dz, phi,th,psi, dphi,dth,dpsi{]}
-{[}T, X{]} = ode45(@(t,x) smc\_drone\_ode(t, x, m, g\_val, Ixx, Iyy, Izz, ...
-l\_arm, c\_drag, lam\_pos, eta\_pos, k\_pos, phi\_pos, ...
-lam\_att, eta\_att, phi\_att, xd, yd, zd, psi\_d), {[}0 20{]}, x0);
+\begin{verbatim}
+%% SMC for Quadrotor Drone
+% Physical parameters
+m = 1.0; g_val = 9.81; Ixx = 0.01; Iyy = 0.01; Izz = 0.02;
+l_arm = 0.2; c_drag = 0.01;
+
+% SMC gains (position)
+lam_pos = [2; 2; 3];  eta_pos = [1; 1; 2];  k_pos = [1; 1; 1];
+phi_pos = [0.05; 0.05; 0.05];
+
+% SMC gains (attitude)
+lam_att = [8; 8; 4];  eta_att = [2; 2; 1];
+phi_att = [0.02; 0.02; 0.02];
+
+% Desired trajectory: helix
+xd = @(t) cos(0.5*t);  yd = @(t) sin(0.5*t);  zd = @(t) 0.5*t;
+psi_d = @(t) 0;
+
+x0 = [0;0;0; 0;0;0; 0;0;0; 0;0;0];  % [x,y,z, dx,dy,dz, phi,th,psi, dphi,dth,dpsi]
+[T, X] = ode45(@(t,x) smc_drone_ode(t, x, m, g_val, Ixx, Iyy, Izz, ...
+    l_arm, c_drag, lam_pos, eta_pos, k_pos, phi_pos, ...
+    lam_att, eta_att, phi_att, xd, yd, zd, psi_d), [0 20], x0);
+
 figure;
-plot3(X(:,1), X(:,2), X(:,3), \textquotesingle b-\textquotesingle, ...
-arrayfun(xd,T), arrayfun(yd,T), arrayfun(zd,T), \textquotesingle r-\/-\textquotesingle);
-legend(\textquotesingle Actual\textquotesingle,\textquotesingle Desired\textquotesingle); title(\textquotesingle Drone SMC 3D Tracking\textquotesingle);
-xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle); zlabel(\textquotesingle z\textquotesingle); grid on;
+plot3(X(:,1), X(:,2), X(:,3), 'b-', ...
+      arrayfun(xd,T), arrayfun(yd,T), arrayfun(zd,T), 'r--');
+legend('Actual','Desired'); title('Drone SMC 3D Tracking');
+xlabel('x'); ylabel('y'); zlabel('z'); grid on;
+\end{verbatim}
 
 \hypertarget{lab-activities}{%
 \subsection{Lab Activities}\label{lab-activities}}
