@@ -322,11 +322,22 @@ def build_simulation_results_block(week: str) -> str:
              "is reproducible by running the corresponding script in the "
              "companion repository; see Section~\\ref{sec:repository} of "
              "the preface for instructions.\n\n"]
+    def _auto_caption(stem: str) -> str:
+        words = re.split(r"[_\-]+", stem)
+        acronyms = {"lqr", "lqg", "mpc", "smc", "pd", "pid", "3d", "2d",
+                    "2dof", "3dof", "dof", "ros", "ros2", "nmpc"}
+        out = []
+        for i, w in enumerate(words):
+            if w.lower() in acronyms:
+                out.append(w.upper())
+            elif i == 0:
+                out.append(w.capitalize())
+            else:
+                out.append(w.lower())
+        return " ".join(out) + "."
+
     for p in pngs:
-        caption = FIGURE_CAPTIONS.get(
-            p.name,
-            p.stem.replace("_", " ").replace("-", " ").capitalize() + ".",
-        )
+        caption = FIGURE_CAPTIONS.get(p.name, _auto_caption(p.stem))
         lines.append(
             "\\begin{figure}[ht]\n"
             "    \\centering\n"
