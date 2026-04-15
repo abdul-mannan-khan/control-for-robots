@@ -25,6 +25,9 @@
 \usepackage{caption}
 \usepackage{listings}
 \usepackage{fancyvrb}
+\usepackage{adjustbox}
+% tcolorbox is already loaded by kaotheorems; just load the extra library
+\tcbuselibrary{skins,breakable,most}
 
 \graphicspath{{images/}}
 
@@ -50,6 +53,8 @@
 }
 
 \usepackage{kaotheorems}
+% mathtools already defined \refeq; undefine it so kaorefs can define its own
+\let\refeq\undefined
 \usepackage{kaorefs}
 \usepackage{kaobiblio}
 \addbibresource{main.bib}
@@ -62,17 +67,55 @@
 \providecommand{\pandocbounded}[1]{#1}
 \providecommand{\passthrough}[1]{\texttt{#1}}
 
-\lstset{
-  basicstyle=\ttfamily\footnotesize,
+% ---- Colours used throughout the book ----
+\definecolor{kaobookblue}{HTML}{1E3A8A}       % headings
+\definecolor{kaobookaccent}{HTML}{0EA5E9}     % links / accents
+\definecolor{codebg}{HTML}{FAF6E9}            % code background
+\definecolor{coderule}{HTML}{D4A017}          % warm border
+\definecolor{codekw}{HTML}{7E1F86}            % purple keywords
+\definecolor{codecmt}{HTML}{2E8B57}           % sea-green comments
+\definecolor{codestr}{HTML}{B22222}           % firebrick strings
+\definecolor{codenum}{HTML}{1976D2}           % blue numbers
+
+% --- Colourful code listings (covers MATLAB, Python, Bash, plain verbatim) --
+\lstdefinestyle{kaocode}{
+  basicstyle=\ttfamily\footnotesize\color{black!85},
+  keywordstyle=\color{codekw}\bfseries,
+  commentstyle=\color{codecmt}\itshape,
+  stringstyle=\color{codestr},
+  numberstyle=\tiny\color{black!50},
+  showstringspaces=false,
   breaklines=true,
   frame=single,
   framesep=6pt,
-  xleftmargin=10pt,
-  xrightmargin=10pt,
-  backgroundcolor=\color[HTML]{F8F8F0},
-  rulecolor=\color[HTML]{BBBBBB},
+  framerule=0.6pt,
+  xleftmargin=12pt,
+  xrightmargin=8pt,
+  backgroundcolor=\color{codebg},
+  rulecolor=\color{coderule},
   captionpos=b,
+  tabsize=4,
+  aboveskip=10pt,
+  belowskip=10pt,
 }
+\lstset{style=kaocode}
+
+% Also colour pandoc's plain {verbatim} blocks (which contain the code
+% snippets converted from the <div class="code-block"> HTML) by
+% redefining \verbatim@font with a coloured tcolorbox wrapper.
+\usepackage{etoolbox}
+\BeforeBeginEnvironment{verbatim}{%
+  \begin{tcolorbox}[
+    enhanced,
+    sharp corners,
+    boxrule=0.6pt,
+    colback=codebg,
+    colframe=coderule,
+    left=10pt, right=8pt, top=4pt, bottom=4pt,
+    fontupper=\ttfamily\footnotesize\color{black!85},
+  ]%
+}
+\AfterEndEnvironment{verbatim}{\end{tcolorbox}}
 
 \title{\huge Control for Robots}
 \subtitle{A 12-Week M.Sc.\ Lecture Course on Advanced Control for\\Manipulators, Mobile Robots, and Quadrotors}

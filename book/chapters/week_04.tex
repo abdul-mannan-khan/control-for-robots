@@ -85,7 +85,7 @@ Let \(\mathbf{E} = \mathbf{X}_{\mathrm{ref}} - \mathcal{A}\,x_k\). Show that:
 \textbf{(c)} Define the MPC gain. Since only the first \(m\) rows of \(\mathbf{U}^*\) are applied (receding horizon), let \(E_1 = [I_m \;\; 0 \;\; \cdots \;\; 0]\). Then:
 
 \[
-                    u_k^* = E_1 \mathbf{U}^* = \underbrace{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}}_{K_{\mathrm{MPC,ref}}}\,\mathbf{X}_{\mathrm{ref}} - \underbrace{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}\,\mathcal{A}}_{K_{\mathrm{MPC}}}\,x_k
+                    u_k^* = E_1 \mathbf{U}^* = \underset{\text{\footnotesize K_{\mathrm{MPC,ref}}}}{\underline{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}}}\,\mathbf{X}_{\mathrm{ref}} - \underset{\text{\footnotesize K_{\mathrm{MPC}}}}{\underline{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}\,\mathcal{A}}}\,x_k
                 \]
 
 Explain why \(K_{\mathrm{MPC}}\) is a state-feedback gain and how increasing \(R\) relative to \(Q\) affects the control aggressiveness.
@@ -107,50 +107,6 @@ Explain why \(K_{\mathrm{MPC}}\) is a state-feedback gain and how increasing \(R
 \item
   Simulate and compare the performance of fixed-model computed torque control versus adaptive control under parameter uncertainty, demonstrating convergence of parameter estimates.
 \end{itemize}
-
-\subsection{Session Roadmap (3 Hours)}
-
-0:00 -- 0:20
-
-\subsubsection{Previous Week Exam Practice}
-
-Two exam-style questions on MPC lifted form, optimal control law derivation, and the MPC gain matrix.
-
-0:20 -- 1:00
-
-\subsubsection{Adaptive Control Theory}
-
-Why adaptive? Parameter uncertainty and its consequences. Linearity in parameters. Regressor matrix. Adaptive update law. Lyapunov stability proof.
-
-1:00 -- 1:20
-
-\subsubsection{Adaptive Control for 2-DOF Manipulator}
-
-Full derivation: explicit regressor, parameter vector, control law, update law, and MATLAB implementation.
-
-1:20 -- 1:30
-
-\subsubsection{Break}
-
-10-minute comfort break.
-
-1:30 -- 2:00
-
-\subsubsection{Adaptive Control for Mobile Robot}
-
-Parametric uncertainty in wheel radius and track width. Regressor formulation for the unicycle kinematic model. Adaptive tracking controller.
-
-2:00 -- 2:30
-
-\subsubsection{Adaptive Control for Quadrotor}
-
-Unknown mass and inertia. Adaptive controller for position and attitude loops. MATLAB simulation.
-
-2:30 -- 3:00
-
-\subsubsection{MATLAB Implementation \& Activities}
-
-Hands-on activities: parameter convergence, comparison with computed torque, regressor construction quiz.
 
 \section{Adaptive Control Theory}
 
@@ -426,38 +382,36 @@ Consider the adaptation gain matrix \(\Gamma\). Discuss with your neighbour:
 
 We now implement the full adaptive controller for the 2-DOF planar manipulator from Section 3.3. The true parameters are:
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Parameter & Symbol & True Value & Initial Estimate \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Link 1 mass & \(m_1\) & 1.0 kg & 1.0 kg (known) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleParameter & Symbol & True Value & Initial Estimate \\
+\midrule\bottomruleLink 1 mass & \(m_1\) & 1.0 kg & 1.0 kg (known) \\
 Link 2 mass & \(m_2\) & 2.0 kg & 1.0 kg (50\% error) \\
 Link 1 length & \(l_1\) & 1.0 m & 1.0 m (known) \\
 Link 2 length & \(l_2\) & 1.0 m & 1.0 m (known) \\
 Gravity & \(g\) & 9.81 m/s² & 9.81 m/s² (known) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 Even though only \(m_2\) is wrong, all composite parameters involving \(m_2\) are affected:
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Composite Parameter & True Value & Initial Estimate \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(\theta_1 = m_1 l_1^2\) & 1.0 & 1.0 \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleComposite Parameter & True Value & Initial Estimate \\
+\midrule\bottomrule\(\theta_1 = m_1 l_1^2\) & 1.0 & 1.0 \\
 \(\theta_2 = m_2 l_1^2\) & 2.0 & 1.0 \\
 \(\theta_3 = m_2 l_2^2\) & 2.0 & 1.0 \\
 \(\theta_4 = m_2 l_1 l_2\) & 2.0 & 1.0 \\
 \(\theta_5 = (m_1+m_2)gl_1\) & 29.43 & 19.62 \\
 \(\theta_6 = m_2 g l_2\) & 19.62 & 9.81 \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Building the Regressor Matrix}
 
@@ -534,7 +488,7 @@ d(theta\_hat)/dt = Gamma\_inv * Y\textquotesingle{} * s
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% Adaptive Control for 2-DOF Manipulator
 % True parameters
 m1 = 1; m2 = 2; l1 = 1; l2 = 1; g = 9.81;
@@ -612,7 +566,7 @@ function dx = adaptive_manipulator(t, x, m1, m2, l1, l2, g, ...
 
     dx = [dq; ddq; dtheta_hat];
 end
-\end{verbatim}
+\end{lstlisting}
 
 \section{Adaptive Control for Mobile Robot}
 
@@ -658,10 +612,10 @@ Define the parameter vector \(\theta_m = [r,\; r/b]^T\). Then:
 
 \[
                 \begin{bmatrix} v \\ \omega \end{bmatrix}
-                = \underbrace{\begin{bmatrix}
+                = \underset{\text{\footnotesize Y_m(u)}}{\underline{\begin{bmatrix}
                     \frac{1}{2}(\omega_R + \omega_L) & 0 \\
                     0 & \omega_R - \omega_L
-                \end{bmatrix}}_{Y_m(u)}
+                \end{bmatrix}}}
                 \begin{bmatrix} r \\ r/b \end{bmatrix}
             \]
 
@@ -702,7 +656,7 @@ where \(\Gamma_m \succ 0\) is the adaptation gain for the mobile robot parameter
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% Adaptive Control for Differential-Drive Mobile Robot
 % True parameters
 r_true = 0.05;     % wheel radius [m]
@@ -771,7 +725,7 @@ function dx = adaptive_mobile(t, x, r_true, b_true, ...
 
     dx = [dpx; dpy; dphi; dtheta];
 end
-\end{verbatim}
+\end{lstlisting}
 
 \section{Adaptive Control for Quadrotor}
 
@@ -854,7 +808,7 @@ where:
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% Adaptive Control for Quadrotor
 % True parameters
 m_true = 1.5;  g_val = 9.81;
@@ -888,7 +842,7 @@ tspan = 0:0.01:30;
     Ixx_true, Iyy_true, Izz_true, Lambda_p, K_Dp, Gamma_p_inv, ...
     Lambda_a, K_Da, Gamma_a_inv, pd, dpd, ddpd, psid, dpsid, ddpsid), ...
     tspan, x0_quad);
-\end{verbatim}
+\end{lstlisting}
 
 The full implementation, including the ODE function for the quadrotor adaptive controller, is provided in the companion MATLAB file \texttt{adaptive\_control\_simulation.m}.
 
@@ -1006,15 +960,12 @@ The figures below are the output of the MATLAB (or Python) simulation scripts th
 
 \subsection{Summary --- Control Methods Comparison}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Property & Computed Torque (Week 1) & MPC (Week 2) & Adaptive Control (Week 3) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Core idea} & Cancel nonlinearities with exact model, reduce to linear error dynamics & Predict future states over horizon, optimise control sequence online & Estimate unknown parameters online while controlling; Lyapunov guarantees stability \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleProperty & Computed Torque (Week 1) & MPC (Week 2) & Adaptive Control (Week 3) \\
+\midrule\bottomrule\textbf{Core idea} & Cancel nonlinearities with exact model, reduce to linear error dynamics & Predict future states over horizon, optimise control sequence online & Estimate unknown parameters online while controlling; Lyapunov guarantees stability \\
 \textbf{Model requirement} & Exact knowledge of \(M(q), C(q,\dot{q}), G(q)\) & Known (possibly linearised) model for prediction & Known structure (regressor \(Y\)), unknown parameter values (\(\theta\)) \\
 \textbf{Handles uncertainty?} & No --- performance degrades with parameter errors & Partially --- robust MPC variants exist but add conservatism & Yes --- explicitly designed for parametric uncertainty \\
 \textbf{Handles constraints?} & No (must add saturation externally) & Yes --- naturally incorporates state and input constraints & Not directly (parameter projection can enforce bounds on \(\hat{\theta}\)) \\
@@ -1023,7 +974,9 @@ Property & Computed Torque (Week 1) & MPC (Week 2) & Adaptive Control (Week 3) \
 \textbf{Parameter convergence} & N/A (parameters assumed known) & N/A (parameters assumed known) & Only with persistent excitation \\
 \textbf{Key design parameters} & \(K_p, K_v\) (PD gains) & \(Q, R, N\) (cost weights, horizon) & \(\Lambda, K_D, \Gamma\) (sliding surface, damping, adaptation rate) \\
 \textbf{Best suited for} & Well-modelled systems with known parameters & Systems with constraints, preview information, and known models & Systems with unknown or slowly-varying parameters, no constraints \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Looking ahead --- Week 4: Robust Control.} What if the uncertainty is not parametric but includes unmodelled dynamics, disturbances, or unstructured uncertainty? Robust control (e.g., sliding mode control, \(H_\infty\)) provides guaranteed performance bounds without requiring online estimation. We will see how robust and adaptive approaches can be combined.
 

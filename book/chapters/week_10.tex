@@ -17,19 +17,18 @@ Pre-Interview Technical Assessment • Estimated Time: 3 Hours
 
 \subsection{Provided Bag Data}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Message Type & Rate & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/imu} & sensor\_msgs/Imu & 1000 Hz & Raw accelerometer and gyroscope data \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Message Type & Rate & Description \\
+\midrule\bottomrule\texttt{/imu} & sensor\_msgs/Imu & 1000 Hz & Raw accelerometer and gyroscope data \\
 \texttt{/desired\_attitude} & geometry\_msgs/QuaternionStamped & 100 Hz & Target attitude from position controller \\
 \texttt{/motor\_commands} & std\_msgs/Float32MultiArray & 100 Hz & Motor speed commands (4 motors) \\
 \texttt{/ground\_truth\_pose} & geometry\_msgs/PoseStamped & 100 Hz & Ground truth pose from motion capture \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Deliverables}
 
@@ -85,50 +84,6 @@ By the end of this session you will be able to:
   Compare and evaluate all seven controllers on quadrotor hover and trajectory-tracking tasks using quantitative metrics (RMSE, computation time, wind rejection)
 \end{itemize}
 
-\subsection{Recommended Approach (3-Hour Session)}
-
-0:00 -- 0:20
-
-\subsubsection{Week 9 Exam Recall}
-
-Review ROS2 control node architecture, timer-based vs event-driven loops, and computational comparison of PID/LQR/MPC.
-
-0:20 -- 0:50
-
-\subsubsection{Quadrotor Dynamics Review}
-
-State vector, translational and rotational dynamics, motor mixing matrix, coordinate frames. SVG diagram of plus-configuration.
-
-0:50 -- 1:20
-
-\subsubsection{Cascaded Control Architecture in ROS2}
-
-Outer/middle/inner loop decomposition, node graph, topic structure, launch file. Industry standard (PX4, ArduPilot, DJI).
-
-1:20 -- 1:50
-
-\subsubsection{PID Attitude Controller in ROS2}
-
-Full Python implementation of cascaded PID attitude controller node. Complementary filter for attitude estimation.
-
-1:50 -- 2:20
-
-\subsubsection{Applying All 7 Controllers to Quadrotor}
-
-CTC, MPC, Adaptive, Robust, Backstepping, SMC, LQR --- mapping each to quadrotor dynamics. Comprehensive comparison table.
-
-2:20 -- 2:40
-
-\subsubsection{Quadrotor Simulation in ROS2}
-
-quadrotor\_sim.py physics engine, RViz2 visualization, rosbag2 recording, lab exercise walkthrough.
-
-2:40 -- 3:00
-
-\subsubsection{Hands-On Activities \& Wrap-Up}
-
-Three lab activities: hover test, trajectory tracking comparison, wind disturbance rejection. Quiz and summary.
-
 \section{Quadrotor Dynamics Review}
 
 You studied quadrotor dynamics extensively in Weeks 3--8 (MATLAB theory block). Here we briefly review the key equations that we will now implement in ROS2 control nodes. The simulation uses the \texttt{quadrotor\_sim.py} physics engine from \texttt{src/ros2\_robotics\_course/week\_06/}, which follows the ENU/FLU convention (x-forward, y-left, z-up) --- the ROS2 standard.
@@ -171,7 +126,7 @@ Expanding component-wise:
 
 The four motors (plus-configuration) produce a total thrust \(T\) and three torques \((\tau_\phi, \tau_\theta, \tau_\psi)\). The relationship is:
 
-\[ \begin{bmatrix} T \\ \tau_\phi \\ \tau_\theta \\ \tau_\psi \end{bmatrix} = \underbrace{\begin{bmatrix} k_f & k_f & k_f & k_f \\ 0 & -dk_f & 0 & dk_f \\ dk_f & 0 & -dk_f & 0 \\ -k_m & k_m & -k_m & k_m \end{bmatrix}}_{\displaystyle M} \begin{bmatrix} \omega_1^2 \\ \omega_2^2 \\ \omega_3^2 \\ \omega_4^2 \end{bmatrix} \]
+\[ \begin{bmatrix} T \\ \tau_\phi \\ \tau_\theta \\ \tau_\psi \end{bmatrix} = \underset{\text{\footnotesize \displaystyle M}}{\underline{\begin{bmatrix} k_f & k_f & k_f & k_f \\ 0 & -dk_f & 0 & dk_f \\ dk_f & 0 & -dk_f & 0 \\ -k_m & k_m & -k_m & k_m \end{bmatrix}}} \begin{bmatrix} \omega_1^2 \\ \omega_2^2 \\ \omega_3^2 \\ \omega_4^2 \end{bmatrix} \]
 
 where \(k_f\) is the thrust coefficient, \(k_m\) is the torque coefficient, \(d\) is the arm length, and \(\omega_i\) is the angular speed of motor \(i\). The inverse mixing matrix \(M^{-1}\) converts desired thrust/torques to motor speed commands:
 
@@ -231,26 +186,25 @@ Full PID on rate error. This is the tightest loop and must run fastest for stabi
 
 \subsection{ROS2 Topic Structure}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lllll@{}}
-\toprule\noalign{}
-Topic Name & Message Type & Publisher & Subscriber(s) & Rate (Hz) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/position\_ref} & geometry\_msgs/Point & Mission Planner & /position\_controller & 10 \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllll}
+
+\topruleTopic Name & Message Type & Publisher & Subscriber(s) & Rate (Hz) \\
+\midrule\bottomrule\texttt{/position\_ref} & geometry\_msgs/Point & Mission Planner & /position\_controller & 10 \\
 \texttt{/attitude\_cmd} & geometry\_msgs/Vector3 & /position\_controller & /attitude\_controller & 50 \\
 \texttt{/rate\_cmd} & geometry\_msgs/Vector3 & /attitude\_controller & /rate\_controller & 250 \\
 \texttt{/motor\_cmd} & std\_msgs/Float64MultiArray & /rate\_controller & /motor\_mixer & 250 \\
 \texttt{/motor\_speeds} & std\_msgs/Float64MultiArray & /motor\_mixer & /quadrotor\_sim & 250 \\
 \texttt{/odom} & nav\_msgs/Odometry & /quadrotor\_sim & /position\_controller & 50 \\
 \texttt{/imu} & sensor\_msgs/Imu & /quadrotor\_sim & /attitude\_controller, /rate\_controller & 250 \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Launch File for Cascaded System}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -291,7 +245,7 @@ def generate_launch_description():
             name='motor_mixer',
         ),
     ])
-\end{verbatim}
+\end{lstlisting}
 
 \section{Implementing PID Attitude Controller in ROS2}
 
@@ -299,7 +253,7 @@ Below is a complete ROS2 Python node implementing a cascaded PID attitude contro
 
 \subsection{Full PID Attitude Controller Node}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 """PID Attitude Controller - ROS2 Node for Quadrotor."""
 import rclpy
@@ -387,7 +341,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Complementary Filter for Attitude Estimation}
 
@@ -565,15 +519,12 @@ where \(Q_{uu}, Q_{ux}, Q_u\) are Jacobian/Hessian blocks assembled from the non
 
 \subsection{Comprehensive Controller Comparison}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lllllll@{}}
-\toprule\noalign{}
-Controller & Hover RMSE (cm) & Trajectory RMSE (cm) & Wind Rejection (3 m/s) & Computation / Cycle & Tuning Params & Industry Example \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{PID} & 3.2 & 8.5 & Moderate (15 cm drift) & \textless1 μs & 9 (Kp, Ki, Kd × 3 axes) & ArduPilot, BetaFlight \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllllll}
+
+\topruleController & Hover RMSE (cm) & Trajectory RMSE (cm) & Wind Rejection (3 m/s) & Computation / Cycle & Tuning Params & Industry Example \\
+\midrule\bottomrule\textbf{PID} & 3.2 & 8.5 & Moderate (15 cm drift) & \textless1 μs & 9 (Kp, Ki, Kd × 3 axes) & ArduPilot, BetaFlight \\
 \textbf{CTC} & 2.1 & 5.8 & Poor (model mismatch) & \textasciitilde5 μs & 6 (Kp, Kd × 3) + model & Research platforms \\
 \textbf{MPC} & 1.8 & 3.2 & Good (12 cm drift) & 1--50 ms & Q, R matrices + N horizon & Skydio, ETH Zurich \\
 \textbf{Adaptive} & 2.5 & 6.1 & Good (adapts to steady wind) & \textasciitilde20 μs & Γ, Λ + regressor structure & Payload-carrying drones \\
@@ -581,7 +532,9 @@ Controller & Hover RMSE (cm) & Trajectory RMSE (cm) & Wind Rejection (3 m/s) & C
 \textbf{Backstepping} & 2.0 & 4.5 & Good (10 cm drift) & \textasciitilde15 μs & k\textsubscript{1}--k\textsubscript{6} (Lyapunov gains) & Academic, Parrot AR.Drone \\
 \textbf{SMC} & 2.4 & 5.5 & Excellent (4 cm drift) & \textasciitilde8 μs & λ, η, ε per axis & DJI (inner loop elements) \\
 \textbf{LQR} & 1.5 & 6.8 & Moderate (14 cm drift) & \textasciitilde2 μs & Q, R diagonal entries & PX4 (mc\_pos\_control) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Key Insight:} No single controller dominates across all metrics. PID is the industry standard due to simplicity and robustness of tuning. MPC excels at trajectory tracking with constraints. SMC and Robust control are superior for wind rejection. LQR is optimal for hover energy efficiency. In practice, many production systems blend approaches --- for example, PX4 uses a cascaded PID structure but the position loop effectively implements LQR-like gains computed from a simplified model.
 
@@ -609,7 +562,7 @@ The simulation uses the \texttt{quadrotor\_sim.py} physics engine from the ROS2 
 
 The simulation node publishes sensor data and subscribes to motor commands:
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 # quadrotor_sim_node.py - Wraps quadrotor_sim.py as a ROS2 node
 class QuadrotorSimNode(Node):
     def __init__(self):
@@ -627,7 +580,7 @@ class QuadrotorSimNode(Node):
         self.state[2] = 0.0  # start on ground
         self.params = QuadrotorParams()
         self.create_timer(0.001, self.step_sim)  # 1 kHz physics
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Visualization in RViz2}
 
@@ -659,22 +612,21 @@ ros2 bag convert -i flight_test_pid_hover -o flight_data.csv
 
 The following lab exercises from \texttt{src/ros2\_robotics\_course/week\_06/lab\_exercises/} build up to a complete quadrotor simulation. This week, you will use these as your foundation and swap in different controllers:
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Task & File & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Task 1 & \texttt{task1\_rotation\_math.py} & Rotation mathematics: Euler angles to rotation matrix, quaternion operations, conversions between representations \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleTask & File & Description \\
+\midrule\bottomruleTask 1 & \texttt{task1\_rotation\_math.py} & Rotation mathematics: Euler angles to rotation matrix, quaternion operations, conversions between representations \\
 Task 2 & \texttt{task2\_dynamics\_model.py} & Implement the 12-state quadrotor dynamics model, compute state derivatives, RK4 integration \\
 Task 3 & \texttt{task3\_pid\_attitude.py} & Cascaded PID attitude controller with outer angle loop and inner rate loop \\
 Task 4 & \texttt{task4\_motor\_mixing.py} & Motor mixing matrix construction and inversion, mapping from thrust/torques to motor speeds \\
 Task 5 & \texttt{task5\_cascaded\_control.py} & Full cascaded position + attitude control: position PD → desired acceleration → desired attitude → PID → motors \\
 Task 6 & \texttt{task6\_complementary\_filter.py} & Complementary filter implementation fusing gyroscope and accelerometer data \\
 Task 7 & \texttt{task7\_full\_simulation.py} & Full simulation: fly a square trajectory with cascaded controller, 4-panel visualization \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Integration with This Week:} Tasks 1--4 provide the foundation (dynamics, mixing, PID). Task 5 gives the cascaded structure. Your job this week is to replace the inner PID controller in Task 5 with each of the seven controllers (CTC, MPC, Adaptive, Robust, Backstepping, SMC, LQR) and compare performance on the same trajectory.
 
@@ -710,7 +662,7 @@ Task 7 & \texttt{task7\_full\_simulation.py} & Full simulation: fly a square tra
   \end{itemize}
 \end{enumerate}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 # Terminal 1: Launch simulation + controllers
 ros2 launch quadrotor_control cascaded_hover.launch.py
 
@@ -719,7 +671,7 @@ ros2 bag record /odom /imu /attitude_cmd /motor_cmd -o hover_test_pid
 
 # Terminal 3: Monitor in real-time
 ros2 topic echo /odom --field pose.pose.position
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Activity 2: Trajectory Tracking --- PID vs LQR vs MPC}
 
@@ -884,35 +836,34 @@ Next week we move to \textbf{Multi-Robot Coordination and Formation Control}. We
 
 \subsection{Build and Source}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 cd ~/auto_control_ws
 colcon build --packages-select week_06_quadrotor_dynamics
 source install/setup.bash
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Launch the Demo}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 ros2 launch week_06_quadrotor_dynamics demo.launch.py
-\end{verbatim}
+\end{lstlisting}
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (attitude estimation, PID control, motor mixing), and opens RViz2 with a preconfigured layout.
 
 \subsection{ROS2 Topics}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Type & Source & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/imu} & sensor\_msgs/Imu & Bag & Raw IMU data at 1000 Hz \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Type & Source & Description \\
+\midrule\bottomrule\texttt{/imu} & sensor\_msgs/Imu & Bag & Raw IMU data at 1000 Hz \\
 \texttt{/desired\_attitude} & geometry\_msgs/QuaternionStamped & Bag & Attitude setpoints at 100 Hz \\
 \texttt{/motor\_commands} & std\_msgs/Float32MultiArray & Bag & Motor speed telemetry at 100 Hz \\
 \texttt{/ground\_truth\_pose} & geometry\_msgs/PoseStamped & Bag & Ground truth from motion capture at 100 Hz \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Expected RViz2 Output}
 
@@ -954,20 +905,19 @@ Explain the architecture of a ROS2 control node for a robotic system. In your an
 
 \textbf{Part (c):}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & Timer-Based (Fixed-Rate) & Event-Driven (Sensor-Triggered) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Timing & Fixed period (e.g., 100 Hz), decoupled from sensor rate & Fires when new sensor message arrives \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleAspect & Timer-Based (Fixed-Rate) & Event-Driven (Sensor-Triggered) \\
+\midrule\bottomruleTiming & Fixed period (e.g., 100 Hz), decoupled from sensor rate & Fires when new sensor message arrives \\
 Latency & Average latency = half the control period; worst case = full period & Minimal latency --- processes data immediately upon arrival \\
 Jitter & Low jitter if OS scheduling is adequate; consistent \(\Delta t\) & Jitter depends on sensor timing; inconsistent \(\Delta t\) \\
 Computational load & Predictable, evenly spaced CPU usage & Bursty --- may overload if multiple sensors arrive simultaneously \\
 Best for & Inner-loop controllers needing guaranteed rate (PID, LQR) & High-level planners, vision-based control where data is sparse \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 In practice, most flight controllers (PX4, ArduPilot) use timer-based loops for attitude and rate control, with event-driven callbacks only for updating the latest sensor data into shared buffers that the timer callback reads.
 
@@ -1001,18 +951,17 @@ You implemented PID, LQR, and MPC as separate ROS2 control nodes in Week 9. Comp
 
 \textbf{Part (b):}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Controller & FLOPs / Cycle & Typical Time on ARM Cortex \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-PID & \textasciitilde40 & \textless{} 1 μs \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleController & FLOPs / Cycle & Typical Time on ARM Cortex \\
+\midrule\bottomrulePID & \textasciitilde40 & \textless{} 1 μs \\
 LQR & \textasciitilde104 & \textasciitilde2 μs \\
 MPC (N=20) & \textasciitilde10\textsuperscript{5} & 1--50 ms \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Part (c):} PID and LQR both require hard real-time guarantees because they run in the inner attitude/rate loop at 250--1000 Hz. Missing a deadline causes immediate instability in an airborne vehicle. MPC typically runs at 10--50 Hz in the outer position loop and can tolerate slight deadline misses (the previous solution is applied if the new one is late). In ROS2, real-time is supported by: (1) using a \textbf{SingleThreadedExecutor} on a dedicated thread with SCHED\_FIFO priority, (2) setting QoS to \texttt{BEST\_EFFORT} reliability with small queue depths to avoid blocking, (3) pre-allocating all memory to avoid heap allocation in the control loop, and (4) using the \texttt{rclcpp} real-time-safe utilities or the \texttt{realtime\_tools} package.
 

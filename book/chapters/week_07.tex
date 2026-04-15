@@ -130,21 +130,20 @@ Instead of identifying \emph{what} the uncertainty is (as adaptive control does)
 
 \textbf{Trade-off:}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & Adaptive Control & Robust Control \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Uncertainty handling & Estimates and cancels parametric uncertainty & Overpowers bounded uncertainty without identification \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleAspect & Adaptive Control & Robust Control \\
+\midrule\bottomruleUncertainty handling & Estimates and cancels parametric uncertainty & Overpowers bounded uncertainty without identification \\
 Conservatism & Low --- adapts to actual parameters & High --- must use worst-case bound \\
 Control effort & Decreases as estimates converge & Remains high (constant worst-case gain) \\
 Chattering & None (smooth update law) & Possible with discontinuous sign function \\
 Unstructured uncertainty & Cannot handle (requires linear parameterisation) & Handles any bounded disturbance \\
 Convergence & Asymptotic (with PE: exponential) & Finite-time to sliding surface \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Learning Outcomes}
 
@@ -161,44 +160,6 @@ Convergence & Asymptotic (with PE: exponential) & Finite-time to sliding surface
 \item
   Compare backstepping with computed torque, MPC, adaptive, and robust control
 \end{itemize}
-
-\subsection{Session Roadmap (3 Hours)}
-
-0:00 -- 0:20
-
-\subsubsection{Week 5 Recall --- Robust Control Exam Practice}
-
-Solve two exam-style questions on robust control, Lyapunov analysis, and comparison with adaptive control.
-
-0:20 -- 1:00
-
-\subsubsection{Backstepping Theory}
-
-Strict-feedback systems, virtual control, recursive Lyapunov design, n-step generalisation.
-
-1:00 -- 1:30
-
-\subsubsection{Backstepping for Manipulator}
-
-Convert Euler-Lagrange dynamics to strict-feedback form, design backstepping torque controller, full Lyapunov proof, MATLAB code.
-
-1:30 -- 2:00
-
-\subsubsection{Backstepping for Mobile Robot}
-
-Chained-form unicycle model, backstepping position tracking design, MATLAB code.
-
-2:00 -- 2:30
-
-\subsubsection{Backstepping for Drone}
-
-Cascade position--attitude structure, multi-loop backstepping, MATLAB code.
-
-2:30 -- 3:00
-
-\subsubsection{Hands-on Activities, Quiz \& Summary}
-
-Gain tuning experiments, comparative study, quiz, and method comparison table.
 
 \section{Backstepping Theory}
 
@@ -548,7 +509,7 @@ Both \(z_1 \to 0\) and \(z_2 \to 0\) asymptotically, which means \(q \to q_d\) a
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % Backstepping controller for 2-DOF manipulator
 function tau = backstepping_manipulator(t, q, dq, params)
     % Desired trajectory
@@ -569,7 +530,7 @@ function tau = backstepping_manipulator(t, q, dq, params)
     tau = M * (ddqd - params.k1*dz1 - params.k2*z2) ...
         + C * alpha1 + G - z1;
 end
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Implementation note:} The term \(-z_1\) in the control law is the
 "cross-coupling cancellation" term that arises from the backstepping procedure.
@@ -694,7 +655,7 @@ For \(v_r > 0\) and using the fact that \(\frac{\sin e_3}{e_3}\) is bounded, wit
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % Backstepping controller for unicycle mobile robot
 function [v, omega] = backstepping_mobile_robot(e1, e2, e3, v_r, omega_r, params)
     % e1: longitudinal error (body frame)
@@ -704,7 +665,7 @@ function [v, omega] = backstepping_mobile_robot(e1, e2, e3, v_r, omega_r, params
     v     = v_r * cos(e3) + params.k1 * e1;
     omega = omega_r + params.k2 * v_r * e2 + params.k3 * sin(e3);
 end
-\end{verbatim}
+\end{lstlisting}
 
 \section{Backstepping for Quadrotor Drone}
 
@@ -713,13 +674,13 @@ end
 The quadrotor has a natural four-level cascade:
 
 \[
-                    \underbrace{\text{Position}}_{\text{Level 1}}
+                    \underset{\text{\footnotesize Level 1}}{\underline{\text{Position}}}
                     \;\xrightarrow{\text{desired accel.}}\;
-                    \underbrace{\text{Velocity}}_{\text{Level 2}}
+                    \underset{\text{\footnotesize Level 2}}{\underline{\text{Velocity}}}
                     \;\xrightarrow{\text{desired angles}}\;
-                    \underbrace{\text{Orientation}}_{\text{Level 3}}
+                    \underset{\text{\footnotesize Level 3}}{\underline{\text{Orientation}}}
                     \;\xrightarrow{\text{desired rates}}\;
-                    \underbrace{\text{Angular Rate}}_{\text{Level 4}}
+                    \underset{\text{\footnotesize Level 4}}{\underline{\text{Angular Rate}}}
                     \;\xrightarrow{\quad}\;
                     (T, \boldsymbol{\tau})
                 \]
@@ -821,7 +782,7 @@ This yields the overall Lyapunov function:
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % Backstepping controller for quadrotor
 function [T, tau_b] = backstepping_quadrotor(state, ref, params)
     % State: [x y z vx vy vz phi theta psi p q r]
@@ -861,7 +822,7 @@ function [T, tau_b] = backstepping_quadrotor(state, ref, params)
     tau_b = J * (-params.ka1*(-params.ka1*z3 - z4*0) - params.ka2*z4) ...
           + cross(omega_b, J*omega_b) - z3;
 end
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Practical note:} In real implementations, the desired angles \((\phi_d, \theta_d)\)
 must be saturated (typically to \(\pm 30^\circ\)) to prevent aggressive manoeuvres.
@@ -1021,15 +982,12 @@ steps equals the relative degree from the output to the input.
 
 \subsection{Summary: Comparison of All Five Control Methods}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llllll@{}}
-\toprule\noalign{}
-Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Backstepping (Wk5) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Core idea} & Cancel nonlinearity, impose linear error dynamics & Optimise predicted trajectory over finite horizon & On-line parameter estimation + control & Dominate worst-case bounded uncertainty & Recursive Lyapunov design through cascade structure \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llllll}
+
+\topruleAspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Backstepping (Wk5) \\
+\midrule\bottomrule\textbf{Core idea} & Cancel nonlinearity, impose linear error dynamics & Optimise predicted trajectory over finite horizon & On-line parameter estimation + control & Dominate worst-case bounded uncertainty & Recursive Lyapunov design through cascade structure \\
 \textbf{Model requirement} & Exact model needed & Prediction model needed & Structure known, parameters unknown & Nominal model + uncertainty bound & Strict-feedback structure required \\
 \textbf{Lyapunov function} & Implicit (linear closed-loop) & Cost function (not standard Lyapunov) & \(V = \frac{1}{2}s^T M s + \frac{1}{2}\tilde{\theta}^T\Gamma^{-1}\tilde{\theta}\) & \(V = \frac{1}{2}s^T M s\) & \(V = \sum \frac{1}{2}z_i^T W_i z_i\) (constructed step-by-step) \\
 \textbf{Handles constraints} & No & Yes (core feature) & No (standard form) & No & No (standard form) \\
@@ -1038,7 +996,9 @@ Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Bac
 \textbf{Key advantage} & Simple, well-understood & Handles constraints and preview & Self-tuning for unknown parameters & Guaranteed performance under uncertainty & Systematic design with constructive stability proof \\
 \textbf{Key limitation} & No robustness to model error & Computational cost, model dependence & Needs persistent excitation, structured uncertainty & Conservative (worst-case design), chattering & Complexity explosion in \(\dot{\alpha}_i\) for high-order systems \\
 \textbf{Control law form} & \(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\) & \(u^* = \arg\min_{u} \sum_{k} \|x_k - x_r\|^2_Q + \|u_k\|^2_R\) & \(\tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\hat{\theta} - K_D s\) & \(\tau = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K_D s + \rho\frac{s}{\|s\|}\) & \(\tau = M[\ddot{q}_d - K_1\dot{z}_1 - K_2 z_2] + C\alpha_1 + G - z_1\) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Figure 8:} Side-by-side comparison of feedback linearization (cancels all nonlinearities) versus backstepping (exploits useful nonlinearities with constructive Lyapunov guarantees).
 

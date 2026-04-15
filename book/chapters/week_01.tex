@@ -31,80 +31,6 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
   \textbf{Compare} PD, PD + gravity compensation, and full computed torque control performance
 \end{itemize}
 
-\subsection{Session Roadmap (3 Hours)}
-
-0:00 -- 0:40
-
-\subsubsection{Manipulator Dynamics}
-
-\begin{itemize}
-\tightlist
-\item
-  Review of feedback vs feedforward control
-\item
-  Euler--Lagrange formulation
-\item
-  Properties of the dynamics: \(M(q)\), \(C(q,\dot{q})\), \(G(q)\)
-\item
-  Skew-symmetry property \& its role in control
-\end{itemize}
-
-0:40 -- 1:20
-
-\subsubsection{Control Design}
-
-\begin{itemize}
-\tightlist
-\item
-  PD control and its limitations
-\item
-  PD + gravity compensation
-\item
-  Computed torque (inverse dynamics) control
-\item
-  Lyapunov stability proof
-\end{itemize}
-
-1:20 -- 1:30
-
-\subsubsection{Break}
-
-\begin{itemize}
-\tightlist
-\item
-  10-minute break
-\end{itemize}
-
-1:30 -- 2:15
-
-\subsubsection{MATLAB Implementation}
-
-\begin{itemize}
-\tightlist
-\item
-  Guided MATLAB coding of computed torque controller
-\item
-  Running ODE45 simulations
-\item
-  Interpreting tracking and error plots
-\end{itemize}
-
-2:15 -- 3:00
-
-\subsubsection{Robustness Analysis \& Activities}
-
-\begin{itemize}
-\tightlist
-\item
-  Effect of model uncertainty on computed torque
-\item
-  Payload variation experiments
-\item
-  Disturbance rejection analysis
-\item
-  Group activity \& wrap-up quiz
-\end{itemize}
-
 \section{Manipulator Dynamics}
 
 \subsection{Why Dynamics Matter}
@@ -129,20 +55,19 @@ For an \(n\)-DOF rigid-body manipulator, the Lagrangian \(\mathcal{L} = T - V\) 
 
 \[ M(q)\,\ddot{q} \;+\; C(q,\dot{q})\,\dot{q} \;+\; G(q) \;=\; \tau \]
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Symbol & Name & Dimension & Physical Meaning \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(q\) & Joint positions & \(n \times 1\) & Generalised coordinates (angles for revolute joints) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleSymbol & Name & Dimension & Physical Meaning \\
+\midrule\bottomrule\(q\) & Joint positions & \(n \times 1\) & Generalised coordinates (angles for revolute joints) \\
 \(M(q)\) & Mass (inertia) matrix & \(n \times n\) & Relates joint accelerations to required torques; symmetric positive-definite \\
 \(C(q,\dot{q})\) & Coriolis \& centrifugal matrix & \(n \times n\) & Velocity-dependent coupling forces between joints \\
 \(G(q)\) & Gravity vector & \(n \times 1\) & Torques required to hold the arm against gravity \\
 \(\tau\) & Joint torques & \(n \times 1\) & Control inputs (what we design) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{A Concrete Example: 2-DOF Planar Manipulator}
 
@@ -253,18 +178,17 @@ For each joint, the characteristic equation is \(s^2 + k_d\,s + k_p = 0\). Compa
 
 \[ k_p = \omega_n^2, \qquad k_d = 2\zeta\omega_n \]
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llllll@{}}
-\toprule\noalign{}
-Design Choice & \(\zeta\) & \(\omega_n\) & \(K_P\) & \(K_D\) & Behaviour \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Underdamped & 0.5 & 10 & 100 & 10 & Fast but oscillatory \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llllll}
+
+\topruleDesign Choice & \(\zeta\) & \(\omega_n\) & \(K_P\) & \(K_D\) & Behaviour \\
+\midrule\bottomruleUnderdamped & 0.5 & 10 & 100 & 10 & Fast but oscillatory \\
 Critically damped & 1.0 & 10 & 100 & 20 & Fastest without overshoot ✓ \\
 Overdamped & 2.0 & 10 & 100 & 40 & Sluggish but smooth \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Lyapunov Stability Proof}
 
@@ -313,7 +237,7 @@ We will now implement the computed torque controller for a 2-DOF manipulator ste
 
 \subsection{System Parameters}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % ===== System Parameters =====
 clear all; close all; clc;
 
@@ -332,16 +256,16 @@ t_span = 0:0.01:20;          % 20 seconds, 10 ms step
 q0  = [0; 0];                % Initial joint angles
 dq0 = [0; 0];                % Initial joint velocities
 x0  = [q0; dq0];             % State vector [q1; q2; dq1; dq2]
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Desired Trajectory Functions}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % ===== Desired Trajectory =====
 qd   = @(t) [0.5*sin(t);  0.5*cos(t)];
 dqd  = @(t) [0.5*cos(t); -0.5*sin(t)];
 ddqd = @(t) [-0.5*sin(t); -0.5*cos(t)];
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Dynamics with Computed Torque Controller}
 
@@ -366,7 +290,7 @@ RETURN {[}dq; ddq{]}
 
 \subsubsection{MATLAB Code}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 function dx = manipulator_dynamics(t, x, params, qd, dqd, ddqd)
     q  = x(1:2);       % Joint angles
     dq = x(3:4);       % Joint velocities
@@ -409,13 +333,13 @@ function dx = manipulator_dynamics(t, x, params, qd, dqd, ddqd)
 
     dx = [dq; ddq];
 end
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Why \texttt{M\textbackslash{}b} instead of \texttt{inv(M)*b}?} The backslash operator is numerically more stable and faster. Never invert the mass matrix explicitly in production code.
 
 \subsection{Run Simulation \& Plot}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % ===== Run ODE45 =====
 [t, x] = ode45(@(t,x) manipulator_dynamics(t, x, params, qd, dqd, ddqd), ...
                t_span, x0);
@@ -450,7 +374,7 @@ legend('e_1', 'e_2');
 grid on;
 
 sgtitle('Computed Torque Control — 2-DOF Manipulator');
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Expected Result:} After a brief transient (≈ 1--2 s), both joint errors should converge to near zero and the actual trajectory should overlay the desired trajectory almost perfectly.
 
@@ -476,40 +400,39 @@ To appreciate why computed torque is superior, let us compare three controllers 
 
 \subsection{Controller A: PD Only}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % Inside dynamics function, replace control law with:
 tau = params.Kp * e + params.Kd * de;
 % No model terms — ignores M, C, G completely
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Controller B: PD + Gravity Compensation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % Inside dynamics function, replace control law with:
 tau = params.Kp * e + params.Kd * de + G;
 % Compensates gravity but ignores Coriolis and inertia coupling
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Controller C: Computed Torque (Full)}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % Full computed torque (already implemented above):
 a_cmd = ddq_des + params.Kd * de + params.Kp * e;
 tau   = M * a_cmd + C * dq + G;
-\end{verbatim}
+\end{lstlisting}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lllll@{}}
-\toprule\noalign{}
-Controller & Model Knowledge & Steady-State Error & Transient Error & Coupling Rejection \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-PD Only & None & Non-zero (gravity droop) & Large & Poor \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllll}
+
+\topruleController & Model Knowledge & Steady-State Error & Transient Error & Coupling Rejection \\
+\midrule\bottomrulePD Only & None & Non-zero (gravity droop) & Large & Poor \\
 PD + Gravity & \(G(q)\) & Zero at setpoints & Moderate & Moderate \\
 Computed Torque & \(M, C, G\) & Zero & Small (tunable) & Excellent ✓ \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsubsection{Hands-On Activity 2 (15 min)}
 
@@ -559,7 +482,7 @@ Substituting into the true dynamics:
 
 Defining model errors \(\Delta M = M - \hat{M}\), \(\Delta C = C - \hat{C}\), \(\Delta G = G - \hat{G}\), the closed-loop error dynamics become:
 
-\[ M\,\ddot{e} + (C + K_D^*)\,\dot{e} + K_P^*\,e = \underbrace{\Delta M\,\ddot{q}_d + \Delta C\,\dot{q} + \Delta G}_{\text{perturbation } d(t)} \]
+\[ M\,\ddot{e} + (C + K_D^*)\,\dot{e} + K_P^*\,e = \underset{\text{\footnotesize \text{perturbation } d(t)}}{\underline{\Delta M\,\ddot{q}_d + \Delta C\,\dot{q} + \Delta G}} \]
 
 The error no longer converges to zero --- it is driven by the perturbation \(d(t)\).
 
@@ -569,7 +492,7 @@ The error no longer converges to zero --- it is driven by the perturbation \(d(t
 
 We simulate the scenario where the \textbf{true} plant has \(m_2 = 2\,\text{kg}\) but the controller still assumes \(m_2 = 1\,\text{kg}\).
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % ===== Robustness Test: Payload Mismatch =====
 % True plant parameters (what reality is)
 params_true = params;
@@ -612,11 +535,11 @@ function [M, C, G] = build_model(q, dq, p)
     G = [(p.m1+p.m2)*p.g*p.l1*cos(q(1)) + p.m2*p.g*p.l2*cos(q(1)+q(2));
           p.m2*p.g*p.l2*cos(q(1)+q(2))];
 end
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Experiment: Adding Joint Friction}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % ===== Add Coulomb + Viscous Friction =====
 % After computing ddq from the model, add friction terms:
 
@@ -628,11 +551,11 @@ tau_friction = b_viscous * dq + f_coulomb * sign(dq);
 
 % Modified acceleration (true plant sees friction)
 ddq = M_true \ (tau - C_true*dq - G_true - tau_friction);
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Experiment: External Disturbance Pulse}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 % ===== External Disturbance =====
 % Simulate a sudden impact at t = 10 s lasting 0.5 s
 
@@ -643,24 +566,23 @@ else
 end
 
 ddq = M_true \ (tau - C_true*dq - G_true + tau_dist);
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Summary of Robustness Results}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Scenario & Peak Error (rad) & Steady-State Error & Stability \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Perfect model & ≈ 0.02 (transient only) & ≈ 0 & Asymptotically stable \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleScenario & Peak Error (rad) & Steady-State Error & Stability \\
+\midrule\bottomrulePerfect model & ≈ 0.02 (transient only) & ≈ 0 & Asymptotically stable \\
 Payload ×2 & ≈ 0.08 -- 0.15 & Small oscillatory & Bounded (stable) \\
 Joint friction & ≈ 0.03 -- 0.06 & Small bias & Bounded (stable) \\
 Disturbance pulse & ≈ 0.10 (at impact) & Returns to ≈ 0 & ISS (input-to-state stable) \\
 Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with low gains \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Rule of Thumb:} Higher gains (\(K_P, K_D\)) improve robustness by rejecting perturbations faster, but they also amplify sensor noise and demand higher torques. Controller design is always a trade-off between performance, robustness, and actuator limits.
 
@@ -720,18 +642,17 @@ The figures below are the output of the MATLAB (or Python) simulation scripts th
 
 Create a single MATLAB figure with a 3×2 subplot layout:
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-& Column 1: Joint Angles & Column 2: Tracking Error \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Row 1} & PD Only --- actual vs desired & PD Only --- error \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\toprule& Column 1: Joint Angles & Column 2: Tracking Error \\
+\midrule\bottomrule\textbf{Row 1} & PD Only --- actual vs desired & PD Only --- error \\
 \textbf{Row 2} & PD + Gravity --- actual vs desired & PD + Gravity --- error \\
 \textbf{Row 3} & Computed Torque --- actual vs desired & Computed Torque --- error \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 Use the same gains and trajectory for all three. Include a title, legends, and axis labels on every subplot.
 
@@ -856,20 +777,19 @@ Click to reveal answers
 
 \subsection{Key Equations to Remember}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}ll@{}}
-\toprule\noalign{}
-Equation & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\) & Robot dynamics (Euler--Lagrange) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{ll}
+
+\topruleEquation & Description \\
+\midrule\bottomrule\(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\) & Robot dynamics (Euler--Lagrange) \\
 \(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\) & Computed torque control law \\
 \(\ddot{e} + K_D\dot{e} + K_P e = 0\) & Closed-loop error dynamics (perfect model) \\
 \(V = \tfrac{1}{2}\dot{e}^T M \dot{e} + \tfrac{1}{2}e^T K_P e\) & Lyapunov function \\
 \(\dot{V} = -\dot{e}^T K_D \dot{e} \leq 0\) & Lyapunov derivative (guarantees stability) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Next Week: Advanced Control Techniques}
 

@@ -17,18 +17,17 @@ Pre-Interview Technical Assessment • Estimated Time: 3 Hours
 
 \subsection{Provided Bag Data}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Message Type & Rate & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/map} & nav\_msgs/OccupancyGrid & Latched & Static occupancy grid map of the environment \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Message Type & Rate & Description \\
+\midrule\bottomrule\texttt{/map} & nav\_msgs/OccupancyGrid & Latched & Static occupancy grid map of the environment \\
 \texttt{/odom} & nav\_msgs/Odometry & 20 Hz & Wheel odometry (position, orientation, velocity) \\
 \texttt{/scan} & sensor\_msgs/LaserScan & 5 Hz & 2D laser range finder data \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Deliverables}
 
@@ -84,56 +83,6 @@ By the end of this session, you will be able to:
   Configure, launch, and tune Nav2 for TurtleBot3 simulation including AMCL localization, DWA local planning, and waypoint navigation.
 \end{itemize}
 
-\subsection{Recommended Approach (3-Hour Session)}
-
-0:00 -- 0:20
-
-\subsubsection{Week 10 Exam Recall \& Introduction}
-
-Review quadrotor control exam questions. Introduce mobile robot navigation as the next control application domain.
-
-0:20 -- 0:50
-
-\subsubsection{Nav2 Architecture Overview}
-
-Global planner, local controller, costmaps, AMCL, behavior trees, recovery behaviors. Key ROS2 topics and message types.
-
-0:50 -- 1:20
-
-\subsubsection{DWA --- The Local Controller as Optimization}
-
-Deep dive into the Dynamic Window Approach. Connection to MPC. Simplified DWA implementation in ROS2.
-
-1:20 -- 1:35
-
-\subsubsection{Break}
-
-15-minute break.
-
-1:35 -- 1:55
-
-\subsubsection{AMCL --- State Estimation for Control}
-
-Particle filter localization. Connection to Week 8\textquotesingle s controller-estimator pairing for NMPC. ROS2 AMCL configuration.
-
-1:55 -- 2:10
-
-\subsubsection{Costmaps as Constraints \& Part 5: Behavior Trees}
-
-Costmap inflation as soft constraints. Behavior tree navigation orchestration.
-
-2:10 -- 2:25
-
-\subsubsection{Applying Control Theory to Navigation}
-
-Mapping all 8 control methods from the course to mobile robot navigation scenarios.
-
-2:25 -- 3:00
-
-\subsubsection{Hands-On Activities \& Lab Exercises}
-
-Configure Nav2 for TurtleBot3. Tune DWA. Compare DWA vs MPC. Waypoint navigation with recovery.
-
 \section{The ROS2 Navigation Stack (Nav2)}
 
 Nav2 is the standard ROS2 navigation framework for autonomous mobile robots. It provides a complete, modular pipeline: from a goal pose, through path planning and obstacle avoidance, to velocity commands sent to the robot\textquotesingle s motors. Every component is a ROS2 lifecycle node that can be configured, replaced, or extended via plugins.
@@ -168,15 +117,12 @@ Activated when the robot gets stuck. \textbf{Spin:} rotate in place to clear loc
 
 \subsection{Key Nav2 ROS2 Topics}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Message Type & Publisher & Purpose \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/map} & \texttt{nav\_msgs/OccupancyGrid} & Map Server & Static occupancy grid from SLAM. Values: 0 = free, 100 = occupied, -1 = unknown. \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Message Type & Publisher & Purpose \\
+\midrule\bottomrule\texttt{/map} & \texttt{nav\_msgs/OccupancyGrid} & Map Server & Static occupancy grid from SLAM. Values: 0 = free, 100 = occupied, -1 = unknown. \\
 \texttt{/scan} & \texttt{sensor\_msgs/LaserScan} & LiDAR driver & 2D laser range data. Used by AMCL for localization and obstacle layer for costmap. \\
 \texttt{/odom} & \texttt{nav\_msgs/Odometry} & Wheel encoders & Robot odometry (pose + twist). Frame: odom → base\_link. \\
 \texttt{/cmd\_vel} & \texttt{geometry\_msgs/Twist} & Local Controller & Velocity command: \texttt{linear.x} (m/s), \texttt{angular.z} (rad/s) for differential drive. \\
@@ -184,7 +130,9 @@ Topic & Message Type & Publisher & Purpose \\
 \texttt{/local\_costmap/costmap} & \texttt{nav\_msgs/OccupancyGrid} & Costmap 2D & Rolling-window costmap centred on robot. Used by local controller at 5--20 Hz. \\
 \texttt{/plan} & \texttt{nav\_msgs/Path} & Global Planner & Sequence of poses from current position to goal. \\
 \texttt{/tf}, \texttt{/tf\_static} & \texttt{tf2\_msgs/TFMessage} & Various & Transform tree: map → odom → base\_link → sensors. Critical for all Nav2 components. \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Control Theory Connection:} The Nav2 architecture implements a hierarchical control structure analogous to the cascaded quadrotor controller from Week 10. The behavior tree is the mission-level controller, the global planner is the trajectory generator, and the local controller is the real-time feedback loop --- each operating at progressively faster rates.
 
@@ -248,25 +196,24 @@ where:
 
 \[ \min_{\mathbf{u}_{0:N-1}} \sum_{k=0}^{N-1} \bigl[\mathbf{x}_k^T \mathbf{Q} \mathbf{x}_k + \mathbf{u}_k^T \mathbf{R} \mathbf{u}_k\bigr] + \mathbf{x}_N^T \mathbf{P} \mathbf{x}_N \quad \text{s.t. model, constraints} \]
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & DWA & MPC \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Prediction Horizon & \(N = 1\) (or short trajectory) & \(N \gg 1\) (10--50 steps) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleAspect & DWA & MPC \\
+\midrule\bottomrulePrediction Horizon & \(N = 1\) (or short trajectory) & \(N \gg 1\) (10--50 steps) \\
 Decision Variables & \((v, \omega)\) --- 2 scalars & \(\mathbf{u}_{0:N-1}\) --- \(2N\) variables \\
 Optimisation Method & Grid search over sampled velocities & QP solver or sampling (MPPI) \\
 Constraint Handling & Dynamic window + collision check & Explicit inequality constraints \\
 Computational Cost & Low (\textasciitilde1 ms) & Higher (\textasciitilde5--50 ms) \\
 Anticipation & Myopic (reacts to immediate surroundings) & Looks ahead (anticipates obstacles, turns) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{ROS2 Implementation --- Simplified DWA Local Planner Node}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 """Simplified DWA local planner node for ROS2.
 Subscribes to /odom and /plan, publishes /cmd_vel.
@@ -393,7 +340,7 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Tuning Guide:} The weights \(\alpha, \beta, \gamma\) dramatically affect robot behavior.
 High \(\alpha\) = aggressive goal-seeking (may clip obstacles).
@@ -469,12 +416,12 @@ The AMCL algorithm cycles through four steps:
 
 \subsection{ROS2 AMCL Configuration}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 # Launch AMCL for TurtleBot3 localization
 ros2 launch nav2_bringup localization_launch.py \
     map:=/path/to/map.yaml \
     params_file:=/path/to/nav2_params.yaml
-\end{verbatim}
+\end{lstlisting}
 
 Key AMCL parameters in \texttt{nav2\_params.yaml}:
 
@@ -628,20 +575,19 @@ inflation\_radius: 0.55
 
 Behavior Trees (BTs) are an alternative to Finite State Machines (FSMs) for orchestrating complex robot behaviors. Nav2 uses the \textbf{BehaviorTree.CPP} library.
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & Finite State Machine & Behavior Tree \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Structure & States + transitions (graph) & Tree of nodes (hierarchical) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleAspect & Finite State Machine & Behavior Tree \\
+\midrule\bottomruleStructure & States + transitions (graph) & Tree of nodes (hierarchical) \\
 Scalability & Exponential transitions as states grow & Modular subtrees, easy to extend \\
 Reactivity & Must explicitly handle every transition & Built-in: tick propagation handles preemption \\
 Reusability & Low (states are context-dependent) & High (subtrees are self-contained) \\
 Debugging & Hard with many states & Visual tools (Groot) show live tree state \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{BT Node Types}
 
@@ -694,15 +640,12 @@ service\_name="/global\_costmap/clear"/\textgreater{}
 
 Throughout Weeks 1--8, you studied eight control methods in the context of general dynamical systems. Here we show how \textbf{every one of them} maps directly to a mobile robot navigation scenario.
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Controller & Navigation Role & Example Scenario \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{PID} & Pure pursuit path follower & Basic line following \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleController & Navigation Role & Example Scenario \\
+\midrule\bottomrule\textbf{PID} & Pure pursuit path follower & Basic line following \\
 \textbf{Computed Torque} & Model-based path tracking & Known-dynamics mobile robot \\
 \textbf{MPC} & MPPI local planner & Nav2 MPPI controller plugin \\
 \textbf{Adaptive} & Terrain-adaptive navigation & Unknown friction, slopes \\
@@ -710,7 +653,9 @@ Controller & Navigation Role & Example Scenario \\
 \textbf{Backstepping} & Nonholonomic path tracking & Parking, tight turns \\
 \textbf{SMC} & Rough terrain tracking & Off-road, disturbance-heavy \\
 \textbf{LQR} & Highway/corridor following & Straight, smooth paths \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Detailed Mapping}
 
@@ -756,41 +701,39 @@ This week\textquotesingle s practical work aligns with the ROS2 Robotics Course 
 
 Located in \texttt{week\_05/lab\_exercises/}. These standalone Python scripts implement the core algorithms underlying Nav2 without requiring a running ROS2 system.
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Task & File & Description & Control Connection \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Task 1} & \texttt{task1\_costmap.py} & Costmap generation with static, obstacle, and inflation layers. Implement \texttt{create\_static\_layer()}, \texttt{create\_obstacle\_layer()}, \texttt{inflate\_costmap()}, and \texttt{combine\_layers()}. & Constraint encoding for MPC/DWA \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTask & File & Description & Control Connection \\
+\midrule\bottomrule\textbf{Task 1} & \texttt{task1\_costmap.py} & Costmap generation with static, obstacle, and inflation layers. Implement \texttt{create\_static\_layer()}, \texttt{create\_obstacle\_layer()}, \texttt{inflate\_costmap()}, and \texttt{combine\_layers()}. & Constraint encoding for MPC/DWA \\
 \textbf{Task 2} & \texttt{task2\_astar.py} & A* pathfinding on an 8-connected grid. Implement \texttt{heuristic()}, \texttt{get\_neighbors()}, \texttt{astar()}, and \texttt{smooth\_path()}. & Global trajectory generation \\
 \textbf{Task 3} & \texttt{task3\_dwa.py} & Dynamic Window Approach local planner. Implement \texttt{compute\_dynamic\_window()}, \texttt{predict\_trajectory()}, \texttt{score\_trajectory()}, and \texttt{dwa\_control()}. & Optimization-based control (mini-MPC) \\
 \textbf{Task 4} & \texttt{task4\_particle\_filter.py} & AMCL-style particle filter localization. Implement \texttt{initialize\_particles()}, \texttt{motion\_update()}, \texttt{sensor\_update()}, \texttt{resample()}, and \texttt{estimate\_pose()}. & State estimation for control (cf. Kalman filter) \\
 \textbf{Task 5} & \texttt{task5\_behavior\_tree.py} & Behavior tree framework. Implement \texttt{Sequence}, \texttt{Fallback}, \texttt{NavigateToPose}, \texttt{IsPathBlocked}, \texttt{RecoveryBehavior}, and \texttt{build\_nav\_bt()}. & Mission-level control orchestration \\
 \textbf{Task 6} & \texttt{task6\_waypoint\_navigation.py} & Waypoint follower using A* for global planning and DWA for local control. Implement \texttt{WaypointFollower}, \texttt{plan\_to\_waypoint()}, \texttt{follow\_path()}. & Hierarchical planning + control \\
 \textbf{Task 7} & \texttt{task7\_full\_navigation.py} & Full integrated navigation combining all components: costmap, A*, DWA, particle filter, and behavior tree in a single pipeline. & Complete navigation control system \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{ROS2 Applied Exercises (Node-Based)}
 
 Located in \texttt{week\_05/w05\_exercises/}. These implement the navigation components as proper ROS2 nodes using topics, services, and message types.
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lllll@{}}
-\toprule\noalign{}
-Exercise & File & Subscribes & Publishes & Key Function \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Exercise 1: Costmap Generator} & \texttt{exercise1\_node.py} & \texttt{/map} (OccupancyGrid) & \texttt{/costmap} (OccupancyGrid) & \texttt{inflate()} --- Inflate obstacles using exponential decay: \texttt{cost\ =\ 100\ *\ exp(-scale\ *\ dist)} \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllll}
+
+\topruleExercise & File & Subscribes & Publishes & Key Function \\
+\midrule\bottomrule\textbf{Exercise 1: Costmap Generator} & \texttt{exercise1\_node.py} & \texttt{/map} (OccupancyGrid) & \texttt{/costmap} (OccupancyGrid) & \texttt{inflate()} --- Inflate obstacles using exponential decay: \texttt{cost\ =\ 100\ *\ exp(-scale\ *\ dist)} \\
 \textbf{Exercise 2: A* Path Planner} & \texttt{exercise2\_node.py} & \texttt{/costmap} (OccupancyGrid) & \texttt{/planned\_path} (Path) & \texttt{astar()} --- A* search with priority queue, Euclidean heuristic, 8-connected grid \\
 \textbf{Exercise 3: Path Follower (Pure Pursuit)} & \texttt{exercise3\_node.py} & \texttt{/planned\_path}, \texttt{/odom} & \texttt{/cmd\_vel} (Twist) & \texttt{pure\_pursuit()} --- Curvature: \(\kappa = 2 y_{\text{local}} / L^2\), then \(\omega = \kappa \cdot v\) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
 
-\begin{verbatim}
+
+\begin{lstlisting}[language=bash]
 # Running the ROS2 exercises
 # Terminal 1: Play synthetic navigation bag data
 ros2 bag play week_05/w05_exercises/bag_data/synthetic_nav2/
@@ -806,7 +749,7 @@ ros2 run week_05 exercise2_node --ros-args \
 # Terminal 4: Run the path follower
 ros2 run week_05 exercise3_node --ros-args \
     --params-file week_05/w05_exercises/config/params.yaml
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Hands-On Activities}
 
@@ -818,7 +761,7 @@ ros2 run week_05 exercise3_node --ros-args \
 \item
   \textbf{Launch the simulation:}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 # Terminal 1: Launch TurtleBot3 in Gazebo maze world
 export TURTLEBOT3_MODEL=waffle
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
@@ -829,7 +772,7 @@ ros2 launch nav2_bringup navigation_launch.py \
 
 # Terminal 3: Launch RViz2 with Nav2 config
 ros2 launch nav2_bringup rviz_launch.py
-\end{verbatim}
+\end{lstlisting}
 \item
   \textbf{Configure AMCL:} Set initial pose using the "2D Pose Estimate" tool in RViz. Observe the particle cloud converging as the robot moves.
 \item
@@ -880,20 +823,19 @@ python3 plot_comparison.py dwa_corridor mpc_corridor
 \item
   \textbf{Analysis table:} Fill in for each scenario:
 
-  \begingroup\footnotesize
-\begin{longtable}[]{@{}lllllll@{}}
-  \toprule\noalign{}
-  Metric & DWA (Corridor) & MPC (Corridor) & DWA (Open) & MPC (Open) & DWA (Dynamic) & MPC (Dynamic) \\
-  \midrule\noalign{}
-  \endhead
-  \bottomrule\noalign{}
-  \endlastfoot
-  Completion Time (s) & & & & & & \\
+  \begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllllll}
+
+  \topruleMetric & DWA (Corridor) & MPC (Corridor) & DWA (Open) & MPC (Open) & DWA (Dynamic) & MPC (Dynamic) \\
+  \midrule\bottomruleCompletion Time (s) & & & & & & \\
   Min Obstacle Dist (m) & & & & & & \\
   Path Length (m) & & & & & & \\
   Avg \textbar cmd\_vel\textbar{} (m/s) & & & & & & \\
   Computation Time (ms) & & & & & & \\
-  \end{longtable}\endgroup
+  \end{tabular}}
+\end{table}
+
 \end{enumerate}
 
 \subsection{Activity 3: Waypoint Navigation with Recovery Behaviors}
@@ -906,7 +848,7 @@ python3 plot_comparison.py dwa_corridor mpc_corridor
 \item
   \textbf{Write the waypoint navigation client:}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 """Waypoint navigation client using Nav2 action server."""
 import rclpy
@@ -972,7 +914,7 @@ def main():
     rclpy.init()
     rclpy.spin(WaypointNavigator())
     rclpy.shutdown()
-\end{verbatim}
+\end{lstlisting}
 \item
   \textbf{Add recovery logic:} If a waypoint fails (timeout after 60s or rejection), retry up to 3 times. If still failing, skip and move to the next waypoint. Log all failures.
 \item
@@ -1045,36 +987,35 @@ Every control method from Weeks 1--8 maps to a navigation role: PID (path follow
 
 \subsection{Build and Source}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 cd ~/auto_control_ws
 colcon build --packages-select week_05_nav2
 source install/setup.bash
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Launch the Demo}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 ros2 launch week_05_nav2 demo.launch.py
-\end{verbatim}
+\end{lstlisting}
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (costmap builder, A* planner, path follower), and opens RViz2 with a preconfigured layout.
 
 \subsection{ROS2 Topics}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Type & Source & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/map} & nav\_msgs/OccupancyGrid & Bag & Static occupancy grid (latched) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Type & Source & Description \\
+\midrule\bottomrule\texttt{/map} & nav\_msgs/OccupancyGrid & Bag & Static occupancy grid (latched) \\
 \texttt{/odom} & nav\_msgs/Odometry & Bag & Wheel odometry at 20 Hz \\
 \texttt{/scan} & sensor\_msgs/LaserScan & Bag & Laser scan data at 5 Hz \\
 \texttt{/cmd\_vel} & geometry\_msgs/Twist & Nodes & Path follower velocity commands \\
 \texttt{/plan} & nav\_msgs/Path & Nodes & A* planned global path \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Expected RViz2 Output}
 

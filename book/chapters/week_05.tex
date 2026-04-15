@@ -126,7 +126,7 @@ We seek a factorisation \(G(q) = Y_G(q)\,\theta_G\). Observe that the gravity te
 Then:
 
 \[
-                            G(q) = \underbrace{\begin{bmatrix} \cos q_1 & \cos(q_1+q_2) \\ 0 & \cos(q_1+q_2) \end{bmatrix}}_{Y_G(q)} \underbrace{\begin{bmatrix} (m_1+m_2)\,g\,l_1 \\ m_2\,g\,l_2 \end{bmatrix}}_{\theta_G}
+                            G(q) = \underset{\text{\footnotesize Y_G(q)}}{\underline{\begin{bmatrix} \cos q_1 & \cos(q_1+q_2) \\ 0 & \cos(q_1+q_2) \end{bmatrix}}} \underset{\text{\footnotesize \theta_G}}{\underline{\begin{bmatrix} (m_1+m_2)\,g\,l_1 \\ m_2\,g\,l_2 \end{bmatrix}}}
                         \]
 
 \textbf{Physical meaning:}
@@ -158,50 +158,6 @@ Then:
 \item
   Compare robust control vs adaptive control vs computed torque control
 \end{itemize}
-
-\subsection{Session Roadmap (3 Hours)}
-
-0:00 -- 0:20
-
-\subsubsection{Previous Week Exam Practice}
-
-Adaptive control recall: Lyapunov proof and regressor identification.
-
-0:20 -- 1:00
-
-\subsubsection{Robust Control Theory}
-
-Philosophy, problem setup, robust term design, Lyapunov proof, \(\mathcal{H}_\infty\) concepts.
-
-1:00 -- 1:20
-
-\subsubsection{Robust Control for Manipulator}
-
-Full derivation for 2-DOF arm, uncertainty bounds, MATLAB implementation.
-
-1:20 -- 1:30
-
-\subsubsection{Break}
-
-10-minute break.
-
-1:30 -- 2:00
-
-\subsubsection{Robust Control for Mobile Robot}
-
-Wheel slip, terrain disturbances, robust unicycle tracking.
-
-2:00 -- 2:30
-
-\subsubsection{Robust Control for Drone}
-
-Wind disturbance rejection, robust position and attitude control.
-
-2:30 -- 3:00
-
-\subsubsection{MATLAB \& Activities}
-
-Hands-on simulation, comparison exercises, quick quiz.
 
 \section{Robust Control Theory}
 
@@ -284,7 +240,7 @@ If we can bound \(\|\eta(t)\| \le \rho(q,\dot{q},t)\) for a known function \(\rh
 The control law has two components:
 
 \[
-                        \tau = \underbrace{\hat{M}(q)\bigl[\ddot{q}_d + K_D\,\dot{e} + K_P\,e\bigr] + \hat{C}(q,\dot{q})\,\dot{q} + \hat{G}(q)}_{\text{nominal computed torque}} + \underbrace{\tau_{\text{robust}}}_{\text{robust term}}
+                        \tau = \underset{\text{\footnotesize nominal computed torque}}{\underline{\hat{M}(q)\bigl[\ddot{q}_d + K_D\,\dot{e} + K_P\,e\bigr] + \hat{C}(q,\dot{q})\,\dot{q} + \hat{G}(q)}} + \underset{\text{\footnotesize robust term}}{\underline{\tau_{\text{robust}}}}
                     \]
 
 where \(e = q_d - q\) is the tracking error.
@@ -300,7 +256,7 @@ Substituting into the manipulator equation:
 Rearranging with \(\ddot{e} = \ddot{q}_d - \ddot{q}\):
 
 \[
-                    M\ddot{e} + (C + \hat{M}K_D)\dot{e} + \hat{M}K_P e = \underbrace{\Delta M\ddot{q} + \Delta C\dot{q} + \Delta G + d(t)}_{\eta(t)} - \tau_{\text{robust}}
+                    M\ddot{e} + (C + \hat{M}K_D)\dot{e} + \hat{M}K_P e = \underset{\text{\footnotesize \eta(t)}}{\underline{\Delta M\ddot{q} + \Delta C\dot{q} + \Delta G + d(t)}} - \tau_{\text{robust}}
                 \]
 
 \subsection{Robust Term Design}
@@ -520,7 +476,7 @@ Since \(s = \dot{e} + \Lambda e\), the position tracking error is ultimately bou
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% Robust Computed Torque Control for 2-DOF Manipulator
 % Parameters
 m1 = 2.0; m2 = 1.5; l1 = 1.0; l2 = 0.8; g = 9.81;
@@ -557,9 +513,9 @@ e1 = cell2mat(e1')' - X(:,1:2)';
 figure; plot(t, e1'); legend('e_1','e_2');
 xlabel('Time [s]'); ylabel('Error [rad]');
 title('Robust Control: Tracking Error');
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 function dx = manipulator_robust_ode(t, x, ...
     m1, m2, l1, l2, g, ...
     m1_hat, m2_hat, l1_hat, l2_hat, ...
@@ -618,7 +574,7 @@ function dx = manipulator_robust_ode(t, x, ...
 
     dx = [dq; ddq];
 end
-\end{verbatim}
+\end{lstlisting}
 
 \section{Robust Control for Mobile Robot}
 
@@ -703,7 +659,7 @@ Without going through every step (see the manipulator proof for the pattern), th
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% Robust Tracking Control for Unicycle Mobile Robot
 % Reference: circular trajectory
 R = 2; omega_ref = 0.5;
@@ -736,9 +692,9 @@ plot(arrayfun(xr,tt), arrayfun(yr,tt), 'b--', 'LineWidth', 2);
 plot(X_m(:,1), X_m(:,2), 'r', 'LineWidth', 1.5);
 legend('Reference','Robust'); xlabel('x'); ylabel('y');
 title('Mobile Robot: Robust Tracking');
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 function dx = mobile_robust_ode(t, x, ...
     xr_fun, yr_fun, thr_fun, vr_fun, wr_fun, ...
     k1, k2, k3, rho_v, rho_w, eps_v, eps_w, dist_fun)
@@ -773,7 +729,7 @@ function dx = mobile_robust_ode(t, x, ...
           v*sin(th) + d(2);
           w          + d(3)];
 end
-\end{verbatim}
+\end{lstlisting}
 
 \section{Robust Control for Quadrotor Drone}
 
@@ -840,7 +796,7 @@ For each Euler angle (showing roll \(\phi\)):
 
 \subsection{MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% Robust Control for Quadrotor with Wind Disturbance
 % Drone parameters
 m_d = 1.5; g = 9.81; Ixx = 0.03; Iyy = 0.03; Izz = 0.05;
@@ -885,9 +841,9 @@ ref = cell2mat(arrayfun(pd, tt, 'Un', 0));
 plot3(ref(1,:), ref(2,:), ref(3,:), 'b--', 'LineWidth', 2);
 legend('Robust','Reference'); xlabel('x'); ylabel('y'); zlabel('z');
 title('Quadrotor: Robust Tracking under Wind'); grid on;
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 function dx = drone_robust_ode(t, x, m, g, ...
     Ixx, Iyy, Izz, ...
     kd_z, lam_z, rho_z, eps_z, ...
@@ -972,7 +928,7 @@ function dx = drone_robust_ode(t, x, m, g, ...
 
     dx = [vel; accel; omega; domega];
 end
-\end{verbatim}
+\end{lstlisting}
 
 
 % --- auto-generated simulation figures ---
@@ -1042,17 +998,16 @@ The figures below are the output of the MATLAB (or Python) simulation scripts th
   Record the maximum tracking error for each controller in the table below.
 \end{enumerate}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Controller & Max \textbar e\textsubscript{1}\textbar{} (rad) & Max \textbar e\textsubscript{2}\textbar{} (rad) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Computed Torque (no robust) & ~ & ~ \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleController & Max \textbar e\textsubscript{1}\textbar{} (rad) & Max \textbar e\textsubscript{2}\textbar{} (rad) \\
+\midrule\bottomruleComputed Torque (no robust) & ~ & ~ \\
 Robust CT (\(\rho_0 = 15\)) & ~ & ~ \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Question:} What happens if you increase \(\rho_0\) to 50? Does tracking improve? What is the trade-off?
 
@@ -1114,15 +1069,12 @@ Robust CT (\(\rho_0 = 15\)) & ~ & ~ \\
 
 \subsection{Summary: Comparison of All Four Controllers}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lllll@{}}
-\toprule\noalign{}
-Property & Week 1: Computed Torque & Week 2: MPC & Week 3: Adaptive & Week 4: Robust \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Core Idea} & Cancel nonlinearities with exact model & Optimise control over prediction horizon & Estimate unknown parameters online & Guarantee performance despite bounded uncertainty \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllll}
+
+\topruleProperty & Week 1: Computed Torque & Week 2: MPC & Week 3: Adaptive & Week 4: Robust \\
+\midrule\bottomrule\textbf{Core Idea} & Cancel nonlinearities with exact model & Optimise control over prediction horizon & Estimate unknown parameters online & Guarantee performance despite bounded uncertainty \\
 \textbf{Model Requirement} & Exact model needed & Prediction model needed & Structure known (linear in parameters) & Approximate model + uncertainty bound \\
 \textbf{Handles Disturbances?} & No (degrades gracefully) & Partially (via constraints) & Parametric only (structured) & Yes (any bounded disturbance) \\
 \textbf{Online Computation} & Low (matrix multiply) & High (optimisation at each step) & Medium (parameter update) & Low (matrix multiply + norm) \\
@@ -1133,7 +1085,9 @@ Property & Week 1: Computed Torque & Week 2: MPC & Week 3: Adaptive & Week 4: Ro
 \textbf{Conservatism} & None (exact cancellation) & Low (optimised) & Low (estimates true values) & High (designs for worst case) \\
 \textbf{Implementation Complexity} & Low & High & Medium & Low \\
 \textbf{Best For} & Well-modelled systems & Constrained systems, optimal performance & Unknown but slowly-varying parameters & Safety-critical, bounded unknown disturbances \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Figure 7:} Time-response comparison. Blue: nominal controller tracks perfectly without disturbance. Red: nominal controller with disturbance shows large oscillations and tracking degradation. Green: robust controller with disturbance maintains bounded tracking error within the guaranteed envelope ε.
 

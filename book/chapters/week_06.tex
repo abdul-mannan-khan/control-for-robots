@@ -154,50 +154,6 @@ which yields \(\dot{V}_2 = -z_1^T K_1 z_1 - z_2^T K_2 z_2 \le 0\).
   Implement SMC in \textbf{MATLAB/Simulink}, inject disturbances, and compare performance against computed torque, robust control, and backstepping.
 \end{itemize}
 
-\subsection{Session Roadmap}
-
-0:00 -- 0:15
-
-\subsubsection{Week 7 Recall --- Backstepping Exam Practice}
-
-Two worked exam questions on backstepping control. Students attempt before solutions are revealed.
-
-0:15 -- 0:55
-
-\subsubsection{Sliding Mode Control Theory}
-
-Reaching phase, sliding phase, sliding surface design, reaching law, control law decomposition (equivalent + switching), existence condition, chattering, super-twisting algorithm. Full Lyapunov stability proof.
-
-0:55 -- 1:15
-
-\subsubsection{SMC for Robot Manipulator}
-
-Sliding surface for joint-space tracking, equivalent control, switching control, Lyapunov proof, and MATLAB implementation.
-
-1:15 -- 1:35
-
-\subsubsection{SMC for Mobile Robot}
-
-Unicycle kinematics, position-tracking sliding surface, SMC law, MATLAB code.
-
-1:35 -- 1:55
-
-\subsubsection{SMC for Quadrotor Drone}
-
-Hierarchical SMC: position loop (outer) and attitude loop (inner), sliding surfaces, control allocation, MATLAB code.
-
-1:55 -- 2:30
-
-\subsubsection{Activities \& Lab}
-
-Activity 1: Chattering observation with sign vs sat. Activity 2: Disturbance rejection comparison. Activity 3: Super-twisting implementation.
-
-2:30 -- 2:45
-
-\subsubsection{Summary \& Six-Method Comparison}
-
-Consolidated table comparing all six control methods studied in Weeks 1--6.
-
 \section{Sliding Mode Control Theory}
 
 \subsection{1.1 ~ Motivation and Core Idea}
@@ -568,7 +524,7 @@ where we used \(C\dot{q} = C(s + \dot{q}_r) = Cs + C\dot{q}_r\). Therefore:
 By the skew-symmetry property \(s^T(\dot{M} - 2C)s = 0\), the last two terms cancel:
 
 \[
-                    \dot{V} = s^T\bigl[\underbrace{-\Delta M\ddot{q}_r - \Delta C\dot{q}_r - \Delta G + d}_{\text{lumped uncertainty } \delta} - K\operatorname{sign}(s)\bigr].
+                    \dot{V} = s^T\bigl[\underset{\text{\footnotesize \text{lumped uncertainty } \delta}}{\underline{-\Delta M\ddot{q}_r - \Delta C\dot{q}_r - \Delta G + d}} - K\operatorname{sign}(s)\bigr].
                 \]
 
 Let \(|\delta_i| \le \rho_i\) (component-wise bound). Then choosing \(K_i > \rho_i\):
@@ -581,7 +537,7 @@ This guarantees finite-time reaching and invariance of the sliding surface.
 
 \subsection{2.5 ~ MATLAB Implementation --- 2-DOF Manipulator SMC}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% SMC for 2-DOF Manipulator
 % Parameters
 m1 = 1; m2 = 1; l1 = 1; l2 = 1; g = 9.81;
@@ -617,7 +573,7 @@ odefun = @(t, x) smc_manipulator_ode(t, x, ...
 figure;
 subplot(2,1,1); plot(T, X(:,1:2)); legend('q_1','q_2'); title('Joint Angles');
 subplot(2,1,2); plot(T, X(:,3:4)); legend('dq_1','dq_2'); title('Joint Velocities');
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Note:} The complete ODE function \texttt{smc\_manipulator\_ode()} with all sub-functions is provided in the companion file \texttt{smc\_control\_simulation.m}.
 
@@ -704,7 +660,7 @@ For \(s_\omega = \dot{\alpha} + \lambda_\omega \alpha\): set \(\dot{s}_\omega = 
 
 \subsection{3.5 ~ MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% SMC for Mobile Robot (Unicycle)
 lambda_v = 1.0;  lambda_w = 2.0;
 eta_v = 0.5;     eta_w = 1.0;
@@ -723,7 +679,7 @@ figure;
 plot(X(:,1), X(:,2), 'b-', arrayfun(xd,T), arrayfun(yd,T), 'r--');
 legend('Actual','Desired'); title('Mobile Robot SMC Tracking');
 axis equal; grid on;
-\end{verbatim}
+\end{lstlisting}
 
 \section{SMC for Quadrotor Drone}
 
@@ -839,7 +795,7 @@ The attitude SMC torques:
 
 \subsection{4.3 ~ MATLAB Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% SMC for Quadrotor Drone
 % Physical parameters
 m = 1.0; g_val = 9.81; Ixx = 0.01; Iyy = 0.01; Izz = 0.02;
@@ -867,7 +823,7 @@ plot3(X(:,1), X(:,2), X(:,3), 'b-', ...
       arrayfun(xd,T), arrayfun(yd,T), arrayfun(zd,T), 'r--');
 legend('Actual','Desired'); title('Drone SMC 3D Tracking');
 xlabel('x'); ylabel('y'); zlabel('z'); grid on;
-\end{verbatim}
+\end{lstlisting}
 
 
 % --- auto-generated simulation figures ---
@@ -1025,15 +981,12 @@ The figures below are the output of the MATLAB (or Python) simulation scripts th
 
 \subsection{Summary --- All Six Control Methods Compared}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lllllll@{}}
-\toprule\noalign{}
-Property & Computed Torque (W1) & MPC (W2) & Adaptive (W3) & Robust (W4) & Backstepping (W5) & SMC (W6) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Core Idea} & Cancel nonlinear dynamics via feedback linearisation & Optimise over finite horizon with constraints & Online parameter estimation; adjust control in real time & Guarantee performance for worst-case bounded uncertainty & Recursive Lyapunov design; stabilise subsystems step-by-step & Variable structure; force state onto sliding surface \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lllllll}
+
+\topruleProperty & Computed Torque (W1) & MPC (W2) & Adaptive (W3) & Robust (W4) & Backstepping (W5) & SMC (W6) \\
+\midrule\bottomrule\textbf{Core Idea} & Cancel nonlinear dynamics via feedback linearisation & Optimise over finite horizon with constraints & Online parameter estimation; adjust control in real time & Guarantee performance for worst-case bounded uncertainty & Recursive Lyapunov design; stabilise subsystems step-by-step & Variable structure; force state onto sliding surface \\
 \textbf{Model Need} & Exact model required & Predictive model required & Structure known; parameters unknown & Nominal + uncertainty bounds & Full model (strict-feedback form) & Nominal model + disturbance bounds \\
 \textbf{Robustness} & Low --- sensitive to modelling error & Medium --- via constraints & High --- adapts to parametric uncertainty & High --- by design for bounded uncertainty & High --- Lyapunov-guaranteed & Very high --- invariant to matched disturbances on surface \\
 \textbf{Disturbance Handling} & None (unless augmented) & Preview + constraints & Adapts slowly to unmodelled dynamics & Bounded disturbance rejection & Bounded disturbance via Lyapunov & Matched disturbances fully rejected on surface \\
@@ -1042,7 +995,9 @@ Property & Computed Torque (W1) & MPC (W2) & Adaptive (W3) & Robust (W4) & Backs
 \textbf{Control Signal} & Smooth & Smooth (optimised) & Smooth & Smooth & Smooth & Discontinuous (sign) or smooth (sat/ST) \\
 \textbf{Stability Proof} & Input-output linearisation & Terminal cost / constraints & Lyapunov + Barbalat & Lyapunov (ISS / \(H_\infty\)) & Recursive Lyapunov (CLF) & Lyapunov: \(V = \frac{1}{2}s^T M s\) \\
 \textbf{Typical Use Case} & Well-modelled manipulators & Constrained systems, trajectory planning & Unknown or time-varying parameters & Safety-critical systems with bounded uncertainty & Strict-feedback nonlinear systems & Systems with large matched disturbances / uncertainty \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Key Takeaway:} Sliding mode control provides the strongest robustness guarantee among all six methods for matched disturbances --- once on the sliding surface, the system is completely invariant to matched uncertainties. The price is chattering, which can be mitigated using boundary layers or the super-twisting algorithm at the cost of slight performance degradation.
 

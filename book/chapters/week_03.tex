@@ -99,106 +99,6 @@ For the computed torque controller derived in Question 1, construct the Lyapunov
   \textbf{Compare} MPC with computed torque control in terms of model requirements, constraint handling, and computational demand
 \end{itemize}
 
-\subsection{Session Roadmap (3 Hours)}
-
-0:00 -- 0:20
-
-\subsubsection{Previous Week Exam Practice}
-
-\begin{itemize}
-\tightlist
-\item
-  Computed torque derivation --- pen and paper
-\item
-  Lyapunov stability proof --- pen and paper
-\end{itemize}
-
-0:20 -- 0:50
-
-\subsubsection{MPC Theory \& Derivation}
-
-\begin{itemize}
-\tightlist
-\item
-  What is MPC? The predict--optimise--apply paradigm
-\item
-  Optimisation problem formulation
-\item
-  State prediction over the horizon
-\item
-  Quadratic cost and the optimal control law
-\item
-  Receding horizon strategy
-\end{itemize}
-
-0:50 -- 1:20
-
-\subsubsection{MPC for 2-DOF Manipulator}
-
-\begin{itemize}
-\tightlist
-\item
-  Linearisation and discretisation of manipulator dynamics
-\item
-  MPC formulation with 4 states and 2 controls
-\item
-  Full derivation and MATLAB code
-\end{itemize}
-
-1:20 -- 1:30
-
-\subsubsection{Break}
-
-\begin{itemize}
-\tightlist
-\item
-  10-minute break
-\end{itemize}
-
-1:30 -- 2:00
-
-\subsubsection{MPC for Mobile Robot}
-
-\begin{itemize}
-\tightlist
-\item
-  Differential-drive kinematic model
-\item
-  Linearisation around reference trajectory
-\item
-  MPC with velocity and turning-rate constraints
-\item
-  Full derivation and MATLAB code
-\end{itemize}
-
-2:00 -- 2:30
-
-\subsubsection{MPC for Quadrotor Drone}
-
-\begin{itemize}
-\tightlist
-\item
-  12-state quadrotor model linearised around hover
-\item
-  MPC with thrust and torque constraints
-\item
-  Full derivation and MATLAB code
-\end{itemize}
-
-2:30 -- 3:00
-
-\subsubsection{MATLAB Implementation \& Activities}
-
-\begin{itemize}
-\tightlist
-\item
-  Activity 1: Horizon length tuning experiment
-\item
-  Activity 2: Side-by-side comparison of all three systems
-\item
-  Think--Pair--Share and summary
-\end{itemize}
-
 \section{MPC Theory \& Derivation}
 
 \subsection{What Is Model Predictive Control?}
@@ -318,7 +218,7 @@ Let \(\mathbf{E} = \mathbf{X}_{\text{ref}} - \mathcal{A}\,x_k\) (the "free-respo
 Expanding:
 
 \[
-                    J = \mathbf{U}^T \underbrace{(\mathcal{B}^T \mathbf{Q}_N \mathcal{B} + \mathbf{R}_N)}_{H} \mathbf{U}
+                    J = \mathbf{U}^T \underset{\text{\footnotesize H}}{\underline{(\mathcal{B}^T \mathbf{Q}_N \mathcal{B} + \mathbf{R}_N)}} \mathbf{U}
                     - 2\,\mathbf{E}^T \mathbf{Q}_N \mathcal{B}\,\mathbf{U}
                     + \mathbf{E}^T \mathbf{Q}_N \mathbf{E}
                     \]
@@ -379,18 +279,17 @@ END FOR
 
 \subsection{Effect of Tuning Parameters}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Parameter & Increase Effect & Decrease Effect \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Prediction horizon \(N\) & Better anticipation of future references; more stable; higher computational cost (\(O(N^3 m^3)\)) & More myopic; may oscillate or become unstable; cheaper to compute \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleParameter & Increase Effect & Decrease Effect \\
+\midrule\bottomrulePrediction horizon \(N\) & Better anticipation of future references; more stable; higher computational cost (\(O(N^3 m^3)\)) & More myopic; may oscillate or become unstable; cheaper to compute \\
 State weight \(Q\) & Tighter tracking; more aggressive control; risk of actuator saturation & Relaxed tracking; smoother control inputs; larger steady-state error \\
 Control weight \(R\) & Penalises large inputs; smoother control; slower response; energy-efficient & Allows large inputs; fast response; risk of actuator damage \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Practical Guideline:} Start with \(Q = I\), \(R = 0.1 I\), and \(N = 10\). Then adjust: increase \(Q\) if tracking is too loose, increase \(R\) if control inputs saturate, and increase \(N\) until performance no longer improves significantly.
 
@@ -487,7 +386,7 @@ then compute the Hessian \(H = \mathcal{B}^T \mathbf{Q}_N \mathcal{B} + \mathbf{
 
 \subsection{MATLAB Implementation --- Manipulator MPC}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% === MPC for 2-DOF Manipulator ===
 % System parameters
 params.m1 = 1; params.m2 = 1;
@@ -574,7 +473,7 @@ for k = 1:length(t_span)-1
     x_hist(:,k+1) = x;
     u_hist(:,k) = u;
 end
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Note:} The controller uses a \emph{linear} model, but the plant simulation uses the \emph{full nonlinear} dynamics. This mismatch is realistic and tests the robustness of MPC.
 
@@ -646,17 +545,16 @@ Discretised:
 
 \subsection{Constraints}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Constraint & Physical Meaning & Value \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(0 \leq v \leq 5\,\text{m/s}\) & The robot cannot move backwards (for safety) and has a maximum speed & {[}0, 5{]} \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleConstraint & Physical Meaning & Value \\
+\midrule\bottomrule\(0 \leq v \leq 5\,\text{m/s}\) & The robot cannot move backwards (for safety) and has a maximum speed & {[}0, 5{]} \\
 \(-2 \leq \omega \leq 2\,\text{rad/s}\) & Maximum turning rate limited by wheel motors & {[}-2, 2{]} \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{MPC Design}
 
@@ -668,7 +566,7 @@ The higher weight on position relative to heading ensures the robot prioritises 
 
 \subsection{MATLAB Implementation --- Mobile Robot MPC}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% === MPC for Differential-Drive Mobile Robot ===
 % Linearisation parameters
 v_ref = 2.5;  % Reference linear velocity
@@ -741,7 +639,7 @@ for k = 1:length(t_span_mob)-1
     x_hist_mob(:,k+1) = x_mob;
     u_hist_mob(:,k) = u_mob;
 end
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Linearisation Caveat:} The linearisation is performed at a single operating point. When the robot heading \(\theta\) deviates significantly from \(\theta^r = 0\), the linear model becomes inaccurate. In practice, one re-linearises at each time step (forming a time-varying linear MPC), or uses nonlinear MPC.
 
@@ -835,7 +733,7 @@ where the coupling matrix \(G_{\text{lin}}\) and input matrices are:
 State dimension: \(n = 12\), Control dimension: \(m = 4\), Horizon: \(N = 15\).
 
 \[
-                    Q = \text{diag}(\underbrace{80, 80, 120}_{\text{position}}, \underbrace{1, 1, 1}_{\text{velocity}}, \underbrace{50, 50, 50}_{\text{orientation}}, \underbrace{1, 1, 1}_{\text{angular rate}})
+                    Q = \text{diag}(\underset{\text{\footnotesize position}}{\underline{80, 80, 120}}, \underset{\text{\footnotesize velocity}}{\underline{1, 1, 1}}, \underset{\text{\footnotesize orientation}}{\underline{50, 50, 50}}, \underset{\text{\footnotesize angular rate}}{\underline{1, 1, 1}})
                     \]
 \[
                     R = \text{diag}(0.1, 0.1, 0.1, 0.1)
@@ -843,22 +741,21 @@ State dimension: \(n = 12\), Control dimension: \(m = 4\), Horizon: \(N = 15\).
 
 \subsection{Constraints}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Constraint & Physical Meaning & Value \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(0 \leq T \leq 2mg\) & Thrust cannot be negative; max is twice the hover thrust & {[}0, 19.62{]} N \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleConstraint & Physical Meaning & Value \\
+\midrule\bottomrule\(0 \leq T \leq 2mg\) & Thrust cannot be negative; max is twice the hover thrust & {[}0, 19.62{]} N \\
 \(-2 \leq \tau_x, \tau_y, \tau_z \leq 2\) & Maximum body torques from motor differentials & {[}-2, 2{]} N·m \\
 \(-30^\circ \leq \phi, \theta \leq 30^\circ\) & Tilt angle limits for safety & {[}-0.524, 0.524{]} rad \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{MATLAB Implementation --- Quadrotor MPC}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Matlab]
 %% === MPC for Quadrotor Drone ===
 % Physical parameters
 quad.m = 1.0;
@@ -966,7 +863,7 @@ for k = 1:length(t_span_q)-1
     x_hist_q(:,k+1) = x_q;
     u_hist_q(:,k) = u_q;
 end
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Key Observation:} The MPC controller for the quadrotor uses a 12-state linear model but drives the full nonlinear plant. The receding-horizon feedback mechanism compensates for linearisation errors at each step.
 
@@ -978,18 +875,17 @@ end
 
 Run the manipulator MPC code with three different prediction horizons. For each, record the peak tracking error \(\max |e(t)|\) and the computation time.
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Horizon \(N\) & Peak Position Error (rad) & Steady-State Error (rad) & Approx. Computation Time \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(N = 5\) & {[}record{]} & {[}record{]} & {[}record{]} \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleHorizon \(N\) & Peak Position Error (rad) & Steady-State Error (rad) & Approx. Computation Time \\
+\midrule\bottomrule\(N = 5\) & {[}record{]} & {[}record{]} & {[}record{]} \\
 \(N = 20\) & {[}record{]} & {[}record{]} & {[}record{]} \\
 \(N = 50\) & {[}record{]} & {[}record{]} & {[}record{]} \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Questions to answer:}
 
@@ -1067,39 +963,37 @@ The figures below are the output of the MATLAB (or Python) simulation scripts th
 
 \subsection{Core MPC Equations}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}ll@{}}
-\toprule\noalign{}
-Equation & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(x_{k+1} = A\,x_k + B\,u_k\) & Discrete-time linear system model \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{ll}
+
+\topruleEquation & Description \\
+\midrule\bottomrule\(x_{k+1} = A\,x_k + B\,u_k\) & Discrete-time linear system model \\
 \(\mathbf{X} = \mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U}\) & Stacked state prediction over horizon \(N\) \\
 \(J = (\mathbf{X} - \mathbf{X}_{\text{ref}})^T \mathbf{Q}_N (\mathbf{X} - \mathbf{X}_{\text{ref}}) + \mathbf{U}^T \mathbf{R}_N \mathbf{U}\) & Quadratic cost function \\
 \(\mathbf{U}^* = (\mathcal{B}^T \mathbf{Q}_N \mathcal{B} + \mathbf{R}_N)^{-1} \mathcal{B}^T \mathbf{Q}_N (\mathbf{X}_{\text{ref}} - \mathcal{A}\,x_k)\) & Optimal control law (unconstrained) \\
 \(u_k = \mathbf{U}^*(1{:}m)\) & Receding horizon: apply only first input \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{MPC vs Computed Torque Control}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Property & MPC & Computed Torque \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Model Knowledge} & Requires linear (or nonlinear) model; can use approximate models with re-linearisation & Requires full nonlinear dynamics \(M(q)\), \(C(q,\dot{q})\), \(G(q)\) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleProperty & MPC & Computed Torque \\
+\midrule\bottomrule\textbf{Model Knowledge} & Requires linear (or nonlinear) model; can use approximate models with re-linearisation & Requires full nonlinear dynamics \(M(q)\), \(C(q,\dot{q})\), \(G(q)\) \\
 \textbf{Constraint Handling} & Systematically incorporates state and control constraints in the optimisation & No built-in constraint handling; requires ad-hoc saturation or anti-windup \\
 \textbf{Computation} & Solves a QP at every time step; computational cost grows with \(N\), \(n\), \(m\) & Evaluates \(M\), \(C\), \(G\) and a matrix-vector product; very fast per step \\
 \textbf{Tracking Accuracy} & Optimal within the prediction horizon; slightly conservative due to linearisation & Perfect tracking with exact model (nonlinear cancellation) \\
 \textbf{Multi-Objective} & Naturally balances tracking, energy, and constraints through cost weights & Single objective: tracking error minimisation \\
 \textbf{Robustness} & Feedback through receding horizon; can incorporate robust/stochastic extensions & Sensitive to model mismatch; requires additional robust terms \\
 \textbf{Best For} & Systems with constraints, slow-medium dynamics, trajectory optimisation & Fast manipulator control with known dynamics, high-rate servo loops \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsubsection{Key Takeaway 1}
 

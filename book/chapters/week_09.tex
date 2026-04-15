@@ -17,18 +17,17 @@ Pre-Interview Technical Assessment • Estimated Time: 3 Hours
 
 \subsection{Provided Bag Data}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Message Type & Rate & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/odom} & nav\_msgs/Odometry & 50 Hz & Robot odometry (position, orientation, velocity) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Message Type & Rate & Description \\
+\midrule\bottomrule\texttt{/odom} & nav\_msgs/Odometry & 50 Hz & Robot odometry (position, orientation, velocity) \\
 \texttt{/imu} & sensor\_msgs/Imu & 200 Hz & Inertial measurement unit data \\
 \texttt{/reference\_trajectory} & geometry\_msgs/PoseStamped & 50 Hz & Desired waypoint trajectory \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Deliverables}
 
@@ -81,62 +80,6 @@ Topic & Message Type & Rate & Description \\
 \item
   Design a modular ROS2 control architecture that separates state estimation, controller logic, and actuation into distinct nodes communicating over well-defined topics.
 \end{itemize}
-
-\subsection{Recommended Approach (3-hour session)}
-
-0:00 -- 0:20
-
-\subsubsection{Week 8 Exam Recall}
-
-Review nonlinear control optimization: Pontryagin\textquotesingle s Minimum Principle, iLQR/DDP, and nonlinear MPC for robotic systems. Discuss how the optimized controller gains from Week 8 (for SMC, adaptive, robust, backstepping, NMPC) translate to real ROS2 nodes. Warm-up Q\&A.
-
-0:20 -- 0:50
-
-\subsubsection{Why ROS2 for Control Engineers?}
-
-ROS2 vs ROS1, DDS middleware, ros2\_control framework overview, the control loop in ROS2, industry adoption.
-
-0:50 -- 1:15
-
-\subsubsection{Implementing PID as a ROS2 Node}
-
-PID theory recap, full Python node implementation, anti-windup, QoS configuration, runtime parameter tuning.
-
-1:15 -- 1:40
-
-\subsubsection{Implementing LQR as a ROS2 Node}
-
-LQR theory recap, Riccati solver in Python, state-space model from odometry, full working node.
-
-1:40 -- 1:50
-
-\subsubsection{Break}
-
-10-minute break.
-
-1:50 -- 2:20
-
-\subsubsection{Implementing MPC as a ROS2 Node}
-
-MPC theory recap, QP formulation, scipy solver, predicted trajectory publishing for RViz, full working node.
-
-2:20 -- 2:40
-
-\subsubsection{Extending to All 7 Controllers}
-
-Brief implementation guide for Computed Torque, Adaptive, Robust, Backstepping, and SMC as ROS2 nodes. Unified launch file.
-
-2:40 -- 2:55
-
-\subsubsection{Comparison Lab}
-
-Hands-on activities: implement, compare PID vs LQR vs MPC on TurtleBot3 simulation. Record rosbag data and plot metrics.
-
-2:55 -- 3:00
-
-\subsubsection{Wrap-Up \& Quiz}
-
-Key takeaways, quick quiz, preview of Week 10 topics.
 
 \section{Why ROS2 for Control Engineers?}
 
@@ -222,7 +165,7 @@ For digital implementation at sample rate \(T_s\), we use the discrete approxima
 
 The following is a complete PID controller node for mobile robot position tracking. It subscribes to \texttt{/odom} for current state and publishes \texttt{/cmd\_vel} for velocity commands:
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 """PID Controller Node for position tracking.
 Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
@@ -357,7 +300,7 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Real-Time Considerations}
 
@@ -403,7 +346,7 @@ In Python, we use \texttt{scipy.linalg.solve\_continuous\_are} (for CARE) or \te
 
 \subsection{ROS2 Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 """LQR Controller Node for state-space position/velocity tracking.
 Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
@@ -564,26 +507,25 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{PID vs LQR Comparison}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & PID & LQR \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Tuning Parameters & 3 gains (\(K_p, K_i, K_d\)) per axis, often heuristic & Weight matrices \(Q, R\) --- principled, physically interpretable \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleAspect & PID & LQR \\
+\midrule\bottomruleTuning Parameters & 3 gains (\(K_p, K_i, K_d\)) per axis, often heuristic & Weight matrices \(Q, R\) --- principled, physically interpretable \\
 Stability Guarantees & No formal guarantee; depends on tuning and plant & Guaranteed stability if \((A,B)\) controllable and \(Q \succeq 0, R \succ 0\) \\
 Model Requirement & None (model-free) & Requires state-space model \((A, B)\) \\
 MIMO Systems & Separate SISO loops; cross-coupling ignored & Naturally handles multi-input multi-output systems \\
 Robustness & Sensitive to parameter changes; no formal margins & At least 60° phase margin, infinite gain margin \\
 Computational Cost & Negligible (3 multiplications per axis) & One matrix multiply per step (Riccati solved offline) \\
 ROS2 Node Complexity & \textasciitilde60 lines & \textasciitilde100 lines (includes scipy dependency) \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \section{Implementing MPC Controller as a ROS2 Node}
 
@@ -605,7 +547,7 @@ For unconstrained linear MPC, the solution is equivalent to time-varying LQR. Fo
 
 \subsection{ROS2 Implementation}
 
-\begin{verbatim}
+\begin{lstlisting}[language=Python]
 #!/usr/bin/env python3
 """MPC Controller Node with predicted trajectory visualisation.
 Subscribes: /odom (nav_msgs/Odometry), /reference (geometry_msgs/PoseStamped)
@@ -811,7 +753,7 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{MPC Node Internal Loop}
 
@@ -819,19 +761,18 @@ if __name__ == '__main__':
 
 The MPC solver\textquotesingle s computation time grows with the prediction horizon \(N\). For a 4-state, 2-input system using \texttt{scipy.optimize.minimize} with SLSQP:
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Horizon \(N\) & Decision Variables & Typical Solve Time & Max Control Rate \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-5 & 10 & \textasciitilde0.5 ms & \textasciitilde2000 Hz \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleHorizon \(N\) & Decision Variables & Typical Solve Time & Max Control Rate \\
+\midrule\bottomrule5 & 10 & \textasciitilde0.5 ms & \textasciitilde2000 Hz \\
 10 & 20 & \textasciitilde2 ms & \textasciitilde500 Hz \\
 20 & 40 & \textasciitilde8 ms & \textasciitilde125 Hz \\
 50 & 100 & \textasciitilde50 ms & \textasciitilde20 Hz \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Real-Time Warning:} For production use, replace \texttt{scipy.optimize.minimize} with a dedicated QP solver such as \textbf{OSQP} or \textbf{qpOASES}, which offer 10--100x speed improvements. The \texttt{cvxpy} library with OSQP backend is recommended for rapid prototyping with near-production performance.
 
@@ -861,7 +802,7 @@ The provided file \texttt{w11\_exercises/task\_nmpc\_node.py} is a minimal NMPC 
 
 \subsection{4b.2 Running the NMPC Node}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 cd /home/it-services/auto_control_ws
 source /opt/ros/jazzy/setup.bash
 colcon build --packages-select week_11_control_systems
@@ -871,19 +812,16 @@ source install/setup.bash
 ros2 run week_11_control_systems task_nmpc_node
 
 # Observe /cmd_vel at 10 Hz; iLQR convergence logged to stderr
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{4b.3 Mapping to Week 8 §9 Derivation}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Week 8 §9 symbol & Python variable in \texttt{task\_nmpc\_node.py} & Meaning \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\(N\) & \texttt{self.N\ =\ 15} & prediction horizon (steps) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleWeek 8 §9 symbol & Python variable in \texttt{task\_nmpc\_node.py} & Meaning \\
+\midrule\bottomrule\(N\) & \texttt{self.N\ =\ 15} & prediction horizon (steps) \\
 \(\Delta t\) & \texttt{self.dt\ =\ 0.1} & sample / prediction step (s) \\
 \(\bar u_k\) & \texttt{self.U\_warm{[}k,:{]}} & warm-start control sequence \\
 \(A_k, B_k\) & \texttt{A,\ B} in \texttt{linearize()} & finite-difference Jacobians \\
@@ -891,7 +829,9 @@ Week 8 §9 symbol & Python variable in \texttt{task\_nmpc\_node.py} & Meaning \\
 \(k_k, K_k\) & \texttt{k\_ff{[}k{]},\ K\_fb{[}k{]}} & feedforward + feedback \\
 \(\alpha\) & \texttt{alpha} in line-search loop & step size \\
 \(\mu\) & \texttt{self.mu} & LM regularisation \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Real-time note:} For the 3-state unicycle with N=15 horizon, one iLQR iteration takes \textasciitilde2--5 ms in pure Python. With warm-starting, 2--3 iterations per sample suffice --- the 100 ms control period leaves ample margin. Higher-dimensional plants (e.g., the 12-state drone) need CasADi/acados for real-time operation.
 
@@ -956,15 +896,12 @@ Weeks 1--8 covered seven advanced control techniques in MATLAB. Each can be impl
 
 \subsection{Controller Complexity Comparison}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llllll@{}}
-\toprule\noalign{}
-Controller & Week & Model Required? & Online Computation & ROS2 Lines (est.) & Dependencies \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-PID & 9 & No & 3 multiplies + sum & \textasciitilde60 & numpy \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llllll}
+
+\topruleController & Week & Model Required? & Online Computation & ROS2 Lines (est.) & Dependencies \\
+\midrule\bottomrulePID & 9 & No & 3 multiplies + sum & \textasciitilde60 & numpy \\
 Computed Torque & 1 & Full dynamics & Matrix inversion + multiply & \textasciitilde120 & numpy, KDL \\
 MPC & 3 & Linear/linearised & QP solve each step & \textasciitilde130 & scipy / cvxpy \\
 Adaptive & 4 & Structured (regressor) & Parameter update + control & \textasciitilde100 & numpy \\
@@ -972,7 +909,9 @@ Robust / H-inf & 5 & Full + uncertainty bound & Computed torque + robust term & 
 Backstepping & 6 & Strict-feedback form & Cascaded Lyapunov computation & \textasciitilde140 (2 nodes) & numpy \\
 SMC & 7 & Partial (bounds) & Surface + switching law & \textasciitilde90 & numpy \\
 LQR & 8 & Linear state-space & 1 matrix multiply & \textasciitilde100 & numpy, scipy \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Unified Launch File}
 
@@ -1250,22 +1189,21 @@ Configuration parameters are in \texttt{w11\_exercises/config/params.yaml}.
 
 \subsection{MATLAB vs ROS2: When to Use Which}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & MATLAB/Simulink & ROS2 \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Prototyping speed & Very fast (built-in toolboxes) & Moderate (manual implementation) \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{lll}
+
+\topruleAspect & MATLAB/Simulink & ROS2 \\
+\midrule\bottomrulePrototyping speed & Very fast (built-in toolboxes) & Moderate (manual implementation) \\
 Analysis tools & Bode, root locus, Nyquist built-in & matplotlib, custom scripts \\
 Hardware integration & Limited (Simulink Real-Time) & Excellent (drivers for all major robots) \\
 Multi-robot systems & Difficult & Native support (namespaces, DDS) \\
 Real-time performance & Simulink Coder generates RT code & RT-PREEMPT + custom executor \\
 Cost & Expensive licence & Free and open source \\
 Industry standard & Automotive, aerospace & Robotics, drones, warehouse automation \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \textbf{Looking Ahead --- Week 10:} We will extend these ROS2 controller nodes to work with Gazebo simulation of a multi-DOF robot arm. We will implement computed torque and adaptive control at the joint level, using the \texttt{ros2\_control} effort interface and URDF-derived dynamics models.
 
@@ -1273,35 +1211,34 @@ Industry standard & Automotive, aerospace & Robotics, drones, warehouse automati
 
 \subsection{Build and Source}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 cd ~/auto_control_ws
 colcon build --packages-select week_11_control_systems
 source install/setup.bash
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Launch the Demo}
 
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
 ros2 launch week_11_control_systems demo.launch.py
-\end{verbatim}
+\end{lstlisting}
 
 This command replays the recorded bag data at 2x speed, starts three solution nodes (PID, LQR, MPC), and opens RViz2 with a preconfigured layout.
 
 \subsection{ROS2 Topics}
 
-\begingroup\footnotesize
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Topic & Type & Source & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/odom} & nav\_msgs/Odometry & Bag & Robot odometry at 50 Hz \\
+\begin{table}[ht]\footnotesize\centering
+\adjustbox{max width=\textwidth,max totalheight=0.85\textheight}{%
+\begin{tabular}{llll}
+
+\topruleTopic & Type & Source & Description \\
+\midrule\bottomrule\texttt{/odom} & nav\_msgs/Odometry & Bag & Robot odometry at 50 Hz \\
 \texttt{/imu} & sensor\_msgs/Imu & Bag & IMU data at 200 Hz \\
 \texttt{/reference\_trajectory} & geometry\_msgs/PoseStamped & Bag & Desired trajectory at 50 Hz \\
 \texttt{/cmd\_vel} & geometry\_msgs/Twist & Nodes & Controller velocity commands \\
-\end{longtable}\endgroup
+\end{tabular}}
+\end{table}
+
 
 \subsection{Expected RViz2 Output}
 

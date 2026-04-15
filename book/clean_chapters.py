@@ -89,7 +89,6 @@ BOILERPLATE_RE = re.compile(
     r"|Exam\s+Practice"
     r"|Company\s+Brief"
     r"|Skills\s+You\s+Will\s+Demonstrate"
-    r"|Recommended\s+Approach"
     r"|Deliverables"
     r"|Evaluation\s+Criteria"
     r"|Provided\s+Bag\s+Data"
@@ -115,20 +114,120 @@ BOILERPLATE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Sections to DROP entirely (not just demote / consolidate). The
+# "Recommended Approach" table of 3-hour timings is lecture-prep
+# material, not book content, and the user asked for it gone.
+DROP_SECTION_RE = re.compile(
+    r"(?:"
+    r"Recommended\s+Approach"
+    r"|Session\s+Roadmap"
+    r")",
+    re.IGNORECASE,
+)
+
+def _match_balanced_brace(text, start):
+    """Given text[start] == '{', return the index AFTER the matching '}'.
+    Counts nested braces properly. Returns -1 if unbalanced."""
+    assert text[start] == '{'
+    depth = 1
+    i = start + 1
+    while i < len(text):
+        c = text[i]
+        if c == '\\' and i + 1 < len(text):
+            i += 2        # skip escaped char
+            continue
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return -1
+
+
+def _replace_underbraces(text):
+    """Replace every \\underbrace{X}_{Y} with \\underset{\\text{\\footnotesize Y}}{\\underline{X}}
+    using real brace-counting rather than regex."""
+    out = []
+    i = 0
+    prefix = r"\underbrace"
+    while i < len(text):
+        j = text.find(prefix, i)
+        if j == -1:
+            out.append(text[i:])
+            break
+        out.append(text[i:j])
+        # expect { right after \underbrace
+        k = j + len(prefix)
+        if k >= len(text) or text[k] != '{':
+            out.append(text[j])
+            i = j + 1
+            continue
+        expr_end = _match_balanced_brace(text, k)
+        if expr_end == -1:
+            out.append(text[j])
+            i = j + 1
+            continue
+        expr = text[k+1:expr_end-1]
+        # expect _{  or _ followed by single char
+        if expr_end >= len(text) or text[expr_end] != '_':
+            out.append(text[j:expr_end])
+            i = expr_end
+            continue
+        m = expr_end + 1
+        if m >= len(text) or text[m] != '{':
+            out.append(text[j:expr_end])
+            i = expr_end
+            continue
+        lbl_end = _match_balanced_brace(text, m)
+        if lbl_end == -1:
+            out.append(text[j:expr_end])
+            i = expr_end
+            continue
+        label = text[m+1:lbl_end-1]
+        # If label is wrapped in \text{...}, unwrap it so we don't nest
+        tm = re.fullmatch(r"\\text\{(.*)\}", label, flags=re.DOTALL)
+        if tm:
+            label = tm.group(1)
+        # Emit replacement
+        out.append(
+            r"\underset{\text{\footnotesize " + label + r"}}{\underline{" + expr + r"}}"
+        )
+        i = lbl_end
+    return "".join(out)
+
+
+def _detect_code_lang(code: str) -> str:
+    """Heuristically detect whether a code snippet is Python, MATLAB,
+    bash or plain text. Used to tag the <pre><code class="language-X">
+    so pandoc emits a properly highlighted lstlisting.
+    """
+    s = code.strip()
+    first_line = s.splitlines()[0] if s else ""
+    s_lower = s.lower()
+    # Obvious shells
+    if first_line.startswith("$ ") or re.search(r"\b(sudo|apt-get|docker|ros2 (run|launch|topic)|colcon|git |cd |source |export )\b", s):
+        return "bash"
+    # Python markers
+    if re.search(r"^\s*(def |class |import |from |if __name__)\b", s, re.MULTILINE) \
+            or "rclpy" in s or "self\\." in s or "numpy" in s_lower or "matplotlib" in s_lower:
+        return "python"
+    # MATLAB markers: comments begin with %, function keyword, semicolons at EOL,
+    # end keyword, MATLAB-style transpose (')
+    if re.search(r"^\s*(function\s+\[|%%|% [A-Z])", s, re.MULTILINE) \
+            or re.search(r";\s*$", s, re.MULTILINE) and "%" in s:
+        return "matlab"
+    return ""
+
+
 def _preprocess_html_codeblocks(html: str) -> str:
     """Convert our custom <div class="code-block">...</div> and
-    <div class="pseudocode-block">...</div> to <pre><code>...</code></pre>
-    so pandoc emits them as verbatim LaTeX rather than paragraph text.
-
-    We have to handle the contents carefully: newlines inside the div
-    need to be preserved, and any nested markup (e.g. <strong> for
-    keywords) is stripped — pandoc's verbatim doesn't render inline
-    formatting inside code blocks anyway.
+    <div class="pseudocode-block">...</div> to <pre><code class="...">
+    so pandoc emits lstlisting with the correct language setting.
     """
     def _strip_markup(inner: str) -> str:
-        # Remove inline tags but keep the text
         inner = re.sub(r"<[^>]+>", "", inner)
-        # Decode a few common entities
         inner = (inner.replace("&lt;", "<").replace("&gt;", ">")
                       .replace("&amp;", "&").replace("&nbsp;", " ")
                       .replace("&quot;", '"'))
@@ -136,11 +235,12 @@ def _preprocess_html_codeblocks(html: str) -> str:
 
     def _repl(m):
         inner = m.group(1)
-        # Drop our "pseudocode-header" bar if present
         inner = re.sub(r'<div class="pseudocode-header">.*?</div>', "",
                        inner, flags=re.DOTALL)
         code = _strip_markup(inner).strip("\n")
-        return f"<pre><code>{code}</code></pre>"
+        lang = _detect_code_lang(code)
+        cls = f' class="language-{lang}"' if lang else ""
+        return f"<pre><code{cls}>{code}</code></pre>"
 
     html = re.sub(
         r'<div class="code-block"[^>]*>(.*?)</div>',
@@ -198,11 +298,15 @@ def consolidate_boilerplate(body: str, week: str) -> str:
     headers = parts[1::2]
     bodies = parts[2::2]
 
-    # First pass: classify every section
+    # First pass: classify every section, dropping unwanted ones entirely
     entries = []   # list of dicts: {kind, label_or_title, body, subs}
     i = 0
     while i < len(headers):
         title = re.match(r"\\section\{([^{}]*)\}", headers[i]).group(1)
+        # Drop sections that are course-management content, not book content
+        if DROP_SECTION_RE.search(title):
+            i += 1
+            continue
         if BOILERPLATE_RE.search(title):
             # collect contiguous boilerplate run
             run = []
@@ -437,16 +541,93 @@ def clean_and_wrap(week):
     body = raw_path.read_text(encoding="utf-8", errors="replace")
     body = transform_body(week, body)
 
-    # Post-process: shrink longtables so wide ones fit within text width.
+    # Drop subsection blocks matching DROP patterns: their content is
+    # timing-table lecture planning that doesn't belong in the book.
+    # We walk the body and remove each matching \subsection{...} up to
+    # the next \section or \subsection heading.
+    def _drop_subsection_block(body):
+        out = []
+        lines = body.split("\n")
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            m = re.match(r"\\subsection\{([^{}]*)\}", line)
+            if m and DROP_SECTION_RE.search(m.group(1)):
+                # Skip until next \section or \subsection
+                i += 1
+                while i < len(lines):
+                    nl = lines[i]
+                    if re.match(r"\\(?:section|subsection)\{", nl):
+                        break
+                    i += 1
+                continue
+            out.append(line)
+            i += 1
+        return "\n".join(out)
+    body = _drop_subsection_block(body)
+
+    # Convert pandoc's {verbatim} + class="language-X" to lstlisting so
+    # the colourful style applies. Pandoc emits
+    #    \begin{Shaded}...\end{Shaded} for highlighted code when --highlight-style
+    # is given, but with --no-highlight we get plain {verbatim}. Detect
+    # the trailing "class" hint pandoc preserves via the language-X tag
+    # in our HTML and wrap accordingly.
+    # Strategy: pandoc for our pre>code emits \begin{verbatim}...; we
+    # have no class signal there. So we re-detect from content.
+    def _verbatim_to_lstlisting(m):
+        code = m.group(1)
+        lang = _detect_code_lang(code)
+        if not lang:
+            # leave as is; the tcolorbox wrapper styles it nicely
+            return m.group(0)
+        lang_key = {"python": "Python", "matlab": "Matlab", "bash": "bash"}.get(lang, "")
+        if not lang_key:
+            return m.group(0)
+        return (f"\\begin{{lstlisting}}[language={lang_key}]\n"
+                f"{code}\n"
+                f"\\end{{lstlisting}}")
     body = re.sub(
-        r"(\\begin\{longtable\}[^\n]*\n)",
-        r"\\begingroup\\footnotesize\n\1",
+        r"\\begin\{verbatim\}\n?(.*?)\n?\\end\{verbatim\}",
+        _verbatim_to_lstlisting,
         body,
+        flags=re.DOTALL,
     )
-    body = body.replace(
-        r"\end{longtable}",
-        r"\end{longtable}\endgroup",
+
+    # Post-process: shrink longtables so wide ones fit within text width.
+    # Wrap each longtable as \begin{table}+\adjustbox+tabular so we can
+    # scale it horizontally to fit the text block. Pandoc emits a column
+    # spec like  {@{}llll@{}}  where the inner spec sits between two
+    # balanced-brace groups — we match that explicitly to avoid the
+    # greedy [^}] bug where only "@{" was captured before.
+    def _tabletize_longtable(m):
+        colspec_inner = m.group(1)      # e.g., "llll" (just the column letters)
+        body_inner = m.group(2)
+        return (
+            "\\begin{table}[ht]\\footnotesize\\centering\n"
+            "\\adjustbox{max width=\\textwidth,max totalheight=0.85\\textheight}{%\n"
+            "\\begin{tabular}{" + colspec_inner + "}\n"
+            + body_inner +
+            "\\end{tabular}}\n"
+            "\\end{table}\n"
+        )
+    body = re.sub(
+        r"\\begin\{longtable\}\[[^\]]*\]\{@\{\}([^@{}]+)@\{\}\}(.*?)\\end\{longtable\}",
+        _tabletize_longtable,
+        body,
+        flags=re.DOTALL,
     )
+
+    # Strip longtable-specific markup that tabular doesn't accept
+    body = re.sub(r"\\endfirsthead\s*", "", body)
+    body = re.sub(r"\\endhead\s*", "", body)
+    body = re.sub(r"\\endfoot\s*", "", body)
+    body = re.sub(r"\\endlastfoot\s*", "", body)
+    body = re.sub(r"\\noalign\{\}\s*", "", body)
+
+    # Rewrite \underbrace{X}_{Y} to the cleaner \underset{Y}{\underline{X}}
+    # using proper brace-balanced parsing (handles deep nesting like
+    # \ddot{\mathbf{p}} and \substack{a \\ b} inside the expression or label).
+    body = _replace_underbraces(body)
 
     # Append a "Simulation Results" section with every figure we have
     # for this week. Inserted BEFORE the trailing Summary/Wrap-Up blocks
