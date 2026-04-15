@@ -146,50 +146,50 @@ You studied quadrotor dynamics extensively in Weeks 3--8 (MATLAB theory block). 
 
 The full quadrotor state is a 12-dimensional vector:
 
-\textbackslash{[} \textbackslash mathbf\{x\} = \textbackslash begin\{bmatrix\} x \& y \& z \& \textbackslash phi \& \textbackslash theta \& \textbackslash psi \& \textbackslash dot\{x\} \& \textbackslash dot\{y\} \& \textbackslash dot\{z\} \& p \& q \& r \textbackslash end\{bmatrix\}\^{}T \textbackslash{]}
+\[ \mathbf{x} = \begin{bmatrix} x & y & z & \phi & \theta & \psi & \dot{x} & \dot{y} & \dot{z} & p & q & r \end{bmatrix}^T \]
 
-where \textbackslash((x, y, z)\textbackslash) is the position in the world ENU frame, \textbackslash((\textbackslash phi, \textbackslash theta, \textbackslash psi)\textbackslash) are roll, pitch, yaw (ZYX Euler angles), \textbackslash((\textbackslash dot\{x\}, \textbackslash dot\{y\}, \textbackslash dot\{z\})\textbackslash) are world-frame velocities, and \textbackslash((p, q, r)\textbackslash) are body-frame angular rates.
+where \((x, y, z)\) is the position in the world ENU frame, \((\phi, \theta, \psi)\) are roll, pitch, yaw (ZYX Euler angles), \((\dot{x}, \dot{y}, \dot{z})\) are world-frame velocities, and \((p, q, r)\) are body-frame angular rates.
 
 \hypertarget{translational-dynamics}{%
 \subsubsection{3.2 Translational Dynamics}\label{translational-dynamics}}
 
 Applying Newton\textquotesingle s second law in the world frame:
 
-\textbackslash{[} m\textbackslash ddot\{\textbackslash mathbf\{p\}\} = \textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} -mg \textbackslash end\{bmatrix\} + R(\textbackslash phi,\textbackslash theta,\textbackslash psi) \textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} T \textbackslash end\{bmatrix\} \textbackslash{]}
+\[ m\ddot{\mathbf{p}} = \begin{bmatrix} 0 \\ 0 \\ -mg \end{bmatrix} + R(\phi,\theta,\psi) \begin{bmatrix} 0 \\ 0 \\ T \end{bmatrix} \]
 
-where \textbackslash(m\textbackslash) is the total mass, \textbackslash(g = 9.81\textbackslash;\textbackslash text\{m/s\}\^{}2\textbackslash), \textbackslash(T\textbackslash) is the total thrust along the body z-axis, and \textbackslash(R(\textbackslash phi,\textbackslash theta,\textbackslash psi)\textbackslash) is the ZYX rotation matrix (body-to-world):
+where \(m\) is the total mass, \(g = 9.81\;\text{m/s}^2\), \(T\) is the total thrust along the body z-axis, and \(R(\phi,\theta,\psi)\) is the ZYX rotation matrix (body-to-world):
 
-\textbackslash{[} R = R\_z(\textbackslash psi) R\_y(\textbackslash theta) R\_x(\textbackslash phi) = \textbackslash begin\{bmatrix\} c\textbackslash theta c\textbackslash psi \& c\textbackslash psi s\textbackslash theta s\textbackslash phi - s\textbackslash psi c\textbackslash phi \& c\textbackslash psi s\textbackslash theta c\textbackslash phi + s\textbackslash psi s\textbackslash phi \textbackslash\textbackslash{} c\textbackslash theta s\textbackslash psi \& s\textbackslash psi s\textbackslash theta s\textbackslash phi + c\textbackslash psi c\textbackslash phi \& s\textbackslash psi s\textbackslash theta c\textbackslash phi - c\textbackslash psi s\textbackslash phi \textbackslash\textbackslash{} -s\textbackslash theta \& c\textbackslash theta s\textbackslash phi \& c\textbackslash theta c\textbackslash phi \textbackslash end\{bmatrix\} \textbackslash{]}
+\[ R = R_z(\psi) R_y(\theta) R_x(\phi) = \begin{bmatrix} c\theta c\psi & c\psi s\theta s\phi - s\psi c\phi & c\psi s\theta c\phi + s\psi s\phi \\ c\theta s\psi & s\psi s\theta s\phi + c\psi c\phi & s\psi s\theta c\phi - c\psi s\phi \\ -s\theta & c\theta s\phi & c\theta c\phi \end{bmatrix} \]
 
 \hypertarget{rotational-dynamics}{%
 \subsubsection{3.3 Rotational Dynamics}\label{rotational-dynamics}}
 
 Euler\textquotesingle s equation for rotational motion in the body frame:
 
-\textbackslash{[} J\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash omega\}\} = -\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} + \textbackslash boldsymbol\{\textbackslash tau\} \textbackslash{]}
+\[ J\dot{\boldsymbol{\omega}} = -\boldsymbol{\omega} \times J\boldsymbol{\omega} + \boldsymbol{\tau} \]
 
-where \textbackslash(J = \textbackslash text\{diag\}(I\_\{xx\}, I\_\{yy\}, I\_\{zz\})\textbackslash) is the inertia tensor (diagonal for a symmetric quadrotor), \textbackslash(\textbackslash boldsymbol\{\textbackslash omega\} = {[}p, q, r{]}\^{}T\textbackslash) are body angular rates, and \textbackslash(\textbackslash boldsymbol\{\textbackslash tau\} = {[}\textbackslash tau\_\textbackslash phi, \textbackslash tau\_\textbackslash theta, \textbackslash tau\_\textbackslash psi{]}\^{}T\textbackslash) are the control torques.
+where \(J = \text{diag}(I_{xx}, I_{yy}, I_{zz})\) is the inertia tensor (diagonal for a symmetric quadrotor), \(\boldsymbol{\omega} = [p, q, r]^T\) are body angular rates, and \(\boldsymbol{\tau} = [\tau_\phi, \tau_\theta, \tau_\psi]^T\) are the control torques.
 
 Expanding component-wise:
 
-\textbackslash{[} \textbackslash begin\{aligned\}
-I\_\{xx\}\textbackslash dot\{p\} \&= (I\_\{yy\} - I\_\{zz\})qr + \textbackslash tau\_\textbackslash phi \textbackslash\textbackslash{}
-I\_\{yy\}\textbackslash dot\{q\} \&= (I\_\{zz\} - I\_\{xx\})pr + \textbackslash tau\_\textbackslash theta \textbackslash\textbackslash{}
-I\_\{zz\}\textbackslash dot\{r\} \&= (I\_\{xx\} - I\_\{yy\})pq + \textbackslash tau\_\textbackslash psi
-\textbackslash end\{aligned\} \textbackslash{]}
+\[ \begin{aligned}
+                I_{xx}\dot{p} &= (I_{yy} - I_{zz})qr + \tau_\phi \\
+                I_{yy}\dot{q} &= (I_{zz} - I_{xx})pr + \tau_\theta \\
+                I_{zz}\dot{r} &= (I_{xx} - I_{yy})pq + \tau_\psi
+                \end{aligned} \]
 
 \hypertarget{motor-mixing-matrix}{%
 \subsubsection{3.4 Motor Mixing Matrix}\label{motor-mixing-matrix}}
 
-The four motors (plus-configuration) produce a total thrust \textbackslash(T\textbackslash) and three torques \textbackslash((\textbackslash tau\_\textbackslash phi, \textbackslash tau\_\textbackslash theta, \textbackslash tau\_\textbackslash psi)\textbackslash). The relationship is:
+The four motors (plus-configuration) produce a total thrust \(T\) and three torques \((\tau_\phi, \tau_\theta, \tau_\psi)\). The relationship is:
 
-\textbackslash{[} \textbackslash begin\{bmatrix\} T \textbackslash\textbackslash{} \textbackslash tau\_\textbackslash phi \textbackslash\textbackslash{} \textbackslash tau\_\textbackslash theta \textbackslash\textbackslash{} \textbackslash tau\_\textbackslash psi \textbackslash end\{bmatrix\} = \textbackslash underbrace\{\textbackslash begin\{bmatrix\} k\_f \& k\_f \& k\_f \& k\_f \textbackslash\textbackslash{} 0 \& -dk\_f \& 0 \& dk\_f \textbackslash\textbackslash{} dk\_f \& 0 \& -dk\_f \& 0 \textbackslash\textbackslash{} -k\_m \& k\_m \& -k\_m \& k\_m \textbackslash end\{bmatrix\}\}\_\{\textbackslash displaystyle M\} \textbackslash begin\{bmatrix\} \textbackslash omega\_1\^{}2 \textbackslash\textbackslash{} \textbackslash omega\_2\^{}2 \textbackslash\textbackslash{} \textbackslash omega\_3\^{}2 \textbackslash\textbackslash{} \textbackslash omega\_4\^{}2 \textbackslash end\{bmatrix\} \textbackslash{]}
+\[ \begin{bmatrix} T \\ \tau_\phi \\ \tau_\theta \\ \tau_\psi \end{bmatrix} = \underbrace{\begin{bmatrix} k_f & k_f & k_f & k_f \\ 0 & -dk_f & 0 & dk_f \\ dk_f & 0 & -dk_f & 0 \\ -k_m & k_m & -k_m & k_m \end{bmatrix}}_{\displaystyle M} \begin{bmatrix} \omega_1^2 \\ \omega_2^2 \\ \omega_3^2 \\ \omega_4^2 \end{bmatrix} \]
 
-where \textbackslash(k\_f\textbackslash) is the thrust coefficient, \textbackslash(k\_m\textbackslash) is the torque coefficient, \textbackslash(d\textbackslash) is the arm length, and \textbackslash(\textbackslash omega\_i\textbackslash) is the angular speed of motor \textbackslash(i\textbackslash). The inverse mixing matrix \textbackslash(M\^{}\{-1\}\textbackslash) converts desired thrust/torques to motor speed commands:
+where \(k_f\) is the thrust coefficient, \(k_m\) is the torque coefficient, \(d\) is the arm length, and \(\omega_i\) is the angular speed of motor \(i\). The inverse mixing matrix \(M^{-1}\) converts desired thrust/torques to motor speed commands:
 
-\textbackslash{[} \textbackslash begin\{bmatrix\} \textbackslash omega\_1\^{}2 \textbackslash\textbackslash{} \textbackslash omega\_2\^{}2 \textbackslash\textbackslash{} \textbackslash omega\_3\^{}2 \textbackslash\textbackslash{} \textbackslash omega\_4\^{}2 \textbackslash end\{bmatrix\} = M\^{}\{-1\} \textbackslash begin\{bmatrix\} T \textbackslash\textbackslash{} \textbackslash tau\_\textbackslash phi \textbackslash\textbackslash{} \textbackslash tau\_\textbackslash theta \textbackslash\textbackslash{} \textbackslash tau\_\textbackslash psi \textbackslash end\{bmatrix\} \textbackslash{]}
+\[ \begin{bmatrix} \omega_1^2 \\ \omega_2^2 \\ \omega_3^2 \\ \omega_4^2 \end{bmatrix} = M^{-1} \begin{bmatrix} T \\ \tau_\phi \\ \tau_\theta \\ \tau_\psi \end{bmatrix} \]
 
-\textbf{Physical Parameters (from quadrotor\_sim.py):} mass = 1.0 kg, arm\_length = 0.25 m, \textbackslash(I\_\{xx\} = I\_\{yy\} = 0.0082\textbackslash;\textbackslash text\{kg\}\textbackslash cdot\textbackslash text\{m\}\^{}2\textbackslash), \textbackslash(I\_\{zz\} = 0.0150\textbackslash;\textbackslash text\{kg\}\textbackslash cdot\textbackslash text\{m\}\^{}2\textbackslash), \textbackslash(k\_f = 6.8 \textbackslash times 10\^{}\{-6\}\textbackslash), \textbackslash(k\_m = 2.6 \textbackslash times 10\^{}\{-7\}\textbackslash), motor range: 0--838 rad/s.
+\textbf{Physical Parameters (from quadrotor\_sim.py):} mass = 1.0 kg, arm\_length = 0.25 m, \(I_{xx} = I_{yy} = 0.0082\;\text{kg}\cdot\text{m}^2\), \(I_{zz} = 0.0150\;\text{kg}\cdot\text{m}^2\), \(k_f = 6.8 \times 10^{-6}\), \(k_m = 2.6 \times 10^{-7}\), motor range: 0--838 rad/s.
 
 \hypertarget{quadrotor-plus-configuration-diagram}{%
 \subsubsection{3.5 Quadrotor Plus-Configuration Diagram}\label{quadrotor-plus-configuration-diagram}}
@@ -209,9 +209,9 @@ The standard control architecture used by virtually all commercial and research 
 
 \textbf{Rate:} 10--50 Hz
 
-\textbf{Input:} Desired position \textbackslash((x\_d, y\_d, z\_d)\textbackslash) from mission planner
+\textbf{Input:} Desired position \((x_d, y_d, z_d)\) from mission planner
 
-\textbf{Output:} Desired attitude angles \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d)\textbackslash) and thrust \textbackslash(T\_d\textbackslash)
+\textbf{Output:} Desired attitude angles \((\phi_d, \theta_d)\) and thrust \(T_d\)
 
 \textbf{Sensor:} GPS/vision (position), barometer (altitude)
 
@@ -222,9 +222,9 @@ This loop converts position error into desired accelerations, then maps accelera
 
 \textbf{Rate:} 100--250 Hz
 
-\textbf{Input:} Desired attitude \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d, \textbackslash psi\_d)\textbackslash)
+\textbf{Input:} Desired attitude \((\phi_d, \theta_d, \psi_d)\)
 
-\textbf{Output:} Desired angular rates \textbackslash((p\_d, q\_d, r\_d)\textbackslash)
+\textbf{Output:} Desired angular rates \((p_d, q_d, r_d)\)
 
 \textbf{Sensor:} IMU (accelerometer-derived attitude via complementary or Mahony filter)
 
@@ -235,7 +235,7 @@ Proportional control on attitude error to generate rate setpoints. This decouple
 
 \textbf{Rate:} 250--1000 Hz
 
-\textbf{Input:} Desired angular rates \textbackslash((p\_d, q\_d, r\_d)\textbackslash)
+\textbf{Input:} Desired angular rates \((p_d, q_d, r_d)\)
 
 \textbf{Output:} Motor commands (PWM or speed)
 
@@ -404,29 +404,29 @@ main()
 
 The complementary filter fuses gyroscope integration (high-frequency, drift-prone) with accelerometer-derived angles (low-frequency, noisy) to produce a stable attitude estimate:
 
-\textbackslash{[} \textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash alpha\textbackslash bigl(\textbackslash hat\{\textbackslash phi\}\_k + \textbackslash omega\_x \textbackslash,\textbackslash Delta t\textbackslash bigr) + (1 - \textbackslash alpha)\textbackslash,\textbackslash phi\_\textbackslash text\{acc\} \textbackslash{]}
+\[ \hat{\phi}_{k+1} = \alpha\bigl(\hat{\phi}_k + \omega_x \,\Delta t\bigr) + (1 - \alpha)\,\phi_\text{acc} \]
 
 where:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbackslash(\textbackslash alpha \textbackslash in {[}0.95, 0.99{]}\textbackslash) is the filter coefficient (higher = more trust in gyroscope)
+  \(\alpha \in [0.95, 0.99]\) is the filter coefficient (higher = more trust in gyroscope)
 \item
-  \textbackslash(\textbackslash omega\_x\textbackslash) is the gyroscope angular rate about the x-axis
+  \(\omega_x\) is the gyroscope angular rate about the x-axis
 \item
-  \textbackslash(\textbackslash phi\_\textbackslash text\{acc\} = \textbackslash text\{atan2\}(a\_y, a\_z)\textbackslash) is the accelerometer-derived roll angle
+  \(\phi_\text{acc} = \text{atan2}(a_y, a_z)\) is the accelerometer-derived roll angle
 \item
-  \textbackslash(\textbackslash Delta t\textbackslash) is the time step between IMU samples
+  \(\Delta t\) is the time step between IMU samples
 \end{itemize}
 
 \textbf{Why not just use the gyroscope?} Gyroscope integration drifts over time due to bias. The accelerometer provides an absolute reference (gravity direction) but is noisy and affected by translational acceleration. The complementary filter combines the best of both: short-term accuracy from the gyro and long-term stability from the accelerometer. For production systems, a Mahony or Madgwick filter (quaternion-based) is preferred.
 
 The same principle applies for pitch:
 
-\textbackslash{[} \textbackslash hat\{\textbackslash theta\}\_\{k+1\} = \textbackslash alpha\textbackslash bigl(\textbackslash hat\{\textbackslash theta\}\_k + \textbackslash omega\_y \textbackslash,\textbackslash Delta t\textbackslash bigr) + (1 - \textbackslash alpha)\textbackslash,\textbackslash theta\_\textbackslash text\{acc\} \textbackslash{]}
+\[ \hat{\theta}_{k+1} = \alpha\bigl(\hat{\theta}_k + \omega_y \,\Delta t\bigr) + (1 - \alpha)\,\theta_\text{acc} \]
 
-where \textbackslash(\textbackslash theta\_\textbackslash text\{acc\} = \textbackslash text\{atan2\}\textbackslash bigl(-a\_x,\textbackslash;\textbackslash sqrt\{a\_y\^{}2 + a\_z\^{}2\}\textbackslash bigr)\textbackslash). Yaw cannot be corrected by the accelerometer alone --- it requires a magnetometer or visual heading.
+where \(\theta_\text{acc} = \text{atan2}\bigl(-a_x,\;\sqrt{a_y^2 + a_z^2}\bigr)\). Yaw cannot be corrected by the accelerometer alone --- it requires a magnetometer or visual heading.
 
 \hypertarget{section-6-part-4-applying-all-7-controllers-to-quadrotor}{%
 \subsection{Section 6: Part 4 --- Applying All 7 Controllers to Quadrotor}\label{section-6-part-4-applying-all-7-controllers-to-quadrotor}}
@@ -441,16 +441,16 @@ In Weeks 1--8 you studied seven control strategies in the abstract. In Week 9 yo
 
 Computed Torque Control (also called \emph{feedback linearization}) cancels the nonlinear terms in the rotational dynamics and replaces them with a desired linear response:
 
-\textbackslash{[} \textbackslash boldsymbol\{\textbackslash tau\} = J\textbackslash mathbf\{u\}\_d + \textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash{]}
+\[ \boldsymbol{\tau} = J\mathbf{u}_d + \boldsymbol{\omega} \times J\boldsymbol{\omega} \]
 
-where \textbackslash(\textbackslash mathbf\{u\}\_d = \textbackslash ddot\{\textbackslash mathbf\{q\}\}\_d + K\_d(\textbackslash dot\{\textbackslash mathbf\{q\}\}\_d - \textbackslash dot\{\textbackslash mathbf\{q\}\}) + K\_p(\textbackslash mathbf\{q\}\_d - \textbackslash mathbf\{q\})\textbackslash) is the auxiliary PD input. After cancellation, the closed-loop system reduces to \textbackslash(\textbackslash ddot\{\textbackslash mathbf\{e\}\} + K\_d\textbackslash dot\{\textbackslash mathbf\{e\}\} + K\_p\textbackslash mathbf\{e\} = 0\textbackslash), which is a linear second-order system with tunable damping.
+where \(\mathbf{u}_d = \ddot{\mathbf{q}}_d + K_d(\dot{\mathbf{q}}_d - \dot{\mathbf{q}}) + K_p(\mathbf{q}_d - \mathbf{q})\) is the auxiliary PD input. After cancellation, the closed-loop system reduces to \(\ddot{\mathbf{e}} + K_d\dot{\mathbf{e}} + K_p\mathbf{e} = 0\), which is a linear second-order system with tunable damping.
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Requires:} Accurate inertia matrix \textbackslash(J\textbackslash). Sensitive to payload changes.
+  \textbf{Requires:} Accurate inertia matrix \(J\). Sensitive to payload changes.
 \item
-  \textbf{ROS2 Implementation:} The Coriolis/gyroscopic term \textbackslash(\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\}\textbackslash) is computed in each timer callback using the latest gyroscope reading. Publishes torque commands.
+  \textbf{ROS2 Implementation:} The Coriolis/gyroscopic term \(\boldsymbol{\omega} \times J\boldsymbol{\omega}\) is computed in each timer callback using the latest gyroscope reading. Publishes torque commands.
 \item
   \textbf{Best for:} Known, well-characterized platforms where the model is accurate.
 \end{itemize}
@@ -463,9 +463,9 @@ where \textbackslash(\textbackslash mathbf\{u\}\_d = \textbackslash ddot\{\textb
 
 Linearize the quadrotor dynamics about the hover operating point. At each control cycle, solve a finite-horizon constrained optimization:
 
-\textbackslash{[} \textbackslash min\_\{\textbackslash mathbf\{u\}\_\{0:N-1\}\} \textbackslash sum\_\{k=0\}\^{}\{N-1\} \textbackslash bigl(\textbackslash\textbar\textbackslash mathbf\{x\}\_k - \textbackslash mathbf\{x\}\_\textbackslash text\{ref\}\textbackslash\textbar\_Q\^{}2 + \textbackslash\textbar\textbackslash mathbf\{u\}\_k\textbackslash\textbar\_R\^{}2\textbackslash bigr) + \textbackslash\textbar\textbackslash mathbf\{x\}\_N - \textbackslash mathbf\{x\}\_\textbackslash text\{ref\}\textbackslash\textbar\_P\^{}2 \textbackslash{]}
+\[ \min_{\mathbf{u}_{0:N-1}} \sum_{k=0}^{N-1} \bigl(\|\mathbf{x}_k - \mathbf{x}_\text{ref}\|_Q^2 + \|\mathbf{u}_k\|_R^2\bigr) + \|\mathbf{x}_N - \mathbf{x}_\text{ref}\|_P^2 \]
 
-subject to \textbackslash(\textbackslash mathbf\{x\}\_\{k+1\} = A\textbackslash mathbf\{x\}\_k + B\textbackslash mathbf\{u\}\_k\textbackslash), thrust limits \textbackslash(0 \textbackslash le T \textbackslash le T\_\textbackslash text\{max\}\textbackslash), and angle constraints \textbackslash(\textbar\textbackslash phi\textbar{} \textbackslash le 30\^{}\textbackslash circ, \textbar\textbackslash theta\textbar{} \textbackslash le 30\^{}\textbackslash circ\textbackslash).
+subject to \(\mathbf{x}_{k+1} = A\mathbf{x}_k + B\mathbf{u}_k\), thrust limits \(0 \le T \le T_\text{max}\), and angle constraints \(|\phi| \le 30^\circ, |\theta| \le 30^\circ\).
 
 \begin{itemize}
 \tightlist
@@ -483,18 +483,18 @@ subject to \textbackslash(\textbackslash mathbf\{x\}\_\{k+1\} = A\textbackslash 
 \hypertarget{concept-2}{%
 \paragraph{Concept}\label{concept-2}}
 
-Online estimation of uncertain parameters (mass \textbackslash(m\textbackslash), inertia \textbackslash(J\textbackslash), aerodynamic coefficients) using the regressor form:
+Online estimation of uncertain parameters (mass \(m\), inertia \(J\), aerodynamic coefficients) using the regressor form:
 
-\textbackslash{[} \textbackslash boldsymbol\{\textbackslash tau\} = Y(\textbackslash mathbf\{q\}, \textbackslash dot\{\textbackslash mathbf\{q\}\}, \textbackslash dot\{\textbackslash mathbf\{q\}\}\_r, \textbackslash ddot\{\textbackslash mathbf\{q\}\}\_r)\textbackslash,\textbackslash hat\{\textbackslash boldsymbol\{\textbackslash theta\}\} + K\_d\textbackslash mathbf\{s\} \textbackslash{]}
+\[ \boldsymbol{\tau} = Y(\mathbf{q}, \dot{\mathbf{q}}, \dot{\mathbf{q}}_r, \ddot{\mathbf{q}}_r)\,\hat{\boldsymbol{\theta}} + K_d\mathbf{s} \]
 
-where \textbackslash(\textbackslash hat\{\textbackslash boldsymbol\{\textbackslash theta\}\}\textbackslash) is the parameter estimate vector, \textbackslash(Y\textbackslash) is the regressor matrix, and \textbackslash(\textbackslash mathbf\{s\} = \textbackslash dot\{\textbackslash mathbf\{e\}\} + \textbackslash Lambda\textbackslash mathbf\{e\}\textbackslash) is the sliding variable. The update law is \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash boldsymbol\{\textbackslash theta\}\}\} = -\textbackslash Gamma\^{}\{-1\}Y\^{}T\textbackslash mathbf\{s\}\textbackslash).
+where \(\hat{\boldsymbol{\theta}}\) is the parameter estimate vector, \(Y\) is the regressor matrix, and \(\mathbf{s} = \dot{\mathbf{e}} + \Lambda\mathbf{e}\) is the sliding variable. The update law is \(\dot{\hat{\boldsymbol{\theta}}} = -\Gamma^{-1}Y^T\mathbf{s}\).
 
 \begin{itemize}
 \tightlist
 \item
   \textbf{Use case:} Quadrotor picking up unknown payloads (mass changes mid-flight), battery depletion changing mass.
 \item
-  \textbf{ROS2 Implementation:} Parameter update runs alongside the control law in the same callback. Store \textbackslash(\textbackslash hat\{\textbackslash boldsymbol\{\textbackslash theta\}\}\textbackslash) as node state. Publish parameter estimates for monitoring on \texttt{/param\_estimates}.
+  \textbf{ROS2 Implementation:} Parameter update runs alongside the control law in the same callback. Store \(\hat{\boldsymbol{\theta}}\) as node state. Publish parameter estimates for monitoring on \texttt{/param\_estimates}.
 \end{itemize}
 
 \hypertarget{robust-control-h-infinity-sliding-boundary-layer}{%
@@ -505,16 +505,16 @@ where \textbackslash(\textbackslash hat\{\textbackslash boldsymbol\{\textbacksla
 
 Add a robust compensating term to handle bounded disturbances (wind, ground effect, model uncertainty):
 
-\textbackslash{[} \textbackslash boldsymbol\{\textbackslash tau\} = \textbackslash boldsymbol\{\textbackslash tau\}\_\textbackslash text\{nominal\} + \textbackslash boldsymbol\{\textbackslash tau\}\_\textbackslash text\{robust\} \textbackslash{]}
+\[ \boldsymbol{\tau} = \boldsymbol{\tau}_\text{nominal} + \boldsymbol{\tau}_\text{robust} \]
 
-where \textbackslash(\textbackslash boldsymbol\{\textbackslash tau\}\_\textbackslash text\{robust\} = -\textbackslash rho\textbackslash,\textbackslash text\{sgn\}(\textbackslash mathbf\{s\})\textbackslash) with \textbackslash(\textbackslash rho \textbackslash geq \textbackslash\textbar\textbackslash mathbf\{d\}\textbackslash\textbar\_\textbackslash infty\textbackslash). To avoid chattering, a boundary layer is used: \textbackslash(\textbackslash text\{sat\}(\textbackslash mathbf\{s\}/\textbackslash epsilon)\textbackslash) replaces \textbackslash(\textbackslash text\{sgn\}(\textbackslash mathbf\{s\})\textbackslash).
+where \(\boldsymbol{\tau}_\text{robust} = -\rho\,\text{sgn}(\mathbf{s})\) with \(\rho \geq \|\mathbf{d}\|_\infty\). To avoid chattering, a boundary layer is used: \(\text{sat}(\mathbf{s}/\epsilon)\) replaces \(\text{sgn}(\mathbf{s})\).
 
 \begin{itemize}
 \tightlist
 \item
   \textbf{Use case:} Outdoor flight with wind gusts up to 10 m/s, flying near structures (ground effect).
 \item
-  \textbf{ROS2 Implementation:} A wind estimator node subscribes to \texttt{/imu} and \texttt{/odom}, estimates disturbance force, and publishes on \texttt{/wind\_estimate}. The robust compensator node uses this estimate to set the disturbance bound \textbackslash(\textbackslash rho\textbackslash).
+  \textbf{ROS2 Implementation:} A wind estimator node subscribes to \texttt{/imu} and \texttt{/odom}, estimates disturbance force, and publishes on \texttt{/wind\_estimate}. The robust compensator node uses this estimate to set the disturbance bound \(\rho\).
 \end{itemize}
 
 \hypertarget{backstepping-control}{%
@@ -525,10 +525,10 @@ where \textbackslash(\textbackslash boldsymbol\{\textbackslash tau\}\_\textbacks
 
 Backstepping is a natural fit for the cascaded quadrotor structure. Design proceeds in two steps:
 
-\textbackslash{[} \textbackslash begin\{aligned\}
-\textbackslash text\{Step 1 (outer):\}\textbackslash quad \&\textbackslash text\{Position error\} \textbackslash;\textbackslash rightarrow\textbackslash; \textbackslash text\{Virtual control: desired attitude \} (\textbackslash phi\_d, \textbackslash theta\_d, T\_d) \textbackslash\textbackslash{}
-\textbackslash text\{Step 2 (inner):\}\textbackslash quad \&\textbackslash text\{Attitude error\} \textbackslash;\textbackslash rightarrow\textbackslash; \textbackslash text\{Actual torques \} \textbackslash boldsymbol\{\textbackslash tau\}
-\textbackslash end\{aligned\} \textbackslash{]}
+\[ \begin{aligned}
+                    \text{Step 1 (outer):}\quad &\text{Position error} \;\rightarrow\; \text{Virtual control: desired attitude } (\phi_d, \theta_d, T_d) \\
+                    \text{Step 2 (inner):}\quad &\text{Attitude error} \;\rightarrow\; \text{Actual torques } \boldsymbol{\tau}
+                    \end{aligned} \]
 
 Each step uses a Lyapunov function to prove stability. The virtual control from Step 1 becomes the reference for Step 2.
 
@@ -548,18 +548,18 @@ Each step uses a Lyapunov function to prove stability. The virtual control from 
 
 Define a sliding surface for each attitude axis:
 
-\textbackslash{[} s\_\textbackslash phi = \textbackslash dot\{e\}\_\textbackslash phi + \textbackslash lambda\_\textbackslash phi\textbackslash, e\_\textbackslash phi \textbackslash{]}
+\[ s_\phi = \dot{e}_\phi + \lambda_\phi\, e_\phi \]
 
 The control law drives the state to the surface and maintains it there:
 
-\textbackslash{[} \textbackslash tau\_\textbackslash phi = I\_\{xx\}\textbackslash bigl(\textbackslash ddot\{\textbackslash phi\}\_d + \textbackslash lambda\_\textbackslash phi\textbackslash,\textbackslash dot\{e\}\_\textbackslash phi - \textbackslash eta\textbackslash,\textbackslash text\{sat\}(s\_\textbackslash phi / \textbackslash epsilon)\textbackslash bigr) - (I\_\{yy\} - I\_\{zz\})qr \textbackslash{]}
+\[ \tau_\phi = I_{xx}\bigl(\ddot{\phi}_d + \lambda_\phi\,\dot{e}_\phi - \eta\,\text{sat}(s_\phi / \epsilon)\bigr) - (I_{yy} - I_{zz})qr \]
 
 \begin{itemize}
 \tightlist
 \item
   \textbf{Strength:} Excellent disturbance rejection for matched disturbances (wind acting through control channels). Invariant to parameter uncertainty once on the surface.
 \item
-  \textbf{Chattering:} Mitigated with boundary layer \textbackslash(\textbackslash epsilon\textbackslash) or super-twisting algorithm.
+  \textbf{Chattering:} Mitigated with boundary layer \(\epsilon\) or super-twisting algorithm.
 \item
   \textbf{ROS2 Implementation:} Requires a fast inner loop (500--1000 Hz) to maintain sliding condition. Timer period = 1--2 ms. Use \texttt{BEST\_EFFORT} QoS to avoid blocking.
 \end{itemize}
@@ -570,23 +570,23 @@ The control law drives the state to the surface and maintains it there:
 \hypertarget{concept-6}{%
 \paragraph{Concept}\label{concept-6}}
 
-Rather than linearising the quadrotor around hover once, \textbf{iLQR} (Week 8 §9) linearises around the \emph{current-iterate trajectory} at every iteration and solves a time-varying LQR in closed form. The discrete-time recursion computes, for \textbackslash(k = N\textbackslash!-\textbackslash!1,\textbackslash ldots,0\textbackslash):
+Rather than linearising the quadrotor around hover once, \textbf{iLQR} (Week 8 §9) linearises around the \emph{current-iterate trajectory} at every iteration and solves a time-varying LQR in closed form. The discrete-time recursion computes, for \(k = N\!-\!1,\ldots,0\):
 
-\textbackslash{[} k\_k = -Q\_\{uu,k\}\^{}\{-1\} Q\_\{u,k\},\textbackslash quad K\_k = -Q\_\{uu,k\}\^{}\{-1\} Q\_\{ux,k\} \textbackslash{]}
-\textbackslash{[} u\_k\^{}\{\textbackslash text\{new\}\} = \textbackslash bar u\_k + \textbackslash alpha\textbackslash,k\_k + K\_k\textbackslash,(x\_k - \textbackslash bar x\_k) \textbackslash{]}
+\[ k_k = -Q_{uu,k}^{-1} Q_{u,k},\quad K_k = -Q_{uu,k}^{-1} Q_{ux,k} \]
+\[ u_k^{\text{new}} = \bar u_k + \alpha\,k_k + K_k\,(x_k - \bar x_k) \]
 
-where \textbackslash(Q\_\{uu\}, Q\_\{ux\}, Q\_u\textbackslash) are Jacobian/Hessian blocks assembled from the nonlinear dynamics \textbackslash(f\textbackslash) and cost \textbackslash(L\textbackslash) (see Week 8 §9 notation table). Wrapped in a receding-horizon loop this is \textbf{NMPC}.
+where \(Q_{uu}, Q_{ux}, Q_u\) are Jacobian/Hessian blocks assembled from the nonlinear dynamics \(f\) and cost \(L\) (see Week 8 §9 notation table). Wrapped in a receding-horizon loop this is \textbf{NMPC}.
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Advantage:} Handles the full nonlinear quadrotor model including tilt saturation and aggressive manoeuvres where linearised LQR fails; simultaneously provides an open-loop plan \emph{and} a local time-varying feedback policy \textbackslash(K\_k\textbackslash).
+  \textbf{Advantage:} Handles the full nonlinear quadrotor model including tilt saturation and aggressive manoeuvres where linearised LQR fails; simultaneously provides an open-loop plan \emph{and} a local time-varying feedback policy \(K_k\).
 \item
   \textbf{Limitation:} Iterative, higher compute per step than LQR; locally (not globally) optimal; needs warm-starting across samples to meet real-time.
 \item
-  \textbf{ROS2 implementation:} Timer callback at 50--100 Hz runs 3--5 iLQR iterations with warm-started control sequence; finite-difference Jacobians for the 6- or 12-state quadrotor; apply \textbackslash(u\_0\^{}\textbackslash star\textbackslash), shift the warm-start. See \texttt{week\_09/w11\_exercises/task\_nmpc\_node.py} for the unicycle template.
+  \textbf{ROS2 implementation:} Timer callback at 50--100 Hz runs 3--5 iLQR iterations with warm-started control sequence; finite-difference Jacobians for the 6- or 12-state quadrotor; apply \(u_0^\star\), shift the warm-start. See \texttt{week\_09/w11\_exercises/task\_nmpc\_node.py} for the unicycle template.
 \item
-  \textbf{Meta-use:} iLQR/NMPC is also the offline tuning tool for the other six controllers --- minimising a closed-loop cost \textbackslash(J(\textbackslash theta)\textbackslash) over SMC gains \textbackslash((\textbackslash lambda,\textbackslash phi,\textbackslash eta)\textbackslash), adaptive \textbackslash((\textbackslash Gamma,\textbackslash sigma)\textbackslash), robust \textbackslash((K\_p,K\_d,\textbackslash rho,\textbackslash Lambda)\textbackslash), or backstepping \textbackslash((k\_1,\textbackslash ldots,k\_n)\textbackslash) as shown in Week 8 §5--§8.
+  \textbf{Meta-use:} iLQR/NMPC is also the offline tuning tool for the other six controllers --- minimising a closed-loop cost \(J(\theta)\) over SMC gains \((\lambda,\phi,\eta)\), adaptive \((\Gamma,\sigma)\), robust \((K_p,K_d,\rho,\Lambda)\), or backstepping \((k_1,\ldots,k_n)\) as shown in Week 8 §5--§8.
 \end{itemize}
 
 \hypertarget{comprehensive-controller-comparison}{%
@@ -626,7 +626,7 @@ The simulation uses the \texttt{quadrotor\_sim.py} physics engine from the ROS2 
 \item
   \textbf{Convention:} ENU/FLU (x-forward, y-left, z-up) --- ROS2 standard
 \item
-  \textbf{Motor Model:} First-order motor dynamics with thrust coefficient \textbackslash(k\_f = 6.8 \textbackslash times 10\^{}\{-6\}\textbackslash) and torque coefficient \textbackslash(k\_m = 2.6 \textbackslash times 10\^{}\{-7\}\textbackslash)
+  \textbf{Motor Model:} First-order motor dynamics with thrust coefficient \(k_f = 6.8 \times 10^{-6}\) and torque coefficient \(k_m = 2.6 \times 10^{-7}\)
 \item
   \textbf{Sensor Models:} IMU with configurable noise (gyro bias, accelerometer noise), GPS with position noise
 \item
@@ -718,11 +718,11 @@ Task 7 & \texttt{task7\_full\_simulation.py} & Full simulation: fly a square tra
 \item
   Configure the cascaded system: position controller (outer), PID attitude controller (inner), motor mixer.
 \item
-  Set the hover reference to \textbackslash({[}x, y, z{]} = {[}0, 0, 1{]}\textbackslash) m.
+  Set the hover reference to \([x, y, z] = [0, 0, 1]\) m.
 \item
   Run the simulation for 30 seconds and record the flight with rosbag2.
 \item
-  Plot the attitude angles \textbackslash((\textbackslash phi, \textbackslash theta, \textbackslash psi)\textbackslash) versus time. Verify:
+  Plot the attitude angles \((\phi, \theta, \psi)\) versus time. Verify:
 
   \begin{itemize}
   \tightlist
@@ -755,7 +755,7 @@ ros2 topic echo /odom -\/-field pose.pose.position
   \begin{itemize}
   \tightlist
   \item
-    \textbackslash({[}0, 0, 1{]} \textbackslash rightarrow {[}2, 0, 1{]} \textbackslash rightarrow {[}2, 2, 1{]} \textbackslash rightarrow {[}0, 2, 1{]} \textbackslash rightarrow {[}0, 0, 1{]}\textbackslash)
+    \([0, 0, 1] \rightarrow [2, 0, 1] \rightarrow [2, 2, 1] \rightarrow [0, 2, 1] \rightarrow [0, 0, 1]\)
   \end{itemize}
 \item
   Implement the LQR controller node:
@@ -765,7 +765,7 @@ ros2 topic echo /odom -\/-field pose.pose.position
   \item
     Linearize around hover, solve CARE using \texttt{scipy.linalg.solve\_continuous\_are}
   \item
-    Precompute gain matrix \textbackslash(K\textbackslash), apply \textbackslash(\textbackslash mathbf\{u\} = -K(\textbackslash mathbf\{x\} - \textbackslash mathbf\{x\}\_d)\textbackslash) in callback
+    Precompute gain matrix \(K\), apply \(\mathbf{u} = -K(\mathbf{x} - \mathbf{x}_d)\) in callback
   \end{itemize}
 \item
   Implement the MPC controller node:
@@ -773,9 +773,9 @@ ros2 topic echo /odom -\/-field pose.pose.position
   \begin{itemize}
   \tightlist
   \item
-    Use OSQP solver with prediction horizon \textbackslash(N = 20\textbackslash) at 20 Hz
+    Use OSQP solver with prediction horizon \(N = 20\) at 20 Hz
   \item
-    Thrust constraint: \textbackslash(0 \textbackslash le T \textbackslash le 2mg\textbackslash); angle constraint: \textbackslash(\textbar\textbackslash phi\textbar, \textbar\textbackslash theta\textbar{} \textbackslash le 30\^{}\textbackslash circ\textbackslash)
+    Thrust constraint: \(0 \le T \le 2mg\); angle constraint: \(|\phi|, |\theta| \le 30^\circ\)
   \end{itemize}
 \item
   Run each controller on the same trajectory. Record rosbag for each run.
@@ -816,9 +816,9 @@ ros2 topic echo /odom -\/-field pose.pose.position
   \begin{itemize}
   \tightlist
   \item
-    Sliding surface: \textbackslash(s = \textbackslash dot\{e\} + \textbackslash lambda e\textbackslash) with \textbackslash(\textbackslash lambda = 5\textbackslash)
+    Sliding surface: \(s = \dot{e} + \lambda e\) with \(\lambda = 5\)
   \item
-    Reaching law: \textbackslash(\textbackslash tau = \textbackslash tau\_\textbackslash text\{eq\} + \textbackslash eta \textbackslash cdot \textbackslash text\{sat\}(s/\textbackslash epsilon)\textbackslash) with \textbackslash(\textbackslash eta = 2.0\textbackslash), \textbackslash(\textbackslash epsilon = 0.1\textbackslash)
+    Reaching law: \(\tau = \tau_\text{eq} + \eta \cdot \text{sat}(s/\epsilon)\) with \(\eta = 2.0\), \(\epsilon = 0.1\)
   \end{itemize}
 \item
   Implement Robust controller:
@@ -826,10 +826,10 @@ ros2 topic echo /odom -\/-field pose.pose.position
   \begin{itemize}
   \tightlist
   \item
-    Nominal PID + robust compensator with disturbance bound \textbackslash(\textbackslash rho = 1.5\textbackslash) N
+    Nominal PID + robust compensator with disturbance bound \(\rho = 1.5\) N
   \end{itemize}
 \item
-  Run hover test at \textbackslash({[}0, 0, 1{]}\textbackslash) for 30 seconds with wind, record all three controllers.
+  Run hover test at \([0, 0, 1]\) for 30 seconds with wind, record all three controllers.
 \item
   Compare:
 
@@ -856,12 +856,12 @@ ros2 topic echo /odom -\/-field pose.pose.position
 
 The inner loop must be fast enough that it appears as an instantaneous actuator to the outer loop. The rule of thumb is that each inner loop should be 5--10x faster than the loop that commands it. If the rate loop were too slow, the attitude loop would command rate changes that take too long to execute, leading to phase lag and potential instability in the outer loop. Additionally, the angular rate dynamics are the fastest dynamics in the quadrotor system (small inertia, high torques), so the rate controller must sample at or above the Nyquist rate of these dynamics.
 
-\textbf{Q2.} The motor mixing matrix \textbackslash(M\textbackslash) has dimensions \textbackslash(4 \textbackslash times 4\textbackslash). Under what condition is \textbackslash(M\textbackslash) invertible? What physical situation would make it singular?
+\textbf{Q2.} The motor mixing matrix \(M\) has dimensions \(4 \times 4\). Under what condition is \(M\) invertible? What physical situation would make it singular?
 
 \hypertarget{answer-1}{%
 \paragraph{Answer}\label{answer-1}}
 
-\textbackslash(M\textbackslash) is invertible when the four motors can independently produce the four wrench components (thrust, roll torque, pitch torque, yaw torque). It becomes singular if, for example, all motors are collocated (arm length \textbackslash(d = 0\textbackslash)), which makes the roll and pitch torque rows identical to zero. It would also be singular if the yaw torque coefficients were all equal (no counter-rotating pairs), as you could not produce differential yaw torque. In the standard plus or X configuration with properly counter-rotating motors, \textbackslash(M\textbackslash) is always full rank.
+\(M\) is invertible when the four motors can independently produce the four wrench components (thrust, roll torque, pitch torque, yaw torque). It becomes singular if, for example, all motors are collocated (arm length \(d = 0\)), which makes the roll and pitch torque rows identical to zero. It would also be singular if the yaw torque coefficients were all equal (no counter-rotating pairs), as you could not produce differential yaw torque. In the standard plus or X configuration with properly counter-rotating motors, \(M\) is always full rank.
 
 \textbf{Q3.} Why is MPC typically placed in the outer position loop (10--20 Hz) rather than the inner rate loop for a quadrotor?
 
@@ -870,19 +870,19 @@ The inner loop must be fast enough that it appears as an instantaneous actuator 
 
 MPC involves solving a constrained quadratic program at each cycle, which takes 1--50 ms depending on the horizon length and solver. This computation time is acceptable at 10--20 Hz (50--100 ms period) but would miss deadlines at 500 Hz (2 ms period). The position dynamics are the slowest, so the prediction horizon can be longer without excessive computation. The inner rate loop uses simpler controllers (PID, LQR) that execute in microseconds, ensuring the tight timing needed for angular rate stabilization.
 
-\textbf{Q4.} In the complementary filter \textbackslash(\textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash alpha(\textbackslash hat\{\textbackslash phi\}\_k + \textbackslash omega\_x \textbackslash Delta t) + (1-\textbackslash alpha)\textbackslash phi\_\textbackslash text\{acc\}\textbackslash), what happens if \textbackslash(\textbackslash alpha = 1.0\textbackslash)? What if \textbackslash(\textbackslash alpha = 0.0\textbackslash)?
+\textbf{Q4.} In the complementary filter \(\hat{\phi}_{k+1} = \alpha(\hat{\phi}_k + \omega_x \Delta t) + (1-\alpha)\phi_\text{acc}\), what happens if \(\alpha = 1.0\)? What if \(\alpha = 0.0\)?
 
 \hypertarget{answer-3}{%
 \paragraph{Answer}\label{answer-3}}
 
-If \textbackslash(\textbackslash alpha = 1.0\textbackslash), the filter becomes pure gyroscope integration: \textbackslash(\textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash hat\{\textbackslash phi\}\_k + \textbackslash omega\_x \textbackslash Delta t\textbackslash). This will drift over time due to gyro bias, eventually producing arbitrarily large errors. If \textbackslash(\textbackslash alpha = 0.0\textbackslash), the filter uses only the accelerometer: \textbackslash(\textbackslash hat\{\textbackslash phi\}\_\{k+1\} = \textbackslash phi\_\textbackslash text\{acc\}\textbackslash). This eliminates drift but produces a very noisy estimate and is invalid during translational acceleration (the accelerometer measures gravity plus linear acceleration, so the gravity-derived angle is wrong during maneuvers). Typical values of \textbackslash(\textbackslash alpha = 0.95\textbackslash)--\textbackslash(0.99\textbackslash) balance gyro responsiveness with accelerometer stability.
+If \(\alpha = 1.0\), the filter becomes pure gyroscope integration: \(\hat{\phi}_{k+1} = \hat{\phi}_k + \omega_x \Delta t\). This will drift over time due to gyro bias, eventually producing arbitrarily large errors. If \(\alpha = 0.0\), the filter uses only the accelerometer: \(\hat{\phi}_{k+1} = \phi_\text{acc}\). This eliminates drift but produces a very noisy estimate and is invalid during translational acceleration (the accelerometer measures gravity plus linear acceleration, so the gravity-derived angle is wrong during maneuvers). Typical values of \(\alpha = 0.95\)--\(0.99\) balance gyro responsiveness with accelerometer stability.
 
 \textbf{Q5.} Which of the seven controllers would you recommend for a delivery drone that must pick up packages of unknown weight? Justify your choice.
 
 \hypertarget{answer-4}{%
 \paragraph{Answer}\label{answer-4}}
 
-\textbf{Adaptive Control} is the best choice. When the drone picks up a package, its mass \textbackslash(m\textbackslash) and inertia \textbackslash(J\textbackslash) change suddenly. Adaptive control uses online parameter estimation to update \textbackslash(\textbackslash hat\{m\}\textbackslash) and \textbackslash(\textbackslash hat\{J\}\textbackslash) in real-time, adjusting the control law accordingly. The regressor-based formulation \textbackslash(\textbackslash tau = Y(q, \textbackslash dot\{q\}, \textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash hat\{\textbackslash theta\}\textbackslash) can track mass changes within a few seconds. PID would work but would require aggressive integral action and retuning. LQR and MPC would degrade because the linearized model is incorrect for the new mass. Computed Torque would produce incorrect compensation torques until the model is updated. A practical hybrid approach combines Adaptive control with MPC: the adaptive law estimates parameters, and MPC uses the updated model for trajectory optimization.
+\textbf{Adaptive Control} is the best choice. When the drone picks up a package, its mass \(m\) and inertia \(J\) change suddenly. Adaptive control uses online parameter estimation to update \(\hat{m}\) and \(\hat{J}\) in real-time, adjusting the control law accordingly. The regressor-based formulation \(\tau = Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r)\hat{\theta}\) can track mass changes within a few seconds. PID would work but would require aggressive integral action and retuning. LQR and MPC would degrade because the linearized model is incorrect for the new mass. Computed Torque would produce incorrect compensation torques until the model is updated. A practical hybrid approach combines Adaptive control with MPC: the adaptive law estimates parameters, and MPC uses the updated model for trajectory optimization.
 
 \hypertarget{summary}{%
 \subsection{Summary}\label{summary}}
@@ -895,9 +895,9 @@ If \textbackslash(\textbackslash alpha = 1.0\textbackslash), the filter becomes 
 \item
   \textbf{Cascaded Architecture is Standard:} The three-loop cascade (position → attitude → rate) is used by every major flight controller (PX4, ArduPilot, DJI, BetaFlight). Each loop runs at a different frequency, with inner loops 5--10x faster than outer loops. In ROS2, this maps naturally to separate nodes communicating via topics.
 \item
-  \textbf{Motor Mixing Matrix is the Bridge:} The \textbackslash(4 \textbackslash times 4\textbackslash) mixing matrix \textbackslash(M\textbackslash) converts desired thrust and torques into individual motor speed commands. Its inverse \textbackslash(M\^{}\{-1\}\textbackslash) is precomputed and applied at every control cycle. Getting this matrix correct is the first step toward any quadrotor controller.
+  \textbf{Motor Mixing Matrix is the Bridge:} The \(4 \times 4\) mixing matrix \(M\) converts desired thrust and torques into individual motor speed commands. Its inverse \(M^{-1}\) is precomputed and applied at every control cycle. Getting this matrix correct is the first step toward any quadrotor controller.
 \item
-  \textbf{Complementary Filter Enables Attitude Estimation:} Fusing gyroscope and accelerometer data with a tunable parameter \textbackslash(\textbackslash alpha\textbackslash) provides a computationally cheap attitude estimate suitable for inner-loop control. Production systems use Mahony or extended Kalman filters.
+  \textbf{Complementary Filter Enables Attitude Estimation:} Fusing gyroscope and accelerometer data with a tunable parameter \(\alpha\) provides a computationally cheap attitude estimate suitable for inner-loop control. Production systems use Mahony or extended Kalman filters.
 \item
   \textbf{No Single Controller Wins Everything:} PID is simple and robust to tune. LQR is energy-optimal near hover. MPC handles constraints and trajectory preview. SMC and Robust control excel at wind rejection. Adaptive control handles changing payloads. Backstepping provides formal stability guarantees. CTC gives exact linearization when the model is accurate.
 \item
@@ -985,7 +985,7 @@ Explain the architecture of a ROS2 control node for a robotic system. In your an
 
 \textbf{Part (a):} A typical ROS2 control node subscribes to state-feedback topics such as \texttt{/odom} (nav\_msgs/Odometry) for position and velocity, \texttt{/imu} (sensor\_msgs/Imu) for angular velocity and linear acceleration, and \texttt{/joint\_states} (sensor\_msgs/JointState) for joint-level feedback. It publishes actuator commands on topics like \texttt{/cmd\_vel} (geometry\_msgs/Twist), \texttt{/motor\_cmd} (std\_msgs/Float64MultiArray), or \texttt{/joint\_commands}.
 
-\textbf{Part (b):} The control loop rate is managed by calling \texttt{self.create\_timer(period\_sec,\ callback)} in the node constructor. For example, \texttt{self.create\_timer(0.01,\ self.control\_callback)} creates a 100 Hz control loop. Deterministic timing is critical because the discrete-time controller gains (Kp, Ki, Kd) are tuned for a specific sample period \textbackslash(\textbackslash Delta t\textbackslash). Jitter in the control period effectively changes the derivative and integral computations, potentially causing instability. The integral term accumulates error multiplied by \textbackslash(\textbackslash Delta t\textbackslash): if \textbackslash(\textbackslash Delta t\textbackslash) varies unpredictably, the integral grows incorrectly. For derivative action, \textbackslash( u\_d = K\_d \textbackslash cdot (e\_k - e\_\{k-1\})/\textbackslash Delta t \textbackslash), inconsistent \textbackslash(\textbackslash Delta t\textbackslash) amplifies noise.
+\textbf{Part (b):} The control loop rate is managed by calling \texttt{self.create\_timer(period\_sec,\ callback)} in the node constructor. For example, \texttt{self.create\_timer(0.01,\ self.control\_callback)} creates a 100 Hz control loop. Deterministic timing is critical because the discrete-time controller gains (Kp, Ki, Kd) are tuned for a specific sample period \(\Delta t\). Jitter in the control period effectively changes the derivative and integral computations, potentially causing instability. The integral term accumulates error multiplied by \(\Delta t\): if \(\Delta t\) varies unpredictably, the integral grows incorrectly. For derivative action, \(u_d = K_d \cdot (e_k - e_{k-1})/\Delta t\), inconsistent \(\Delta t\) amplifies noise.
 
 \textbf{Part (c):}
 
@@ -998,7 +998,7 @@ Aspect & Timer-Based (Fixed-Rate) & Event-Driven (Sensor-Triggered) \\
 \endlastfoot
 Timing & Fixed period (e.g., 100 Hz), decoupled from sensor rate & Fires when new sensor message arrives \\
 Latency & Average latency = half the control period; worst case = full period & Minimal latency --- processes data immediately upon arrival \\
-Jitter & Low jitter if OS scheduling is adequate; consistent \textbackslash(\textbackslash Delta t\textbackslash) & Jitter depends on sensor timing; inconsistent \textbackslash(\textbackslash Delta t\textbackslash) \\
+Jitter & Low jitter if OS scheduling is adequate; consistent \(\Delta t\) & Jitter depends on sensor timing; inconsistent \(\Delta t\) \\
 Computational load & Predictable, evenly spaced CPU usage & Bursty --- may overload if multiple sensors arrive simultaneously \\
 Best for & Inner-loop controllers needing guaranteed rate (PID, LQR) & High-level planners, vision-based control where data is sparse \\
 \end{longtable}
@@ -1015,7 +1015,7 @@ You implemented PID, LQR, and MPC as separate ROS2 control nodes in Week 9. Comp
 \item
   List the main mathematical operations each controller performs per cycle (e.g., matrix multiply, quadratic program solve). \emph{(9 marks)}
 \item
-  Estimate the approximate floating-point operation (FLOP) count per cycle for a system with \textbackslash(n = 12\textbackslash) states and \textbackslash(m = 4\textbackslash) inputs. \emph{(8 marks)}
+  Estimate the approximate floating-point operation (FLOP) count per cycle for a system with \(n = 12\) states and \(m = 4\) inputs. \emph{(8 marks)}
 \item
   Which of the three controllers requires hard real-time guarantees and why? What ROS2 mechanisms (executor type, QoS settings) help achieve this? \emph{(8 marks)}
 \end{enumerate}
@@ -1030,9 +1030,9 @@ You implemented PID, LQR, and MPC as separate ROS2 control nodes in Week 9. Comp
 \item
   \textbf{PID:} Per axis: 1 subtraction (error), 1 multiply + 1 add (P term), 1 multiply + 1 add (I accumulation), 1 subtraction + 1 division (D term), 1 addition (sum). For 4 axes: \textasciitilde40 FLOPs total. Constant time O(1).
 \item
-  \textbf{LQR:} One matrix-vector multiplication \textbackslash( \textbackslash mathbf\{u\} = -K(\textbackslash mathbf\{x\} - \textbackslash mathbf\{x\}\_d) \textbackslash) where \textbackslash(K \textbackslash in \textbackslash mathbb\{R\}\^{}\{4 \textbackslash times 12\}\textbackslash). This is \textbackslash(4 \textbackslash times 12 = 48\textbackslash) multiplies and \textbackslash(4 \textbackslash times 11 = 44\textbackslash) additions, plus 12 subtractions for the error vector. Total: \textasciitilde104 FLOPs. Also O(1) since K is precomputed.
+  \textbf{LQR:} One matrix-vector multiplication \(\mathbf{u} = -K(\mathbf{x} - \mathbf{x}_d)\) where \(K \in \mathbb{R}^{4 \times 12}\). This is \(4 \times 12 = 48\) multiplies and \(4 \times 11 = 44\) additions, plus 12 subtractions for the error vector. Total: \textasciitilde104 FLOPs. Also O(1) since K is precomputed.
 \item
-  \textbf{MPC:} At each cycle, solves a constrained quadratic program (QP). For a horizon \textbackslash(N = 20\textbackslash) with 12 states and 4 inputs, the QP has \textbackslash(20 \textbackslash times 4 = 80\textbackslash) decision variables and \textbackslash(20 \textbackslash times (12 + 4 \textbackslash times 2) = 400\textbackslash) constraints. An interior-point solver typically requires 10--30 iterations, each involving a \textbackslash(80 \textbackslash times 80\textbackslash) matrix factorization. Approximate cost: \textbackslash(O(N\^{}3 m\^{}3)\textbackslash) per solve, roughly \textbackslash(10\^{}4\textbackslash)--\textbackslash(10\^{}6\textbackslash) FLOPs.
+  \textbf{MPC:} At each cycle, solves a constrained quadratic program (QP). For a horizon \(N = 20\) with 12 states and 4 inputs, the QP has \(20 \times 4 = 80\) decision variables and \(20 \times (12 + 4 \times 2) = 400\) constraints. An interior-point solver typically requires 10--30 iterations, each involving a \(80 \times 80\) matrix factorization. Approximate cost: \(O(N^3 m^3)\) per solve, roughly \(10^4\)--\(10^6\) FLOPs.
 \end{itemize}
 
 \textbf{Part (b):}

@@ -14,81 +14,81 @@ Duration: 3 Hours (Lecture + Hands-on Lab)
 
 Consider a manipulator with model uncertainty:
 
-\textbackslash{[}
-M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau + d(t), \textbackslash qquad \textbackslash\textbar d(t)\textbackslash\textbar{} \textbackslash le d\_\{\textbackslash max\}
-\textbackslash{]}
+\[
+                M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau + d(t), \qquad \|d(t)\| \le d_{\max}
+            \]
 
 The robust controller is:
 
-\textbackslash{[}
-\textbackslash tau = \textbackslash hat\{M\}(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D \textbackslash dot\{e\} + K\_P e\textbackslash bigr{]} + \textbackslash hat\{C\}\textbackslash dot\{q\} + \textbackslash hat\{G\} + \textbackslash tau\_\{\textbackslash text\{robust\}\}
-\textbackslash{]}
+\[
+                \tau = \hat{M}(q)\bigl[\ddot{q}_d + K_D \dot{e} + K_P e\bigr] + \hat{C}\dot{q} + \hat{G} + \tau_{\text{robust}}
+            \]
 
 with the robust term
 
-\textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{robust\}\} = \textbackslash rho(t)\textbackslash,\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}, \textbackslash qquad s = \textbackslash dot\{e\} + \textbackslash Lambda\textbackslash, e
-\textbackslash{]}
+\[
+                \tau_{\text{robust}} = \rho(t)\,\frac{s}{\|s\|}, \qquad s = \dot{e} + \Lambda\, e
+            \]
 
-where \textbackslash(e = q\_d - q\textbackslash), \textbackslash(\textbackslash dot\{e\} = \textbackslash dot\{q\}\_d - \textbackslash dot\{q\}\textbackslash), and \textbackslash(\textbackslash Lambda \textbackslash succ 0\textbackslash).
+where \(e = q_d - q\), \(\dot{e} = \dot{q}_d - \dot{q}\), and \(\Lambda \succ 0\).
 
 \hypertarget{model-answer-closed-loop-error-dynamics}{%
 \paragraph{Model Answer --- Closed-Loop Error Dynamics}\label{model-answer-closed-loop-error-dynamics}}
 
 \textbf{Step 1 --- Substitution.} Write the true dynamics as
-\textbackslash(M\textbackslash ddot\{q\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G\textbackslash).
+\(M\ddot{q} = \tau + d - C\dot{q} - G\).
 Substitute the controller:
 
-\textbackslash{[}
-M\textbackslash ddot\{q\} = \textbackslash hat\{M\}(\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e) + \textbackslash hat\{C\}\textbackslash dot\{q\} + \textbackslash hat\{G\}
-+ \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\} + d - C\textbackslash dot\{q\} - G
-\textbackslash{]}
+\[
+                    M\ddot{q} = \hat{M}(\ddot{q}_d + K_D\dot{e} + K_P e) + \hat{C}\dot{q} + \hat{G}
+                    + \rho\frac{s}{\|s\|} + d - C\dot{q} - G
+                \]
 
 Define the model errors
-\textbackslash(\textbackslash tilde\{M\} = M - \textbackslash hat\{M\}\textbackslash), \textbackslash(\textbackslash tilde\{C\} = C - \textbackslash hat\{C\}\textbackslash), \textbackslash(\textbackslash tilde\{G\} = G - \textbackslash hat\{G\}\textbackslash),
+\(\tilde{M} = M - \hat{M}\), \(\tilde{C} = C - \hat{C}\), \(\tilde{G} = G - \hat{G}\),
 and let the lumped uncertainty be
 
-\textbackslash{[}
-\textbackslash eta(t) = \textbackslash tilde\{M\}\textbackslash ddot\{q\} + \textbackslash tilde\{C\}\textbackslash dot\{q\} + \textbackslash tilde\{G\} - d(t)
-\textbackslash{]}
+\[
+                    \eta(t) = \tilde{M}\ddot{q} + \tilde{C}\dot{q} + \tilde{G} - d(t)
+                \]
 
 \textbf{Step 2 --- Error dynamics.}
-With \textbackslash(\textbackslash ddot\{e\} = \textbackslash ddot\{q\}\_d - \textbackslash ddot\{q\}\textbackslash) and after algebraic manipulation:
+With \(\ddot{e} = \ddot{q}_d - \ddot{q}\) and after algebraic manipulation:
 
-\textbackslash{[}
-M\textbackslash ddot\{e\} + (C + M K\_D)\textbackslash dot\{e\} + M K\_P e = -\textbackslash eta(t) + \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}
-\textbackslash{]}
+\[
+                    M\ddot{e} + (C + M K_D)\dot{e} + M K_P e = -\eta(t) + \rho\frac{s}{\|s\|}
+                \]
 
-In terms of the composite variable \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash):
+In terms of the composite variable \(s = \dot{e} + \Lambda e\):
 
-\textbackslash{[}
-M\textbackslash dot\{s\} = -Cs + \textbackslash eta(t) + \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}
-\textbackslash{]}
+\[
+                    M\dot{s} = -Cs + \eta(t) + \rho\frac{s}{\|s\|}
+                \]
 
-(using the choice \textbackslash(K\_D = \textbackslash Lambda\textbackslash), \textbackslash(K\_P = \textbackslash dot\{\textbackslash Lambda\}\textbackslash) to simplify).
+(using the choice \(K_D = \Lambda\), \(K_P = \dot{\Lambda}\) to simplify).
 
 \textbf{Step 3 --- Lyapunov analysis.} Choose
-\textbackslash(V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M\textbackslash, s\textbackslash). Then:
+\(V = \tfrac{1}{2}\,s^T M\, s\). Then:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T\textbackslash dot\{M\}\textbackslash,s
-= s\^{}T\textbackslash!\textbackslash bigl{[}-Cs + \textbackslash eta + \textbackslash rho\textbackslash tfrac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash bigr{]} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T\textbackslash dot\{M\}\textbackslash,s
-\textbackslash{]}
+\[
+                    \dot{V} = s^T M\dot{s} + \tfrac{1}{2}\,s^T\dot{M}\,s
+                    = s^T\!\bigl[-Cs + \eta + \rho\tfrac{s}{\|s\|}\bigr] + \tfrac{1}{2}\,s^T\dot{M}\,s
+                \]
 
-Using the skew-symmetry property \textbackslash(s\^{}T(\textbackslash dot\{M\} - 2C)s = 0\textbackslash):
+Using the skew-symmetry property \(s^T(\dot{M} - 2C)s = 0\):
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T\textbackslash eta + \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{}
-\textbackslash{]}
+\[
+                    \dot{V} = s^T\eta + \rho\|s\|
+                \]
 
-Since \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\}\textbackslash) opposes the uncertainty
-(note the sign convention: \textbackslash(\textbackslash rho \textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash) acts in the direction of \textbackslash(s\textbackslash), so the correct robust term to \emph{counteract} uncertainty is \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\} = -\textbackslash rho \textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash)). Re-doing with the standard sign:
+Since \(\tau_{\text{robust}}\) opposes the uncertainty
+(note the sign convention: \(\rho \frac{s}{\|s\|}\) acts in the direction of \(s\), so the correct robust term to \emph{counteract} uncertainty is \(\tau_{\text{robust}} = -\rho \frac{s}{\|s\|}\)). Re-doing with the standard sign:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T\textbackslash eta - \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{} \textbackslash le \textbackslash\textbar\textbackslash eta\textbackslash\textbar\textbackslash,\textbackslash\textbar s\textbackslash\textbar{} - \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{} = (\textbackslash\textbar\textbackslash eta\textbackslash\textbar{} - \textbackslash rho)\textbackslash\textbar s\textbackslash\textbar{}
-\textbackslash{]}
+\[
+                    \dot{V} = s^T\eta - \rho\|s\| \le \|\eta\|\,\|s\| - \rho\|s\| = (\|\eta\| - \rho)\|s\|
+                \]
 
-\textbf{Conclusion:} If \textbackslash(\textbackslash rho(t) \textbackslash ge \textbackslash\textbar\textbackslash eta(t)\textbackslash\textbar\textbackslash), then \textbackslash(\textbackslash dot\{V\} \textbackslash le 0\textbackslash) and the tracking error \textbackslash(s \textbackslash to 0\textbackslash). The sliding variable converges, guaranteeing bounded tracking despite uncertainty. By Barbalat\textquotesingle s lemma, \textbackslash(s(t) \textbackslash to 0\textbackslash) asymptotically, which implies \textbackslash(e(t) \textbackslash to 0\textbackslash) exponentially since \textbackslash(\textbackslash dot\{e\} = s - \textbackslash Lambda e\textbackslash) is a stable filter.
+\textbf{Conclusion:} If \(\rho(t) \ge \|\eta(t)\|\), then \(\dot{V} \le 0\) and the tracking error \(s \to 0\). The sliding variable converges, guaranteeing bounded tracking despite uncertainty. By Barbalat\textquotesingle s lemma, \(s(t) \to 0\) asymptotically, which implies \(e(t) \to 0\) exponentially since \(\dot{e} = s - \Lambda e\) is a stable filter.
 
 \hypertarget{question-2-robust-vs.-adaptive-mathematical-comparison}{%
 \subsubsection{Question 2 --- Robust vs. Adaptive: Mathematical Comparison}\label{question-2-robust-vs.-adaptive-mathematical-comparison}}
@@ -98,35 +98,35 @@ Since \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\}\textb
 
 \textbf{Adaptive control} uses an augmented Lyapunov function:
 
-\textbackslash{[}
-V\_\{\textbackslash text\{adaptive\}\} = \textbackslash frac\{1\}\{2\}\textbackslash,s\^{}T M\textbackslash, s + \textbackslash frac\{1\}\{2\}\textbackslash,\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\^{}\{-1\} \textbackslash tilde\{\textbackslash theta\}
-\textbackslash{]}
+\[
+                    V_{\text{adaptive}} = \frac{1}{2}\,s^T M\, s + \frac{1}{2}\,\tilde{\theta}^T \Gamma^{-1} \tilde{\theta}
+                \]
 
-where \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}\textbackslash) is the parameter estimation error
-and \textbackslash(\textbackslash Gamma \textbackslash succ 0\textbackslash) is the adaptation gain matrix. The adaptation law
-\textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\textbackslash, Y\^{}T s\textbackslash) is designed so that
-the cross-term \textbackslash(s\^{}T Y \textbackslash tilde\{\textbackslash theta\}\textbackslash) in \textbackslash(\textbackslash dot\{V\}\textbackslash) cancels exactly with
-\textbackslash(\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\^{}\{-1\}\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash), yielding:
+where \(\tilde{\theta} = \theta - \hat{\theta}\) is the parameter estimation error
+and \(\Gamma \succ 0\) is the adaptation gain matrix. The adaptation law
+\(\dot{\hat{\theta}} = \Gamma\, Y^T s\) is designed so that
+the cross-term \(s^T Y \tilde{\theta}\) in \(\dot{V}\) cancels exactly with
+\(\tilde{\theta}^T \Gamma^{-1}\dot{\hat{\theta}}\), yielding:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_\{\textbackslash text\{adaptive\}\} = -s\^{}T K\_D\textbackslash, s \textbackslash le 0
-\textbackslash{]}
+\[
+                    \dot{V}_{\text{adaptive}} = -s^T K_D\, s \le 0
+                \]
 
 \textbf{Robust control} uses a simpler Lyapunov function:
 
-\textbackslash{[}
-V\_\{\textbackslash text\{robust\}\} = \textbackslash frac\{1\}\{2\}\textbackslash,s\^{}T M\textbackslash, s
-\textbackslash{]}
+\[
+                    V_{\text{robust}} = \frac{1}{2}\,s^T M\, s
+                \]
 
 No parameter estimation is required because the robust term directly dominates
-the uncertainty via the bound \textbackslash(\textbackslash rho \textbackslash ge \textbackslash\textbar\textbackslash eta\textbackslash\textbar\textbackslash):
+the uncertainty via the bound \(\rho \ge \|\eta\|\):
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_\{\textbackslash text\{robust\}\} \textbackslash le -(\textbackslash rho - \textbackslash\textbar\textbackslash eta\textbackslash\textbar)\textbackslash\textbar s\textbackslash\textbar{} \textbackslash le 0
-\textbackslash{]}
+\[
+                    \dot{V}_{\text{robust}} \le -(\rho - \|\eta\|)\|s\| \le 0
+                \]
 
 \textbf{Why robust control does not need parameter estimation:}
-Instead of identifying \emph{what} the uncertainty is (as adaptive control does), robust control only needs to know \emph{how large} the uncertainty can be. It overpowers the worst case with a dominating gain \textbackslash(\textbackslash rho\textbackslash).
+Instead of identifying \emph{what} the uncertainty is (as adaptive control does), robust control only needs to know \emph{how large} the uncertainty can be. It overpowers the worst case with a dominating gain \(\rho\).
 
 \textbf{Trade-off:}
 
@@ -230,28 +230,28 @@ subsystem. Backstepping systematically exploits this structure.
 
 A nonlinear system is in \textbf{strict-feedback form} if it can be written as:
 
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{x\}\_1 \&= f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 \textbackslash\textbackslash{}
-\textbackslash dot\{x\}\_2 \&= f\_2(x\_1, x\_2) + g\_2(x\_1, x\_2)\textbackslash,x\_3 \textbackslash\textbackslash{}
-\&\textbackslash;\textbackslash;\textbackslash vdots \textbackslash\textbackslash{}
-\textbackslash dot\{x\}\_\{n-1\} \&= f\_\{n-1\}(x\_1,\textbackslash ldots,x\_\{n-1\}) + g\_\{n-1\}(x\_1,\textbackslash ldots,x\_\{n-1\})\textbackslash,x\_n \textbackslash\textbackslash{}
-\textbackslash dot\{x\}\_n \&= f\_n(x\_1,\textbackslash ldots,x\_n) + g\_n(x\_1,\textbackslash ldots,x\_n)\textbackslash,u
-\textbackslash end\{aligned\}
-\textbackslash{]}
+\[
+                \begin{aligned}
+                    \dot{x}_1 &= f_1(x_1) + g_1(x_1)\,x_2 \\
+                    \dot{x}_2 &= f_2(x_1, x_2) + g_2(x_1, x_2)\,x_3 \\
+                    &\;\;\vdots \\
+                    \dot{x}_{n-1} &= f_{n-1}(x_1,\ldots,x_{n-1}) + g_{n-1}(x_1,\ldots,x_{n-1})\,x_n \\
+                    \dot{x}_n &= f_n(x_1,\ldots,x_n) + g_n(x_1,\ldots,x_n)\,u
+                \end{aligned}
+                \]
 
 Key properties:
 
 \begin{itemize}
 \tightlist
 \item
-  Each equation depends on all previous states plus \emph{one} new state \textbackslash(x\_\{i+1\}\textbackslash).
+  Each equation depends on all previous states plus \emph{one} new state \(x_{i+1}\).
 \item
-  The new state \textbackslash(x\_\{i+1\}\textbackslash) enters \emph{multiplicatively} through \textbackslash(g\_i(\textbackslash cdot)\textbackslash).
+  The new state \(x_{i+1}\) enters \emph{multiplicatively} through \(g_i(\cdot)\).
 \item
-  Only the \emph{last} equation contains the true control input \textbackslash(u\textbackslash).
+  Only the \emph{last} equation contains the true control input \(u\).
 \item
-  \textbackslash(g\_i(\textbackslash cdot) \textbackslash neq 0\textbackslash) everywhere (controllability condition).
+  \(g_i(\cdot) \neq 0\) everywhere (controllability condition).
 \end{itemize}
 
 \textbf{Figure 2:} Triangular dependency structure of strict-feedback form. Each row depends only on states from current and previous subsystems.
@@ -261,118 +261,118 @@ Key properties:
 
 Consider the simplest strict-feedback system (two states, one input):
 
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{x\}\_1 \&= f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 \textbackslash\textbackslash{}
-\textbackslash dot\{x\}\_2 \&= f\_2(x\_1,x\_2) + g\_2(x\_1,x\_2)\textbackslash,u
-\textbackslash end\{aligned\}
-\textbackslash{]}
+\[
+                \begin{aligned}
+                    \dot{x}_1 &= f_1(x_1) + g_1(x_1)\,x_2 \\
+                    \dot{x}_2 &= f_2(x_1,x_2) + g_2(x_1,x_2)\,u
+                \end{aligned}
+                \]
 
-\textbf{Goal:} Drive \textbackslash(x\_1 \textbackslash to x\_\{1,\textbackslash text\{ref\}\}\textbackslash) (a desired reference).
+\textbf{Goal:} Drive \(x_1 \to x_{1,\text{ref}}\) (a desired reference).
 
 \hypertarget{step-1-stabilise-the-x_1-subsystem-virtual-control-design}{%
-\paragraph{Step 1 --- Stabilise the \textbackslash(x\_1\textbackslash) Subsystem (Virtual Control Design)}\label{step-1-stabilise-the-x_1-subsystem-virtual-control-design}}
+\paragraph{\texorpdfstring{Step 1 --- Stabilise the \(x_1\) Subsystem (Virtual Control Design)}{Step 1 --- Stabilise the x\_1 Subsystem (Virtual Control Design)}}\label{step-1-stabilise-the-x_1-subsystem-virtual-control-design}}
 
 Define the tracking error:
 
-\textbackslash{[}
-z\_1 = x\_1 - x\_\{1,\textbackslash text\{ref\}\}
-\textbackslash{]}
+\[
+                    z_1 = x_1 - x_{1,\text{ref}}
+                \]
 
 Its dynamics are:
 
-\textbackslash{[}
-\textbackslash dot\{z\}\_1 = \textbackslash dot\{x\}\_1 - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\} = f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}
-\textbackslash{]}
+\[
+                    \dot{z}_1 = \dot{x}_1 - \dot{x}_{1,\text{ref}} = f_1(x_1) + g_1(x_1)\,x_2 - \dot{x}_{1,\text{ref}}
+                \]
 
-Imagine that \textbackslash(x\_2\textbackslash) is a control input that we can freely choose. We call this the
-\textbf{virtual control} and design it as \textbackslash(x\_2 = \textbackslash alpha\_1(x\_1)\textbackslash) such that \textbackslash(z\_1 \textbackslash to 0\textbackslash).
+Imagine that \(x_2\) is a control input that we can freely choose. We call this the
+\textbf{virtual control} and design it as \(x_2 = \alpha_1(x_1)\) such that \(z_1 \to 0\).
 Choose the Lyapunov function candidate:
 
-\textbackslash{[}
-V\_1 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}2
-\textbackslash{]}
+\[
+                    V_1 = \frac{1}{2}\,z_1^2
+                \]
 
 Its time derivative is:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1\textbackslash,\textbackslash dot\{z\}\_1 = z\_1\textbackslash bigl{[}f\_1(x\_1) + g\_1(x\_1)\textbackslash,x\_2 - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}\textbackslash bigr{]}
-\textbackslash{]}
+\[
+                    \dot{V}_1 = z_1\,\dot{z}_1 = z_1\bigl[f_1(x_1) + g_1(x_1)\,x_2 - \dot{x}_{1,\text{ref}}\bigr]
+                \]
 
-If \textbackslash(x\_2\textbackslash) were our actual input, we would choose:
+If \(x_2\) were our actual input, we would choose:
 
-\textbackslash{[}
-\textbackslash alpha\_1(x\_1) = \textbackslash frac\{1\}\{g\_1(x\_1)\}\textbackslash bigl{[}-f\_1(x\_1) + \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\} - k\_1\textbackslash,z\_1\textbackslash bigr{]}, \textbackslash qquad k\_1 \textgreater{} 0
-\textbackslash{]}
+\[
+                    \alpha_1(x_1) = \frac{1}{g_1(x_1)}\bigl[-f_1(x_1) + \dot{x}_{1,\text{ref}} - k_1\,z_1\bigr], \qquad k_1 > 0
+                \]
 
-This would give \textbackslash(\textbackslash dot\{V\}\_1 = -k\_1\textbackslash,z\_1\^{}2 \textbackslash le 0\textbackslash). But \textbackslash(x\_2\textbackslash) is not the actual input ---
+This would give \(\dot{V}_1 = -k_1\,z_1^2 \le 0\). But \(x_2\) is not the actual input ---
 it is a state. So we define the \textbf{backstepping error}:
 
-\textbackslash{[}
-z\_2 = x\_2 - \textbackslash alpha\_1(x\_1)
-\textbackslash{]}
+\[
+                    z_2 = x_2 - \alpha_1(x_1)
+                \]
 
-Substituting \textbackslash(x\_2 = z\_2 + \textbackslash alpha\_1\textbackslash) into \textbackslash(\textbackslash dot\{V\}\_1\textbackslash):
+Substituting \(x_2 = z_2 + \alpha_1\) into \(\dot{V}_1\):
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1\textbackslash bigl{[}f\_1 + g\_1(z\_2 + \textbackslash alpha\_1) - \textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}\textbackslash bigr{]}
-= -k\_1\textbackslash,z\_1\^{}2 + g\_1\textbackslash,z\_1\textbackslash,z\_2
-\textbackslash{]}
+\[
+                    \dot{V}_1 = z_1\bigl[f_1 + g_1(z_2 + \alpha_1) - \dot{x}_{1,\text{ref}}\bigr]
+                    = -k_1\,z_1^2 + g_1\,z_1\,z_2
+                \]
 
-The term \textbackslash(-k\_1 z\_1\^{}2\textbackslash) is stabilising; the coupling term \textbackslash(g\_1 z\_1 z\_2\textbackslash) must be handled in Step 2.
+The term \(-k_1 z_1^2\) is stabilising; the coupling term \(g_1 z_1 z_2\) must be handled in Step 2.
 
 \hypertarget{step-2-design-the-actual-control-u-backstep}{%
-\paragraph{Step 2 --- Design the Actual Control \textbackslash(u\textbackslash) (Backstep)}\label{step-2-design-the-actual-control-u-backstep}}
+\paragraph{\texorpdfstring{Step 2 --- Design the Actual Control \(u\) (Backstep)}{Step 2 --- Design the Actual Control u (Backstep)}}\label{step-2-design-the-actual-control-u-backstep}}
 
-Now we must drive \textbackslash(z\_2 \textbackslash to 0\textbackslash). Compute the dynamics of \textbackslash(z\_2\textbackslash):
+Now we must drive \(z_2 \to 0\). Compute the dynamics of \(z_2\):
 
-\textbackslash{[}
-\textbackslash dot\{z\}\_2 = \textbackslash dot\{x\}\_2 - \textbackslash dot\{\textbackslash alpha\}\_1
-= f\_2(x\_1,x\_2) + g\_2(x\_1,x\_2)\textbackslash,u - \textbackslash frac\{\textbackslash partial \textbackslash alpha\_1\}\{\textbackslash partial x\_1\}\textbackslash dot\{x\}\_1
-- \textbackslash frac\{\textbackslash partial \textbackslash alpha\_1\}\{\textbackslash partial x\_\{1,\textbackslash text\{ref\}\}\}\textbackslash dot\{x\}\_\{1,\textbackslash text\{ref\}\}
-\textbackslash{]}
+\[
+                    \dot{z}_2 = \dot{x}_2 - \dot{\alpha}_1
+                    = f_2(x_1,x_2) + g_2(x_1,x_2)\,u - \frac{\partial \alpha_1}{\partial x_1}\dot{x}_1
+                    - \frac{\partial \alpha_1}{\partial x_{1,\text{ref}}}\dot{x}_{1,\text{ref}}
+                \]
 
-where we have used the chain rule on \textbackslash(\textbackslash alpha\_1(x\_1, x\_\{1,\textbackslash text\{ref\}\})\textbackslash). Augment the Lyapunov function:
+where we have used the chain rule on \(\alpha_1(x_1, x_{1,\text{ref}})\). Augment the Lyapunov function:
 
-\textbackslash{[}
-V\_2 = V\_1 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}2 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}2 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}2
-\textbackslash{]}
+\[
+                    V_2 = V_1 + \frac{1}{2}\,z_2^2 = \frac{1}{2}\,z_1^2 + \frac{1}{2}\,z_2^2
+                \]
 
 Its derivative is:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = \textbackslash dot\{V\}\_1 + z\_2\textbackslash,\textbackslash dot\{z\}\_2
-= -k\_1\textbackslash,z\_1\^{}2 + g\_1\textbackslash,z\_1\textbackslash,z\_2 + z\_2\textbackslash,\textbackslash dot\{z\}\_2
-\textbackslash{]}
+\[
+                    \dot{V}_2 = \dot{V}_1 + z_2\,\dot{z}_2
+                    = -k_1\,z_1^2 + g_1\,z_1\,z_2 + z_2\,\dot{z}_2
+                \]
 
-We want \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1\textbackslash,z\_1\^{}2 - k\_2\textbackslash,z\_2\^{}2\textbackslash) for some \textbackslash(k\_2 \textgreater{} 0\textbackslash). This requires:
+We want \(\dot{V}_2 = -k_1\,z_1^2 - k_2\,z_2^2\) for some \(k_2 > 0\). This requires:
 
-\textbackslash{[}
-z\_2\textbackslash bigl{[}g\_1\textbackslash,z\_1 + \textbackslash dot\{z\}\_2\textbackslash bigr{]} = -k\_2\textbackslash,z\_2\^{}2
-\textbackslash{]}
-\textbackslash{[}
-g\_1\textbackslash,z\_1 + f\_2 + g\_2\textbackslash,u - \textbackslash dot\{\textbackslash alpha\}\_1 = -k\_2\textbackslash,z\_2
-\textbackslash{]}
+\[
+                    z_2\bigl[g_1\,z_1 + \dot{z}_2\bigr] = -k_2\,z_2^2
+                \]
+\[
+                    g_1\,z_1 + f_2 + g_2\,u - \dot{\alpha}_1 = -k_2\,z_2
+                \]
 
 Solving for the control input:
 
-\textbackslash{[}
-u = \textbackslash frac\{1\}\{g\_2(x\_1,x\_2)\}\textbackslash left{[}-f\_2(x\_1,x\_2) + \textbackslash dot\{\textbackslash alpha\}\_1
-- g\_1(x\_1)\textbackslash,z\_1 - k\_2\textbackslash,z\_2\textbackslash right{]}
-\textbackslash{]}
+\[
+                        u = \frac{1}{g_2(x_1,x_2)}\left[-f_2(x_1,x_2) + \dot{\alpha}_1
+                        - g_1(x_1)\,z_1 - k_2\,z_2\right]
+                    \]
 
 \textbf{Result:} With this control law,
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -k\_1\textbackslash,z\_1\^{}2 - k\_2\textbackslash,z\_2\^{}2 \textbackslash le 0
-\textbackslash{]}
+\[
+                    \dot{V}_2 = -k_1\,z_1^2 - k_2\,z_2^2 \le 0
+                \]
 
-which guarantees global asymptotic stability of \textbackslash((z\_1, z\_2) = (0,0)\textbackslash) by Lyapunov\textquotesingle s theorem.
+which guarantees global asymptotic stability of \((z_1, z_2) = (0,0)\) by Lyapunov\textquotesingle s theorem.
 
 \hypertarget{generalisation-to-n-step-backstepping}{%
-\subsubsection{3.4 Generalisation to \textbackslash(n\textbackslash)-Step Backstepping}\label{generalisation-to-n-step-backstepping}}
+\subsubsection{\texorpdfstring{3.4 Generalisation to \(n\)-Step Backstepping}{3.4 Generalisation to n-Step Backstepping}}\label{generalisation-to-n-step-backstepping}}
 
-For an \textbackslash(n\textbackslash)-dimensional strict-feedback system, the procedure generalises recursively:
+For an \(n\)-dimensional strict-feedback system, the procedure generalises recursively:
 
 Algorithm: n-Step Backstepping
 
@@ -395,8 +395,8 @@ Result: Global asymptotic stability with V\_n as Lyapunov function.
 \hypertarget{recursive-lyapunov-construction}{%
 \paragraph{Recursive Lyapunov Construction}\label{recursive-lyapunov-construction}}
 
-At each step, we extend the Lyapunov function by adding \textbackslash(\textbackslash frac\{1\}\{2\}z\_i\^{}2\textbackslash).
-Each new virtual control is designed to make the new terms in \textbackslash(\textbackslash dot\{V\}\textbackslash) negative definite
+At each step, we extend the Lyapunov function by adding \(\frac{1}{2}z_i^2\).
+Each new virtual control is designed to make the new terms in \(\dot{V}\) negative definite
 while leaving the previously designed terms unchanged.
 
 \hypertarget{backstepping-the-control}{%
@@ -416,8 +416,8 @@ robustness and avoids wasting control effort.
 \hypertarget{guaranteed-stability}{%
 \paragraph{Guaranteed Stability}\label{guaranteed-stability}}
 
-The final Lyapunov function \textbackslash(V\_n = \textbackslash sum\_\{i=1\}\^{}n \textbackslash frac\{1\}\{2\}z\_i\^{}2\textbackslash) with
-\textbackslash(\textbackslash dot\{V\}\_n = -\textbackslash sum\_\{i=1\}\^{}n k\_i z\_i\^{}2\textbackslash) provides a \emph{constructive} proof of
+The final Lyapunov function \(V_n = \sum_{i=1}^n \frac{1}{2}z_i^2\) with
+\(\dot{V}_n = -\sum_{i=1}^n k_i z_i^2\) provides a \emph{constructive} proof of
 global asymptotic stability.
 
 \textbf{Figure 5:} Lyapunov function augmentation. Each step adds a new error term, growing the "bowl" in state space while maintaining negative definiteness of V̇.
@@ -453,23 +453,23 @@ When does backstepping have an advantage?
 \hypertarget{strict-feedback-form-of-manipulator-dynamics}{%
 \subsubsection{4.1 Strict-Feedback Form of Manipulator Dynamics}\label{strict-feedback-form-of-manipulator-dynamics}}
 
-The standard Euler-Lagrange dynamics of an \textbackslash(n\textbackslash)-DOF manipulator are:
+The standard Euler-Lagrange dynamics of an \(n\)-DOF manipulator are:
 
-\textbackslash{[}
-M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau
-\textbackslash{]}
+\[
+                M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau
+            \]
 
-Define the states \textbackslash(x\_1 = q\textbackslash) (joint positions) and \textbackslash(x\_2 = \textbackslash dot\{q\}\textbackslash) (joint velocities). Then:
+Define the states \(x_1 = q\) (joint positions) and \(x_2 = \dot{q}\) (joint velocities). Then:
 
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{x\}\_1 \&= x\_2 \textbackslash\textbackslash{}
-\textbackslash dot\{x\}\_2 \&= M\^{}\{-1\}(x\_1)\textbackslash bigl{[}\textbackslash tau - C(x\_1,x\_2)\textbackslash,x\_2 - G(x\_1)\textbackslash bigr{]}
-\textbackslash end\{aligned\}
-\textbackslash{]}
+\[
+                \begin{aligned}
+                    \dot{x}_1 &= x_2 \\
+                    \dot{x}_2 &= M^{-1}(x_1)\bigl[\tau - C(x_1,x_2)\,x_2 - G(x_1)\bigr]
+                \end{aligned}
+                \]
 
-This is a strict-feedback system with \textbackslash(f\_1 = 0\textbackslash), \textbackslash(g\_1 = I\textbackslash),
-\textbackslash(f\_2 = -M\^{}\{-1\}(C x\_2 + G)\textbackslash), and \textbackslash(g\_2 = M\^{}\{-1\}\textbackslash).
+This is a strict-feedback system with \(f_1 = 0\), \(g_1 = I\),
+\(f_2 = -M^{-1}(C x_2 + G)\), and \(g_2 = M^{-1}\).
 
 \textbf{Figure 4:} 2-DOF planar manipulator and its decomposition into position and velocity subsystems for backstepping design.
 
@@ -478,95 +478,95 @@ This is a strict-feedback system with \textbackslash(f\_1 = 0\textbackslash), \t
 
 Define the position error:
 
-\textbackslash{[}
-z\_1 = x\_1 - q\_d = q - q\_d
-\textbackslash{]}
+\[
+                    z_1 = x_1 - q_d = q - q_d
+                \]
 
-The dynamics of \textbackslash(z\_1\textbackslash) are:
+The dynamics of \(z_1\) are:
 
-\textbackslash{[}
-\textbackslash dot\{z\}\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d = x\_2 - \textbackslash dot\{q\}\_d
-\textbackslash{]}
+\[
+                    \dot{z}_1 = \dot{q} - \dot{q}_d = x_2 - \dot{q}_d
+                \]
 
-Choose the Lyapunov function \textbackslash(V\_1 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}T z\_1\textbackslash). Its derivative:
+Choose the Lyapunov function \(V_1 = \frac{1}{2}\,z_1^T z_1\). Its derivative:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1\^{}T \textbackslash dot\{z\}\_1 = z\_1\^{}T(x\_2 - \textbackslash dot\{q\}\_d)
-\textbackslash{]}
+\[
+                    \dot{V}_1 = z_1^T \dot{z}_1 = z_1^T(x_2 - \dot{q}_d)
+                \]
 
-Design the virtual control \textbackslash(\textbackslash alpha\_1\textbackslash) (the desired velocity) so that if \textbackslash(x\_2 = \textbackslash alpha\_1\textbackslash), then \textbackslash(\textbackslash dot\{V\}\_1 \textless{} 0\textbackslash):
+Design the virtual control \(\alpha_1\) (the desired velocity) so that if \(x_2 = \alpha_1\), then \(\dot{V}_1 < 0\):
 
-\textbackslash{[}
-\textbackslash alpha\_1 = \textbackslash dot\{q\}\_d - K\_1\textbackslash,z\_1, \textbackslash qquad K\_1 = k\_1 I \textbackslash succ 0
-\textbackslash{]}
+\[
+                    \alpha_1 = \dot{q}_d - K_1\,z_1, \qquad K_1 = k_1 I \succ 0
+                \]
 
-This gives \textbackslash(\textbackslash dot\{V\}\_1 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2\textbackslash) where \textbackslash(z\_2 = x\_2 - \textbackslash alpha\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1 z\_1\textbackslash).
+This gives \(\dot{V}_1 = -z_1^T K_1 z_1 + z_1^T z_2\) where \(z_2 = x_2 - \alpha_1 = \dot{q} - \dot{q}_d + K_1 z_1\).
 
 \hypertarget{step-2-torque-control-for-velocity-subsystem}{%
 \paragraph{Step 2 --- Torque Control for Velocity Subsystem}\label{step-2-torque-control-for-velocity-subsystem}}
 
 Define the velocity error:
 
-\textbackslash{[}
-z\_2 = x\_2 - \textbackslash alpha\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1(q - q\_d)
-\textbackslash{]}
+\[
+                    z_2 = x_2 - \alpha_1 = \dot{q} - \dot{q}_d + K_1(q - q_d)
+                \]
 
 Compute its dynamics:
 
-\textbackslash{[}
-\textbackslash dot\{z\}\_2 = \textbackslash ddot\{q\} - \textbackslash ddot\{q\}\_d + K\_1\textbackslash dot\{z\}\_1
-= M\^{}\{-1\}(\textbackslash tau - C\textbackslash dot\{q\} - G) - \textbackslash ddot\{q\}\_d + K\_1(\textbackslash dot\{q\} - \textbackslash dot\{q\}\_d)
-\textbackslash{]}
+\[
+                    \dot{z}_2 = \ddot{q} - \ddot{q}_d + K_1\dot{z}_1
+                    = M^{-1}(\tau - C\dot{q} - G) - \ddot{q}_d + K_1(\dot{q} - \dot{q}_d)
+                \]
 
 Augment the Lyapunov function (using the inertia matrix for natural energy weighting):
 
-\textbackslash{[}
-V\_2 = \textbackslash frac\{1\}\{2\}\textbackslash,z\_1\^{}T z\_1 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}T M(q)\textbackslash,z\_2
-\textbackslash{]}
+\[
+                    V_2 = \frac{1}{2}\,z_1^T z_1 + \frac{1}{2}\,z_2^T M(q)\,z_2
+                \]
 
-The derivative of \textbackslash(V\_2\textbackslash) is:
+The derivative of \(V_2\) is:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = z\_1\^{}T\textbackslash dot\{z\}\_1 + z\_2\^{}T M\textbackslash dot\{z\}\_2 + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}T\textbackslash dot\{M\}\textbackslash,z\_2
-\textbackslash{]}
+\[
+                    \dot{V}_2 = z_1^T\dot{z}_1 + z_2^T M\dot{z}_2 + \frac{1}{2}\,z_2^T\dot{M}\,z_2
+                \]
 
-Substituting and using the skew-symmetry property \textbackslash(z\_2\^{}T(\textbackslash dot\{M\} - 2C)z\_2 = 0\textbackslash):
+Substituting and using the skew-symmetry property \(z_2^T(\dot{M} - 2C)z_2 = 0\):
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1\textbackslash,z\_1 + z\_1\^{}T z\_2 + z\_2\^{}T\textbackslash bigl{[}\textbackslash tau - C\textbackslash dot\{q\} - G
-- M(\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1)\textbackslash bigr{]} + \textbackslash frac\{1\}\{2\}\textbackslash,z\_2\^{}T\textbackslash dot\{M\}\textbackslash,z\_2
-\textbackslash{]}
+\[
+                    \dot{V}_2 = -z_1^T K_1\,z_1 + z_1^T z_2 + z_2^T\bigl[\tau - C\dot{q} - G
+                    - M(\ddot{q}_d - K_1\dot{z}_1)\bigr] + \frac{1}{2}\,z_2^T\dot{M}\,z_2
+                \]
 
 Using the skew-symmetry property and simplifying:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1\textbackslash,z\_1 + z\_1\^{}T z\_2 + z\_2\^{}T\textbackslash bigl{[}\textbackslash tau - C\textbackslash alpha\_1 - G
-- M(\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1)\textbackslash bigr{]}
-\textbackslash{]}
+\[
+                    \dot{V}_2 = -z_1^T K_1\,z_1 + z_1^T z_2 + z_2^T\bigl[\tau - C\alpha_1 - G
+                    - M(\ddot{q}_d - K_1\dot{z}_1)\bigr]
+                \]
 
-To achieve \textbackslash(\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 - z\_2\^{}T K\_2 z\_2\textbackslash), choose:
+To achieve \(\dot{V}_2 = -z_1^T K_1 z_1 - z_2^T K_2 z_2\), choose:
 
 \textbf{Backstepping Torque Control Law:}\\
 \strut \\
-\textbackslash{[}
-\textbackslash tau = M(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1 - K\_2 z\_2\textbackslash bigr{]}
-+ C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash alpha\_1 + G(q) - z\_1
-\textbackslash{]}
+\[
+                        \tau = M(q)\bigl[\ddot{q}_d - K_1\dot{z}_1 - K_2 z_2\bigr]
+                        + C(q,\dot{q})\,\alpha_1 + G(q) - z_1
+                    \]
 
-where \textbackslash(K\_2 = k\_2 I \textbackslash succ 0\textbackslash). Expanding the terms:
+where \(K_2 = k_2 I \succ 0\). Expanding the terms:
 
-\textbackslash{[}
-\textbackslash tau = M(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d - K\_1(\textbackslash dot\{q\} - \textbackslash dot\{q\}\_d) - K\_2(\textbackslash dot\{q\} - \textbackslash dot\{q\}\_d + K\_1(q-q\_d))\textbackslash bigr{]}
-+ C(q,\textbackslash dot\{q\})(\textbackslash dot\{q\}\_d - K\_1(q-q\_d)) + G(q) - (q - q\_d)
-\textbackslash{]}
+\[
+                    \tau = M(q)\bigl[\ddot{q}_d - K_1(\dot{q} - \dot{q}_d) - K_2(\dot{q} - \dot{q}_d + K_1(q-q_d))\bigr]
+                    + C(q,\dot{q})(\dot{q}_d - K_1(q-q_d)) + G(q) - (q - q_d)
+                \]
 
 \textbf{Stability result:}
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1\textbackslash,z\_1 - z\_2\^{}T K\_2\textbackslash,z\_2 \textbackslash le 0
-\textbackslash{]}
+\[
+                    \dot{V}_2 = -z_1^T K_1\,z_1 - z_2^T K_2\,z_2 \le 0
+                \]
 
-Both \textbackslash(z\_1 \textbackslash to 0\textbackslash) and \textbackslash(z\_2 \textbackslash to 0\textbackslash) asymptotically, which means \textbackslash(q \textbackslash to q\_d\textbackslash) and \textbackslash(\textbackslash dot\{q\} \textbackslash to \textbackslash dot\{q\}\_d\textbackslash).
+Both \(z_1 \to 0\) and \(z_2 \to 0\) asymptotically, which means \(q \to q_d\) and \(\dot{q} \to \dot{q}_d\).
 
 \hypertarget{matlab-implementation}{%
 \subsubsection{4.2 MATLAB Implementation}\label{matlab-implementation}}
@@ -589,7 +589,7 @@ tau = M * (ddqd - params.k1*dz1 - params.k2*z2) ...
 + C * alpha1 + G - z1;
 end
 
-\textbf{Implementation note:} The term \textbackslash(-z\_1\textbackslash) in the control law is the
+\textbf{Implementation note:} The term \(-z_1\) in the control law is the
 "cross-coupling cancellation" term that arises from the backstepping procedure.
 Without it, the position and velocity errors would remain coupled and stability
 cannot be guaranteed by our Lyapunov function.
@@ -602,35 +602,35 @@ cannot be guaranteed by our Lyapunov function.
 
 The unicycle (differential-drive) mobile robot has the kinematic model:
 
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{x\} \&= v\textbackslash cos\textbackslash theta \textbackslash\textbackslash{}
-\textbackslash dot\{y\} \&= v\textbackslash sin\textbackslash theta \textbackslash\textbackslash{}
-\textbackslash dot\{\textbackslash theta\} \&= \textbackslash omega
-\textbackslash end\{aligned\}
-\textbackslash{]}
+\[
+                \begin{aligned}
+                    \dot{x} &= v\cos\theta \\
+                    \dot{y} &= v\sin\theta \\
+                    \dot{\theta} &= \omega
+                \end{aligned}
+                \]
 
-where \textbackslash(v\textbackslash) is the linear velocity and \textbackslash(\textbackslash omega\textbackslash) is the angular velocity (our two control inputs).
+where \(v\) is the linear velocity and \(\omega\) is the angular velocity (our two control inputs).
 
-Given a reference trajectory \textbackslash((x\_r(t), y\_r(t), \textbackslash theta\_r(t))\textbackslash) generated by
-\textbackslash(\textbackslash dot\{x\}\_r = v\_r\textbackslash cos\textbackslash theta\_r\textbackslash), \textbackslash(\textbackslash dot\{y\}\_r = v\_r\textbackslash sin\textbackslash theta\_r\textbackslash), \textbackslash(\textbackslash dot\{\textbackslash theta\}\_r = \textbackslash omega\_r\textbackslash),
+Given a reference trajectory \((x_r(t), y_r(t), \theta_r(t))\) generated by
+\(\dot{x}_r = v_r\cos\theta_r\), \(\dot{y}_r = v_r\sin\theta_r\), \(\dot{\theta}_r = \omega_r\),
 define the \textbf{body-frame error}:
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} e\_1 \textbackslash\textbackslash{} e\_2 \textbackslash\textbackslash{} e\_3 \textbackslash end\{bmatrix\}
-= \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash theta \& \textbackslash sin\textbackslash theta \& 0 \textbackslash\textbackslash{} -\textbackslash sin\textbackslash theta \& \textbackslash cos\textbackslash theta \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 1 \textbackslash end\{bmatrix\}
-\textbackslash begin\{bmatrix\} x\_r - x \textbackslash\textbackslash{} y\_r - y \textbackslash\textbackslash{} \textbackslash theta\_r - \textbackslash theta \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                \begin{bmatrix} e_1 \\ e_2 \\ e_3 \end{bmatrix}
+                = \begin{bmatrix} \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                \begin{bmatrix} x_r - x \\ y_r - y \\ \theta_r - \theta \end{bmatrix}
+                \]
 
 The error dynamics are:
 
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{e\}\_1 \&= \textbackslash omega\textbackslash, e\_2 - v + v\_r\textbackslash cos e\_3 \textbackslash\textbackslash{}
-\textbackslash dot\{e\}\_2 \&= -\textbackslash omega\textbackslash, e\_1 + v\_r\textbackslash sin e\_3 \textbackslash\textbackslash{}
-\textbackslash dot\{e\}\_3 \&= \textbackslash omega\_r - \textbackslash omega
-\textbackslash end\{aligned\}
-\textbackslash{]}
+\[
+                \begin{aligned}
+                    \dot{e}_1 &= \omega\, e_2 - v + v_r\cos e_3 \\
+                    \dot{e}_2 &= -\omega\, e_1 + v_r\sin e_3 \\
+                    \dot{e}_3 &= \omega_r - \omega
+                \end{aligned}
+                \]
 
 \textbf{Figure 6:} Differential-drive mobile robot (top-down view) with body-frame errors and the backstepping cascade: position error drives heading control, which drives velocity control.
 
@@ -640,80 +640,80 @@ The error dynamics are:
 \hypertarget{step-1-stabilise-the-lateralheading-subsystem}{%
 \paragraph{Step 1 --- Stabilise the Lateral/Heading Subsystem}\label{step-1-stabilise-the-lateralheading-subsystem}}
 
-Consider the \textbackslash((e\_2, e\_3)\textbackslash) subsystem first. Note that \textbackslash(e\_2\textbackslash) is driven by \textbackslash(v\_r \textbackslash sin e\_3\textbackslash).
-Think of \textbackslash(e\_3\textbackslash) as a virtual input to steer \textbackslash(e\_2\textbackslash). If \textbackslash(e\_3\textbackslash) could be freely chosen, pick:
+Consider the \((e_2, e_3)\) subsystem first. Note that \(e_2\) is driven by \(v_r \sin e_3\).
+Think of \(e_3\) as a virtual input to steer \(e_2\). If \(e_3\) could be freely chosen, pick:
 
-\textbackslash{[}
-e\_3\^{}* = \textbackslash arctan(-k\_3\textbackslash, e\_2)
-\textbackslash{]}
+\[
+                    e_3^* = \arctan(-k_3\, e_2)
+                \]
 
-(This makes \textbackslash(v\_r \textbackslash sin e\_3\^{}* \textbackslash approx -k\_3 v\_r e\_2\textbackslash) for small \textbackslash(e\_2\textbackslash), driving \textbackslash(e\_2 \textbackslash to 0\textbackslash).)
+(This makes \(v_r \sin e_3^* \approx -k_3 v_r e_2\) for small \(e_2\), driving \(e_2 \to 0\).)
 
-However, \textbackslash(e\_3\textbackslash) is a state, not an input. Define the backstepping error:
+However, \(e_3\) is a state, not an input. Define the backstepping error:
 
-\textbackslash{[}
-\textbackslash bar\{e\}\_3 = e\_3 - e\_3\^{}*
-\textbackslash{]}
+\[
+                    \bar{e}_3 = e_3 - e_3^*
+                \]
 
 \hypertarget{step-2-design-the-control-inputs-v-omega}{%
-\paragraph{Step 2 --- Design the Control Inputs \textbackslash((v, \textbackslash omega)\textbackslash)}\label{step-2-design-the-control-inputs-v-omega}}
+\paragraph{\texorpdfstring{Step 2 --- Design the Control Inputs \((v, \omega)\)}{Step 2 --- Design the Control Inputs (v, \textbackslash omega)}}\label{step-2-design-the-control-inputs-v-omega}}
 
 Choose the Lyapunov function:
 
-\textbackslash{[}
-V = \textbackslash frac\{1\}\{2\}e\_1\^{}2 + \textbackslash frac\{1\}\{2\}e\_2\^{}2 + \textbackslash frac\{1\}\{2\}\textbackslash bar\{e\}\_3\^{}2
-\textbackslash{]}
+\[
+                    V = \frac{1}{2}e_1^2 + \frac{1}{2}e_2^2 + \frac{1}{2}\bar{e}_3^2
+                \]
 
-For the longitudinal error \textbackslash(e\_1\textbackslash), choose the linear velocity:
+For the longitudinal error \(e_1\), choose the linear velocity:
 
-\textbackslash{[}
-v = v\_r\textbackslash cos e\_3 + k\_1\textbackslash,e\_1
-\textbackslash{]}
+\[
+                    v = v_r\cos e_3 + k_1\,e_1
+                \]
 
-This gives \textbackslash(\textbackslash dot\{e\}\_1 = -k\_1 e\_1 + \textbackslash omega e\_2\textbackslash).
+This gives \(\dot{e}_1 = -k_1 e_1 + \omega e_2\).
 
-For the angular velocity, we need \textbackslash(\textbackslash omega\textbackslash) to simultaneously:
-(a) cancel the coupling \textbackslash(\textbackslash omega e\_2\textbackslash) term in \textbackslash(\textbackslash dot\{e\}\_1\textbackslash),
-(b) drive \textbackslash(\textbackslash bar\{e\}\_3 \textbackslash to 0\textbackslash), and
-(c) handle the \textbackslash(e\_2\textbackslash) dynamics.
+For the angular velocity, we need \(\omega\) to simultaneously:
+(a) cancel the coupling \(\omega e_2\) term in \(\dot{e}_1\),
+(b) drive \(\bar{e}_3 \to 0\), and
+(c) handle the \(e_2\) dynamics.
 
 The full angular velocity controller is:
 
-\textbackslash{[}
-\textbackslash omega = \textbackslash omega\_r + k\_2\textbackslash,v\_r\textbackslash,e\_2 + k\_3\textbackslash,\textbackslash bar\{e\}\_3
-\textbackslash{]}
+\[
+                    \omega = \omega_r + k_2\,v_r\,e_2 + k_3\,\bar{e}_3
+                \]
 
-where \textbackslash(k\_2\textbackslash) handles the lateral error coupling with \textbackslash(v\_r \textbackslash sin e\_3\textbackslash), and \textbackslash(k\_3\textbackslash) drives the heading backstepping error to zero.
+where \(k_2\) handles the lateral error coupling with \(v_r \sin e_3\), and \(k_3\) drives the heading backstepping error to zero.
 
 \textbf{Backstepping Mobile Robot Controller:}\\
 \strut \\
-\textbackslash{[}
-v = v\_r \textbackslash cos e\_3 + k\_1\textbackslash,e\_1
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash omega = \textbackslash omega\_r + k\_2\textbackslash,v\_r\textbackslash,e\_2 + k\_3\textbackslash,\textbackslash sin e\_3
-\textbackslash{]}
+\[
+                        v = v_r \cos e_3 + k_1\,e_1
+                    \]
+\[
+                        \omega = \omega_r + k_2\,v_r\,e_2 + k_3\,\sin e_3
+                    \]
 
-\textbf{Stability analysis.} With this controller and \textbackslash(V = \textbackslash frac\{1\}\{2\}(e\_1\^{}2 + e\_2\^{}2 + e\_3\^{}2)\textbackslash):
+\textbf{Stability analysis.} With this controller and \(V = \frac{1}{2}(e_1^2 + e_2^2 + e_3^2)\):
 
-\textbackslash{[}
-\textbackslash dot\{V\} = e\_1\textbackslash dot\{e\}\_1 + e\_2\textbackslash dot\{e\}\_2 + e\_3\textbackslash dot\{e\}\_3
-\textbackslash{]}
-\textbackslash{[}
-= e\_1(-k\_1 e\_1 + \textbackslash omega e\_2) + e\_2(-\textbackslash omega e\_1 + v\_r \textbackslash sin e\_3)
-+ e\_3(\textbackslash omega\_r - \textbackslash omega)
-\textbackslash{]}
+\[
+                    \dot{V} = e_1\dot{e}_1 + e_2\dot{e}_2 + e_3\dot{e}_3
+                \]
+\[
+                    = e_1(-k_1 e_1 + \omega e_2) + e_2(-\omega e_1 + v_r \sin e_3)
+                    + e_3(\omega_r - \omega)
+                \]
 
-The cross-terms \textbackslash(e\_1 \textbackslash omega e\_2\textbackslash) and \textbackslash(-e\_2 \textbackslash omega e\_1\textbackslash) cancel. Substituting the controller:
+The cross-terms \(e_1 \omega e_2\) and \(-e_2 \omega e_1\) cancel. Substituting the controller:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = -k\_1 e\_1\^{}2 + e\_2 v\_r \textbackslash sin e\_3 + e\_3(\textbackslash omega\_r - \textbackslash omega\_r - k\_2 v\_r e\_2 - k\_3 \textbackslash sin e\_3)
-\textbackslash{]}
-\textbackslash{[}
-= -k\_1 e\_1\^{}2 + v\_r e\_2 \textbackslash sin e\_3 - k\_2 v\_r e\_2 e\_3 - k\_3 e\_3 \textbackslash sin e\_3
-\textbackslash{]}
+\[
+                    \dot{V} = -k_1 e_1^2 + e_2 v_r \sin e_3 + e_3(\omega_r - \omega_r - k_2 v_r e_2 - k_3 \sin e_3)
+                \]
+\[
+                    = -k_1 e_1^2 + v_r e_2 \sin e_3 - k_2 v_r e_2 e_3 - k_3 e_3 \sin e_3
+                \]
 
-For \textbackslash(v\_r \textgreater{} 0\textbackslash) and using the fact that \textbackslash(\textbackslash frac\{\textbackslash sin e\_3\}\{e\_3\}\textbackslash) is bounded, with appropriate choice of \textbackslash(k\_2\textbackslash), we get \textbackslash(\textbackslash dot\{V\} \textbackslash le -k\_1 e\_1\^{}2 - k\_3 e\_3 \textbackslash sin e\_3 \textbackslash le 0\textbackslash). Convergence of all errors follows by Barbalat\textquotesingle s lemma (since \textbackslash(v\_r(t) \textgreater{} 0\textbackslash)).
+For \(v_r > 0\) and using the fact that \(\frac{\sin e_3}{e_3}\) is bounded, with appropriate choice of \(k_2\), we get \(\dot{V} \le -k_1 e_1^2 - k_3 e_3 \sin e_3 \le 0\). Convergence of all errors follows by Barbalat\textquotesingle s lemma (since \(v_r(t) > 0\)).
 
 \hypertarget{matlab-implementation-1}{%
 \subsubsection{5.3 MATLAB Implementation}\label{matlab-implementation-1}}
@@ -735,32 +735,32 @@ end
 
 The quadrotor has a natural four-level cascade:
 
-\textbackslash{[}
-\textbackslash underbrace\{\textbackslash text\{Position\}\}\_\{\textbackslash text\{Level 1\}\}
-\textbackslash;\textbackslash xrightarrow\{\textbackslash text\{desired accel.\}\}\textbackslash;
-\textbackslash underbrace\{\textbackslash text\{Velocity\}\}\_\{\textbackslash text\{Level 2\}\}
-\textbackslash;\textbackslash xrightarrow\{\textbackslash text\{desired angles\}\}\textbackslash;
-\textbackslash underbrace\{\textbackslash text\{Orientation\}\}\_\{\textbackslash text\{Level 3\}\}
-\textbackslash;\textbackslash xrightarrow\{\textbackslash text\{desired rates\}\}\textbackslash;
-\textbackslash underbrace\{\textbackslash text\{Angular Rate\}\}\_\{\textbackslash text\{Level 4\}\}
-\textbackslash;\textbackslash xrightarrow\{\textbackslash quad\}\textbackslash;
-(T, \textbackslash boldsymbol\{\textbackslash tau\})
-\textbackslash{]}
+\[
+                    \underbrace{\text{Position}}_{\text{Level 1}}
+                    \;\xrightarrow{\text{desired accel.}}\;
+                    \underbrace{\text{Velocity}}_{\text{Level 2}}
+                    \;\xrightarrow{\text{desired angles}}\;
+                    \underbrace{\text{Orientation}}_{\text{Level 3}}
+                    \;\xrightarrow{\text{desired rates}}\;
+                    \underbrace{\text{Angular Rate}}_{\text{Level 4}}
+                    \;\xrightarrow{\quad}\;
+                    (T, \boldsymbol{\tau})
+                \]
 
-The simplified quadrotor dynamics (with rotation matrix \textbackslash(R\textbackslash)):
+The simplified quadrotor dynamics (with rotation matrix \(R\)):
 
-\textbackslash{[}
-\textbackslash begin\{aligned\}
-\textbackslash dot\{\textbackslash mathbf\{p\}\} \&= \textbackslash mathbf\{v\} \textbackslash\textbackslash{[}4pt{]}
-m\textbackslash dot\{\textbackslash mathbf\{v\}\} \&= -mg\textbackslash,\textbackslash mathbf\{e\}\_3 + T\textbackslash,R\textbackslash,\textbackslash mathbf\{e\}\_3 \textbackslash\textbackslash{[}4pt{]}
-\textbackslash dot\{R\} \&= R\textbackslash,{[}\textbackslash boldsymbol\{\textbackslash omega\}{]}\_\textbackslash times \textbackslash\textbackslash{[}4pt{]}
-J\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash omega\}\} \&= -\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} + \textbackslash boldsymbol\{\textbackslash tau\}\_b
-\textbackslash end\{aligned\}
-\textbackslash{]}
+\[
+                \begin{aligned}
+                    \dot{\mathbf{p}} &= \mathbf{v} \\[4pt]
+                    m\dot{\mathbf{v}} &= -mg\,\mathbf{e}_3 + T\,R\,\mathbf{e}_3 \\[4pt]
+                    \dot{R} &= R\,[\boldsymbol{\omega}]_\times \\[4pt]
+                    J\dot{\boldsymbol{\omega}} &= -\boldsymbol{\omega} \times J\boldsymbol{\omega} + \boldsymbol{\tau}_b
+                \end{aligned}
+                \]
 
-where \textbackslash(\textbackslash mathbf\{p\} = {[}x,y,z{]}\^{}T\textbackslash) is position, \textbackslash(\textbackslash mathbf\{v\}\textbackslash) is velocity, \textbackslash(T\textbackslash) is total thrust,
-\textbackslash(R \textbackslash in SO(3)\textbackslash) is the rotation matrix, \textbackslash(\textbackslash boldsymbol\{\textbackslash omega\}\textbackslash) is the body angular velocity,
-\textbackslash(J\textbackslash) is the inertia tensor, and \textbackslash(\textbackslash boldsymbol\{\textbackslash tau\}\_b\textbackslash) are the body torques.
+where \(\mathbf{p} = [x,y,z]^T\) is position, \(\mathbf{v}\) is velocity, \(T\) is total thrust,
+\(R \in SO(3)\) is the rotation matrix, \(\boldsymbol{\omega}\) is the body angular velocity,
+\(J\) is the inertia tensor, and \(\boldsymbol{\tau}_b\) are the body torques.
 
 \textbf{Figure 7:} Quadrotor cascade backstepping architecture. The position controller generates a desired attitude (virtual control); the attitude controller generates the actual motor commands.
 
@@ -770,42 +770,42 @@ where \textbackslash(\textbackslash mathbf\{p\} = {[}x,y,z{]}\^{}T\textbackslash
 \hypertarget{step-1-position-error}{%
 \paragraph{Step 1 --- Position Error}\label{step-1-position-error}}
 
-Define position error \textbackslash(z\_1 = \textbackslash mathbf\{p\} - \textbackslash mathbf\{p\}\_d\textbackslash). Then \textbackslash(\textbackslash dot\{z\}\_1 = \textbackslash mathbf\{v\} - \textbackslash dot\{\textbackslash mathbf\{p\}\}\_d\textbackslash).
+Define position error \(z_1 = \mathbf{p} - \mathbf{p}_d\). Then \(\dot{z}_1 = \mathbf{v} - \dot{\mathbf{p}}_d\).
 
 Virtual control (desired velocity):
 
-\textbackslash{[}
-\textbackslash boldsymbol\{\textbackslash alpha\}\_1 = \textbackslash dot\{\textbackslash mathbf\{p\}\}\_d - K\_\{p1\}\textbackslash,z\_1, \textbackslash qquad K\_\{p1\} = k\_\{p1\}\textbackslash,I\_3 \textbackslash succ 0
-\textbackslash{]}
+\[
+                    \boldsymbol{\alpha}_1 = \dot{\mathbf{p}}_d - K_{p1}\,z_1, \qquad K_{p1} = k_{p1}\,I_3 \succ 0
+                \]
 
 \hypertarget{step-2-velocity-error}{%
 \paragraph{Step 2 --- Velocity Error}\label{step-2-velocity-error}}
 
-Define velocity error \textbackslash(z\_2 = \textbackslash mathbf\{v\} - \textbackslash boldsymbol\{\textbackslash alpha\}\_1\textbackslash). Its dynamics:
+Define velocity error \(z_2 = \mathbf{v} - \boldsymbol{\alpha}_1\). Its dynamics:
 
-\textbackslash{[}
-\textbackslash dot\{z\}\_2 = \textbackslash dot\{\textbackslash mathbf\{v\}\} - \textbackslash dot\{\textbackslash boldsymbol\{\textbackslash alpha\}\}\_1
-= -g\textbackslash mathbf\{e\}\_3 + \textbackslash frac\{T\}\{m\}R\textbackslash mathbf\{e\}\_3 - \textbackslash ddot\{\textbackslash mathbf\{p\}\}\_d + K\_\{p1\}\textbackslash dot\{z\}\_1
-\textbackslash{]}
+\[
+                    \dot{z}_2 = \dot{\mathbf{v}} - \dot{\boldsymbol{\alpha}}_1
+                    = -g\mathbf{e}_3 + \frac{T}{m}R\mathbf{e}_3 - \ddot{\mathbf{p}}_d + K_{p1}\dot{z}_1
+                \]
 
-Choose the Lyapunov function \textbackslash(V = \textbackslash frac\{1\}\{2\}z\_1\^{}T z\_1 + \textbackslash frac\{1\}\{2\}z\_2\^{}T z\_2\textbackslash).
-To make \textbackslash(\textbackslash dot\{V\} = -k\_\{p1\}\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 - k\_\{p2\}\textbackslash\textbar z\_2\textbackslash\textbar\^{}2\textbackslash), we need the
+Choose the Lyapunov function \(V = \frac{1}{2}z_1^T z_1 + \frac{1}{2}z_2^T z_2\).
+To make \(\dot{V} = -k_{p1}\|z_1\|^2 - k_{p2}\|z_2\|^2\), we need the
 \textbf{desired acceleration vector}:
 
-\textbackslash{[}
-\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\} = \textbackslash ddot\{\textbackslash mathbf\{p\}\}\_d - K\_\{p1\}\textbackslash dot\{z\}\_1 - z\_1 - K\_\{p2\}\textbackslash,z\_2 + g\textbackslash mathbf\{e\}\_3
-\textbackslash{]}
+\[
+                    \mathbf{a}_{\text{des}} = \ddot{\mathbf{p}}_d - K_{p1}\dot{z}_1 - z_1 - K_{p2}\,z_2 + g\mathbf{e}_3
+                \]
 
-The thrust magnitude and desired orientation are extracted from \textbackslash(\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\textbackslash):
+The thrust magnitude and desired orientation are extracted from \(\mathbf{a}_{\text{des}}\):
 
-\textbackslash{[}
-T = m\textbackslash,\textbackslash\textbar\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\textbackslash\textbar{}
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash mathbf\{z\}\_\{B,\textbackslash text\{des\}\} = \textbackslash frac\{\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\}\{\textbackslash\textbar\textbackslash mathbf\{a\}\_\{\textbackslash text\{des\}\}\textbackslash\textbar\}
-\textbackslash quad \textbackslash Longrightarrow \textbackslash quad
-R\_\{\textbackslash text\{des\}\} \textbackslash text\{ constructed from \} \textbackslash mathbf\{z\}\_\{B,\textbackslash text\{des\}\} \textbackslash text\{ and desired yaw\}
-\textbackslash{]}
+\[
+                    T = m\,\|\mathbf{a}_{\text{des}}\|
+                \]
+\[
+                    \mathbf{z}_{B,\text{des}} = \frac{\mathbf{a}_{\text{des}}}{\|\mathbf{a}_{\text{des}}\|}
+                    \quad \Longrightarrow \quad
+                    R_{\text{des}} \text{ constructed from } \mathbf{z}_{B,\text{des}} \text{ and desired yaw}
+                \]
 
 \hypertarget{backstepping-design-inner-loop-attitude-control}{%
 \subsubsection{6.3 Backstepping Design --- Inner Loop (Attitude Control)}\label{backstepping-design-inner-loop-attitude-control}}
@@ -813,40 +813,40 @@ R\_\{\textbackslash text\{des\}\} \textbackslash text\{ constructed from \} \tex
 \hypertarget{step-3-attitude-error}{%
 \paragraph{Step 3 --- Attitude Error}\label{step-3-attitude-error}}
 
-Using Euler angles \textbackslash((\textbackslash phi, \textbackslash theta, \textbackslash psi)\textbackslash) for a simplified treatment, define:
+Using Euler angles \((\phi, \theta, \psi)\) for a simplified treatment, define:
 
-\textbackslash{[}
-z\_3 = \textbackslash boldsymbol\{\textbackslash Phi\} - \textbackslash boldsymbol\{\textbackslash Phi\}\_\{\textbackslash text\{des\}\}
-= \textbackslash begin\{bmatrix\} \textbackslash phi - \textbackslash phi\_d \textbackslash\textbackslash{} \textbackslash theta - \textbackslash theta\_d \textbackslash\textbackslash{} \textbackslash psi - \textbackslash psi\_d \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    z_3 = \boldsymbol{\Phi} - \boldsymbol{\Phi}_{\text{des}}
+                    = \begin{bmatrix} \phi - \phi_d \\ \theta - \theta_d \\ \psi - \psi_d \end{bmatrix}
+                \]
 
 Virtual control (desired angular rate):
 
-\textbackslash{[}
-\textbackslash boldsymbol\{\textbackslash alpha\}\_3 = \textbackslash dot\{\textbackslash boldsymbol\{\textbackslash Phi\}\}\_\{\textbackslash text\{des\}\} - K\_\{a1\}\textbackslash,z\_3
-\textbackslash{]}
+\[
+                    \boldsymbol{\alpha}_3 = \dot{\boldsymbol{\Phi}}_{\text{des}} - K_{a1}\,z_3
+                \]
 
 \hypertarget{step-4-angular-rate-error-and-torque-design}{%
 \paragraph{Step 4 --- Angular Rate Error and Torque Design}\label{step-4-angular-rate-error-and-torque-design}}
 
-Define \textbackslash(z\_4 = \textbackslash boldsymbol\{\textbackslash omega\} - \textbackslash boldsymbol\{\textbackslash alpha\}\_3\textbackslash). Using the Euler equation
-\textbackslash(J\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash omega\}\} = -\textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} + \textbackslash boldsymbol\{\textbackslash tau\}\_b\textbackslash):
+Define \(z_4 = \boldsymbol{\omega} - \boldsymbol{\alpha}_3\). Using the Euler equation
+\(J\dot{\boldsymbol{\omega}} = -\boldsymbol{\omega} \times J\boldsymbol{\omega} + \boldsymbol{\tau}_b\):
 
 \textbf{Backstepping Attitude Torque:}\\
 \strut \\
-\textbackslash{[}
-\textbackslash boldsymbol\{\textbackslash tau\}\_b = J\textbackslash bigl{[}\textbackslash dot\{\textbackslash boldsymbol\{\textbackslash alpha\}\}\_3 - K\_\{a2\}\textbackslash,z\_4\textbackslash bigr{]}
-+ \textbackslash boldsymbol\{\textbackslash omega\} \textbackslash times J\textbackslash boldsymbol\{\textbackslash omega\} - z\_3
-\textbackslash{]}
+\[
+                        \boldsymbol{\tau}_b = J\bigl[\dot{\boldsymbol{\alpha}}_3 - K_{a2}\,z_4\bigr]
+                        + \boldsymbol{\omega} \times J\boldsymbol{\omega} - z_3
+                    \]
 
 This yields the overall Lyapunov function:
 
-\textbackslash{[}
-V = \textbackslash frac\{1\}\{2\}\textbackslash bigl(\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 + \textbackslash\textbar z\_2\textbackslash\textbar\^{}2 + \textbackslash\textbar z\_3\textbackslash\textbar\^{}2 + z\_4\^{}T J\textbackslash,z\_4\textbackslash bigr)
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash dot\{V\} = -k\_\{p1\}\textbackslash\textbar z\_1\textbackslash\textbar\^{}2 - k\_\{p2\}\textbackslash\textbar z\_2\textbackslash\textbar\^{}2 - k\_\{a1\}\textbackslash\textbar z\_3\textbackslash\textbar\^{}2 - k\_\{a2\}\textbackslash,z\_4\^{}T K\_\{a2\}\textbackslash,z\_4 \textbackslash le 0
-\textbackslash{]}
+\[
+                    V = \frac{1}{2}\bigl(\|z_1\|^2 + \|z_2\|^2 + \|z_3\|^2 + z_4^T J\,z_4\bigr)
+                \]
+\[
+                    \dot{V} = -k_{p1}\|z_1\|^2 - k_{p2}\|z_2\|^2 - k_{a1}\|z_3\|^2 - k_{a2}\,z_4^T K_{a2}\,z_4 \le 0
+                \]
 
 \hypertarget{matlab-implementation-2}{%
 \subsubsection{6.4 MATLAB Implementation}\label{matlab-implementation-2}}
@@ -884,9 +884,9 @@ tau\_b = J * (-params.ka1*(-params.ka1*z3 - z4*0) - params.ka2*z4) ...
 + cross(omega\_b, J*omega\_b) - z3;
 end
 
-\textbf{Practical note:} In real implementations, the desired angles \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d)\textbackslash)
-must be saturated (typically to \textbackslash(\textbackslash pm 30\^{}\textbackslash circ\textbackslash)) to prevent aggressive manoeuvres.
-The thrust \textbackslash(T\textbackslash) must also be clamped to \textbackslash({[}0, T\_\{\textbackslash max\}{]}\textbackslash).
+\textbf{Practical note:} In real implementations, the desired angles \((\phi_d, \theta_d)\)
+must be saturated (typically to \(\pm 30^\circ\)) to prevent aggressive manoeuvres.
+The thrust \(T\) must also be clamped to \([0, T_{\max}]\).
 
 \hypertarget{section-7-hands-on-activities-quiz}{%
 \subsection{Section 7 --- Hands-on Activities \& Quiz}\label{section-7-hands-on-activities-quiz}}
@@ -900,11 +900,11 @@ Then modify the gains and re-run:
 \begin{enumerate}
 \tightlist
 \item
-  Set \textbackslash(k\_1 = 50, \textbackslash; k\_2 = 5\textbackslash) (position gain much larger than velocity gain).
+  Set \(k_1 = 50, \; k_2 = 5\) (position gain much larger than velocity gain).
 \item
-  Set \textbackslash(k\_1 = 5, \textbackslash; k\_2 = 50\textbackslash) (velocity gain much larger than position gain).
+  Set \(k_1 = 5, \; k_2 = 50\) (velocity gain much larger than position gain).
 \item
-  Set \textbackslash(k\_1 = k\_2 = 25\textbackslash) (balanced gains).
+  Set \(k_1 = k_2 = 25\) (balanced gains).
 \end{enumerate}
 
 \textbf{Expected observations:}
@@ -912,15 +912,15 @@ Then modify the gains and re-run:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{\textbackslash(k\_1 \textbackslash gg k\_2\textbackslash):} Aggressive position correction generates large desired velocity changes.
+  \textbf{\(k_1 \gg k_2\):} Aggressive position correction generates large desired velocity changes.
   The velocity loop cannot track them fast enough, causing oscillatory or even unstable behaviour.
-  The virtual control \textbackslash(\textbackslash alpha\_1\textbackslash) demands more than the torque loop can deliver.
+  The virtual control \(\alpha_1\) demands more than the torque loop can deliver.
 \item
-  \textbf{\textbackslash(k\_2 \textbackslash gg k\_1\textbackslash):} The velocity error \textbackslash(z\_2\textbackslash) converges quickly, but the position
-  error \textbackslash(z\_1\textbackslash) converges slowly because \textbackslash(k\_1\textbackslash) is small. The system is overdamped
+  \textbf{\(k_2 \gg k_1\):} The velocity error \(z_2\) converges quickly, but the position
+  error \(z_1\) converges slowly because \(k_1\) is small. The system is overdamped
   with sluggish position tracking.
 \item
-  \textbf{\textbackslash(k\_1 \textbackslash approx k\_2\textbackslash):} Balanced convergence rates for both loops. This is
+  \textbf{\(k_1 \approx k_2\):} Balanced convergence rates for both loops. This is
   generally the best choice for smooth, fast tracking.
 \end{itemize}
 
@@ -937,34 +937,34 @@ on the manipulator with model uncertainty (20\% mass error). Observe:
 \item
   Which controller has the smoothest control signal?
 \item
-  Which controller uses the least energy (smallest \textbackslash(\textbackslash int \textbackslash\textbar\textbackslash tau\textbackslash\textbar\^{}2 \textbackslash, dt\textbackslash))?
+  Which controller uses the least energy (smallest \(\int \|\tau\|^2 \, dt\))?
 \end{itemize}
 
 \hypertarget{quiz-virtual-control-design}{%
 \paragraph{Quiz --- Virtual Control Design}\label{quiz-virtual-control-design}}
 
-\textbf{Q1:} Given the system \textbackslash(\textbackslash dot\{x\}\_1 = x\_1\^{}2 + x\_2\textbackslash), \textbackslash(\textbackslash dot\{x\}\_2 = x\_2 + u\textbackslash),
-design a backstepping controller to stabilise \textbackslash(x\_1 = 0\textbackslash).
+\textbf{Q1:} Given the system \(\dot{x}_1 = x_1^2 + x_2\), \(\dot{x}_2 = x_2 + u\),
+design a backstepping controller to stabilise \(x_1 = 0\).
 
 \emph{Answer sketch:}
 
 \begin{itemize}
 \tightlist
 \item
-  Step 1: \textbackslash(z\_1 = x\_1\textbackslash), \textbackslash(\textbackslash dot\{z\}\_1 = x\_1\^{}2 + x\_2\textbackslash).
-  Choose \textbackslash(\textbackslash alpha\_1 = -x\_1\^{}2 - k\_1 x\_1\textbackslash) so that \textbackslash(\textbackslash dot\{V\}\_1 = -k\_1 x\_1\^{}2 + x\_1 z\_2\textbackslash).
+  Step 1: \(z_1 = x_1\), \(\dot{z}_1 = x_1^2 + x_2\).
+  Choose \(\alpha_1 = -x_1^2 - k_1 x_1\) so that \(\dot{V}_1 = -k_1 x_1^2 + x_1 z_2\).
 \item
-  Step 2: \textbackslash(z\_2 = x\_2 - \textbackslash alpha\_1\textbackslash), \textbackslash(\textbackslash dot\{z\}\_2 = x\_2 + u - (2x\_1)(x\_1\^{}2 + x\_2) + k\_1(x\_1\^{}2 + x\_2)\textbackslash).
-  Choose \textbackslash(u = -x\_2 + \textbackslash dot\{\textbackslash alpha\}\_1 - x\_1 - k\_2 z\_2\textbackslash).
+  Step 2: \(z_2 = x_2 - \alpha_1\), \(\dot{z}_2 = x_2 + u - (2x_1)(x_1^2 + x_2) + k_1(x_1^2 + x_2)\).
+  Choose \(u = -x_2 + \dot{\alpha}_1 - x_1 - k_2 z_2\).
 \end{itemize}
 
 \textbf{Q2:} In the two-step backstepping controller, what happens if we omit the
-cross-coupling term \textbackslash(-z\_1\textbackslash) from the torque law? Is stability still guaranteed?
+cross-coupling term \(-z_1\) from the torque law? Is stability still guaranteed?
 
-\emph{Answer:} Without \textbackslash(-z\_1\textbackslash), the Lyapunov derivative becomes
-\textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2 + z\_1\^{}T z\_2\textbackslash). The cross-term \textbackslash(z\_1\^{}T z\_2\textbackslash) can be
-positive, so \textbackslash(\textbackslash dot\{V\}\_2\textbackslash) is not guaranteed negative semi-definite. Stability is only ensured
-if \textbackslash(k\_1 k\_2 \textgreater{} \textbackslash frac\{1\}\{4\}\textbackslash) (by Young\textquotesingle s inequality), but the stability margin is reduced.
+\emph{Answer:} Without \(-z_1\), the Lyapunov derivative becomes
+\(\dot{V}_2 = -k_1 z_1^2 - k_2 z_2^2 + z_1^T z_2\). The cross-term \(z_1^T z_2\) can be
+positive, so \(\dot{V}_2\) is not guaranteed negative semi-definite. Stability is only ensured
+if \(k_1 k_2 > \frac{1}{4}\) (by Young\textquotesingle s inequality), but the stability margin is reduced.
 The systematic backstepping design avoids this issue entirely.
 
 \textbf{Q3:} Why does the quadrotor need four backstepping steps while the
@@ -973,7 +973,7 @@ manipulator only needs two?
 \emph{Answer:} The quadrotor has a four-level cascade:
 position → velocity → orientation → angular rate, each acting as a virtual control
 for the previous level. The manipulator only has two levels (position → velocity) because
-the torque directly enters the velocity dynamics via \textbackslash(M\^{}\{-1\}\textbackslash tau\textbackslash). The number of backstepping
+the torque directly enters the velocity dynamics via \(M^{-1}\tau\). The number of backstepping
 steps equals the relative degree from the output to the input.
 
 \hypertarget{section-8-summary-comparison-of-all-five-control-methods}{%
@@ -988,13 +988,13 @@ Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Bac
 \endlastfoot
 \textbf{Core idea} & Cancel nonlinearity, impose linear error dynamics & Optimise predicted trajectory over finite horizon & On-line parameter estimation + control & Dominate worst-case bounded uncertainty & Recursive Lyapunov design through cascade structure \\
 \textbf{Model requirement} & Exact model needed & Prediction model needed & Structure known, parameters unknown & Nominal model + uncertainty bound & Strict-feedback structure required \\
-\textbf{Lyapunov function} & Implicit (linear closed-loop) & Cost function (not standard Lyapunov) & \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}T M s + \textbackslash frac\{1\}\{2\}\textbackslash tilde\{\textbackslash theta\}\^{}T\textbackslash Gamma\^{}\{-1\}\textbackslash tilde\{\textbackslash theta\}\textbackslash) & \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}T M s\textbackslash) & \textbackslash(V = \textbackslash sum \textbackslash frac\{1\}\{2\}z\_i\^{}T W\_i z\_i\textbackslash) (constructed step-by-step) \\
+\textbf{Lyapunov function} & Implicit (linear closed-loop) & Cost function (not standard Lyapunov) & \(V = \frac{1}{2}s^T M s + \frac{1}{2}\tilde{\theta}^T\Gamma^{-1}\tilde{\theta}\) & \(V = \frac{1}{2}s^T M s\) & \(V = \sum \frac{1}{2}z_i^T W_i z_i\) (constructed step-by-step) \\
 \textbf{Handles constraints} & No & Yes (core feature) & No (standard form) & No & No (standard form) \\
 \textbf{Robustness} & Poor (sensitive to model errors) & Moderate (depends on model accuracy) & Good (adapts to parametric uncertainty) & Excellent (designed for uncertainty) & Good (Lyapunov-guaranteed; can add adaptation) \\
 \textbf{Computation} & Low (closed-form) & High (on-line optimisation) & Moderate (adaptation law update) & Low (closed-form) & Moderate (derivatives of virtual controls) \\
 \textbf{Key advantage} & Simple, well-understood & Handles constraints and preview & Self-tuning for unknown parameters & Guaranteed performance under uncertainty & Systematic design with constructive stability proof \\
-\textbf{Key limitation} & No robustness to model error & Computational cost, model dependence & Needs persistent excitation, structured uncertainty & Conservative (worst-case design), chattering & Complexity explosion in \textbackslash(\textbackslash dot\{\textbackslash alpha\}\_i\textbackslash) for high-order systems \\
-\textbf{Control law form} & \textbackslash(\textbackslash tau = M(q){[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e{]} + C\textbackslash dot\{q\} + G\textbackslash) & \textbackslash(u\^{}* = \textbackslash arg\textbackslash min\_\{u\} \textbackslash sum\_\{k\} \textbackslash\textbar x\_k - x\_r\textbackslash\textbar\^{}2\_Q + \textbackslash\textbar u\_k\textbackslash\textbar\^{}2\_R\textbackslash) & \textbackslash(\textbackslash tau = Y(q,\textbackslash dot\{q\},\textbackslash dot\{q\}\_r,\textbackslash ddot\{q\}\_r)\textbackslash hat\{\textbackslash theta\} - K\_D s\textbackslash) & \textbackslash(\textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\_D s + \textbackslash rho\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\}\textbackslash) & \textbackslash(\textbackslash tau = M{[}\textbackslash ddot\{q\}\_d - K\_1\textbackslash dot\{z\}\_1 - K\_2 z\_2{]} + C\textbackslash alpha\_1 + G - z\_1\textbackslash) \\
+\textbf{Key limitation} & No robustness to model error & Computational cost, model dependence & Needs persistent excitation, structured uncertainty & Conservative (worst-case design), chattering & Complexity explosion in \(\dot{\alpha}_i\) for high-order systems \\
+\textbf{Control law form} & \(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\) & \(u^* = \arg\min_{u} \sum_{k} \|x_k - x_r\|^2_Q + \|u_k\|^2_R\) & \(\tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\hat{\theta} - K_D s\) & \(\tau = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K_D s + \rho\frac{s}{\|s\|}\) & \(\tau = M[\ddot{q}_d - K_1\dot{z}_1 - K_2 z_2] + C\alpha_1 + G - z_1\) \\
 \end{longtable}
 
 \textbf{Figure 8:} Side-by-side comparison of feedback linearization (cancels all nonlinearities) versus backstepping (exploits useful nonlinearities with constructive Lyapunov guarantees).
@@ -1003,7 +1003,7 @@ Aspect & Computed Torque (Wk1) & MPC (Wk2) & Adaptive (Wk3) & Robust (Wk4) & Bac
 for designing stabilising controllers for nonlinear systems in strict-feedback form.
 Unlike computed torque, it does not blindly cancel all nonlinearities.
 Unlike robust control, it does not require conservative worst-case bounds.
-Its main challenge --- the "explosion of terms" as \textbackslash(\textbackslash dot\{\textbackslash alpha\}\_i\textbackslash) grows with each step
+Its main challenge --- the "explosion of terms" as \(\dot{\alpha}_i\) grows with each step
 --- can be addressed using \textbf{dynamic surface control} (a first-order filter on
 each virtual control), which we may explore in future weeks.
 

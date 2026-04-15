@@ -345,8 +345,15 @@ def main():
                 print(f"  SKP  {w}: no HTML found")
                 continue
             subprocess.run([
-                "pandoc", "-f", "html", "-t", "latex",
-                "--wrap=preserve", "--mathjax", "--no-highlight",
+                "pandoc",
+                # Enable HTML reader extensions for MathJax-style math
+                # delimiters.  Without these, pandoc escapes \(...\) and
+                # \[...\] as literal text (\textbackslash(...)), producing
+                # nonsense in the LaTeX output.
+                "-f", "html+tex_math_single_backslash+tex_math_double_backslash",
+                "-t", "latex",
+                "--wrap=preserve",
+                "--no-highlight",
                 str(found[0]), "-o", str(raw),
             ], check=True)
         ok = clean_and_wrap(w)

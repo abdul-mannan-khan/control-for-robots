@@ -194,59 +194,59 @@ The Dynamic Window Approach (DWA) is one of the most widely-used local planners 
 
 \subsection{DWA Velocity Space}
 
-A differential-drive robot is controlled by two inputs: linear velocity \textbackslash(v\textbackslash) and angular velocity \textbackslash(\textbackslash omega\textbackslash). DWA operates in this 2D velocity space:
+A differential-drive robot is controlled by two inputs: linear velocity \(v\) and angular velocity \(\omega\). DWA operates in this 2D velocity space:
 
-\textbf{Velocity Space:} \textbackslash( (v, \textbackslash omega) \textbackslash) where \textbackslash( v \textbackslash in {[}v\_\{\textbackslash min\}, v\_\{\textbackslash max\}{]} \textbackslash), \textbackslash( \textbackslash omega \textbackslash in {[}\textbackslash omega\_\{\textbackslash min\}, \textbackslash omega\_\{\textbackslash max\}{]} \textbackslash)
+\textbf{Velocity Space:} \((v, \omega)\) where \(v \in [v_{\min}, v_{\max}]\), \(\omega \in [\omega_{\min}, \omega_{\max}]\)
 
 \subsection{Dynamic Window Constraint}
 
-Not all velocities in the admissible range are physically reachable from the current state within one control interval \textbackslash(\textbackslash Delta t\textbackslash). The \textbf{dynamic window} restricts the search to reachable velocities given acceleration limits:
+Not all velocities in the admissible range are physically reachable from the current state within one control interval \(\Delta t\). The \textbf{dynamic window} restricts the search to reachable velocities given acceleration limits:
 
-\textbackslash{[}
-V\_d = \textbackslash\{ (v, \textbackslash omega) \textbackslash mid v \textbackslash in {[}v\_c - \textbackslash dot\{v\}\_\{\textbackslash max\}\textbackslash Delta t,\textbackslash; v\_c + \textbackslash dot\{v\}\_\{\textbackslash max\}\textbackslash Delta t{]}, \textbackslash;
-\textbackslash omega \textbackslash in {[}\textbackslash omega\_c - \textbackslash dot\{\textbackslash omega\}\_\{\textbackslash max\}\textbackslash Delta t,\textbackslash; \textbackslash omega\_c + \textbackslash dot\{\textbackslash omega\}\_\{\textbackslash max\}\textbackslash Delta t{]} \textbackslash\}
-\textbackslash{]}
+\[
+        V_d = \{ (v, \omega) \mid v \in [v_c - \dot{v}_{\max}\Delta t,\; v_c + \dot{v}_{\max}\Delta t], \;
+        \omega \in [\omega_c - \dot{\omega}_{\max}\Delta t,\; \omega_c + \dot{\omega}_{\max}\Delta t] \}
+        \]
 
-where \textbackslash((v\_c, \textbackslash omega\_c)\textbackslash) is the current velocity and \textbackslash((\textbackslash dot\{v\}\_\{\textbackslash max\}, \textbackslash dot\{\textbackslash omega\}\_\{\textbackslash max\})\textbackslash) are the maximum accelerations.
+where \((v_c, \omega_c)\) is the current velocity and \((\dot{v}_{\max}, \dot{\omega}_{\max})\) are the maximum accelerations.
 
 The \textbf{admissible velocities} are further constrained to those that allow the robot to stop before hitting an obstacle:
 
-\textbackslash{[}
-V\_a = \textbackslash\{ (v, \textbackslash omega) \textbackslash mid v \textbackslash leq \textbackslash sqrt\{2 \textbackslash cdot \textbackslash text\{dist\}(v,\textbackslash omega) \textbackslash cdot \textbackslash dot\{v\}\_\{\textbackslash max\}\},\textbackslash;
-\textbackslash omega \textbackslash leq \textbackslash sqrt\{2 \textbackslash cdot \textbackslash text\{dist\}(v,\textbackslash omega) \textbackslash cdot \textbackslash dot\{\textbackslash omega\}\_\{\textbackslash max\}\} \textbackslash\}
-\textbackslash{]}
+\[
+        V_a = \{ (v, \omega) \mid v \leq \sqrt{2 \cdot \text{dist}(v,\omega) \cdot \dot{v}_{\max}},\;
+        \omega \leq \sqrt{2 \cdot \text{dist}(v,\omega) \cdot \dot{\omega}_{\max}} \}
+        \]
 
 \subsection{DWA Objective Function}
 
-DWA selects the velocity pair \textbackslash((v\^{}*, \textbackslash omega\^{}*)\textbackslash) that maximises a weighted objective:
+DWA selects the velocity pair \((v^*, \omega^*)\) that maximises a weighted objective:
 
-\textbackslash{[} G(v, \textbackslash omega) = \textbackslash alpha \textbackslash cdot \textbackslash text\{heading\}(v,\textbackslash omega) + \textbackslash beta \textbackslash cdot \textbackslash text\{clearance\}(v,\textbackslash omega) + \textbackslash gamma \textbackslash cdot \textbackslash text\{velocity\}(v,\textbackslash omega) \textbackslash{]}
+\[ G(v, \omega) = \alpha \cdot \text{heading}(v,\omega) + \beta \cdot \text{clearance}(v,\omega) + \gamma \cdot \text{velocity}(v,\omega) \]
 
 where:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{heading(\textbackslash(v, \textbackslash omega\textbackslash)):} Measures alignment of the predicted trajectory\textquotesingle s endpoint with the goal direction. Defined as \textbackslash(180\^{}\textbackslash circ - \textbar\textbackslash theta\_\{\textbackslash text\{goal\}\} - \textbackslash theta\_\{\textbackslash text\{endpoint\}\}\textbar\textbackslash), normalised to {[}0, 1{]}. Encourages the robot to face the goal.
+  \textbf{heading(\(v, \omega\)):} Measures alignment of the predicted trajectory\textquotesingle s endpoint with the goal direction. Defined as \(180^\circ - |\theta_{\text{goal}} - \theta_{\text{endpoint}}|\), normalised to {[}0, 1{]}. Encourages the robot to face the goal.
 \item
-  \textbf{clearance(\textbackslash(v, \textbackslash omega\textbackslash)):} Minimum distance from the predicted trajectory to the nearest obstacle. Larger clearance = safer trajectory. Returns \textbackslash(-\textbackslash infty\textbackslash) for collision trajectories (hard constraint).
+  \textbf{clearance(\(v, \omega\)):} Minimum distance from the predicted trajectory to the nearest obstacle. Larger clearance = safer trajectory. Returns \(-\infty\) for collision trajectories (hard constraint).
 \item
-  \textbf{velocity(\textbackslash(v, \textbackslash omega\textbackslash)):} Forward speed \textbackslash(v\textbackslash) of the candidate, normalised to {[}0, 1{]}. Encourages faster progress toward the goal rather than overly cautious creeping.
+  \textbf{velocity(\(v, \omega\)):} Forward speed \(v\) of the candidate, normalised to {[}0, 1{]}. Encourages faster progress toward the goal rather than overly cautious creeping.
 \end{itemize}
 
 \subsection{Connection to MPC (Week 3)}
 
-\textbf{Key Insight:} DWA can be viewed as MPC with horizon \textbackslash(N = 1\textbackslash), state = robot pose, control = \textbackslash((v, \textbackslash omega)\textbackslash), cost = negative of heading + clearance + velocity, and constraints = dynamic window + collision-free. The modern Nav2 \textbf{MPPI} (Model Predictive Path Integral) controller IS full MPC with \textbackslash(N \textbackslash gg 1\textbackslash).
+\textbf{Key Insight:} DWA can be viewed as MPC with horizon \(N = 1\), state = robot pose, control = \((v, \omega)\), cost = negative of heading + clearance + velocity, and constraints = dynamic window + collision-free. The modern Nav2 \textbf{MPPI} (Model Predictive Path Integral) controller IS full MPC with \(N \gg 1\).
 
 \textbf{DWA Cost (1-step optimisation):}
 
-\textbackslash{[} \textbackslash min\_\{v, \textbackslash omega\} -\textbackslash bigl{[}\textbackslash alpha \textbackslash cdot h(v,\textbackslash omega) + \textbackslash beta \textbackslash cdot c(v,\textbackslash omega) + \textbackslash gamma \textbackslash cdot v\textbackslash bigr{]} \textbackslash quad \textbackslash text\{s.t.\} \textbackslash quad (v,\textbackslash omega) \textbackslash in V\_d \textbackslash cap V\_a \textbackslash{]}
+\[ \min_{v, \omega} -\bigl[\alpha \cdot h(v,\omega) + \beta \cdot c(v,\omega) + \gamma \cdot v\bigr] \quad \text{s.t.} \quad (v,\omega) \in V_d \cap V_a \]
 
 \hfill\break
 
 \textbf{MPC Cost (N-step optimisation, Week 3):}
 
-\textbackslash{[} \textbackslash min\_\{\textbackslash mathbf\{u\}\_\{0:N-1\}\} \textbackslash sum\_\{k=0\}\^{}\{N-1\} \textbackslash bigl{[}\textbackslash mathbf\{x\}\_k\^{}T \textbackslash mathbf\{Q\} \textbackslash mathbf\{x\}\_k + \textbackslash mathbf\{u\}\_k\^{}T \textbackslash mathbf\{R\} \textbackslash mathbf\{u\}\_k\textbackslash bigr{]} + \textbackslash mathbf\{x\}\_N\^{}T \textbackslash mathbf\{P\} \textbackslash mathbf\{x\}\_N \textbackslash quad \textbackslash text\{s.t. model, constraints\} \textbackslash{]}
+\[ \min_{\mathbf{u}_{0:N-1}} \sum_{k=0}^{N-1} \bigl[\mathbf{x}_k^T \mathbf{Q} \mathbf{x}_k + \mathbf{u}_k^T \mathbf{R} \mathbf{u}_k\bigr] + \mathbf{x}_N^T \mathbf{P} \mathbf{x}_N \quad \text{s.t. model, constraints} \]
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -255,8 +255,8 @@ Aspect & DWA & MPC \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Prediction Horizon & \textbackslash(N = 1\textbackslash) (or short trajectory) & \textbackslash(N \textbackslash gg 1\textbackslash) (10--50 steps) \\
-Decision Variables & \textbackslash((v, \textbackslash omega)\textbackslash) --- 2 scalars & \textbackslash(\textbackslash mathbf\{u\}\_\{0:N-1\}\textbackslash) --- \textbackslash(2N\textbackslash) variables \\
+Prediction Horizon & \(N = 1\) (or short trajectory) & \(N \gg 1\) (10--50 steps) \\
+Decision Variables & \((v, \omega)\) --- 2 scalars & \(\mathbf{u}_{0:N-1}\) --- \(2N\) variables \\
 Optimisation Method & Grid search over sampled velocities & QP solver or sampling (MPPI) \\
 Constraint Handling & Dynamic window + collision check & Explicit inequality constraints \\
 Computational Cost & Low (\textasciitilde1 ms) & Higher (\textasciitilde5--50 ms) \\
@@ -382,17 +382,17 @@ rclpy.shutdown()
 if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
 main()
 
-\textbf{Tuning Guide:} The weights \textbackslash(\textbackslash alpha, \textbackslash beta, \textbackslash gamma\textbackslash) dramatically affect robot behavior.
-High \textbackslash(\textbackslash alpha\textbackslash) = aggressive goal-seeking (may clip obstacles).
-High \textbackslash(\textbackslash beta\textbackslash) = overly cautious (slow progress).
-High \textbackslash(\textbackslash gamma\textbackslash) = fast but may overshoot.
-Start with \textbackslash(\textbackslash alpha = 1.0, \textbackslash beta = 1.0, \textbackslash gamma = 0.5\textbackslash) and adjust.
+\textbf{Tuning Guide:} The weights \(\alpha, \beta, \gamma\) dramatically affect robot behavior.
+High \(\alpha\) = aggressive goal-seeking (may clip obstacles).
+High \(\beta\) = overly cautious (slow progress).
+High \(\gamma\) = fast but may overshoot.
+Start with \(\alpha = 1.0, \beta = 1.0, \gamma = 0.5\) and adjust.
 
 \section{AMCL: State Estimation for Control}
 
 \subsection{Connection to Nonlinear Optimization (Week 8)}
 
-Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iLQR/NMPC for trajectory optimization, and per-controller optimization of SMC / adaptive / robust / backstepping gains. Every controller in that framework assumes access to the state \textbackslash(x\textbackslash) --- but in a real robot the state must be \emph{estimated} from sensors. Controller-plus-estimator is the universal structure:
+Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iLQR/NMPC for trajectory optimization, and per-controller optimization of SMC / adaptive / robust / backstepping gains. Every controller in that framework assumes access to the state \(x\) --- but in a real robot the state must be \emph{estimated} from sensors. Controller-plus-estimator is the universal structure:
 
 \subsubsection{Week 8 NMPC / iLQR}
 
@@ -403,7 +403,7 @@ Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iL
 \item
   \textbf{Estimator:} matched to the dynamics --- EKF/UKF if the posterior is unimodal, particle filter if multimodal
 \item
-  \textbf{State:} full nonlinear state \textbackslash(x\textbackslash in\textbackslash mathbb R\^{}n\textbackslash)
+  \textbf{State:} full nonlinear state \(x\in\mathbb R^n\)
 \item
   \textbf{Sensors:} any; noise model enters the estimator design, not the controller
 \end{itemize}
@@ -417,7 +417,7 @@ Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iL
 \item
   \textbf{Estimator:} AMCL (particle filter)
 \item
-  \textbf{State:} Robot pose \textbackslash((x, y, \textbackslash theta)\textbackslash) on a map
+  \textbf{State:} Robot pose \((x, y, \theta)\) on a map
 \item
   \textbf{Sensors:} Laser scans + odometry (non-Gaussian, multimodal posterior)
 \end{itemize}
@@ -428,9 +428,9 @@ Week 8 developed \textbf{nonlinear control optimization for robotic systems}: iL
 
 AMCL represents the belief over the robot\textquotesingle s pose as a set of weighted particles:
 
-\textbf{Particle Set:} \textbackslash( \textbackslash mathcal\{X\} = \textbackslash\{(x\_i, y\_i, \textbackslash theta\_i, w\_i)\textbackslash\}\_\{i=1\}\^{}\{N\} \textbackslash)
+\textbf{Particle Set:} \(\mathcal{X} = \{(x_i, y_i, \theta_i, w_i)\}_{i=1}^{N}\)
 
-where each particle \textbackslash(i\textbackslash) has pose \textbackslash((x\_i, y\_i, \textbackslash theta\_i)\textbackslash) and weight \textbackslash(w\_i\textbackslash) with \textbackslash(\textbackslash sum\_\{i=1\}\^{}\{N\} w\_i = 1\textbackslash).
+where each particle \(i\) has pose \((x_i, y_i, \theta_i)\) and weight \(w_i\) with \(\sum_{i=1}^{N} w_i = 1\).
 
 The AMCL algorithm cycles through four steps:
 
@@ -438,18 +438,18 @@ The AMCL algorithm cycles through four steps:
 \tightlist
 \item
   \textbf{Motion Update (Prediction):} Propagate each particle using the odometry motion model with added noise:
-  \textbackslash{[} x\_i\textquotesingle{} = x\_i + \textbackslash delta\_\{\textbackslash text\{trans\}\} \textbackslash cos(\textbackslash theta\_i + \textbackslash delta\_\{\textbackslash text\{rot1\}\}) + \textbackslash epsilon\_x \textbackslash{]}
-  \textbackslash{[} y\_i\textquotesingle{} = y\_i + \textbackslash delta\_\{\textbackslash text\{trans\}\} \textbackslash sin(\textbackslash theta\_i + \textbackslash delta\_\{\textbackslash text\{rot1\}\}) + \textbackslash epsilon\_y \textbackslash{]}
-  \textbackslash{[} \textbackslash theta\_i\textquotesingle{} = \textbackslash theta\_i + \textbackslash delta\_\{\textbackslash text\{rot1\}\} + \textbackslash delta\_\{\textbackslash text\{rot2\}\} + \textbackslash epsilon\_\textbackslash theta \textbackslash{]}
-  where \textbackslash(\textbackslash epsilon\textbackslash) terms are sampled from noise distributions parameterised by odometry noise coefficients \textbackslash((\textbackslash alpha\_1, \textbackslash alpha\_2, \textbackslash alpha\_3, \textbackslash alpha\_4)\textbackslash).
+  \[ x_i' = x_i + \delta_{\text{trans}} \cos(\theta_i + \delta_{\text{rot1}}) + \epsilon_x \]
+  \[ y_i' = y_i + \delta_{\text{trans}} \sin(\theta_i + \delta_{\text{rot1}}) + \epsilon_y \]
+  \[ \theta_i' = \theta_i + \delta_{\text{rot1}} + \delta_{\text{rot2}} + \epsilon_\theta \]
+  where \(\epsilon\) terms are sampled from noise distributions parameterised by odometry noise coefficients \((\alpha_1, \alpha_2, \alpha_3, \alpha_4)\).
 \item
   \textbf{Measurement Update (Correction):} Weight each particle by the likelihood of the observed laser scan given that particle\textquotesingle s pose. Using the likelihood field model:
-  \textbackslash{[} w\_i = \textbackslash prod\_\{j \textbackslash in \textbackslash text\{beams\}\} \textbackslash bigl{[} z\_\{\textbackslash text\{hit\}\} \textbackslash cdot \textbackslash mathcal\{N\}(d\_j; 0, \textbackslash sigma\^{}2) + z\_\{\textbackslash text\{random\}\} \textbackslash cdot \textbackslash tfrac\{1\}\{z\_\{\textbackslash max\}\} \textbackslash bigr{]} \textbackslash{]}
-  where \textbackslash(d\_j\textbackslash) is the distance from the beam endpoint to the nearest obstacle in the map.
+  \[ w_i = \prod_{j \in \text{beams}} \bigl[ z_{\text{hit}} \cdot \mathcal{N}(d_j; 0, \sigma^2) + z_{\text{random}} \cdot \tfrac{1}{z_{\max}} \bigr] \]
+  where \(d_j\) is the distance from the beam endpoint to the nearest obstacle in the map.
 \item
-  \textbf{Normalisation:} \textbackslash( w\_i \textbackslash leftarrow w\_i / \textbackslash sum\_\{k=1\}\^{}\{N\} w\_k \textbackslash)
+  \textbf{Normalisation:} \(w_i \leftarrow w_i / \sum_{k=1}^{N} w_k\)
 \item
-  \textbf{Resampling:} When the effective particle count \textbackslash(N\_\{\textbackslash text\{eff\}\} = 1/\textbackslash sum w\_i\^{}2\textbackslash) drops below a threshold, perform low-variance resampling: draw a new particle set where particles with higher weights are more likely to be selected.
+  \textbf{Resampling:} When the effective particle count \(N_{\text{eff}} = 1/\sum w_i^2\) drops below a threshold, perform low-variance resampling: draw a new particle set where particles with higher weights are more likely to be selected.
 \end{enumerate}
 
 \subsection{AMCL Cycle Diagram}
@@ -501,7 +501,7 @@ The global costmap constrains the global planner, analogous to the \textbf{termi
 
 \subsubsection{Local Costmap ↔ Stage Constraints}
 
-The local costmap constrains the DWA/MPPI local controller, analogous to \textbf{stage constraints} in MPC \textbackslash((\textbackslash mathbf\{x\}\_k \textbackslash in \textbackslash mathcal\{X\}, \textbackslash mathbf\{u\}\_k \textbackslash in \textbackslash mathcal\{U\})\textbackslash) that enforce safety at each time step. Rolling window, updated at 5--20 Hz.
+The local costmap constrains the DWA/MPPI local controller, analogous to \textbf{stage constraints} in MPC \((\mathbf{x}_k \in \mathcal{X}, \mathbf{u}_k \in \mathcal{U})\) that enforce safety at each time step. Rolling window, updated at 5--20 Hz.
 
 \subsubsection{Inflation Layer ↔ Soft Constraints}
 
@@ -521,28 +521,28 @@ The inflation layer creates graduated costs around obstacles, analogous to \text
 
 \subsection{Inflation Cost Function}
 
-\textbackslash{[}
-c(d) = \textbackslash begin\{cases\}
-254 \textbackslash;\textbackslash text\{(LETHAL)\} \& \textbackslash text\{if \} d \textless{} r\_\{\textbackslash text\{inscribed\}\} \textbackslash\textbackslash{[}6pt{]}
-A \textbackslash cdot e\^{}\{-\textbackslash beta \textbackslash,(d - r\_\{\textbackslash text\{inscribed\}\})\} \& \textbackslash text\{if \} r\_\{\textbackslash text\{inscribed\}\} \textbackslash leq d \textbackslash leq r\_\{\textbackslash text\{inflation\}\} \textbackslash\textbackslash{[}6pt{]}
-0 \textbackslash;\textbackslash text\{(FREE)\} \& \textbackslash text\{if \} d \textgreater{} r\_\{\textbackslash text\{inflation\}\}
-\textbackslash end\{cases\}
-\textbackslash{]}
+\[
+        c(d) = \begin{cases}
+            254 \;\text{(LETHAL)} & \text{if } d < r_{\text{inscribed}} \\[6pt]
+            A \cdot e^{-\beta \,(d - r_{\text{inscribed}})} & \text{if } r_{\text{inscribed}} \leq d \leq r_{\text{inflation}} \\[6pt]
+            0 \;\text{(FREE)} & \text{if } d > r_{\text{inflation}}
+        \end{cases}
+        \]
 
 where:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbackslash(d\textbackslash) = distance from the cell to the nearest obstacle
+  \(d\) = distance from the cell to the nearest obstacle
 \item
-  \textbackslash(r\_\{\textbackslash text\{inscribed\}\}\textbackslash) = inscribed radius of the robot footprint (if the robot centre is closer than this, collision is guaranteed)
+  \(r_{\text{inscribed}}\) = inscribed radius of the robot footprint (if the robot centre is closer than this, collision is guaranteed)
 \item
-  \textbackslash(r\_\{\textbackslash text\{inflation\}\}\textbackslash) = outer inflation radius (beyond this, cost is zero)
+  \(r_{\text{inflation}}\) = outer inflation radius (beyond this, cost is zero)
 \item
-  \textbackslash(A = 253\textbackslash) (INSCRIBED cost value, just below LETHAL)
+  \(A = 253\) (INSCRIBED cost value, just below LETHAL)
 \item
-  \textbackslash(\textbackslash beta\textbackslash) = cost scaling factor controlling how quickly cost decays with distance
+  \(\beta\) = cost scaling factor controlling how quickly cost decays with distance
 \end{itemize}
 
 \subsection{Nav2 Costmap Configuration}
@@ -697,11 +697,11 @@ The simplest approach: a PID controller on the cross-track error (distance from 
 
 \subsubsection{Computed Torque → Model-Based Tracking}
 
-When the robot\textquotesingle s kinematic or dynamic model is well-known (mass, inertia, wheel-ground friction), computed torque control cancels the nonlinear dynamics and applies a linear outer loop. For a differential-drive robot, this means compensating for the nonholonomic constraint \textbackslash(\textbackslash dot\{x\}\textbackslash sin\textbackslash theta - \textbackslash dot\{y\}\textbackslash cos\textbackslash theta = 0\textbackslash) directly in the control law.
+When the robot\textquotesingle s kinematic or dynamic model is well-known (mass, inertia, wheel-ground friction), computed torque control cancels the nonlinear dynamics and applies a linear outer loop. For a differential-drive robot, this means compensating for the nonholonomic constraint \(\dot{x}\sin\theta - \dot{y}\cos\theta = 0\) directly in the control law.
 
 \subsubsection{MPC → MPPI Local Planner}
 
-Nav2\textquotesingle s MPPI (Model Predictive Path Integral) controller is a direct implementation of MPC using sampling-based optimization. It rolls out thousands of trajectories over a prediction horizon \textbackslash(N\textbackslash), evaluates a cost function (path following + obstacle avoidance + smoothness), and selects the optimal control sequence. This is the most capable Nav2 controller for complex environments.
+Nav2\textquotesingle s MPPI (Model Predictive Path Integral) controller is a direct implementation of MPC using sampling-based optimization. It rolls out thousands of trajectories over a prediction horizon \(N\), evaluates a cost function (path following + obstacle avoidance + smoothness), and selects the optimal control sequence. This is the most capable Nav2 controller for complex environments.
 
 \subsubsection{Adaptive → Terrain-Adaptive Navigation}
 
@@ -762,7 +762,7 @@ Exercise & File & Subscribes & Publishes & Key Function \\
 \endlastfoot
 \textbf{Exercise 1: Costmap Generator} & \texttt{exercise1\_node.py} & \texttt{/map} (OccupancyGrid) & \texttt{/costmap} (OccupancyGrid) & \texttt{inflate()} --- Inflate obstacles using exponential decay: \texttt{cost\ =\ 100\ *\ exp(-scale\ *\ dist)} \\
 \textbf{Exercise 2: A* Path Planner} & \texttt{exercise2\_node.py} & \texttt{/costmap} (OccupancyGrid) & \texttt{/planned\_path} (Path) & \texttt{astar()} --- A* search with priority queue, Euclidean heuristic, 8-connected grid \\
-\textbf{Exercise 3: Path Follower (Pure Pursuit)} & \texttt{exercise3\_node.py} & \texttt{/planned\_path}, \texttt{/odom} & \texttt{/cmd\_vel} (Twist) & \texttt{pure\_pursuit()} --- Curvature: \textbackslash(\textbackslash kappa = 2 y\_\{\textbackslash text\{local\}\} / L\^{}2\textbackslash), then \textbackslash(\textbackslash omega = \textbackslash kappa \textbackslash cdot v\textbackslash) \\
+\textbf{Exercise 3: Path Follower (Pure Pursuit)} & \texttt{exercise3\_node.py} & \texttt{/planned\_path}, \texttt{/odom} & \texttt{/cmd\_vel} (Twist) & \texttt{pure\_pursuit()} --- Curvature: \(\kappa = 2 y_{\text{local}} / L^2\), then \(\omega = \kappa \cdot v\) \\
 \end{longtable}
 
 \# Running the ROS2 exercises
@@ -809,11 +809,11 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
   \item
     Increase \texttt{max\_vel\_x} from 0.26 to 0.5 --- does the robot navigate faster? Does it cut corners?
   \item
-    Increase \texttt{PathAlign.scale} (the \textbackslash(\textbackslash alpha\textbackslash) heading weight) --- does the robot follow the global path more closely?
+    Increase \texttt{PathAlign.scale} (the \(\alpha\) heading weight) --- does the robot follow the global path more closely?
   \item
     Increase \texttt{GoalDist.scale} --- does the robot approach the goal more aggressively?
   \item
-    Increase \texttt{ObstacleFootprint.scale} (the \textbackslash(\textbackslash beta\textbackslash) clearance weight) --- does the robot maintain more distance from walls?
+    Increase \texttt{ObstacleFootprint.scale} (the \(\beta\) clearance weight) --- does the robot maintain more distance from walls?
   \end{itemize}
 \item
   \textbf{Record observations:} For three different parameter sets, record: (a) time to goal, (b) minimum obstacle distance, (c) path smoothness.
@@ -827,7 +827,7 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 \tightlist
 \item
   \textbf{Set up MPC controller plugin:} Adapt your Week 9 MPC node to accept \texttt{/plan} (global path) and publish \texttt{/cmd\_vel}. Use the differential-drive kinematic model:
-  \textbackslash{[} \textbackslash dot\{x\} = v\textbackslash cos\textbackslash theta, \textbackslash quad \textbackslash dot\{y\} = v\textbackslash sin\textbackslash theta, \textbackslash quad \textbackslash dot\{\textbackslash theta\} = \textbackslash omega \textbackslash{]}
+  \[ \dot{x} = v\cos\theta, \quad \dot{y} = v\sin\theta, \quad \dot{\theta} = \omega \]
 \item
   \textbf{Test Scenario A --- Narrow Corridor:} Navigate through a passage 0.8m wide. DWA should be cautious (high clearance weight). MPC should plan ahead through the corridor more smoothly.
 \item
@@ -940,7 +940,7 @@ ros2 run week\_05 exercise3\_node -\/-ros-args \textbackslash{}
 
 \subsubsection{Quick Quiz --- Navigation and Mobile Robot Control}
 
-\textbf{Q1:} In the DWA objective function \textbackslash(G(v,\textbackslash omega) = \textbackslash alpha \textbackslash cdot \textbackslash text\{heading\} + \textbackslash beta \textbackslash cdot \textbackslash text\{clearance\} + \textbackslash gamma \textbackslash cdot \textbackslash text\{velocity\}\textbackslash), what happens if you set \textbackslash(\textbackslash beta = 0\textbackslash) (zero clearance weight)?
+\textbf{Q1:} In the DWA objective function \(G(v,\omega) = \alpha \cdot \text{heading} + \beta \cdot \text{clearance} + \gamma \cdot \text{velocity}\), what happens if you set \(\beta = 0\) (zero clearance weight)?
 
 \subsubsection{Answer}
 
@@ -958,17 +958,17 @@ The EKF assumes the posterior distribution is unimodal Gaussian, which fails for
 
 Both implement hierarchical control with different levels operating at different rates. In the quadrotor: mission planner → position controller → attitude controller → rate controller → motors. In Nav2: behavior tree (mission) → global planner (path) → local controller (trajectory) → cmd\_vel (motors). Each level abstracts the complexity below it and operates at a progressively faster rate. Recovery behaviors in Nav2 are analogous to the attitude controller\textquotesingle s ability to stabilise even when the position controller fails.
 
-\textbf{Q4:} The inflation layer uses \textbackslash(c(d) = A \textbackslash cdot e\^{}\{-\textbackslash beta(d - r\_\{\textbackslash text\{inscribed\}\})\}\textbackslash). If you double the cost\_scaling\_factor \textbackslash(\textbackslash beta\textbackslash), what happens to the robot\textquotesingle s navigation behavior?
+\textbf{Q4:} The inflation layer uses \(c(d) = A \cdot e^{-\beta(d - r_{\text{inscribed}})}\). If you double the cost\_scaling\_factor \(\beta\), what happens to the robot\textquotesingle s navigation behavior?
 
 \subsubsection{Answer}
 
-Doubling \textbackslash(\textbackslash beta\textbackslash) makes the exponential decay steeper, meaning the cost drops to zero much faster with distance from obstacles. The effective "buffer zone" around obstacles becomes narrower. The robot will navigate closer to walls and obstacles because the cost penalty for proximity is confined to a smaller region. This is useful in tight spaces but increases collision risk. Conversely, halving \textbackslash(\textbackslash beta\textbackslash) creates wider buffer zones and more cautious navigation.
+Doubling \(\beta\) makes the exponential decay steeper, meaning the cost drops to zero much faster with distance from obstacles. The effective "buffer zone" around obstacles becomes narrower. The robot will navigate closer to walls and obstacles because the cost penalty for proximity is confined to a smaller region. This is useful in tight spaces but increases collision risk. Conversely, halving \(\beta\) creates wider buffer zones and more cautious navigation.
 
 \textbf{Q5:} You need to navigate a mobile robot through a cluttered warehouse with moving forklifts. Which Nav2 local controller plugin would you choose: DWA, Regulated Pure Pursuit, or MPPI? Justify your choice.
 
 \subsubsection{Answer}
 
-\textbf{MPPI} is the best choice for this scenario. Reasoning: (1) Moving forklifts create a highly dynamic environment requiring the controller to anticipate obstacle motion, which MPPI can do through its prediction horizon \textbackslash(N \textbackslash gg 1\textbackslash). (2) The cluttered warehouse has many narrow passages requiring lookahead to avoid dead-ends, which DWA\textquotesingle s single-step horizon cannot provide. (3) MPPI\textquotesingle s sampling-based approach naturally handles the nonlinear constraints of obstacle avoidance without requiring linearisation. (4) Regulated Pure Pursuit is designed for path following, not obstacle avoidance --- it relies entirely on the global planner to route around obstacles, which cannot react to dynamic forklifts. The computational cost of MPPI (\textasciitilde5--20 ms) is acceptable for a warehouse robot operating at \textasciitilde10 Hz.
+\textbf{MPPI} is the best choice for this scenario. Reasoning: (1) Moving forklifts create a highly dynamic environment requiring the controller to anticipate obstacle motion, which MPPI can do through its prediction horizon \(N \gg 1\). (2) The cluttered warehouse has many narrow passages requiring lookahead to avoid dead-ends, which DWA\textquotesingle s single-step horizon cannot provide. (3) MPPI\textquotesingle s sampling-based approach naturally handles the nonlinear constraints of obstacle avoidance without requiring linearisation. (4) Regulated Pure Pursuit is designed for path following, not obstacle avoidance --- it relies entirely on the global planner to route around obstacles, which cannot react to dynamic forklifts. The computational cost of MPPI (\textasciitilde5--20 ms) is acceptable for a warehouse robot operating at \textasciitilde10 Hz.
 
 \subsection{Summary --- Key Takeaways}
 
@@ -978,7 +978,7 @@ Nav2 implements hierarchical navigation control: behavior tree (mission) → glo
 
 \subsubsection{DWA = Simplified MPC}
 
-The Dynamic Window Approach is fundamentally a 1-step MPC: sample velocities in a dynamic window, forward-simulate, score trajectories with \textbackslash(\textbackslash alpha \textbackslash cdot h + \textbackslash beta \textbackslash cdot c + \textbackslash gamma \textbackslash cdot v\textbackslash), and select the best. Nav2\textquotesingle s MPPI extends this to full N-step MPC.
+The Dynamic Window Approach is fundamentally a 1-step MPC: sample velocities in a dynamic window, forward-simulate, score trajectories with \(\alpha \cdot h + \beta \cdot c + \gamma \cdot v\), and select the best. Nav2\textquotesingle s MPPI extends this to full N-step MPC.
 
 \subsubsection{AMCL = State Estimator}
 
@@ -1063,13 +1063,13 @@ The quadrotor cascaded controller consists of four nested loops:
 \begin{enumerate}
 \tightlist
 \item
-  \textbf{Position Loop (Outer, \textasciitilde50 Hz):} Compares desired position \textbackslash((x\_d, y\_d, z\_d)\textbackslash) with measured position from GPS/mocap. Outputs desired roll, pitch, and thrust commands. Typically a PID or LQR controller.
+  \textbf{Position Loop (Outer, \textasciitilde50 Hz):} Compares desired position \((x_d, y_d, z_d)\) with measured position from GPS/mocap. Outputs desired roll, pitch, and thrust commands. Typically a PID or LQR controller.
 \item
-  \textbf{Attitude Loop (\textasciitilde250 Hz):} Compares desired roll/pitch/yaw \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d, \textbackslash psi\_d)\textbackslash) with IMU-measured Euler angles. Outputs desired angular rates \textbackslash((p\_d, q\_d, r\_d)\textbackslash). Usually PID or quaternion-based control.
+  \textbf{Attitude Loop (\textasciitilde250 Hz):} Compares desired roll/pitch/yaw \((\phi_d, \theta_d, \psi_d)\) with IMU-measured Euler angles. Outputs desired angular rates \((p_d, q_d, r_d)\). Usually PID or quaternion-based control.
 \item
-  \textbf{Rate Loop (Inner, \textasciitilde500--1000 Hz):} Compares desired angular rates with gyroscope measurements. Outputs torque commands \textbackslash((\textbackslash tau\_x, \textbackslash tau\_y, \textbackslash tau\_z)\textbackslash). Fast PID controller critical for stability.
+  \textbf{Rate Loop (Inner, \textasciitilde500--1000 Hz):} Compares desired angular rates with gyroscope measurements. Outputs torque commands \((\tau_x, \tau_y, \tau_z)\). Fast PID controller critical for stability.
 \item
-  \textbf{Motor Mixing (\textasciitilde1000 Hz):} Converts thrust + torques into individual motor PWM signals using the allocation matrix \textbackslash(\textbackslash mathbf\{M\}\textbackslash).
+  \textbf{Motor Mixing (\textasciitilde1000 Hz):} Converts thrust + torques into individual motor PWM signals using the allocation matrix \(\mathbf{M}\).
 \end{enumerate}
 
 \textbf{Why cascaded over monolithic:}
@@ -1127,9 +1127,9 @@ Ranking: \textbf{MPC \textgreater{} LQR \textgreater{} PID}
 \begin{itemize}
 \tightlist
 \item
-  \textbf{MPC:} Explicitly minimises control effort \textbackslash(\textbackslash sum u\^{}T R u\textbackslash) in the cost function while respecting actuator constraints. Smoothest motor commands, least wasted energy.
+  \textbf{MPC:} Explicitly minimises control effort \(\sum u^T R u\) in the cost function while respecting actuator constraints. Smoothest motor commands, least wasted energy.
 \item
-  \textbf{LQR:} Minimises \textbackslash(\textbackslash int (x\^{}T Q x + u\^{}T R u)\textbackslash, dt\textbackslash) for the linear system. Near-optimal energy usage on straight segments, but suboptimal at corners where the linearisation breaks down.
+  \textbf{LQR:} Minimises \(\int (x^T Q x + u^T R u)\, dt\) for the linear system. Near-optimal energy usage on straight segments, but suboptimal at corners where the linearisation breaks down.
 \item
   \textbf{PID:} No explicit energy minimisation. Aggressive proportional and derivative terms cause high-frequency motor commands, wasting energy through rapid thrust changes.
 \end{itemize}

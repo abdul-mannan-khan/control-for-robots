@@ -19,139 +19,139 @@ Week 6 of 12 • Lecture + Hands-on MATLAB Lab
 
 Consider the strict-feedback system:
 
-\textbackslash{[}
-\textbackslash dot\{x\}\_1 = x\_2 + x\_1\^{}2, \textbackslash qquad \textbackslash dot\{x\}\_2 = u.
-\textbackslash{]}
+\[
+                \dot{x}_1 = x_2 + x_1^2, \qquad \dot{x}_2 = u.
+            \]
 
 \subsubsection{Step 1 --- Virtual Control Design}
 
 Define the first error variable:
 
-\textbackslash{[} z\_1 = x\_1. \textbackslash{]}
+\[ z_1 = x_1. \]
 
 Choose the first Lyapunov function:
 
-\textbackslash{[} V\_1 = \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_1\^{}2. \textbackslash{]}
+\[ V_1 = \tfrac{1}{2}\,z_1^2. \]
 
 Its time derivative is:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1\textbackslash,\textbackslash dot\{z\}\_1 = z\_1\textbackslash bigl(x\_2 + x\_1\^{}2\textbackslash bigr).
-\textbackslash{]}
+\[
+                \dot{V}_1 = z_1\,\dot{z}_1 = z_1\bigl(x_2 + x_1^2\bigr).
+            \]
 
-We want \textbackslash(\textbackslash dot\{V\}\_1 = -k\_1 z\_1\^{}2\textbackslash) when \textbackslash(x\_2\textbackslash) equals a virtual control \textbackslash(\textbackslash alpha\_1(x\_1)\textbackslash). Setting
+We want \(\dot{V}_1 = -k_1 z_1^2\) when \(x_2\) equals a virtual control \(\alpha_1(x_1)\). Setting
 
-\textbackslash{[}
-z\_1\textbackslash bigl(\textbackslash alpha\_1 + x\_1\^{}2\textbackslash bigr) = -k\_1 z\_1\^{}2
-\textbackslash quad\textbackslash Longrightarrow\textbackslash quad
-\textbackslash alpha\_1(x\_1) = -k\_1 x\_1 - x\_1\^{}2.
-\textbackslash{]}
+\[
+                z_1\bigl(\alpha_1 + x_1^2\bigr) = -k_1 z_1^2
+                \quad\Longrightarrow\quad
+                \alpha_1(x_1) = -k_1 x_1 - x_1^2.
+            \]
 
 \subsubsection{Step 2 --- Actual Control Design}
 
 Define the second error variable:
 
-\textbackslash{[} z\_2 = x\_2 - \textbackslash alpha\_1(x\_1). \textbackslash{]}
+\[ z_2 = x_2 - \alpha_1(x_1). \]
 
-Note that \textbackslash(x\_2 = z\_2 + \textbackslash alpha\_1\textbackslash), so
+Note that \(x_2 = z_2 + \alpha_1\), so
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_1 = z\_1(z\_2 + \textbackslash alpha\_1 + x\_1\^{}2) = -k\_1 z\_1\^{}2 + z\_1 z\_2.
-\textbackslash{]}
+\[
+                \dot{V}_1 = z_1(z_2 + \alpha_1 + x_1^2) = -k_1 z_1^2 + z_1 z_2.
+            \]
 
 Augment the Lyapunov function:
 
-\textbackslash{[} V\_2 = V\_1 + \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_2\^{}2 = \textbackslash tfrac\{1\}\{2\}z\_1\^{}2 + \textbackslash tfrac\{1\}\{2\}z\_2\^{}2. \textbackslash{]}
+\[ V_2 = V_1 + \tfrac{1}{2}\,z_2^2 = \tfrac{1}{2}z_1^2 + \tfrac{1}{2}z_2^2. \]
 
-Differentiate \textbackslash(z\_2\textbackslash):
+Differentiate \(z_2\):
 
-\textbackslash{[}
-\textbackslash dot\{z\}\_2 = \textbackslash dot\{x\}\_2 - \textbackslash dot\{\textbackslash alpha\}\_1
-= u - \textbackslash frac\{\textbackslash partial \textbackslash alpha\_1\}\{\textbackslash partial x\_1\}\textbackslash dot\{x\}\_1
-= u - (-k\_1 - 2x\_1)(x\_2 + x\_1\^{}2).
-\textbackslash{]}
+\[
+                \dot{z}_2 = \dot{x}_2 - \dot{\alpha}_1
+                = u - \frac{\partial \alpha_1}{\partial x_1}\dot{x}_1
+                = u - (-k_1 - 2x_1)(x_2 + x_1^2).
+            \]
 
-Compute \textbackslash(\textbackslash dot\{V\}\_2\textbackslash):
+Compute \(\dot{V}_2\):
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 + z\_1 z\_2 + z\_2\textbackslash dot\{z\}\_2
-= -k\_1 z\_1\^{}2 + z\_2\textbackslash bigl{[}z\_1 + u + (k\_1 + 2x\_1)(x\_2 + x\_1\^{}2)\textbackslash bigr{]}.
-\textbackslash{]}
+\[
+                \dot{V}_2 = -k_1 z_1^2 + z_1 z_2 + z_2\dot{z}_2
+                = -k_1 z_1^2 + z_2\bigl[z_1 + u + (k_1 + 2x_1)(x_2 + x_1^2)\bigr].
+            \]
 
-To obtain \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2\textbackslash), choose:
+To obtain \(\dot{V}_2 = -k_1 z_1^2 - k_2 z_2^2\), choose:
 
-\textbackslash{[}
-u = -z\_1 - k\_2 z\_2 - (k\_1 + 2x\_1)(x\_2 + x\_1\^{}2).
-\textbackslash{]}
+\[
+                    u = -z_1 - k_2 z_2 - (k_1 + 2x_1)(x_2 + x_1^2).
+                \]
 
-This yields \textbackslash(\textbackslash dot\{V\}\_2 = -k\_1 z\_1\^{}2 - k\_2 z\_2\^{}2 \textbackslash le 0\textbackslash), guaranteeing global asymptotic stability.
+This yields \(\dot{V}_2 = -k_1 z_1^2 - k_2 z_2^2 \le 0\), guaranteeing global asymptotic stability.
 
 \subsection{Question 2 --- 2-DOF Manipulator Backstepping}
 
-Given the manipulator dynamics \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau\textbackslash), define:
+Given the manipulator dynamics \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\), define:
 
-\textbackslash{[}
-z\_1 = q - q\_d, \textbackslash qquad
-\textbackslash alpha\_1 = \textbackslash dot\{q\}\_d - K\_1 z\_1, \textbackslash qquad
-z\_2 = \textbackslash dot\{q\} - \textbackslash alpha\_1.
-\textbackslash{]}
+\[
+                z_1 = q - q_d, \qquad
+                \alpha_1 = \dot{q}_d - K_1 z_1, \qquad
+                z_2 = \dot{q} - \alpha_1.
+            \]
 
 Choose the composite Lyapunov function:
 
-\textbackslash{[}
-V\_2 = \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_1\^{}T z\_1 + \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_2\^{}T M(q)\textbackslash,z\_2.
-\textbackslash{]}
+\[
+                V_2 = \tfrac{1}{2}\,z_1^T z_1 + \tfrac{1}{2}\,z_2^T M(q)\,z_2.
+            \]
 
 Differentiate:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = z\_1\^{}T \textbackslash dot\{z\}\_1 + z\_2\^{}T M(q)\textbackslash dot\{z\}\_2 + \textbackslash tfrac\{1\}\{2\}\textbackslash,z\_2\^{}T \textbackslash dot\{M\}(q)\textbackslash,z\_2.
-\textbackslash{]}
+\[
+                \dot{V}_2 = z_1^T \dot{z}_1 + z_2^T M(q)\dot{z}_2 + \tfrac{1}{2}\,z_2^T \dot{M}(q)\,z_2.
+            \]
 
-Since \textbackslash(\textbackslash dot\{z\}\_1 = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_d = z\_2 + \textbackslash alpha\_1 - \textbackslash dot\{q\}\_d = z\_2 - K\_1 z\_1\textbackslash), we get:
+Since \(\dot{z}_1 = \dot{q} - \dot{q}_d = z_2 + \alpha_1 - \dot{q}_d = z_2 - K_1 z_1\), we get:
 
-\textbackslash{[}
-z\_1\^{}T \textbackslash dot\{z\}\_1 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2.
-\textbackslash{]}
+\[
+                z_1^T \dot{z}_1 = -z_1^T K_1 z_1 + z_1^T z_2.
+            \]
 
-For the second term, note \textbackslash(\textbackslash dot\{z\}\_2 = \textbackslash ddot\{q\} - \textbackslash dot\{\textbackslash alpha\}\_1\textbackslash), and from the dynamics \textbackslash(M\textbackslash ddot\{q\} = \textbackslash tau - C\textbackslash dot\{q\} - G\textbackslash), so:
+For the second term, note \(\dot{z}_2 = \ddot{q} - \dot{\alpha}_1\), and from the dynamics \(M\ddot{q} = \tau - C\dot{q} - G\), so:
 
-\textbackslash{[}
-M\textbackslash dot\{z\}\_2 = \textbackslash tau - C\textbackslash dot\{q\} - G - M\textbackslash dot\{\textbackslash alpha\}\_1.
-\textbackslash{]}
+\[
+                M\dot{z}_2 = \tau - C\dot{q} - G - M\dot{\alpha}_1.
+            \]
 
-Using the skew-symmetry property \textbackslash(z\_2\^{}T(\textbackslash dot\{M\} - 2C)z\_2 = 0\textbackslash):
+Using the skew-symmetry property \(z_2^T(\dot{M} - 2C)z_2 = 0\):
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 + z\_1\^{}T z\_2 + z\_2\^{}T\textbackslash bigl{[}\textbackslash tau - C\textbackslash dot\{q\} - G - M\textbackslash dot\{\textbackslash alpha\}\_1 + C z\_2\textbackslash bigr{]}.
-\textbackslash{]}
+\[
+                \dot{V}_2 = -z_1^T K_1 z_1 + z_1^T z_2 + z_2^T\bigl[\tau - C\dot{q} - G - M\dot{\alpha}_1 + C z_2\bigr].
+            \]
 
-Simplifying \textbackslash(-C\textbackslash dot\{q\} + Cz\_2 = -C(\textbackslash dot\{q\} - z\_2) = -C\textbackslash alpha\_1\textbackslash), so:
+Simplifying \(-C\dot{q} + Cz_2 = -C(\dot{q} - z_2) = -C\alpha_1\), so:
 
-\textbackslash{[}
-\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 + z\_2\^{}T\textbackslash bigl{[}z\_1 + \textbackslash tau - C\textbackslash alpha\_1 - G - M\textbackslash dot\{\textbackslash alpha\}\_1\textbackslash bigr{]}.
-\textbackslash{]}
+\[
+                \dot{V}_2 = -z_1^T K_1 z_1 + z_2^T\bigl[z_1 + \tau - C\alpha_1 - G - M\dot{\alpha}_1\bigr].
+            \]
 
 Choose the backstepping torque:
 
-\textbackslash{[}
-\textbackslash tau = M\textbackslash dot\{\textbackslash alpha\}\_1 + C\textbackslash alpha\_1 + G - z\_1 - K\_2 z\_2
-\textbackslash{]}
+\[
+                    \tau = M\dot{\alpha}_1 + C\alpha_1 + G - z_1 - K_2 z_2
+                \]
 
-which yields \textbackslash(\textbackslash dot\{V\}\_2 = -z\_1\^{}T K\_1 z\_1 - z\_2\^{}T K\_2 z\_2 \textbackslash le 0\textbackslash).
+which yields \(\dot{V}_2 = -z_1^T K_1 z_1 - z_2^T K_2 z_2 \le 0\).
 
 \subsection{Learning Outcomes}
 
 \begin{itemize}
 \tightlist
 \item
-  Understand the two phases of sliding mode control: the \textbf{reaching phase} (driving the state to the sliding surface) and the \textbf{sliding phase} (reduced-order dynamics on \textbackslash(s=0\textbackslash)); derive the \textbf{equivalent control}.
+  Understand the two phases of sliding mode control: the \textbf{reaching phase} (driving the state to the sliding surface) and the \textbf{sliding phase} (reduced-order dynamics on \(s=0\)); derive the \textbf{equivalent control}.
 \item
-  Design \textbf{sliding surfaces} for second-order systems and multi-DOF robots: choose surface parameters \textbackslash(\textbackslash lambda\textbackslash) or \textbackslash(\textbackslash Lambda\textbackslash) to assign desired closed-loop error dynamics.
+  Design \textbf{sliding surfaces} for second-order systems and multi-DOF robots: choose surface parameters \(\lambda\) or \(\Lambda\) to assign desired closed-loop error dynamics.
 \item
   Derive complete SMC laws for three robotic platforms: \textbf{manipulator}, \textbf{mobile robot}, and \textbf{quadrotor drone}.
 \item
-  Analyse and mitigate the \textbf{chattering problem} using the boundary layer approach (\textbackslash(\textbackslash operatorname\{sat\}(s/\textbackslash varphi)\textbackslash)), and the \textbf{super-twisting algorithm}.
+  Analyse and mitigate the \textbf{chattering problem} using the boundary layer approach (\(\operatorname{sat}(s/\varphi)\)), and the \textbf{super-twisting algorithm}.
 \item
   Implement SMC in \textbf{MATLAB/Simulink}, inject disturbances, and compare performance against computed torque, robust control, and backstepping.
 \end{itemize}
@@ -214,53 +214,53 @@ Sliding mode control (SMC) is a \textbf{variable structure control} method. The 
 
 \subsubsection{Phase 1: Reaching Phase}
 
-The controller drives the system state from any initial condition to the sliding surface \textbackslash(s = 0\textbackslash). During this phase the system is sensitive to uncertainties. The reaching phase ends in \textbf{finite time} thanks to the discontinuous switching term.
+The controller drives the system state from any initial condition to the sliding surface \(s = 0\). During this phase the system is sensitive to uncertainties. The reaching phase ends in \textbf{finite time} thanks to the discontinuous switching term.
 
 \subsubsection{Phase 2: Sliding Phase}
 
-Once \textbackslash(s = 0\textbackslash), the state is constrained to the surface. The system dynamics reduce in order by the number of sliding variables. The resulting motion is governed entirely by the surface parameters, not the plant model.
+Once \(s = 0\), the state is constrained to the surface. The system dynamics reduce in order by the number of sliding variables. The resulting motion is governed entirely by the surface parameters, not the plant model.
 
 \subsection{1.3 ~ Sliding Surface Design}
 
-Consider a second-order system with tracking error \textbackslash(e = x - x\_d\textbackslash). Define the sliding surface:
+Consider a second-order system with tracking error \(e = x - x_d\). Define the sliding surface:
 
-\textbackslash{[}
-s = \textbackslash dot\{e\} + \textbackslash lambda\textbackslash, e, \textbackslash qquad \textbackslash lambda \textgreater{} 0.
-\textbackslash{]}
+\[
+                    s = \dot{e} + \lambda\, e, \qquad \lambda > 0.
+                \]
 
-When the state is on the surface (\textbackslash(s = 0\textbackslash)), the error dynamics become:
+When the state is on the surface (\(s = 0\)), the error dynamics become:
 
-\textbackslash{[}
-\textbackslash dot\{e\} = -\textbackslash lambda\textbackslash, e \textbackslash quad\textbackslash Longrightarrow\textbackslash quad e(t) = e(0)\textbackslash,e\^{}\{-\textbackslash lambda t\}.
-\textbackslash{]}
+\[
+                \dot{e} = -\lambda\, e \quad\Longrightarrow\quad e(t) = e(0)\,e^{-\lambda t}.
+            \]
 
-The error converges exponentially with time constant \textbackslash(\textbackslash tau = 1/\textbackslash lambda\textbackslash). For an \textbackslash(n\textbackslash)-th order system, we generalise to:
+The error converges exponentially with time constant \(\tau = 1/\lambda\). For an \(n\)-th order system, we generalise to:
 
-\textbackslash{[}
-s = \textbackslash left(\textbackslash frac\{d\}\{dt\} + \textbackslash lambda\textbackslash right)\^{}\{n-1\} e.
-\textbackslash{]}
+\[
+                s = \left(\frac{d}{dt} + \lambda\right)^{n-1} e.
+            \]
 
-For example, for a third-order system (\textbackslash(n=3\textbackslash)):
+For example, for a third-order system (\(n=3\)):
 
-\textbackslash{[}
-s = \textbackslash ddot\{e\} + 2\textbackslash lambda\textbackslash dot\{e\} + \textbackslash lambda\^{}2 e.
-\textbackslash{]}
+\[
+                s = \ddot{e} + 2\lambda\dot{e} + \lambda^2 e.
+            \]
 
 \subsection{1.4 ~ Reaching Law}
 
-To drive \textbackslash(s \textbackslash to 0\textbackslash) in finite time, we impose a reaching law on \textbackslash(\textbackslash dot\{s\}\textbackslash). A common choice is the \textbf{constant + proportional reaching law}:
+To drive \(s \to 0\) in finite time, we impose a reaching law on \(\dot{s}\). A common choice is the \textbf{constant + proportional reaching law}:
 
-\textbackslash{[}
-\textbackslash dot\{s\} = -\textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) - k\textbackslash,s, \textbackslash qquad \textbackslash eta \textgreater{} 0,\textbackslash; k \textgreater{} 0,
-\textbackslash{]}
+\[
+                    \dot{s} = -\eta\,\operatorname{sign}(s) - k\,s, \qquad \eta > 0,\; k > 0,
+                \]
 
 where
 
-\textbackslash{[}
-\textbackslash operatorname\{sign\}(s) = \textbackslash begin\{cases\} +1 \& s \textgreater{} 0 \textbackslash\textbackslash{} 0 \& s = 0 \textbackslash\textbackslash{} -1 \& s \textless{} 0 \textbackslash end\{cases\}.
-\textbackslash{]}
+\[
+                \operatorname{sign}(s) = \begin{cases} +1 & s > 0 \\ 0 & s = 0 \\ -1 & s < 0 \end{cases}.
+            \]
 
-The term \textbackslash(-\textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s)\textbackslash) guarantees finite-time reaching, while \textbackslash(-k\textbackslash,s\textbackslash) speeds up convergence when \textbackslash(\textbar s\textbar\textbackslash) is large.
+The term \(-\eta\,\operatorname{sign}(s)\) guarantees finite-time reaching, while \(-k\,s\) speeds up convergence when \(|s|\) is large.
 
 \textbf{Figure 2:} Reaching law comparison. (a) Constant rate: s decreases linearly. (b) Exponential + constant: faster initial approach, then finite-time reaching. (c) Power rate: accelerates convergence near the surface for smoother arrival.
 
@@ -268,56 +268,56 @@ The term \textbackslash(-\textbackslash eta\textbackslash,\textbackslash operato
 
 Consider a general second-order uncertain system:
 
-\textbackslash{[}
-\textbackslash ddot\{x\} = f(x, \textbackslash dot\{x\}) + b(x)\textbackslash,u + d(t),
-\textbackslash{]}
+\[
+                \ddot{x} = f(x, \dot{x}) + b(x)\,u + d(t),
+            \]
 
-where \textbackslash(f\textbackslash) contains known/nominal dynamics, \textbackslash(b\textbackslash) is the input gain, and \textbackslash(d(t)\textbackslash) is a bounded matched disturbance with \textbackslash(\textbar d(t)\textbar{} \textbackslash le D\textbackslash).
+where \(f\) contains known/nominal dynamics, \(b\) is the input gain, and \(d(t)\) is a bounded matched disturbance with \(|d(t)| \le D\).
 
-With \textbackslash(s = \textbackslash dot\{e\} + \textbackslash lambda e\textbackslash), differentiate:
+With \(s = \dot{e} + \lambda e\), differentiate:
 
-\textbackslash{[}
-\textbackslash dot\{s\} = \textbackslash ddot\{e\} + \textbackslash lambda\textbackslash dot\{e\} = \textbackslash ddot\{x\} - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\} = f + b\textbackslash,u + d - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\}.
-\textbackslash{]}
+\[
+                \dot{s} = \ddot{e} + \lambda\dot{e} = \ddot{x} - \ddot{x}_d + \lambda\dot{e} = f + b\,u + d - \ddot{x}_d + \lambda\dot{e}.
+            \]
 
 The control law is decomposed as:
 
-\textbackslash{[}
-u = u\_\{\textbackslash text\{eq\}\} + u\_\{\textbackslash text\{sw\}\}
-\textbackslash{]}
+\[
+                    u = u_{\text{eq}} + u_{\text{sw}}
+                \]
 
-\paragraph{Equivalent Control \textbackslash(u\_\{\textbackslash text\{eq\}\}\textbackslash)}}
+\paragraph{\texorpdfstring{Equivalent Control \(u_{\text{eq}}\)}{Equivalent Control u\_\{\textbackslash text\{eq\}\}}}}
 
 \subsubsection{Derivation}
 
-The equivalent control is obtained by setting \textbackslash(\textbackslash dot\{s\} = 0\textbackslash) and \textbackslash(d = 0\textbackslash) (nominal conditions):
+The equivalent control is obtained by setting \(\dot{s} = 0\) and \(d = 0\) (nominal conditions):
 
-\textbackslash{[}
-0 = f + b\textbackslash,u\_\{\textbackslash text\{eq\}\} - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\}
-\textbackslash{]}
-\textbackslash{[}
-u\_\{\textbackslash text\{eq\}\} = \textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash ddot\{x\}\_d - \textbackslash lambda\textbackslash dot\{e\} - f\textbackslash bigr).
-\textbackslash{]}
+\[
+                    0 = f + b\,u_{\text{eq}} - \ddot{x}_d + \lambda\dot{e}
+                \]
+\[
+                    u_{\text{eq}} = \frac{1}{b}\bigl(\ddot{x}_d - \lambda\dot{e} - f\bigr).
+                \]
 
 This term cancels the known dynamics and commands the desired trajectory --- it is the smooth, model-based part of the control.
 
-\paragraph{Switching Control \textbackslash(u\_\{\textbackslash text\{sw\}\}\textbackslash)}}
+\paragraph{\texorpdfstring{Switching Control \(u_{\text{sw}}\)}{Switching Control u\_\{\textbackslash text\{sw\}\}}}}
 
 \subsubsection{Derivation}
 
 The switching control handles uncertainties and disturbances:
 
-\textbackslash{[}
-u\_\{\textbackslash text\{sw\}\} = -\textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) + k\textbackslash,s\textbackslash bigr), \textbackslash qquad \textbackslash eta \textgreater{} D.
-\textbackslash{]}
+\[
+                    u_{\text{sw}} = -\frac{1}{b}\bigl(\eta\,\operatorname{sign}(s) + k\,s\bigr), \qquad \eta > D.
+                \]
 
-The gain \textbackslash(\textbackslash eta\textbackslash) must exceed the disturbance bound \textbackslash(D\textbackslash) to guarantee reaching.
+The gain \(\eta\) must exceed the disturbance bound \(D\) to guarantee reaching.
 
 The complete SMC law is therefore:
 
-\textbackslash{[}
-u = \textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash ddot\{x\}\_d - \textbackslash lambda\textbackslash dot\{e\} - f - \textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) - k\textbackslash,s\textbackslash bigr).
-\textbackslash{]}
+\[
+                    u = \frac{1}{b}\bigl(\ddot{x}_d - \lambda\dot{e} - f - \eta\,\operatorname{sign}(s) - k\,s\bigr).
+                \]
 
 \textbf{Figure 3:} SMC block diagram. The controller decomposes into equivalent control u\_eq (model-based, maintains system on surface) and switching control u\_sw (drives system to surface and rejects disturbances). The sliding variable s is computed from state feedback.
 
@@ -325,37 +325,37 @@ u = \textbackslash frac\{1\}\{b\}\textbackslash bigl(\textbackslash ddot\{x\}\_d
 
 For the state to reach and remain on the surface, we need:
 
-\textbackslash{[}
-s\textbackslash,\textbackslash dot\{s\} \textless{} 0 \textbackslash qquad \textbackslash forall\textbackslash; s \textbackslash neq 0.
-\textbackslash{]}
+\[
+                    s\,\dot{s} < 0 \qquad \forall\; s \neq 0.
+                \]
 
-This is equivalent to requiring that \textbackslash(s\textbackslash) decreases in magnitude regardless of its sign. Using a Lyapunov approach, choose \textbackslash(V = \textbackslash tfrac\{1\}\{2\}s\^{}2\textbackslash):
+This is equivalent to requiring that \(s\) decreases in magnitude regardless of its sign. Using a Lyapunov approach, choose \(V = \tfrac{1}{2}s^2\):
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\textbackslash,\textbackslash dot\{s\} \textless{} 0.
-\textbackslash{]}
+\[
+                \dot{V} = s\,\dot{s} < 0.
+            \]
 
 \subsubsection{Lyapunov Stability Proof}
 
-Substituting the full control into \textbackslash(\textbackslash dot\{s\}\textbackslash):
+Substituting the full control into \(\dot{s}\):
 
-\textbackslash{[}
-\textbackslash dot\{s\} = f + b(u\_\{\textbackslash text\{eq\}\} + u\_\{\textbackslash text\{sw\}\}) + d - \textbackslash ddot\{x\}\_d + \textbackslash lambda\textbackslash dot\{e\}.
-\textbackslash{]}
+\[
+                    \dot{s} = f + b(u_{\text{eq}} + u_{\text{sw}}) + d - \ddot{x}_d + \lambda\dot{e}.
+                \]
 
 The equivalent control cancels nominal terms:
 
-\textbackslash{[}
-\textbackslash dot\{s\} = d - \textbackslash eta\textbackslash,\textbackslash operatorname\{sign\}(s) - k\textbackslash,s.
-\textbackslash{]}
+\[
+                    \dot{s} = d - \eta\,\operatorname{sign}(s) - k\,s.
+                \]
 
-Now compute \textbackslash(s\textbackslash,\textbackslash dot\{s\}\textbackslash):
+Now compute \(s\,\dot{s}\):
 
-\textbackslash{[}
-s\textbackslash,\textbackslash dot\{s\} = s\textbackslash,d - \textbackslash eta\textbackslash,\textbar s\textbar{} - k\textbackslash,s\^{}2 \textbackslash le \textbar s\textbar\textbackslash,D - \textbackslash eta\textbackslash,\textbar s\textbar{} - k\textbackslash,s\^{}2 = -(\textbackslash eta - D)\textbar s\textbar{} - k\textbackslash,s\^{}2.
-\textbackslash{]}
+\[
+                    s\,\dot{s} = s\,d - \eta\,|s| - k\,s^2 \le |s|\,D - \eta\,|s| - k\,s^2 = -(\eta - D)|s| - k\,s^2.
+                \]
 
-Since \textbackslash(\textbackslash eta \textgreater{} D\textbackslash) and \textbackslash(k \textgreater{} 0\textbackslash), we have \textbackslash(s\textbackslash,\textbackslash dot\{s\} \textless{} 0\textbackslash) for all \textbackslash(s \textbackslash neq 0\textbackslash). This proves:
+Since \(\eta > D\) and \(k > 0\), we have \(s\,\dot{s} < 0\) for all \(s \neq 0\). This proves:
 
 \begin{enumerate}
 \tightlist
@@ -365,15 +365,15 @@ Since \textbackslash(\textbackslash eta \textgreater{} D\textbackslash) and \tex
   Once reached, the state cannot leave the surface.
 \end{enumerate}
 
-\textbf{Finite reaching time:} With \textbackslash(k = 0\textbackslash) (pure sign), \textbackslash(\textbackslash dot\{V\} = s\textbackslash dot\{s\} \textbackslash le -(\textbackslash eta - D)\textbar s\textbar\textbackslash). Since \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}2\textbackslash), we get \textbackslash(\textbar s\textbar{} = \textbackslash sqrt\{2V\}\textbackslash), so \textbackslash(\textbackslash dot\{V\} \textbackslash le -(\textbackslash eta - D)\textbackslash sqrt\{2V\}\textbackslash). Solving this differential inequality gives:
+\textbf{Finite reaching time:} With \(k = 0\) (pure sign), \(\dot{V} = s\dot{s} \le -(\eta - D)|s|\). Since \(V = \frac{1}{2}s^2\), we get \(|s| = \sqrt{2V}\), so \(\dot{V} \le -(\eta - D)\sqrt{2V}\). Solving this differential inequality gives:
 
-\textbackslash{[}
-t\_\{\textbackslash text\{reach\}\} \textbackslash le \textbackslash frac\{\textbar s(0)\textbar\}\{\textbackslash eta - D\}.
-\textbackslash{]}
+\[
+                    t_{\text{reach}} \le \frac{|s(0)|}{\eta - D}.
+                \]
 
 \subsection{1.7 ~ The Chattering Problem}
 
-The discontinuous \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) function causes the control to switch at infinite frequency near \textbackslash(s = 0\textbackslash). In practice, actuator bandwidth is finite, producing \textbf{chattering} --- high-frequency oscillations around the sliding surface.
+The discontinuous \(\operatorname{sign}(s)\) function causes the control to switch at infinite frequency near \(s = 0\). In practice, actuator bandwidth is finite, producing \textbf{chattering} --- high-frequency oscillations around the sliding surface.
 
 \textbf{Why chattering is harmful:} It excites unmodelled high-frequency plant dynamics, causes mechanical wear, increases energy consumption, and can destabilise the system.
 
@@ -381,86 +381,86 @@ The discontinuous \textbackslash(\textbackslash operatorname\{sign\}(s)\textback
 
 \subsubsection{Solution 1: Boundary Layer (Saturation Function)}
 
-Replace \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) with a continuous approximation inside a boundary layer of width \textbackslash(\textbackslash varphi\textbackslash):
+Replace \(\operatorname{sign}(s)\) with a continuous approximation inside a boundary layer of width \(\varphi\):
 
-\textbackslash{[}
-\textbackslash operatorname\{sat\}\textbackslash!\textbackslash left(\textbackslash frac\{s\}\{\textbackslash varphi\}\textbackslash right) = \textbackslash begin\{cases\}
-\textbackslash displaystyle\textbackslash frac\{s\}\{\textbackslash varphi\} \& \textbar s\textbar{} \textbackslash le \textbackslash varphi \textbackslash\textbackslash{[}6pt{]}
-\textbackslash operatorname\{sign\}(s) \& \textbar s\textbar{} \textgreater{} \textbackslash varphi
-\textbackslash end\{cases\}
-\textbackslash{]}
+\[
+                    \operatorname{sat}\!\left(\frac{s}{\varphi}\right) = \begin{cases}
+                        \displaystyle\frac{s}{\varphi} & |s| \le \varphi \\[6pt]
+                        \operatorname{sign}(s) & |s| > \varphi
+                    \end{cases}
+                \]
 
-Inside the boundary layer \textbackslash(\textbar s\textbar{} \textbackslash le \textbackslash varphi\textbackslash), the control becomes a high-gain linear controller. This eliminates chattering but introduces a \textbf{steady-state error} proportional to \textbackslash(\textbackslash varphi\textbackslash). The trade-off is:
+Inside the boundary layer \(|s| \le \varphi\), the control becomes a high-gain linear controller. This eliminates chattering but introduces a \textbf{steady-state error} proportional to \(\varphi\). The trade-off is:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Small \textbackslash(\textbackslash varphi\textbackslash)}: less steady-state error, more chattering.
+  \textbf{Small \(\varphi\)}: less steady-state error, more chattering.
 \item
-  \textbf{Large \textbackslash(\textbackslash varphi\textbackslash)}: no chattering, larger steady-state error.
+  \textbf{Large \(\varphi\)}: no chattering, larger steady-state error.
 \end{itemize}
 
 \textbf{Figure 5:} Boundary layer approach for chattering mitigation. Left: phase plane showing the boundary layer band (orange) around the sliding surface (red). Outside the boundary, discontinuous sign(s) is used; inside, smooth sat(s/phi) provides linear control. Right: comparison of sign(s) (discontinuous) vs sat(s/phi) (continuous).
 
 \subsubsection{Solution 2: Super-Twisting Algorithm}
 
-The super-twisting algorithm achieves finite-time convergence to \textbackslash(s = 0\textbackslash) with a \textbf{continuous} control signal (no chattering). It uses an integral of the sign function:
+The super-twisting algorithm achieves finite-time convergence to \(s = 0\) with a \textbf{continuous} control signal (no chattering). It uses an integral of the sign function:
 
-\textbackslash{[}
-\textbackslash dot\{s\} = -k\_1\textbackslash,\textbar s\textbar\^{}\{1/2\}\textbackslash,\textbackslash operatorname\{sign\}(s) + v, \textbackslash qquad \textbackslash dot\{v\} = -k\_2\textbackslash,\textbackslash operatorname\{sign\}(s).
-\textbackslash{]}
+\[
+                    \dot{s} = -k_1\,|s|^{1/2}\,\operatorname{sign}(s) + v, \qquad \dot{v} = -k_2\,\operatorname{sign}(s).
+                \]
 
 Equivalently, the switching control becomes:
 
-\textbackslash{[}
-u\_\{\textbackslash text\{sw\}\} = -\textbackslash frac\{1\}\{b\}\textbackslash Bigl(k\_1\textbackslash,\textbar s\textbar\^{}\{1/2\}\textbackslash,\textbackslash operatorname\{sign\}(s) + k\_2\textbackslash!\textbackslash int\_0\^{}t \textbackslash operatorname\{sign\}(s)\textbackslash,d\textbackslash tau\textbackslash Bigr).
-\textbackslash{]}
+\[
+                u_{\text{sw}} = -\frac{1}{b}\Bigl(k_1\,|s|^{1/2}\,\operatorname{sign}(s) + k_2\!\int_0^t \operatorname{sign}(s)\,d\tau\Bigr).
+            \]
 
-The discontinuity is hidden inside the integrator, so the actual control \textbackslash(u\textbackslash) is continuous. Sufficient conditions for convergence are \textbackslash(k\_1 \textgreater{} 0\textbackslash) and \textbackslash(k\_2 \textgreater{} k\_1 D / (k\_1 - D)\textbackslash) (with appropriate scaling).
+The discontinuity is hidden inside the integrator, so the actual control \(u\) is continuous. Sufficient conditions for convergence are \(k_1 > 0\) and \(k_2 > k_1 D / (k_1 - D)\) (with appropriate scaling).
 
 \textbf{Figure 6:} Super-twisting algorithm comparison. Left: standard SMC produces chattering at the surface with discontinuous control. Right: super-twisting achieves finite-time spiral convergence to the origin with a fully continuous control signal, eliminating chattering completely.
 
 \subsubsection{Think-Pair-Share}
 
-\textbf{Question:} Why does \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) cause chattering? Draw the phase portrait of a second-order system under SMC with \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash), showing the trajectories switching direction across \textbackslash(s = 0\textbackslash). How does the boundary layer modify this portrait?
+\textbf{Question:} Why does \(\operatorname{sign}(s)\) cause chattering? Draw the phase portrait of a second-order system under SMC with \(\operatorname{sign}(s)\), showing the trajectories switching direction across \(s = 0\). How does the boundary layer modify this portrait?
 
-\textbf{Discuss (2 min):} In the phase plane \textbackslash((e, \textbackslash dot\{e\})\textbackslash), the sliding surface is a line. Trajectories approach from both sides and, due to finite sampling/actuation delay, overshoot repeatedly. With the boundary layer, trajectories enter the band \textbackslash(\textbar s\textbar{} \textless{} \textbackslash varphi\textbackslash) and glide smoothly to the origin along a thickened corridor.
+\textbf{Discuss (2 min):} In the phase plane \((e, \dot{e})\), the sliding surface is a line. Trajectories approach from both sides and, due to finite sampling/actuation delay, overshoot repeatedly. With the boundary layer, trajectories enter the band \(|s| < \varphi\) and glide smoothly to the origin along a thickened corridor.
 
 \subsection{1.8 ~ Multi-Variable Extension}
 
-For an \textbackslash(n\textbackslash)-DOF system with error \textbackslash(\textbackslash mathbf\{e\} \textbackslash in \textbackslash mathbb\{R\}\^{}n\textbackslash), define the sliding surface vector:
+For an \(n\)-DOF system with error \(\mathbf{e} \in \mathbb{R}^n\), define the sliding surface vector:
 
-\textbackslash{[}
-\textbackslash mathbf\{s\} = \textbackslash dot\{\textbackslash mathbf\{e\}\} + \textbackslash Lambda\textbackslash,\textbackslash mathbf\{e\}, \textbackslash qquad \textbackslash Lambda = \textbackslash operatorname\{diag\}(\textbackslash lambda\_1, \textbackslash dots, \textbackslash lambda\_n),\textbackslash; \textbackslash lambda\_i \textgreater{} 0.
-\textbackslash{]}
+\[
+                \mathbf{s} = \dot{\mathbf{e}} + \Lambda\,\mathbf{e}, \qquad \Lambda = \operatorname{diag}(\lambda_1, \dots, \lambda_n),\; \lambda_i > 0.
+            \]
 
 The Lyapunov function becomes:
 
-\textbackslash{[}
-V = \textbackslash tfrac\{1\}\{2\}\textbackslash,\textbackslash mathbf\{s\}\^{}T \textbackslash mathbf\{s\},
-\textbackslash{]}
+\[
+                V = \tfrac{1}{2}\,\mathbf{s}^T \mathbf{s},
+            \]
 
 and the reaching condition generalises to:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = \textbackslash mathbf\{s\}\^{}T \textbackslash dot\{\textbackslash mathbf\{s\}\} \textless{} 0.
-\textbackslash{]}
+\[
+                \dot{V} = \mathbf{s}^T \dot{\mathbf{s}} < 0.
+            \]
 
 \section{SMC for Robot Manipulator}
 
 \subsection{2.1 ~ System Model}
 
-The \textbackslash(n\textbackslash)-DOF rigid-body manipulator dynamics:
+The \(n\)-DOF rigid-body manipulator dynamics:
 
-\textbackslash{[}
-M(q)\textbackslash,\textbackslash ddot\{q\} + C(q, \textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + G(q) = \textbackslash tau + d(t),
-\textbackslash{]}
+\[
+                M(q)\,\ddot{q} + C(q, \dot{q})\,\dot{q} + G(q) = \tau + d(t),
+            \]
 
-where \textbackslash(d(t)\textbackslash) is a bounded disturbance torque with \textbackslash(\textbackslash\textbar d(t)\textbackslash\textbar{} \textbackslash le D\textbackslash). We have nominal estimates \textbackslash(\textbackslash hat\{M\}, \textbackslash hat\{C\}, \textbackslash hat\{G\}\textbackslash) and bounded modelling errors:
+where \(d(t)\) is a bounded disturbance torque with \(\|d(t)\| \le D\). We have nominal estimates \(\hat{M}, \hat{C}, \hat{G}\) and bounded modelling errors:
 
-\textbackslash{[}
-\textbackslash Delta M = M - \textbackslash hat\{M\}, \textbackslash quad \textbackslash Delta C = C - \textbackslash hat\{C\}, \textbackslash quad \textbackslash Delta G = G - \textbackslash hat\{G\}.
-\textbackslash{]}
+\[
+                \Delta M = M - \hat{M}, \quad \Delta C = C - \hat{C}, \quad \Delta G = G - \hat{G}.
+            \]
 
 \textbf{Figure 7:} 2-DOF planar manipulator schematic. Joint angles theta\_1, theta\_2 are controlled by torques tau\_1, tau\_2. Link parameters (m\_1, l\_1, m\_2, l\_2) are subject to uncertainty (dashed clouds). Gravity g acts downward, and external disturbances d(t) affect the end-effector.
 
@@ -468,116 +468,116 @@ where \textbackslash(d(t)\textbackslash) is a bounded disturbance torque with \t
 
 Define the joint tracking error and sliding surface:
 
-\textbackslash{[}
-e = q - q\_d, \textbackslash qquad s = \textbackslash dot\{e\} + \textbackslash Lambda\textbackslash,e = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_r,
-\textbackslash{]}
+\[
+                    e = q - q_d, \qquad s = \dot{e} + \Lambda\,e = \dot{q} - \dot{q}_r,
+                \]
 
 where the \textbf{reference velocity} is defined as:
 
-\textbackslash{[}
-\textbackslash dot\{q\}\_r \textbackslash triangleq \textbackslash dot\{q\}\_d - \textbackslash Lambda\textbackslash,e.
-\textbackslash{]}
+\[
+                \dot{q}_r \triangleq \dot{q}_d - \Lambda\,e.
+            \]
 
 This notation simplifies the derivation considerably. Note also:
 
-\textbackslash{[}
-\textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash,\textbackslash dot\{e\}.
-\textbackslash{]}
+\[
+                \ddot{q}_r = \ddot{q}_d - \Lambda\,\dot{e}.
+            \]
 
 \subsection{2.3 ~ Control Law Derivation}
 
 \subsubsection{Full Derivation}
 
-\textbf{Step 1:} Differentiate \textbackslash(s\textbackslash):
+\textbf{Step 1:} Differentiate \(s\):
 
-\textbackslash{[}
-\textbackslash dot\{s\} = \textbackslash ddot\{q\} - \textbackslash ddot\{q\}\_r.
-\textbackslash{]}
+\[
+                    \dot{s} = \ddot{q} - \ddot{q}_r.
+                \]
 
-From the dynamics: \textbackslash(\textbackslash ddot\{q\} = M\^{}\{-1\}(\textbackslash tau + d - C\textbackslash dot\{q\} - G)\textbackslash), so:
+From the dynamics: \(\ddot{q} = M^{-1}(\tau + d - C\dot{q} - G)\), so:
 
-\textbackslash{[}
-M\textbackslash dot\{s\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G - M\textbackslash ddot\{q\}\_r.
-\textbackslash{]}
+\[
+                    M\dot{s} = \tau + d - C\dot{q} - G - M\ddot{q}_r.
+                \]
 
-\textbf{Step 2:} Rewrite using \textbackslash(\textbackslash dot\{q\} = s + \textbackslash dot\{q\}\_r\textbackslash):
+\textbf{Step 2:} Rewrite using \(\dot{q} = s + \dot{q}_r\):
 
-\textbackslash{[}
-M\textbackslash dot\{s\} = \textbackslash tau + d - C(s + \textbackslash dot\{q\}\_r) - G - M\textbackslash ddot\{q\}\_r
-= \textbackslash tau - M\textbackslash ddot\{q\}\_r - C\textbackslash dot\{q\}\_r - G - Cs + d.
-\textbackslash{]}
+\[
+                    M\dot{s} = \tau + d - C(s + \dot{q}_r) - G - M\ddot{q}_r
+                    = \tau - M\ddot{q}_r - C\dot{q}_r - G - Cs + d.
+                \]
 
-\textbf{Step 3:} The equivalent control (using nominal estimates, \textbackslash(d=0\textbackslash), \textbackslash(\textbackslash dot\{s\}=0\textbackslash)):
+\textbf{Step 3:} The equivalent control (using nominal estimates, \(d=0\), \(\dot{s}=0\)):
 
-\textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{eq\}\} = \textbackslash hat\{M\}(q)\textbackslash,\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\}\_r + \textbackslash hat\{G\}(q).
-\textbackslash{]}
+\[
+                    \tau_{\text{eq}} = \hat{M}(q)\,\ddot{q}_r + \hat{C}(q,\dot{q})\,\dot{q}_r + \hat{G}(q).
+                \]
 
-Expanding \textbackslash(\textbackslash ddot\{q\}\_r\textbackslash) and \textbackslash(\textbackslash dot\{q\}\_r\textbackslash):
+Expanding \(\ddot{q}_r\) and \(\dot{q}_r\):
 
-\textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{eq\}\} = \textbackslash hat\{M\}(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash dot\{e\}\textbackslash bigr{]} + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash bigl{[}\textbackslash dot\{q\}\_d - \textbackslash Lambda e\textbackslash bigr{]} + \textbackslash hat\{G\}(q).
-\textbackslash{]}
+\[
+                    \tau_{\text{eq}} = \hat{M}(q)\bigl[\ddot{q}_d - \Lambda\dot{e}\bigr] + \hat{C}(q,\dot{q})\bigl[\dot{q}_d - \Lambda e\bigr] + \hat{G}(q).
+                \]
 
 \textbf{Step 4:} The switching control:
 
-\textbackslash{[}
-\textbackslash tau\_\{\textbackslash text\{sw\}\} = -K\textbackslash,\textbackslash operatorname\{sign\}(s),
-\textbackslash{]}
+\[
+                    \tau_{\text{sw}} = -K\,\operatorname{sign}(s),
+                \]
 
-where \textbackslash(K = \textbackslash operatorname\{diag\}(K\_1, \textbackslash dots, K\_n)\textbackslash) with each \textbackslash(K\_i\textbackslash) large enough to overcome uncertainty bounds.
+where \(K = \operatorname{diag}(K_1, \dots, K_n)\) with each \(K_i\) large enough to overcome uncertainty bounds.
 
 \textbf{Step 5:} Complete SMC torque:
 
-\textbackslash{[}
-\textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash,\textbackslash operatorname\{sign\}(s)
-\textbackslash{]}
+\[
+                    \tau = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K\,\operatorname{sign}(s)
+                \]
 
 Or with the boundary layer:
 
-\textbackslash{[}
-\textbackslash tau = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash,\textbackslash operatorname\{sat\}\textbackslash!\textbackslash left(\textbackslash frac\{s\}\{\textbackslash varphi\}\textbackslash right)
-\textbackslash{]}
+\[
+                    \tau = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K\,\operatorname{sat}\!\left(\frac{s}{\varphi}\right)
+                \]
 
 \subsection{2.4 ~ Lyapunov Stability Proof}
 
 \subsubsection{Proof of Finite-Time Reaching}
 
-Choose \textbackslash(V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M(q)\textbackslash,s\textbackslash). Note \textbackslash(V \textgreater{} 0\textbackslash) since \textbackslash(M\textbackslash) is positive definite. Differentiate:
+Choose \(V = \tfrac{1}{2}\,s^T M(q)\,s\). Note \(V > 0\) since \(M\) is positive definite. Differentiate:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T \textbackslash dot\{M\}\textbackslash,s.
-\textbackslash{]}
+\[
+                    \dot{V} = s^T M\dot{s} + \tfrac{1}{2}\,s^T \dot{M}\,s.
+                \]
 
-Substituting \textbackslash(M\textbackslash dot\{s\} = \textbackslash tau + d - C\textbackslash dot\{q\} - G - M\textbackslash ddot\{q\}\_r\textbackslash) and the control law:
+Substituting \(M\dot{s} = \tau + d - C\dot{q} - G - M\ddot{q}_r\) and the control law:
 
-\textbackslash{[}
-M\textbackslash dot\{s\} = \textbackslash hat\{M\}\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}\textbackslash dot\{q\}\_r + \textbackslash hat\{G\} - K\textbackslash operatorname\{sign\}(s) + d - C\textbackslash dot\{q\} - G - M\textbackslash ddot\{q\}\_r.
-\textbackslash{]}
+\[
+                    M\dot{s} = \hat{M}\ddot{q}_r + \hat{C}\dot{q}_r + \hat{G} - K\operatorname{sign}(s) + d - C\dot{q} - G - M\ddot{q}_r.
+                \]
 
 Grouping terms:
 
-\textbackslash{[}
-M\textbackslash dot\{s\} = -\textbackslash Delta M\textbackslash ddot\{q\}\_r - \textbackslash Delta C\textbackslash dot\{q\}\_r - \textbackslash Delta G - Cs + d - K\textbackslash operatorname\{sign\}(s),
-\textbackslash{]}
+\[
+                    M\dot{s} = -\Delta M\ddot{q}_r - \Delta C\dot{q}_r - \Delta G - Cs + d - K\operatorname{sign}(s),
+                \]
 
-where we used \textbackslash(C\textbackslash dot\{q\} = C(s + \textbackslash dot\{q\}\_r) = Cs + C\textbackslash dot\{q\}\_r\textbackslash). Therefore:
+where we used \(C\dot{q} = C(s + \dot{q}_r) = Cs + C\dot{q}_r\). Therefore:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T\textbackslash bigl{[}-\textbackslash Delta M\textbackslash ddot\{q\}\_r - \textbackslash Delta C\textbackslash dot\{q\}\_r - \textbackslash Delta G + d - K\textbackslash operatorname\{sign\}(s)\textbackslash bigr{]} + s\^{}T(-Cs) + \textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s.
-\textbackslash{]}
+\[
+                    \dot{V} = s^T\bigl[-\Delta M\ddot{q}_r - \Delta C\dot{q}_r - \Delta G + d - K\operatorname{sign}(s)\bigr] + s^T(-Cs) + \tfrac{1}{2}s^T\dot{M}s.
+                \]
 
-By the skew-symmetry property \textbackslash(s\^{}T(\textbackslash dot\{M\} - 2C)s = 0\textbackslash), the last two terms cancel:
+By the skew-symmetry property \(s^T(\dot{M} - 2C)s = 0\), the last two terms cancel:
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T\textbackslash bigl{[}\textbackslash underbrace\{-\textbackslash Delta M\textbackslash ddot\{q\}\_r - \textbackslash Delta C\textbackslash dot\{q\}\_r - \textbackslash Delta G + d\}\_\{\textbackslash text\{lumped uncertainty \} \textbackslash delta\} - K\textbackslash operatorname\{sign\}(s)\textbackslash bigr{]}.
-\textbackslash{]}
+\[
+                    \dot{V} = s^T\bigl[\underbrace{-\Delta M\ddot{q}_r - \Delta C\dot{q}_r - \Delta G + d}_{\text{lumped uncertainty } \delta} - K\operatorname{sign}(s)\bigr].
+                \]
 
-Let \textbackslash(\textbar\textbackslash delta\_i\textbar{} \textbackslash le \textbackslash rho\_i\textbackslash) (component-wise bound). Then choosing \textbackslash(K\_i \textgreater{} \textbackslash rho\_i\textbackslash):
+Let \(|\delta_i| \le \rho_i\) (component-wise bound). Then choosing \(K_i > \rho_i\):
 
-\textbackslash{[}
-\textbackslash dot\{V\} \textbackslash le -\textbackslash sum\_\{i=1\}\^{}\{n\} (K\_i - \textbackslash rho\_i)\textbar s\_i\textbar{} \textless{} 0, \textbackslash qquad \textbackslash forall\textbackslash; s \textbackslash neq 0.
-\textbackslash{]}
+\[
+                    \dot{V} \le -\sum_{i=1}^{n} (K_i - \rho_i)|s_i| < 0, \qquad \forall\; s \neq 0.
+                \]
 
 This guarantees finite-time reaching and invariance of the sliding surface.
 
@@ -622,49 +622,49 @@ subplot(2,1,2); plot(T, X(:,3:4)); legend(\textquotesingle dq\_1\textquotesingle
 
 The unicycle model for a differential-drive mobile robot:
 
-\textbackslash{[}
-\textbackslash dot\{x\} = v\textbackslash cos\textbackslash theta, \textbackslash qquad \textbackslash dot\{y\} = v\textbackslash sin\textbackslash theta, \textbackslash qquad \textbackslash dot\{\textbackslash theta\} = \textbackslash omega,
-\textbackslash{]}
+\[
+                \dot{x} = v\cos\theta, \qquad \dot{y} = v\sin\theta, \qquad \dot{\theta} = \omega,
+            \]
 
-where \textbackslash(v\textbackslash) is the linear velocity and \textbackslash(\textbackslash omega\textbackslash) is the angular velocity. The control inputs are \textbackslash(u = {[}v,\textbackslash; \textbackslash omega{]}\^{}T\textbackslash).
+where \(v\) is the linear velocity and \(\omega\) is the angular velocity. The control inputs are \(u = [v,\; \omega]^T\).
 
 \textbf{Figure 8:} Mobile robot SMC tracking. Left: top-down view showing the differential-drive robot tracking a reference trajectory, with tracking errors (e\_x, e\_y) and polar error rho. Right: sliding manifold in error space showing trajectories converging to the sliding surface then sliding to the origin.
 
 \subsection{3.2 ~ Position Tracking Formulation}
 
-Define the tracking errors in the body frame. Let \textbackslash((x\_d(t), y\_d(t), \textbackslash theta\_d(t))\textbackslash) be the desired trajectory. The position errors in the world frame are:
+Define the tracking errors in the body frame. Let \((x_d(t), y_d(t), \theta_d(t))\) be the desired trajectory. The position errors in the world frame are:
 
-\textbackslash{[}
-e\_x = x\_d - x, \textbackslash qquad e\_y = y\_d - y.
-\textbackslash{]}
+\[
+                e_x = x_d - x, \qquad e_y = y_d - y.
+            \]
 
 Transform to the robot body frame:
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} e\_1 \textbackslash\textbackslash{} e\_2 \textbackslash\textbackslash{} e\_3 \textbackslash end\{bmatrix\}
-= \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash theta \& \textbackslash sin\textbackslash theta \& 0 \textbackslash\textbackslash{} -\textbackslash sin\textbackslash theta \& \textbackslash cos\textbackslash theta \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 1 \textbackslash end\{bmatrix\}
-\textbackslash begin\{bmatrix\} e\_x \textbackslash\textbackslash{} e\_y \textbackslash\textbackslash{} \textbackslash theta\_d - \textbackslash theta \textbackslash end\{bmatrix\}.
-\textbackslash{]}
+\[
+                \begin{bmatrix} e_1 \\ e_2 \\ e_3 \end{bmatrix}
+                = \begin{bmatrix} \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                \begin{bmatrix} e_x \\ e_y \\ \theta_d - \theta \end{bmatrix}.
+            \]
 
 \subsection{3.3 ~ Sliding Surface Design}
 
 For position tracking, define two sliding surfaces:
 
-\textbackslash{[}
-s\_1 = \textbackslash dot\{e\}\_1 + \textbackslash lambda\_1 e\_1, \textbackslash qquad s\_2 = \textbackslash dot\{e\}\_2 + \textbackslash lambda\_2 e\_2.
-\textbackslash{]}
+\[
+                    s_1 = \dot{e}_1 + \lambda_1 e_1, \qquad s_2 = \dot{e}_2 + \lambda_2 e_2.
+                \]
 
-An alternative approach for the unicycle (which is non-holonomic and cannot track \textbackslash(e\_2\textbackslash) independently) is to use a \textbf{polar coordinate} formulation. Define:
+An alternative approach for the unicycle (which is non-holonomic and cannot track \(e_2\) independently) is to use a \textbf{polar coordinate} formulation. Define:
 
-\textbackslash{[}
-\textbackslash rho = \textbackslash sqrt\{e\_x\^{}2 + e\_y\^{}2\}, \textbackslash qquad \textbackslash alpha = \textbackslash operatorname\{atan2\}(e\_y, e\_x) - \textbackslash theta, \textbackslash qquad \textbackslash beta = -\textbackslash theta - \textbackslash alpha.
-\textbackslash{]}
+\[
+                \rho = \sqrt{e_x^2 + e_y^2}, \qquad \alpha = \operatorname{atan2}(e_y, e_x) - \theta, \qquad \beta = -\theta - \alpha.
+            \]
 
 Then define sliding surfaces:
 
-\textbackslash{[}
-s\_v = \textbackslash dot\{\textbackslash rho\} + \textbackslash lambda\_v \textbackslash rho, \textbackslash qquad s\_\textbackslash omega = \textbackslash dot\{\textbackslash alpha\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha.
-\textbackslash{]}
+\[
+                s_v = \dot{\rho} + \lambda_v \rho, \qquad s_\omega = \dot{\alpha} + \lambda_\omega \alpha.
+            \]
 
 \subsection{3.4 ~ SMC Control Law}
 
@@ -674,28 +674,28 @@ Using the body-frame error dynamics and the reaching law, the SMC control inputs
 
 The error dynamics in polar coordinates are:
 
-\textbackslash{[}
-\textbackslash dot\{\textbackslash rho\} = -v\textbackslash cos\textbackslash alpha, \textbackslash qquad \textbackslash dot\{\textbackslash alpha\} = -\textbackslash omega + \textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\}, \textbackslash qquad \textbackslash dot\{\textbackslash beta\} = -\textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\}.
-\textbackslash{]}
+\[
+                    \dot{\rho} = -v\cos\alpha, \qquad \dot{\alpha} = -\omega + \frac{v\sin\alpha}{\rho}, \qquad \dot{\beta} = -\frac{v\sin\alpha}{\rho}.
+                \]
 
-For \textbackslash(s\_v = \textbackslash dot\{\textbackslash rho\} + \textbackslash lambda\_v \textbackslash rho\textbackslash): set \textbackslash(\textbackslash dot\{s\}\_v = -\textbackslash eta\_v \textbackslash operatorname\{sign\}(s\_v)\textbackslash):
+For \(s_v = \dot{\rho} + \lambda_v \rho\): set \(\dot{s}_v = -\eta_v \operatorname{sign}(s_v)\):
 
-\textbackslash{[}
-v\_\{\textbackslash text\{eq\}\} = \textbackslash frac\{\textbackslash lambda\_v \textbackslash rho\}\{\textbackslash cos\textbackslash alpha\}, \textbackslash qquad v\_\{\textbackslash text\{sw\}\} = \textbackslash frac\{\textbackslash eta\_v \textbackslash operatorname\{sign\}(s\_v)\}\{\textbackslash cos\textbackslash alpha\}.
-\textbackslash{]}
+\[
+                    v_{\text{eq}} = \frac{\lambda_v \rho}{\cos\alpha}, \qquad v_{\text{sw}} = \frac{\eta_v \operatorname{sign}(s_v)}{\cos\alpha}.
+                \]
 
-For \textbackslash(s\_\textbackslash omega = \textbackslash dot\{\textbackslash alpha\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha\textbackslash): set \textbackslash(\textbackslash dot\{s\}\_\textbackslash omega = -\textbackslash eta\_\textbackslash omega \textbackslash operatorname\{sign\}(s\_\textbackslash omega)\textbackslash):
+For \(s_\omega = \dot{\alpha} + \lambda_\omega \alpha\): set \(\dot{s}_\omega = -\eta_\omega \operatorname{sign}(s_\omega)\):
 
-\textbackslash{[}
-\textbackslash omega = \textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha + \textbackslash eta\_\textbackslash omega \textbackslash operatorname\{sign\}(s\_\textbackslash omega).
-\textbackslash{]}
+\[
+                    \omega = \frac{v\sin\alpha}{\rho} + \lambda_\omega \alpha + \eta_\omega \operatorname{sign}(s_\omega).
+                \]
 
-\textbackslash{[}
-v = \textbackslash frac\{\textbackslash lambda\_v \textbackslash rho + \textbackslash eta\_v \textbackslash operatorname\{sat\}(s\_v / \textbackslash varphi\_v)\}\{\textbackslash cos\textbackslash alpha\}, \textbackslash qquad
-\textbackslash omega = \textbackslash frac\{v\textbackslash sin\textbackslash alpha\}\{\textbackslash rho\} + \textbackslash lambda\_\textbackslash omega \textbackslash alpha + \textbackslash eta\_\textbackslash omega \textbackslash operatorname\{sat\}(s\_\textbackslash omega / \textbackslash varphi\_\textbackslash omega).
-\textbackslash{]}
+\[
+                    v = \frac{\lambda_v \rho + \eta_v \operatorname{sat}(s_v / \varphi_v)}{\cos\alpha}, \qquad
+                    \omega = \frac{v\sin\alpha}{\rho} + \lambda_\omega \alpha + \eta_\omega \operatorname{sat}(s_\omega / \varphi_\omega).
+                \]
 
-\textbf{Singularity:} When \textbackslash(\textbackslash alpha = \textbackslash pm\textbackslash pi/2\textbackslash) (goal directly to the side), \textbackslash(\textbackslash cos\textbackslash alpha = 0\textbackslash). In practice, clamp \textbackslash(\textbar\textbackslash alpha\textbar{} \textless{} \textbackslash pi/2 - \textbackslash epsilon\textbackslash) or switch to a Cartesian controller near the singularity.
+\textbf{Singularity:} When \(\alpha = \pm\pi/2\) (goal directly to the side), \(\cos\alpha = 0\). In practice, clamp \(|\alpha| < \pi/2 - \epsilon\) or switch to a Cartesian controller near the singularity.
 
 \subsection{3.5 ~ MATLAB Implementation}
 
@@ -720,27 +720,27 @@ axis equal; grid on;
 
 The 6-DOF quadrotor dynamics separate into translational and rotational subsystems. The position dynamics in the world frame:
 
-\textbackslash{[}
-m\textbackslash ddot\{x\} = (\textbackslash cos\textbackslash psi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash phi + \textbackslash sin\textbackslash psi\textbackslash sin\textbackslash phi)\textbackslash,U\_1 + d\_x,
-\textbackslash{]}
-\textbackslash{[}
-m\textbackslash ddot\{y\} = (\textbackslash sin\textbackslash psi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash phi - \textbackslash cos\textbackslash psi\textbackslash sin\textbackslash phi)\textbackslash,U\_1 + d\_y,
-\textbackslash{]}
-\textbackslash{[}
-m\textbackslash ddot\{z\} = (\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi)\textbackslash,U\_1 - mg + d\_z,
-\textbackslash{]}
+\[
+                m\ddot{x} = (\cos\psi\sin\theta\cos\phi + \sin\psi\sin\phi)\,U_1 + d_x,
+            \]
+\[
+                m\ddot{y} = (\sin\psi\sin\theta\cos\phi - \cos\psi\sin\phi)\,U_1 + d_y,
+            \]
+\[
+                m\ddot{z} = (\cos\theta\cos\phi)\,U_1 - mg + d_z,
+            \]
 
-where \textbackslash(U\_1\textbackslash) is the total thrust, \textbackslash((\textbackslash phi,\textbackslash theta,\textbackslash psi)\textbackslash) are roll, pitch, yaw, and \textbackslash(d\_x, d\_y, d\_z\textbackslash) are disturbance forces. The attitude dynamics:
+where \(U_1\) is the total thrust, \((\phi,\theta,\psi)\) are roll, pitch, yaw, and \(d_x, d_y, d_z\) are disturbance forces. The attitude dynamics:
 
-\textbackslash{[}
-I\_\{xx\}\textbackslash ddot\{\textbackslash phi\} = (\textbackslash,I\_\{yy\} - I\_\{zz\})\textbackslash dot\{\textbackslash theta\}\textbackslash dot\{\textbackslash psi\} + l\textbackslash,U\_2 + d\_\textbackslash phi,
-\textbackslash{]}
-\textbackslash{[}
-I\_\{yy\}\textbackslash ddot\{\textbackslash theta\} = (I\_\{zz\} - I\_\{xx\})\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash psi\} + l\textbackslash,U\_3 + d\_\textbackslash theta,
-\textbackslash{]}
-\textbackslash{[}
-I\_\{zz\}\textbackslash ddot\{\textbackslash psi\} = (I\_\{xx\} - I\_\{yy\})\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash theta\} + c\textbackslash,U\_4 + d\_\textbackslash psi.
-\textbackslash{]}
+\[
+                I_{xx}\ddot{\phi} = (\,I_{yy} - I_{zz})\dot{\theta}\dot{\psi} + l\,U_2 + d_\phi,
+            \]
+\[
+                I_{yy}\ddot{\theta} = (I_{zz} - I_{xx})\dot{\phi}\dot{\psi} + l\,U_3 + d_\theta,
+            \]
+\[
+                I_{zz}\ddot{\psi} = (I_{xx} - I_{yy})\dot{\phi}\dot{\theta} + c\,U_4 + d_\psi.
+            \]
 
 \subsection{4.2 ~ Hierarchical SMC Design}
 
@@ -748,83 +748,83 @@ The standard approach uses a \textbf{cascaded (hierarchical)} structure:
 
 \subsubsection{Outer Loop: Position SMC}
 
-Computes desired thrust \textbackslash(U\_1\textbackslash) and desired roll/pitch angles \textbackslash((\textbackslash phi\_d, \textbackslash theta\_d)\textbackslash) from position errors.
+Computes desired thrust \(U_1\) and desired roll/pitch angles \((\phi_d, \theta_d)\) from position errors.
 
 \subsubsection{Inner Loop: Attitude SMC}
 
-Tracks desired roll, pitch, yaw using torque inputs \textbackslash(U\_2, U\_3, U\_4\textbackslash).
+Tracks desired roll, pitch, yaw using torque inputs \(U_2, U_3, U_4\).
 
 \textbf{Figure 9:} Quadrotor with hierarchical SMC. Four rotors produce thrust forces F\_1-F\_4. The outer loop (position SMC) computes total thrust U\_1 and desired attitudes. The inner loop (attitude SMC) tracks desired roll, pitch, yaw. Wind disturbances are rejected by the sliding mode controller.
 
 \subsubsection{Position Sliding Surfaces}
 
-Define position errors \textbackslash(e\_x = x - x\_d\textbackslash), \textbackslash(e\_y = y - y\_d\textbackslash), \textbackslash(e\_z = z - z\_d\textbackslash), and sliding surfaces:
+Define position errors \(e_x = x - x_d\), \(e_y = y - y_d\), \(e_z = z - z_d\), and sliding surfaces:
 
-\textbackslash{[}
-s\_x = \textbackslash dot\{e\}\_x + \textbackslash lambda\_x e\_x, \textbackslash quad
-s\_y = \textbackslash dot\{e\}\_y + \textbackslash lambda\_y e\_y, \textbackslash quad
-s\_z = \textbackslash dot\{e\}\_z + \textbackslash lambda\_z e\_z.
-\textbackslash{]}
+\[
+                    s_x = \dot{e}_x + \lambda_x e_x, \quad
+                    s_y = \dot{e}_y + \lambda_y e_y, \quad
+                    s_z = \dot{e}_z + \lambda_z e_z.
+                \]
 
-\subsubsection{Altitude Control (\textbackslash(z\textbackslash)-axis)}
-
-\subsubsection{Derivation}
-
-From \textbackslash(m\textbackslash ddot\{z\} = U\_1\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi - mg + d\_z\textbackslash), define \textbackslash(e\_z = z - z\_d\textbackslash):
-
-\textbackslash{[}
-\textbackslash dot\{s\}\_z = \textbackslash ddot\{e\}\_z + \textbackslash lambda\_z \textbackslash dot\{e\}\_z = \textbackslash frac\{U\_1\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi\}\{m\} - g + \textbackslash frac\{d\_z\}\{m\} - \textbackslash ddot\{z\}\_d + \textbackslash lambda\_z\textbackslash dot\{e\}\_z.
-\textbackslash{]}
-
-Setting \textbackslash(\textbackslash dot\{s\}\_z = -\textbackslash eta\_z \textbackslash operatorname\{sign\}(s\_z) - k\_z s\_z\textbackslash) and solving for \textbackslash(U\_1\textbackslash):
-
-\textbackslash{[}
-U\_1 = \textbackslash frac\{m\}\{\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi\}\textbackslash bigl{[}\textbackslash ddot\{z\}\_d + g - \textbackslash lambda\_z\textbackslash dot\{e\}\_z - \textbackslash eta\_z\textbackslash operatorname\{sat\}(s\_z/\textbackslash varphi\_z) - k\_z s\_z\textbackslash bigr{]}.
-\textbackslash{]}
-
-\subsubsection{Lateral Control (\textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-axes)}
+\paragraph{\texorpdfstring{Altitude Control (\(z\)-axis)}{Altitude Control (z-axis)}}}
 
 \subsubsection{Derivation}
 
-From the \textbackslash(x\textbackslash)- and \textbackslash(y\textbackslash)-dynamics, the SMC computes desired virtual accelerations:
+From \(m\ddot{z} = U_1\cos\theta\cos\phi - mg + d_z\), define \(e_z = z - z_d\):
 
-\textbackslash{[}
-\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\} = \textbackslash ddot\{x\}\_d - \textbackslash lambda\_x\textbackslash dot\{e\}\_x - \textbackslash eta\_x\textbackslash operatorname\{sat\}(s\_x/\textbackslash varphi\_x) - k\_x s\_x,
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\} = \textbackslash ddot\{y\}\_d - \textbackslash lambda\_y\textbackslash dot\{e\}\_y - \textbackslash eta\_y\textbackslash operatorname\{sat\}(s\_y/\textbackslash varphi\_y) - k\_y s\_y.
-\textbackslash{]}
+\[
+                    \dot{s}_z = \ddot{e}_z + \lambda_z \dot{e}_z = \frac{U_1\cos\theta\cos\phi}{m} - g + \frac{d_z}{m} - \ddot{z}_d + \lambda_z\dot{e}_z.
+                \]
+
+Setting \(\dot{s}_z = -\eta_z \operatorname{sign}(s_z) - k_z s_z\) and solving for \(U_1\):
+
+\[
+                    U_1 = \frac{m}{\cos\theta\cos\phi}\bigl[\ddot{z}_d + g - \lambda_z\dot{e}_z - \eta_z\operatorname{sat}(s_z/\varphi_z) - k_z s_z\bigr].
+                \]
+
+\paragraph{\texorpdfstring{Lateral Control (\(x\)- and \(y\)-axes)}{Lateral Control (x- and y-axes)}}}
+
+\subsubsection{Derivation}
+
+From the \(x\)- and \(y\)-dynamics, the SMC computes desired virtual accelerations:
+
+\[
+                    \ddot{x}_{\text{cmd}} = \ddot{x}_d - \lambda_x\dot{e}_x - \eta_x\operatorname{sat}(s_x/\varphi_x) - k_x s_x,
+                \]
+\[
+                    \ddot{y}_{\text{cmd}} = \ddot{y}_d - \lambda_y\dot{e}_y - \eta_y\operatorname{sat}(s_y/\varphi_y) - k_y s_y.
+                \]
 
 The desired roll and pitch are then extracted:
 
-\textbackslash{[}
-\textbackslash theta\_d = \textbackslash arctan\textbackslash!\textbackslash left(\textbackslash frac\{\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\}\textbackslash cos\textbackslash psi + \textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\}\textbackslash sin\textbackslash psi\}\{\textbackslash ddot\{z\}\_\{\textbackslash text\{cmd\}\} + g\}\textbackslash right),
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash phi\_d = \textbackslash arctan\textbackslash!\textbackslash left(\textbackslash frac\{(\textbackslash ddot\{x\}\_\{\textbackslash text\{cmd\}\}\textbackslash sin\textbackslash psi - \textbackslash ddot\{y\}\_\{\textbackslash text\{cmd\}\}\textbackslash cos\textbackslash psi)\textbackslash cos\textbackslash theta\_d\}\{\textbackslash ddot\{z\}\_\{\textbackslash text\{cmd\}\} + g\}\textbackslash right).
-\textbackslash{]}
+\[
+                    \theta_d = \arctan\!\left(\frac{\ddot{x}_{\text{cmd}}\cos\psi + \ddot{y}_{\text{cmd}}\sin\psi}{\ddot{z}_{\text{cmd}} + g}\right),
+                \]
+\[
+                    \phi_d = \arctan\!\left(\frac{(\ddot{x}_{\text{cmd}}\sin\psi - \ddot{y}_{\text{cmd}}\cos\psi)\cos\theta_d}{\ddot{z}_{\text{cmd}} + g}\right).
+                \]
 
 \subsubsection{Attitude Sliding Surfaces and Control}
 
-Define attitude errors \textbackslash(e\_\textbackslash phi = \textbackslash phi - \textbackslash phi\_d\textbackslash), etc., and sliding surfaces:
+Define attitude errors \(e_\phi = \phi - \phi_d\), etc., and sliding surfaces:
 
-\textbackslash{[}
-s\_\textbackslash phi = \textbackslash dot\{e\}\_\textbackslash phi + \textbackslash lambda\_\textbackslash phi e\_\textbackslash phi, \textbackslash quad
-s\_\textbackslash theta = \textbackslash dot\{e\}\_\textbackslash theta + \textbackslash lambda\_\textbackslash theta e\_\textbackslash theta, \textbackslash quad
-s\_\textbackslash psi = \textbackslash dot\{e\}\_\textbackslash psi + \textbackslash lambda\_\textbackslash psi e\_\textbackslash psi.
-\textbackslash{]}
+\[
+                    s_\phi = \dot{e}_\phi + \lambda_\phi e_\phi, \quad
+                    s_\theta = \dot{e}_\theta + \lambda_\theta e_\theta, \quad
+                    s_\psi = \dot{e}_\psi + \lambda_\psi e_\psi.
+                \]
 
 The attitude SMC torques:
 
-\textbackslash{[}
-U\_2 = \textbackslash frac\{I\_\{xx\}\}\{l\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash phi\}\_d - \textbackslash lambda\_\textbackslash phi\textbackslash dot\{e\}\_\textbackslash phi - \textbackslash frac\{(I\_\{yy\}-I\_\{zz\})\}\{I\_\{xx\}\}\textbackslash dot\{\textbackslash theta\}\textbackslash dot\{\textbackslash psi\} - \textbackslash eta\_\textbackslash phi\textbackslash operatorname\{sat\}(s\_\textbackslash phi/\textbackslash varphi\_\textbackslash phi)\textbackslash bigr{]},
-\textbackslash{]}
-\textbackslash{[}
-U\_3 = \textbackslash frac\{I\_\{yy\}\}\{l\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash theta\}\_d - \textbackslash lambda\_\textbackslash theta\textbackslash dot\{e\}\_\textbackslash theta - \textbackslash frac\{(I\_\{zz\}-I\_\{xx\})\}\{I\_\{yy\}\}\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash psi\} - \textbackslash eta\_\textbackslash theta\textbackslash operatorname\{sat\}(s\_\textbackslash theta/\textbackslash varphi\_\textbackslash theta)\textbackslash bigr{]},
-\textbackslash{]}
-\textbackslash{[}
-U\_4 = \textbackslash frac\{I\_\{zz\}\}\{c\}\textbackslash bigl{[}\textbackslash ddot\{\textbackslash psi\}\_d - \textbackslash lambda\_\textbackslash psi\textbackslash dot\{e\}\_\textbackslash psi - \textbackslash frac\{(I\_\{xx\}-I\_\{yy\})\}\{I\_\{zz\}\}\textbackslash dot\{\textbackslash phi\}\textbackslash dot\{\textbackslash theta\} - \textbackslash eta\_\textbackslash psi\textbackslash operatorname\{sat\}(s\_\textbackslash psi/\textbackslash varphi\_\textbackslash psi)\textbackslash bigr{]}.
-\textbackslash{]}
+\[
+                    U_2 = \frac{I_{xx}}{l}\bigl[\ddot{\phi}_d - \lambda_\phi\dot{e}_\phi - \frac{(I_{yy}-I_{zz})}{I_{xx}}\dot{\theta}\dot{\psi} - \eta_\phi\operatorname{sat}(s_\phi/\varphi_\phi)\bigr],
+                \]
+\[
+                    U_3 = \frac{I_{yy}}{l}\bigl[\ddot{\theta}_d - \lambda_\theta\dot{e}_\theta - \frac{(I_{zz}-I_{xx})}{I_{yy}}\dot{\phi}\dot{\psi} - \eta_\theta\operatorname{sat}(s_\theta/\varphi_\theta)\bigr],
+                \]
+\[
+                    U_4 = \frac{I_{zz}}{c}\bigl[\ddot{\psi}_d - \lambda_\psi\dot{e}_\psi - \frac{(I_{xx}-I_{yy})}{I_{zz}}\dot{\phi}\dot{\theta} - \eta_\psi\operatorname{sat}(s_\psi/\varphi_\psi)\bigr].
+                \]
 
 \subsection{4.3 ~ MATLAB Implementation}
 
@@ -862,11 +862,11 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
 \begin{enumerate}
 \tightlist
 \item
-  Run the manipulator SMC simulation with \texttt{use\_sat\ =\ false} (pure \texttt{sign(s)}). Plot the control torque \textbackslash(\textbackslash tau\textbackslash). Observe the high-frequency switching.
+  Run the manipulator SMC simulation with \texttt{use\_sat\ =\ false} (pure \texttt{sign(s)}). Plot the control torque \(\tau\). Observe the high-frequency switching.
 \item
-  Switch to \texttt{use\_sat\ =\ true} and test three boundary layer widths: \textbackslash(\textbackslash varphi = 0.01,\textbackslash; 0.1,\textbackslash; 1.0\textbackslash).
+  Switch to \texttt{use\_sat\ =\ true} and test three boundary layer widths: \(\varphi = 0.01,\; 0.1,\; 1.0\).
 \item
-  For each value of \textbackslash(\textbackslash varphi\textbackslash), record: (a) peak torque oscillation amplitude, (b) steady-state tracking error \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty\textbackslash).
+  For each value of \(\varphi\), record: (a) peak torque oscillation amplitude, (b) steady-state tracking error \(\|e\|_\infty\).
 \end{enumerate}
 
 \subsubsection{Questions to Answer}
@@ -874,11 +874,11 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
 \begin{itemize}
 \tightlist
 \item
-  How does boundary layer width \textbackslash(\textbackslash varphi\textbackslash) affect chattering amplitude?
+  How does boundary layer width \(\varphi\) affect chattering amplitude?
 \item
-  How does \textbackslash(\textbackslash varphi\textbackslash) affect steady-state tracking accuracy?
+  How does \(\varphi\) affect steady-state tracking accuracy?
 \item
-  Is there an optimal \textbackslash(\textbackslash varphi\textbackslash)? What criteria would you use to select it?
+  Is there an optimal \(\varphi\)? What criteria would you use to select it?
 \end{itemize}
 
 \subsection{Activity 2 --- Disturbance Rejection Comparison (15 min)}
@@ -888,16 +888,16 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
 \begin{enumerate}
 \tightlist
 \item
-  Add a disturbance torque \textbackslash(d(t) = 10\textbackslash sin(5t)\textbackslash) to the manipulator dynamics.
+  Add a disturbance torque \(d(t) = 10\sin(5t)\) to the manipulator dynamics.
 \item
   Run four controllers:
 
   \begin{itemize}
   \tightlist
   \item
-    SMC with \textbackslash(\textbackslash operatorname\{sign\}(s)\textbackslash) and \textbackslash(K = 15\textbackslash)
+    SMC with \(\operatorname{sign}(s)\) and \(K = 15\)
   \item
-    SMC with \textbackslash(\textbackslash operatorname\{sat\}(s/\textbackslash varphi)\textbackslash), \textbackslash(\textbackslash varphi = 0.05\textbackslash), \textbackslash(K = 15\textbackslash)
+    SMC with \(\operatorname{sat}(s/\varphi)\), \(\varphi = 0.05\), \(K = 15\)
   \item
     Robust control (from Week 4)
   \item
@@ -916,7 +916,7 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
 \item
   What happens to the computed torque controller --- why does it degrade?
 \item
-  How does the switching gain \textbackslash(K\textbackslash) relate to the disturbance bound \textbackslash(D = 10\textbackslash)?
+  How does the switching gain \(K\) relate to the disturbance bound \(D = 10\)?
 \end{itemize}
 
 \subsection{Activity 3 --- Super-Twisting Algorithm (5 min)}
@@ -926,7 +926,7 @@ xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotes
 \begin{enumerate}
 \tightlist
 \item
-  Replace the switching term with the super-twisting law. The integral state \textbackslash(v\textbackslash) requires an extra state variable per joint.
+  Replace the switching term with the super-twisting law. The integral state \(v\) requires an extra state variable per joint.
 \item
   Compare the control torque smoothness and tracking error against sign-based and sat-based SMC.
 \item
@@ -949,7 +949,7 @@ Property & Computed Torque (W1) & MPC (W2) & Adaptive (W3) & Robust (W4) & Backs
 \textbf{Convergence} & Exponential & Depends on horizon/cost & Asymptotic (with PE condition) & Bounded error (UUB) & Asymptotic / exponential & Finite-time reaching + exponential sliding \\
 \textbf{Main Limitation} & Model inaccuracy degrades performance & Computational cost; model required & Transient performance; PE requirement & Conservative; may require large gains & Complexity grows with system order & Chattering; only handles matched disturbances \\
 \textbf{Control Signal} & Smooth & Smooth (optimised) & Smooth & Smooth & Smooth & Discontinuous (sign) or smooth (sat/ST) \\
-\textbf{Stability Proof} & Input-output linearisation & Terminal cost / constraints & Lyapunov + Barbalat & Lyapunov (ISS / \textbackslash(H\_\textbackslash infty\textbackslash)) & Recursive Lyapunov (CLF) & Lyapunov: \textbackslash(V = \textbackslash frac\{1\}\{2\}s\^{}T M s\textbackslash) \\
+\textbf{Stability Proof} & Input-output linearisation & Terminal cost / constraints & Lyapunov + Barbalat & Lyapunov (ISS / \(H_\infty\)) & Recursive Lyapunov (CLF) & Lyapunov: \(V = \frac{1}{2}s^T M s\) \\
 \textbf{Typical Use Case} & Well-modelled manipulators & Constrained systems, trajectory planning & Unknown or time-varying parameters & Safety-critical systems with bounded uncertainty & Strict-feedback nonlinear systems & Systems with large matched disturbances / uncertainty \\
 \end{longtable}
 

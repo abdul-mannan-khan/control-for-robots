@@ -8,7 +8,7 @@
 
 Lyapunov-Based Adaptive Control for Robotic Systems with Parametric Uncertainty
 
-M.Sc. Control for Robots --- University of West London --- AY 2025--26\\
+M.Sc. Control for Robots --- AY 2025--26\\
 3-Hour Lecture \& Lab • Week 4 of 12
 
 \section{Overview}
@@ -21,76 +21,76 @@ Before we begin new material, spend 20 minutes working through these two exam-st
 
 Consider a discrete-time linear time-invariant system:
 
-\textbackslash{[}
-x\_\{k+1\} = A\textbackslash,x\_k + B\textbackslash,u\_k
-\textbackslash{]}
+\[
+                    x_{k+1} = A\,x_k + B\,u_k
+                \]
 
-with state \textbackslash(x\_k \textbackslash in \textbackslash mathbb\{R\}\^{}n\textbackslash), control \textbackslash(u\_k \textbackslash in \textbackslash mathbb\{R\}\^{}m\textbackslash), and a finite prediction horizon \textbackslash(N\textbackslash). The MPC cost function is:
+with state \(x_k \in \mathbb{R}^n\), control \(u_k \in \mathbb{R}^m\), and a finite prediction horizon \(N\). The MPC cost function is:
 
-\textbackslash{[}
-J = \textbackslash sum\_\{i=0\}\^{}\{N-1\}\textbackslash Big{[}\textbackslash big(x\_\{k+i\} - x\_\{\textbackslash mathrm\{ref\}\}\textbackslash big)\^{}T Q \textbackslash big(x\_\{k+i\} - x\_\{\textbackslash mathrm\{ref\}\}\textbackslash big) + u\_\{k+i\}\^{}T R\textbackslash, u\_\{k+i\}\textbackslash Big{]}
-\textbackslash{]}
+\[
+                    J = \sum_{i=0}^{N-1}\Big[\big(x_{k+i} - x_{\mathrm{ref}}\big)^T Q \big(x_{k+i} - x_{\mathrm{ref}}\big) + u_{k+i}^T R\, u_{k+i}\Big]
+                \]
 
-where \textbackslash(Q \textbackslash succeq 0\textbackslash) and \textbackslash(R \textbackslash succ 0\textbackslash).
+where \(Q \succeq 0\) and \(R \succ 0\).
 
 \textbf{(a)} By recursive substitution, show that the predicted state sequence can be written in compact (lifted) form as:
 
-\textbackslash{[}
-\textbackslash mathbf\{X\} = \textbackslash mathcal\{A\}\textbackslash,x\_k + \textbackslash mathcal\{B\}\textbackslash,\textbackslash mathbf\{U\}
-\textbackslash{]}
+\[
+                    \mathbf{X} = \mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U}
+                \]
 
-where the stacked vectors are \textbackslash(\textbackslash mathbf\{X\} = \textbackslash begin\{bmatrix\} x\_\{k+1\} \textbackslash\textbackslash{} x\_\{k+2\} \textbackslash\textbackslash{} \textbackslash vdots \textbackslash\textbackslash{} x\_\{k+N\} \textbackslash end\{bmatrix\}\textbackslash) and \textbackslash(\textbackslash mathbf\{U\} = \textbackslash begin\{bmatrix\} u\_k \textbackslash\textbackslash{} u\_\{k+1\} \textbackslash\textbackslash{} \textbackslash vdots \textbackslash\textbackslash{} u\_\{k+N-1\} \textbackslash end\{bmatrix\}\textbackslash), and derive the explicit forms:
+where the stacked vectors are \(\mathbf{X} = \begin{bmatrix} x_{k+1} \\ x_{k+2} \\ \vdots \\ x_{k+N} \end{bmatrix}\) and \(\mathbf{U} = \begin{bmatrix} u_k \\ u_{k+1} \\ \vdots \\ u_{k+N-1} \end{bmatrix}\), and derive the explicit forms:
 
-\textbackslash{[}
-\textbackslash mathcal\{A\} = \textbackslash begin\{bmatrix\} A \textbackslash\textbackslash{} A\^{}2 \textbackslash\textbackslash{} A\^{}3 \textbackslash\textbackslash{} \textbackslash vdots \textbackslash\textbackslash{} A\^{}N \textbackslash end\{bmatrix\}, \textbackslash qquad
-\textbackslash mathcal\{B\} = \textbackslash begin\{bmatrix\}
-B \& 0 \& 0 \& \textbackslash cdots \& 0 \textbackslash\textbackslash{}
-AB \& B \& 0 \& \textbackslash cdots \& 0 \textbackslash\textbackslash{}
-A\^{}2B \& AB \& B \& \textbackslash cdots \& 0 \textbackslash\textbackslash{}
-\textbackslash vdots \& \textbackslash vdots \& \textbackslash vdots \& \textbackslash ddots \& \textbackslash vdots \textbackslash\textbackslash{}
-A\^{}\{N-1\}B \& A\^{}\{N-2\}B \& A\^{}\{N-3\}B \& \textbackslash cdots \& B
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    \mathcal{A} = \begin{bmatrix} A \\ A^2 \\ A^3 \\ \vdots \\ A^N \end{bmatrix}, \qquad
+                    \mathcal{B} = \begin{bmatrix}
+                        B & 0 & 0 & \cdots & 0 \\
+                        AB & B & 0 & \cdots & 0 \\
+                        A^2B & AB & B & \cdots & 0 \\
+                        \vdots & \vdots & \vdots & \ddots & \vdots \\
+                        A^{N-1}B & A^{N-2}B & A^{N-3}B & \cdots & B
+                    \end{bmatrix}
+                \]
 
-Show every substitution step from \textbackslash(i=1\textbackslash) to \textbackslash(i=N\textbackslash).
+Show every substitution step from \(i=1\) to \(i=N\).
 
-\textbf{(b)} Identify the structure of \textbackslash(\textbackslash mathcal\{B\}\textbackslash) (lower-triangular block Toeplitz). Explain why this structure arises from the causal nature of the system (future states depend only on past and present inputs).
+\textbf{(b)} Identify the structure of \(\mathcal{B}\) (lower-triangular block Toeplitz). Explain why this structure arises from the causal nature of the system (future states depend only on past and present inputs).
 
 \subsubsection{Question 2 --- Deriving the Optimal MPC Control Law (10 marks)}
 
 Starting from the lifted quadratic cost:
 
-\textbackslash{[}
-J = \textbackslash big(\textbackslash mathbf\{X\} - \textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\}\textbackslash big)\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash big(\textbackslash mathbf\{X\} - \textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\}\textbackslash big) + \textbackslash mathbf\{U\}\^{}T \textbackslash bar\{R\}\textbackslash,\textbackslash mathbf\{U\}
-\textbackslash{]}
+\[
+                    J = \big(\mathbf{X} - \mathbf{X}_{\mathrm{ref}}\big)^T \bar{Q}\,\big(\mathbf{X} - \mathbf{X}_{\mathrm{ref}}\big) + \mathbf{U}^T \bar{R}\,\mathbf{U}
+                \]
 
-where \textbackslash(\textbackslash bar\{Q\} = \textbackslash mathrm\{blkdiag\}(Q, Q, \textbackslash dots, Q) \textbackslash in \textbackslash mathbb\{R\}\^{}\{nN \textbackslash times nN\}\textbackslash) and \textbackslash(\textbackslash bar\{R\} = \textbackslash mathrm\{blkdiag\}(R, R, \textbackslash dots, R) \textbackslash in \textbackslash mathbb\{R\}\^{}\{mN \textbackslash times mN\}\textbackslash):
+where \(\bar{Q} = \mathrm{blkdiag}(Q, Q, \dots, Q) \in \mathbb{R}^{nN \times nN}\) and \(\bar{R} = \mathrm{blkdiag}(R, R, \dots, R) \in \mathbb{R}^{mN \times mN}\):
 
-\textbf{(a)} Substitute \textbackslash(\textbackslash mathbf\{X\} = \textbackslash mathcal\{A\}\textbackslash,x\_k + \textbackslash mathcal\{B\}\textbackslash,\textbackslash mathbf\{U\}\textbackslash) into \textbackslash(J\textbackslash) and expand fully:
+\textbf{(a)} Substitute \(\mathbf{X} = \mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U}\) into \(J\) and expand fully:
 
-\textbackslash{[}
-J = \textbackslash big(\textbackslash mathcal\{A\}\textbackslash,x\_k + \textbackslash mathcal\{B\}\textbackslash,\textbackslash mathbf\{U\} - \textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\}\textbackslash big)\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash big(\textbackslash mathcal\{A\}\textbackslash,x\_k + \textbackslash mathcal\{B\}\textbackslash,\textbackslash mathbf\{U\} - \textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\}\textbackslash big) + \textbackslash mathbf\{U\}\^{}T \textbackslash bar\{R\}\textbackslash,\textbackslash mathbf\{U\}
-\textbackslash{]}
+\[
+                    J = \big(\mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U} - \mathbf{X}_{\mathrm{ref}}\big)^T \bar{Q}\,\big(\mathcal{A}\,x_k + \mathcal{B}\,\mathbf{U} - \mathbf{X}_{\mathrm{ref}}\big) + \mathbf{U}^T \bar{R}\,\mathbf{U}
+                \]
 
-Let \textbackslash(\textbackslash mathbf\{E\} = \textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\} - \textbackslash mathcal\{A\}\textbackslash,x\_k\textbackslash). Show that:
+Let \(\mathbf{E} = \mathbf{X}_{\mathrm{ref}} - \mathcal{A}\,x_k\). Show that:
 
-\textbackslash{[}
-J = \textbackslash mathbf\{U\}\^{}T\textbackslash!\textbackslash big(\textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathcal\{B\} + \textbackslash bar\{R\}\textbackslash big)\textbackslash mathbf\{U\} - 2\textbackslash,\textbackslash mathbf\{E\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathcal\{B\}\textbackslash,\textbackslash mathbf\{U\} + \textbackslash mathbf\{E\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathbf\{E\}
-\textbackslash{]}
+\[
+                    J = \mathbf{U}^T\!\big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)\mathbf{U} - 2\,\mathbf{E}^T \bar{Q}\,\mathcal{B}\,\mathbf{U} + \mathbf{E}^T \bar{Q}\,\mathbf{E}
+                \]
 
-\textbf{(b)} Take \textbackslash(\textbackslash frac\{\textbackslash partial J\}\{\textbackslash partial \textbackslash mathbf\{U\}\} = 0\textbackslash) and derive:
+\textbf{(b)} Take \(\frac{\partial J}{\partial \mathbf{U}} = 0\) and derive:
 
-\textbackslash{[}
-\textbackslash mathbf\{U\}\^{}* = \textbackslash big(\textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathcal\{B\} + \textbackslash bar\{R\}\textbackslash big)\^{}\{-1\} \textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash big(\textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\} - \textbackslash mathcal\{A\}\textbackslash,x\_k\textbackslash big)
-\textbackslash{]}
+\[
+                    \mathbf{U}^* = \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}\,\big(\mathbf{X}_{\mathrm{ref}} - \mathcal{A}\,x_k\big)
+                \]
 
-\textbf{(c)} Define the MPC gain. Since only the first \textbackslash(m\textbackslash) rows of \textbackslash(\textbackslash mathbf\{U\}\^{}*\textbackslash) are applied (receding horizon), let \textbackslash(E\_1 = {[}I\_m \textbackslash;\textbackslash; 0 \textbackslash;\textbackslash; \textbackslash cdots \textbackslash;\textbackslash; 0{]}\textbackslash). Then:
+\textbf{(c)} Define the MPC gain. Since only the first \(m\) rows of \(\mathbf{U}^*\) are applied (receding horizon), let \(E_1 = [I_m \;\; 0 \;\; \cdots \;\; 0]\). Then:
 
-\textbackslash{[}
-u\_k\^{}* = E\_1 \textbackslash mathbf\{U\}\^{}* = \textbackslash underbrace\{E\_1 \textbackslash big(\textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathcal\{B\} + \textbackslash bar\{R\}\textbackslash big)\^{}\{-1\} \textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\}\_\{K\_\{\textbackslash mathrm\{MPC,ref\}\}\}\textbackslash,\textbackslash mathbf\{X\}\_\{\textbackslash mathrm\{ref\}\} - \textbackslash underbrace\{E\_1 \textbackslash big(\textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathcal\{B\} + \textbackslash bar\{R\}\textbackslash big)\^{}\{-1\} \textbackslash mathcal\{B\}\^{}T \textbackslash bar\{Q\}\textbackslash,\textbackslash mathcal\{A\}\}\_\{K\_\{\textbackslash mathrm\{MPC\}\}\}\textbackslash,x\_k
-\textbackslash{]}
+\[
+                    u_k^* = E_1 \mathbf{U}^* = \underbrace{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}}_{K_{\mathrm{MPC,ref}}}\,\mathbf{X}_{\mathrm{ref}} - \underbrace{E_1 \big(\mathcal{B}^T \bar{Q}\,\mathcal{B} + \bar{R}\big)^{-1} \mathcal{B}^T \bar{Q}\,\mathcal{A}}_{K_{\mathrm{MPC}}}\,x_k
+                \]
 
-Explain why \textbackslash(K\_\{\textbackslash mathrm\{MPC\}\}\textbackslash) is a state-feedback gain and how increasing \textbackslash(R\textbackslash) relative to \textbackslash(Q\textbackslash) affects the control aggressiveness.
+Explain why \(K_{\mathrm{MPC}}\) is a state-feedback gain and how increasing \(R\) relative to \(Q\) affects the control aggressiveness.
 
 \textbf{Time limit: 20 minutes.} This is exactly the format and difficulty level you will encounter in the final exam. Write full derivations showing every step. Partial credit is awarded for correct intermediate work.
 
@@ -103,7 +103,7 @@ Explain why \textbackslash(K\_\{\textbackslash mathrm\{MPC\}\}\textbackslash) is
 \item
   Derive the adaptive control law using Lyapunov-based stability analysis, including the construction of a candidate Lyapunov function and verification that its time derivative is negative semi-definite.
 \item
-  Apply the linearity-in-parameters property of rigid-body dynamics: \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = Y(q, \textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash,\textbackslash theta\textbackslash), identifying the regressor matrix \textbackslash(Y\textbackslash) and parameter vector \textbackslash(\textbackslash theta\textbackslash) for specific systems.
+  Apply the linearity-in-parameters property of rigid-body dynamics: \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = Y(q, \dot{q}, \ddot{q})\,\theta\), identifying the regressor matrix \(Y\) and parameter vector \(\theta\) for specific systems.
 \item
   Implement adaptive control for three robotic platforms: a 2-DOF manipulator, a differential-drive mobile robot, and a quadrotor UAV.
 \item
@@ -160,16 +160,16 @@ Hands-on activities: parameter convergence, comparison with computed torque, reg
 
 In Week 1, we designed a computed torque controller for a 2-DOF manipulator. The control law was:
 
-\textbackslash{[}
-\textbackslash tau = M(q)\textbackslash big(\textbackslash ddot\{q\}\_d + K\_v\textbackslash dot\{e\} + K\_p e\textbackslash big) + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q)
-\textbackslash{]}
+\[
+                \tau = M(q)\big(\ddot{q}_d + K_v\dot{e} + K_p e\big) + C(q,\dot{q})\dot{q} + G(q)
+            \]
 
-This requires \textbf{exact knowledge} of the inertia matrix \textbackslash(M(q)\textbackslash), Coriolis/centrifugal matrix \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), and gravity vector \textbackslash(G(q)\textbackslash). In practice, this assumption fails for several reasons:
+This requires \textbf{exact knowledge} of the inertia matrix \(M(q)\), Coriolis/centrifugal matrix \(C(q,\dot{q})\), and gravity vector \(G(q)\). In practice, this assumption fails for several reasons:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Unknown payloads:} A manipulator picks up objects of unknown mass. The effective \textbackslash(m\_2\textbackslash) changes.
+  \textbf{Unknown payloads:} A manipulator picks up objects of unknown mass. The effective \(m_2\) changes.
 \item
   \textbf{Manufacturing tolerances:} Link lengths, masses, and centres of gravity are only approximately known.
 \item
@@ -190,19 +190,19 @@ Adaptive control addresses this by estimating the unknown parameters online, whi
 
 The dynamics of a rigid-body robotic system can always be written as:
 
-\textbackslash( M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = Y(q, \textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash,\textbackslash theta \textbackslash)
+\(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = Y(q, \dot{q}, \ddot{q})\,\theta\)
 
 where:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbackslash(Y(q, \textbackslash dot\{q\}, \textbackslash ddot\{q\}) \textbackslash in \textbackslash mathbb\{R\}\^{}\{n \textbackslash times p\}\textbackslash) is the \textbf{regressor matrix} --- a known matrix that depends on joint positions, velocities, and accelerations, but \emph{not} on the unknown parameters.
+  \(Y(q, \dot{q}, \ddot{q}) \in \mathbb{R}^{n \times p}\) is the \textbf{regressor matrix} --- a known matrix that depends on joint positions, velocities, and accelerations, but \emph{not} on the unknown parameters.
 \item
-  \textbackslash(\textbackslash theta \textbackslash in \textbackslash mathbb\{R\}\^{}p\textbackslash) is the \textbf{parameter vector} --- a constant vector containing all the unknown dynamic parameters (products of masses, lengths, inertias, friction coefficients, etc.).
+  \(\theta \in \mathbb{R}^p\) is the \textbf{parameter vector} --- a constant vector containing all the unknown dynamic parameters (products of masses, lengths, inertias, friction coefficients, etc.).
 \end{itemize}
 
-This is the \emph{linearity-in-parameters} property. It holds because the equations of motion are derived from the Lagrangian, which is quadratic in velocities and linear in the inertial parameters. The property is fundamental to adaptive control: it allows us to separate what we know (the structure of \textbackslash(Y\textbackslash)) from what we do not know (the values in \textbackslash(\textbackslash theta\textbackslash)).
+This is the \emph{linearity-in-parameters} property. It holds because the equations of motion are derived from the Lagrangian, which is quadratic in velocities and linear in the inertial parameters. The property is fundamental to adaptive control: it allows us to separate what we know (the structure of \(Y\)) from what we do not know (the values in \(\theta\)).
 
 \textbf{Figure 3:} The linearity-in-parameters property separates robot dynamics into a {known regressor matrix Y} (computable from kinematics) multiplied by an {unknown parameter vector θ} (to be estimated online).
 
@@ -210,107 +210,107 @@ This is the \emph{linearity-in-parameters} property. It holds because the equati
 
 \textbf{Figure 4:} 2-DOF planar manipulator. {Link 1} (length l₁, mass m₁) and {Link 2} (length l₂, mass m₂) rotate at joints with angles θ₁ and θ₂. Joint torques τ₁ and τ₂ are the control inputs.
 
-Consider the 2-DOF planar manipulator with link masses \textbackslash(m\_1, m\_2\textbackslash), link lengths \textbackslash(l\_1, l\_2\textbackslash), and gravity \textbackslash(g\textbackslash). The standard Euler-Lagrange dynamics are:
+Consider the 2-DOF planar manipulator with link masses \(m_1, m_2\), link lengths \(l_1, l_2\), and gravity \(g\). The standard Euler-Lagrange dynamics are:
 
-\textbackslash{[}
-M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau
-\textbackslash{]}
+\[
+                M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau
+            \]
 
 with:
 
-\textbackslash{[}
-M(q) = \textbackslash begin\{bmatrix\}
-m\_1 l\_1\^{}2 + m\_2(l\_1\^{}2 + l\_2\^{}2 + 2l\_1 l\_2 \textbackslash cos q\_2) \& m\_2(l\_2\^{}2 + l\_1 l\_2 \textbackslash cos q\_2) \textbackslash\textbackslash{}
-m\_2(l\_2\^{}2 + l\_1 l\_2 \textbackslash cos q\_2) \& m\_2 l\_2\^{}2
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
-\textbackslash{[}
-C(q,\textbackslash dot\{q\}) = \textbackslash begin\{bmatrix\}
--m\_2 l\_1 l\_2 \textbackslash sin(q\_2)\textbackslash,\textbackslash dot\{q\}\_2 \& -m\_2 l\_1 l\_2 \textbackslash sin(q\_2)(\textbackslash dot\{q\}\_1 + \textbackslash dot\{q\}\_2) \textbackslash\textbackslash{}
-m\_2 l\_1 l\_2 \textbackslash sin(q\_2)\textbackslash,\textbackslash dot\{q\}\_1 \& 0
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
-\textbackslash{[}
-G(q) = \textbackslash begin\{bmatrix\}
-(m\_1 + m\_2)\textbackslash,g\textbackslash,l\_1 \textbackslash sin q\_1 + m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash sin(q\_1 + q\_2) \textbackslash\textbackslash{}
-m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash sin(q\_1 + q\_2)
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                M(q) = \begin{bmatrix}
+                    m_1 l_1^2 + m_2(l_1^2 + l_2^2 + 2l_1 l_2 \cos q_2) & m_2(l_2^2 + l_1 l_2 \cos q_2) \\
+                    m_2(l_2^2 + l_1 l_2 \cos q_2) & m_2 l_2^2
+                \end{bmatrix}
+            \]
+\[
+                C(q,\dot{q}) = \begin{bmatrix}
+                    -m_2 l_1 l_2 \sin(q_2)\,\dot{q}_2 & -m_2 l_1 l_2 \sin(q_2)(\dot{q}_1 + \dot{q}_2) \\
+                    m_2 l_1 l_2 \sin(q_2)\,\dot{q}_1 & 0
+                \end{bmatrix}
+            \]
+\[
+                G(q) = \begin{bmatrix}
+                    (m_1 + m_2)\,g\,l_1 \sin q_1 + m_2\,g\,l_2 \sin(q_1 + q_2) \\
+                    m_2\,g\,l_2 \sin(q_1 + q_2)
+                \end{bmatrix}
+            \]
 
 Define the parameter vector:
 
-\textbackslash{[}
-\textbackslash theta = \textbackslash begin\{bmatrix\} \textbackslash theta\_1 \textbackslash\textbackslash{} \textbackslash theta\_2 \textbackslash\textbackslash{} \textbackslash theta\_3 \textbackslash\textbackslash{} \textbackslash theta\_4 \textbackslash\textbackslash{} \textbackslash theta\_5 \textbackslash\textbackslash{} \textbackslash theta\_6 \textbackslash end\{bmatrix\}
-= \textbackslash begin\{bmatrix\} m\_1 l\_1\^{}2 \textbackslash\textbackslash{} m\_2 l\_1\^{}2 \textbackslash\textbackslash{} m\_2 l\_2\^{}2 \textbackslash\textbackslash{} m\_2 l\_1 l\_2 \textbackslash\textbackslash{} (m\_1 + m\_2)\textbackslash,g\textbackslash,l\_1 \textbackslash\textbackslash{} m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    \theta = \begin{bmatrix} \theta_1 \\ \theta_2 \\ \theta_3 \\ \theta_4 \\ \theta_5 \\ \theta_6 \end{bmatrix}
+                    = \begin{bmatrix} m_1 l_1^2 \\ m_2 l_1^2 \\ m_2 l_2^2 \\ m_2 l_1 l_2 \\ (m_1 + m_2)\,g\,l_1 \\ m_2\,g\,l_2 \end{bmatrix}
+                \]
 
-Then the regressor matrix \textbackslash(Y \textbackslash in \textbackslash mathbb\{R\}\^{}\{2 \textbackslash times 6\}\textbackslash) such that \textbackslash(\textbackslash tau = Y(q, \textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash,\textbackslash theta\textbackslash) is:
+Then the regressor matrix \(Y \in \mathbb{R}^{2 \times 6}\) such that \(\tau = Y(q, \dot{q}, \ddot{q})\,\theta\) is:
 
-\textbackslash{[}
-Y = \textbackslash begin\{bmatrix\}
-\textbackslash ddot\{q\}\_1 \& \textbackslash ddot\{q\}\_1 \& \textbackslash ddot\{q\}\_1 + \textbackslash ddot\{q\}\_2 \& 2\textbackslash cos(q\_2)\textbackslash ddot\{q\}\_1 + \textbackslash cos(q\_2)\textbackslash ddot\{q\}\_2 - \textbackslash sin(q\_2)\textbackslash dot\{q\}\_2\textbackslash dot\{q\}\_1 - \textbackslash sin(q\_2)(\textbackslash dot\{q\}\_1+\textbackslash dot\{q\}\_2)\textbackslash dot\{q\}\_2 \& \textbackslash sin(q\_1) \& \textbackslash sin(q\_1+q\_2) \textbackslash\textbackslash{}
-0 \& 0 \& \textbackslash ddot\{q\}\_1 + \textbackslash ddot\{q\}\_2 \& \textbackslash cos(q\_2)\textbackslash ddot\{q\}\_1 + \textbackslash sin(q\_2)\textbackslash dot\{q\}\_1\^{}2 \& 0 \& \textbackslash sin(q\_1+q\_2)
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    Y = \begin{bmatrix}
+                        \ddot{q}_1 & \ddot{q}_1 & \ddot{q}_1 + \ddot{q}_2 & 2\cos(q_2)\ddot{q}_1 + \cos(q_2)\ddot{q}_2 - \sin(q_2)\dot{q}_2\dot{q}_1 - \sin(q_2)(\dot{q}_1+\dot{q}_2)\dot{q}_2 & \sin(q_1) & \sin(q_1+q_2) \\
+                        0 & 0 & \ddot{q}_1 + \ddot{q}_2 & \cos(q_2)\ddot{q}_1 + \sin(q_2)\dot{q}_1^2 & 0 & \sin(q_1+q_2)
+                    \end{bmatrix}
+                \]
 
-You can verify: multiply \textbackslash(Y\textbackslash theta\textbackslash) and recover exactly \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q)\textbackslash). Every entry of \textbackslash(Y\textbackslash) is computable from measured (or commanded) \textbackslash(q, \textbackslash dot\{q\}, \textbackslash ddot\{q\}\textbackslash).
+You can verify: multiply \(Y\theta\) and recover exactly \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q)\). Every entry of \(Y\) is computable from measured (or commanded) \(q, \dot{q}, \ddot{q}\).
 
 \subsection{The Adaptive Control Law}
 
 We now construct the adaptive controller. Define the tracking error and its filtered version:
 
-\textbackslash{[}
-e = q\_d - q, \textbackslash qquad \textbackslash dot\{e\} = \textbackslash dot\{q\}\_d - \textbackslash dot\{q\}
-\textbackslash{]}
+\[
+                    e = q_d - q, \qquad \dot{e} = \dot{q}_d - \dot{q}
+                \]
 
 Define the \textbf{sliding variable} (composite error):
 
-\textbackslash{[}
-s = \textbackslash dot\{e\} + \textbackslash Lambda\textbackslash, e
-\textbackslash{]}
+\[
+                    s = \dot{e} + \Lambda\, e
+                \]
 
-where \textbackslash(\textbackslash Lambda = \textbackslash Lambda\^{}T \textbackslash succ 0\textbackslash) is a positive definite design matrix. Equivalently, define the \textbf{reference velocity} and \textbf{reference acceleration}:
+where \(\Lambda = \Lambda^T \succ 0\) is a positive definite design matrix. Equivalently, define the \textbf{reference velocity} and \textbf{reference acceleration}:
 
-\textbackslash{[}
-\textbackslash dot\{q\}\_r = \textbackslash dot\{q\}\_d + \textbackslash Lambda\textbackslash,e = \textbackslash dot\{q\} + s
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d + \textbackslash Lambda\textbackslash,\textbackslash dot\{e\}
-\textbackslash{]}
+\[
+                \dot{q}_r = \dot{q}_d + \Lambda\,e = \dot{q} + s
+            \]
+\[
+                \ddot{q}_r = \ddot{q}_d + \Lambda\,\dot{e}
+            \]
 
-Notice that \textbackslash(s = \textbackslash dot\{q\}\_r - \textbackslash dot\{q\}\textbackslash), so \textbackslash(s \textbackslash to 0\textbackslash) implies \textbackslash(\textbackslash dot\{q\} \textbackslash to \textbackslash dot\{q\}\_r\textbackslash), which combined with the definition of \textbackslash(\textbackslash dot\{q\}\_r\textbackslash) implies both \textbackslash(e \textbackslash to 0\textbackslash) and \textbackslash(\textbackslash dot\{e\} \textbackslash to 0\textbackslash) exponentially (since \textbackslash(\textbackslash dot\{e\} + \textbackslash Lambda e = 0\textbackslash) is a stable linear ODE).
+Notice that \(s = \dot{q}_r - \dot{q}\), so \(s \to 0\) implies \(\dot{q} \to \dot{q}_r\), which combined with the definition of \(\dot{q}_r\) implies both \(e \to 0\) and \(\dot{e} \to 0\) exponentially (since \(\dot{e} + \Lambda e = 0\) is a stable linear ODE).
 
 The \textbf{adaptive control law} is:
 
-\textbackslash( \textbackslash tau = Y(q, \textbackslash dot\{q\}, \textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash,\textbackslash hat\{\textbackslash theta\} + K\_D\textbackslash, s \textbackslash)
+\(\tau = Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r)\,\hat{\theta} + K_D\, s\)
 
 where:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbackslash(\textbackslash hat\{\textbackslash theta\}\textbackslash) is the current estimate of the parameter vector \textbackslash(\textbackslash theta\textbackslash).
+  \(\hat{\theta}\) is the current estimate of the parameter vector \(\theta\).
 \item
-  \textbackslash(Y(q, \textbackslash dot\{q\}, \textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash) is the regressor evaluated at the \emph{reference} velocity and acceleration (not the actual \textbackslash(\textbackslash ddot\{q\}\textbackslash), which we cannot measure cleanly).
+  \(Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r)\) is the regressor evaluated at the \emph{reference} velocity and acceleration (not the actual \(\ddot{q}\), which we cannot measure cleanly).
 \item
-  \textbackslash(K\_D = K\_D\^{}T \textbackslash succ 0\textbackslash) is a positive definite gain matrix providing damping on the sliding variable.
+  \(K_D = K_D^T \succ 0\) is a positive definite gain matrix providing damping on the sliding variable.
 \end{itemize}
 
-\textbf{Important subtlety:} We evaluate the regressor at \textbackslash((\textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash) instead of \textbackslash((\textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash). This avoids the need to measure or numerically differentiate joint accelerations, and it ensures that the regressor is known (computable from \textbackslash(q, \textbackslash dot\{q\}, q\_d, \textbackslash dot\{q\}\_d, \textbackslash ddot\{q\}\_d\textbackslash)).
+\textbf{Important subtlety:} We evaluate the regressor at \((\dot{q}_r, \ddot{q}_r)\) instead of \((\dot{q}, \ddot{q})\). This avoids the need to measure or numerically differentiate joint accelerations, and it ensures that the regressor is known (computable from \(q, \dot{q}, q_d, \dot{q}_d, \ddot{q}_d\)).
 
 \subsection{Parameter Update Law}
 
 The parameter estimates are updated according to:
 
-\textbackslash( \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\}\textbackslash, Y\^{}T\textbackslash! s \textbackslash)
+\(\dot{\hat{\theta}} = \Gamma^{-1}\, Y^T\! s\)
 
-where \textbackslash(\textbackslash Gamma = \textbackslash Gamma\^{}T \textbackslash succ 0\textbackslash) is the \textbf{adaptation gain matrix}. Define the parameter estimation error:
+where \(\Gamma = \Gamma^T \succ 0\) is the \textbf{adaptation gain matrix}. Define the parameter estimation error:
 
-\textbackslash{[}
-\textbackslash tilde\{\textbackslash theta\} = \textbackslash hat\{\textbackslash theta\} - \textbackslash theta
-\textbackslash{]}
+\[
+                \tilde{\theta} = \hat{\theta} - \theta
+            \]
 
-Since \textbackslash(\textbackslash theta\textbackslash) is constant, \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash).
+Since \(\theta\) is constant, \(\dot{\tilde{\theta}} = \dot{\hat{\theta}}\).
 
 \textbf{Figure 8:} Parameter convergence under adaptive control. Multiple parameter estimates starting from different initial conditions all converge toward the true parameter value θ* (dashed line). The adaptation law drives estimates toward values that minimize tracking error.
 
@@ -318,86 +318,86 @@ Since \textbackslash(\textbackslash theta\textbackslash) is constant, \textbacks
 
 \subsubsection{Theorem (Adaptive Control Stability)}
 
-Under the adaptive control law \textbackslash(\textbackslash tau = Y\textbackslash hat\{\textbackslash theta\} + K\_D s\textbackslash) with the update law \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash), the sliding variable \textbackslash(s \textbackslash to 0\textbackslash) and consequently the tracking errors \textbackslash(e \textbackslash to 0\textbackslash), \textbackslash(\textbackslash dot\{e\} \textbackslash to 0\textbackslash) as \textbackslash(t \textbackslash to \textbackslash infty\textbackslash).
+Under the adaptive control law \(\tau = Y\hat{\theta} + K_D s\) with the update law \(\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\), the sliding variable \(s \to 0\) and consequently the tracking errors \(e \to 0\), \(\dot{e} \to 0\) as \(t \to \infty\).
 
 \textbf{Figure 7:} Lyapunov stability concept. Left: the Lyapunov function V forms a bowl-shaped surface, and the system trajectory (pink spiral) descends toward the equilibrium. Right: V(t) monotonically decreases over time since V̇ = -sᵀK₄s is always non-positive.
 
 \textbf{Proof.} Define the candidate Lyapunov function:
 
-\textbackslash{[}
-V = \textbackslash frac\{1\}\{2\}\textbackslash,s\^{}T M(q)\textbackslash,s + \textbackslash frac\{1\}\{2\}\textbackslash,\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash tilde\{\textbackslash theta\}
-\textbackslash{]}
+\[
+                V = \frac{1}{2}\,s^T M(q)\,s + \frac{1}{2}\,\tilde{\theta}^T \Gamma\,\tilde{\theta}
+            \]
 
-Since \textbackslash(M(q) \textbackslash succ 0\textbackslash) and \textbackslash(\textbackslash Gamma \textbackslash succ 0\textbackslash), both terms are strictly positive for \textbackslash((s, \textbackslash tilde\{\textbackslash theta\}) \textbackslash neq (0,0)\textbackslash), so \textbackslash(V\textbackslash) is a valid positive definite candidate with \textbackslash(V = 0\textbackslash) iff \textbackslash(s = 0\textbackslash) and \textbackslash(\textbackslash tilde\{\textbackslash theta\} = 0\textbackslash).
+Since \(M(q) \succ 0\) and \(\Gamma \succ 0\), both terms are strictly positive for \((s, \tilde{\theta}) \neq (0,0)\), so \(V\) is a valid positive definite candidate with \(V = 0\) iff \(s = 0\) and \(\tilde{\theta} = 0\).
 
-\textbf{Step 1: Time derivative of \textbackslash(V\textbackslash).}
+\textbf{Step 1: Time derivative of \(V\).}
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T M(q)\textbackslash,\textbackslash dot\{s\} + \textbackslash frac\{1\}\{2\}\textbackslash,s\^{}T \textbackslash dot\{M\}(q)\textbackslash,s + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
-\textbackslash{]}
+\[
+                \dot{V} = s^T M(q)\,\dot{s} + \frac{1}{2}\,s^T \dot{M}(q)\,s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+            \]
 
-\textbf{Step 2: Simplify \textbackslash(s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s\textbackslash) using skew-symmetry.}\\
-The Euler-Lagrange formulation guarantees that \textbackslash(N := \textbackslash dot\{M\} - 2C\textbackslash) is skew-symmetric, i.e.\textbackslash{} \textbackslash(s\^{}T N s = 0\textbackslash) for all \textbackslash(s\textbackslash). This gives \textbackslash(\textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s = s\^{}T C s\textbackslash), so:
-\textbackslash{[}
-s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s = s\^{}T(M\textbackslash dot\{s\} + Cs)
-\textbackslash{]}
+\textbf{Step 2: Simplify \(s^T M\dot{s} + \tfrac{1}{2}s^T\dot{M}s\) using skew-symmetry.}\\
+The Euler-Lagrange formulation guarantees that \(N := \dot{M} - 2C\) is skew-symmetric, i.e.\textbackslash{} \(s^T N s = 0\) for all \(s\). This gives \(\tfrac{1}{2}s^T\dot{M}s = s^T C s\), so:
+\[
+                s^T M\dot{s} + \tfrac{1}{2}s^T\dot{M}s = s^T(M\dot{s} + Cs)
+            \]
 
-\textbf{Step 3: Evaluate \textbackslash(M\textbackslash dot\{s\} + Cs\textbackslash).}\\
-Since \textbackslash(s = \textbackslash dot\{q\}\_r - \textbackslash dot\{q\}\textbackslash), we have \textbackslash(\textbackslash dot\{s\} = \textbackslash ddot\{q\}\_r - \textbackslash ddot\{q\}\textbackslash). Substituting \textbackslash(M\textbackslash ddot\{q\} = \textbackslash tau - C\textbackslash dot\{q\} - G\textbackslash):
-\textbackslash{[}
-M\textbackslash dot\{s\} + Cs = M\textbackslash ddot\{q\}\_r - M\textbackslash ddot\{q\} + Cs = M\textbackslash ddot\{q\}\_r + C\textbackslash dot\{q\} + G - \textbackslash tau + C(\textbackslash dot\{q\}\_r - \textbackslash dot\{q\})
-= M\textbackslash ddot\{q\}\_r + C\textbackslash dot\{q\}\_r + G - \textbackslash tau
-\textbackslash{]}
-By linearity-in-parameters, \textbackslash(M\textbackslash ddot\{q\}\_r + C\textbackslash dot\{q\}\_r + G = Y\textbackslash theta\textbackslash). Substituting the control law \textbackslash(\textbackslash tau = Y\textbackslash hat\{\textbackslash theta\} + K\_D s\textbackslash):
-\textbackslash{[}
-M\textbackslash dot\{s\} + Cs = Y\textbackslash theta - Y\textbackslash hat\{\textbackslash theta\} - K\_D s = -Y(\textbackslash hat\{\textbackslash theta\} - \textbackslash theta) - K\_D s = -Y\textbackslash tilde\{\textbackslash theta\} - K\_D s
-\textbackslash{]}
+\textbf{Step 3: Evaluate \(M\dot{s} + Cs\).}\\
+Since \(s = \dot{q}_r - \dot{q}\), we have \(\dot{s} = \ddot{q}_r - \ddot{q}\). Substituting \(M\ddot{q} = \tau - C\dot{q} - G\):
+\[
+                M\dot{s} + Cs = M\ddot{q}_r - M\ddot{q} + Cs = M\ddot{q}_r + C\dot{q} + G - \tau + C(\dot{q}_r - \dot{q})
+                = M\ddot{q}_r + C\dot{q}_r + G - \tau
+            \]
+By linearity-in-parameters, \(M\ddot{q}_r + C\dot{q}_r + G = Y\theta\). Substituting the control law \(\tau = Y\hat{\theta} + K_D s\):
+\[
+                M\dot{s} + Cs = Y\theta - Y\hat{\theta} - K_D s = -Y(\hat{\theta} - \theta) - K_D s = -Y\tilde{\theta} - K_D s
+            \]
 
-\textbf{Step 4: Substitute back into \textbackslash(\textbackslash dot\{V\}\textbackslash).}
+\textbf{Step 4: Substitute back into \(\dot{V}\).}
 
-\textbackslash{[}
-\textbackslash dot\{V\} = s\^{}T(-Y\textbackslash tilde\{\textbackslash theta\} - K\_D s) + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
-= -s\^{}T Y\textbackslash tilde\{\textbackslash theta\} - s\^{}T K\_D s + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
-\textbackslash{]}
+\[
+                \dot{V} = s^T(-Y\tilde{\theta} - K_D s) + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+                = -s^T Y\tilde{\theta} - s^T K_D s + \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}}
+            \]
 
 \textbf{Step 5: Cancel the cross term using the update law.}\\
-Substitute \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\}Y\^{}T s\textbackslash):
-\textbackslash{[}
-\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,(\textbackslash Gamma\^{}\{-1\}Y\^{}T s) = \textbackslash tilde\{\textbackslash theta\}\^{}T Y\^{}T s = (Y\textbackslash tilde\{\textbackslash theta\})\^{}T s = s\^{}T Y\textbackslash tilde\{\textbackslash theta\}
-\textbackslash{]}
+Substitute \(\dot{\tilde{\theta}} = \dot{\hat{\theta}} = \Gamma^{-1}Y^T s\):
+\[
+                \tilde{\theta}^T \Gamma\,\dot{\tilde{\theta}} = \tilde{\theta}^T \Gamma\,(\Gamma^{-1}Y^T s) = \tilde{\theta}^T Y^T s = (Y\tilde{\theta})^T s = s^T Y\tilde{\theta}
+            \]
 The cross terms cancel exactly:
-\textbackslash{[}
-\textbackslash dot\{V\} = -s\^{}T Y\textbackslash tilde\{\textbackslash theta\} - s\^{}T K\_D s + s\^{}T Y\textbackslash tilde\{\textbackslash theta\} = -s\^{}T K\_D s
-\textbackslash{]}
+\[
+                \dot{V} = -s^T Y\tilde{\theta} - s^T K_D s + s^T Y\tilde{\theta} = -s^T K_D s
+            \]
 
 \textbf{Result:}
-\textbackslash{[}
-\textbackslash boxed\{\textbackslash dot\{V\} = -s\^{}T K\_D\textbackslash, s \textbackslash leq 0\}
-\textbackslash{]}
-Since \textbackslash(K\_D \textbackslash succ 0\textbackslash), we have \textbackslash(\textbackslash dot\{V\} \textless{} 0\textbackslash) whenever \textbackslash(s \textbackslash neq 0\textbackslash), so \textbackslash(V\textbackslash) is non-increasing and bounded below by zero. By Barbalat\textquotesingle s lemma, \textbackslash(s(t) \textbackslash to 0\textbackslash) as \textbackslash(t \textbackslash to \textbackslash infty\textbackslash). Since \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash) with \textbackslash(\textbackslash Lambda \textbackslash succ 0\textbackslash), this implies \textbackslash(e(t) \textbackslash to 0\textbackslash) and \textbackslash(\textbackslash dot\{e\}(t) \textbackslash to 0\textbackslash). \textbackslash(\textbackslash square\textbackslash)
+\[
+                    \boxed{\dot{V} = -s^T K_D\, s \leq 0}
+                \]
+Since \(K_D \succ 0\), we have \(\dot{V} < 0\) whenever \(s \neq 0\), so \(V\) is non-increasing and bounded below by zero. By Barbalat\textquotesingle s lemma, \(s(t) \to 0\) as \(t \to \infty\). Since \(s = \dot{e} + \Lambda e\) with \(\Lambda \succ 0\), this implies \(e(t) \to 0\) and \(\dot{e}(t) \to 0\). \(\square\)
 
-\textbf{Sign convention.} We define \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash hat\{\textbackslash theta\} - \textbackslash theta\textbackslash), so \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash). The Lyapunov weight on the parameter error term is \textbackslash(\textbackslash Gamma\textbackslash) (not \textbackslash(\textbackslash Gamma\^{}\{-1\}\textbackslash)), which is why the update law \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\}Y\^{}T s\textbackslash) produces the exact cancellation \textbackslash(\textbackslash tilde\{\textbackslash theta\}\^{}T\textbackslash Gamma(\textbackslash Gamma\^{}\{-1\}Y\^{}T s) = s\^{}T Y\textbackslash tilde\{\textbackslash theta\}\textbackslash). Some textbooks define \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}\textbackslash); with that reversed convention the update law carries a negative sign, but the underlying physics is identical.
+\textbf{Sign convention.} We define \(\tilde{\theta} = \hat{\theta} - \theta\), so \(\dot{\tilde{\theta}} = \dot{\hat{\theta}}\). The Lyapunov weight on the parameter error term is \(\Gamma\) (not \(\Gamma^{-1}\)), which is why the update law \(\dot{\hat{\theta}} = \Gamma^{-1}Y^T s\) produces the exact cancellation \(\tilde{\theta}^T\Gamma(\Gamma^{-1}Y^T s) = s^T Y\tilde{\theta}\). Some textbooks define \(\tilde{\theta} = \theta - \hat{\theta}\); with that reversed convention the update law carries a negative sign, but the underlying physics is identical.
 
 \textbf{Result:}
-\textbackslash{[}
-\textbackslash boxed\{\textbackslash dot\{V\} = -s\^{}T K\_D\textbackslash, s \textbackslash leq 0\}
-\textbackslash{]}
-Since \textbackslash(K\_D \textbackslash succ 0\textbackslash), \textbackslash(\textbackslash dot\{V\} \textless{} 0\textbackslash) whenever \textbackslash(s \textbackslash neq 0\textbackslash). By Barbalat\textquotesingle s lemma, \textbackslash(s(t) \textbackslash to 0\textbackslash) as \textbackslash(t \textbackslash to \textbackslash infty\textbackslash). Since \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash) and \textbackslash(\textbackslash Lambda \textbackslash succ 0\textbackslash), this implies \textbackslash(e(t) \textbackslash to 0\textbackslash) and \textbackslash(\textbackslash dot\{e\}(t) \textbackslash to 0\textbackslash).
+\[
+                    \boxed{\dot{V} = -s^T K_D\, s \leq 0}
+                \]
+Since \(K_D \succ 0\), \(\dot{V} < 0\) whenever \(s \neq 0\). By Barbalat\textquotesingle s lemma, \(s(t) \to 0\) as \(t \to \infty\). Since \(s = \dot{e} + \Lambda e\) and \(\Lambda \succ 0\), this implies \(e(t) \to 0\) and \(\dot{e}(t) \to 0\).
 
-\textbf{Sign convention note:} We use \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash hat\{\textbackslash theta\} - \textbackslash theta\textbackslash), so \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash). With the Lyapunov function \textbackslash(V = \textbackslash tfrac\{1\}\{2\}s\^{}T M s + \textbackslash tfrac\{1\}\{2\}\textbackslash tilde\{\textbackslash theta\}\^{}T\textbackslash Gamma\textbackslash tilde\{\textbackslash theta\}\textbackslash), the update law that cancels the cross term is:
-\textbackslash{[}
-\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\}\textbackslash,Y\^{}T\textbackslash!s
-\textbackslash{]}
-Some textbooks define \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}\textbackslash) (reversed). With that convention \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = -\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\textbackslash), and the update law is written as \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash) with opposite sign in the cancellation. The physics is identical; only the bookkeeping differs. Always check which definition of \textbackslash(\textbackslash tilde\{\textbackslash theta\}\textbackslash) a textbook uses before comparing formulas.
+\textbf{Sign convention note:} We use \(\tilde{\theta} = \hat{\theta} - \theta\), so \(\dot{\tilde{\theta}} = \dot{\hat{\theta}}\). With the Lyapunov function \(V = \tfrac{1}{2}s^T M s + \tfrac{1}{2}\tilde{\theta}^T\Gamma\tilde{\theta}\), the update law that cancels the cross term is:
+\[
+                    \dot{\hat{\theta}} = \Gamma^{-1}\,Y^T\!s
+                \]
+Some textbooks define \(\tilde{\theta} = \theta - \hat{\theta}\) (reversed). With that convention \(\dot{\tilde{\theta}} = -\dot{\hat{\theta}}\), and the update law is written as \(\dot{\hat{\theta}} = \Gamma^{-1} Y^T s\) with opposite sign in the cancellation. The physics is identical; only the bookkeeping differs. Always check which definition of \(\tilde{\theta}\) a textbook uses before comparing formulas.
 
 \subsubsection{Think-Pair-Share: Effect of Adaptation Gain}
 
-Consider the adaptation gain matrix \textbackslash(\textbackslash Gamma\textbackslash). Discuss with your neighbour:
+Consider the adaptation gain matrix \(\Gamma\). Discuss with your neighbour:
 
 \begin{enumerate}
 \tightlist
 \item
-  What happens if \textbackslash(\textbackslash Gamma\textbackslash) is very large (fast adaptation)?
+  What happens if \(\Gamma\) is very large (fast adaptation)?
 
   \begin{itemize}
   \tightlist
@@ -405,20 +405,20 @@ Consider the adaptation gain matrix \textbackslash(\textbackslash Gamma\textback
     Parameter estimates change rapidly, which can cause large transient oscillations and potentially excite unmodelled dynamics. In the worst case, the system becomes unstable in practice (even though the theory guarantees stability for the nominal model).
   \end{itemize}
 \item
-  What happens if \textbackslash(\textbackslash Gamma\textbackslash) is very small (slow adaptation)?
+  What happens if \(\Gamma\) is very small (slow adaptation)?
 
   \begin{itemize}
   \tightlist
   \item
-    Parameters converge very slowly. The controller behaves essentially like a PD controller (the \textbackslash(K\_D s\textbackslash) term dominates) until the parameters have time to converge. Tracking errors may remain large for an extended period.
+    Parameters converge very slowly. The controller behaves essentially like a PD controller (the \(K_D s\) term dominates) until the parameters have time to converge. Tracking errors may remain large for an extended period.
   \end{itemize}
 \item
-  Does the Lyapunov proof guarantee that \textbackslash(\textbackslash hat\{\textbackslash theta\} \textbackslash to \textbackslash theta\textbackslash)?
+  Does the Lyapunov proof guarantee that \(\hat{\theta} \to \theta\)?
 
   \begin{itemize}
   \tightlist
   \item
-    No. The proof only guarantees \textbackslash(s \textbackslash to 0\textbackslash) (and hence \textbackslash(e \textbackslash to 0\textbackslash)). Parameter convergence requires \emph{persistent excitation} of the regressor. If the trajectory does not excite all modes, some parameters may not converge to their true values, but tracking performance is still guaranteed.
+    No. The proof only guarantees \(s \to 0\) (and hence \(e \to 0\)). Parameter convergence requires \emph{persistent excitation} of the regressor. If the trajectory does not excite all modes, some parameters may not converge to their true values, but tracking performance is still guaranteed.
   \end{itemize}
 \end{enumerate}
 
@@ -435,14 +435,14 @@ Parameter & Symbol & True Value & Initial Estimate \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Link 1 mass & \textbackslash(m\_1\textbackslash) & 1.0 kg & 1.0 kg (known) \\
-Link 2 mass & \textbackslash(m\_2\textbackslash) & 2.0 kg & 1.0 kg (50\% error) \\
-Link 1 length & \textbackslash(l\_1\textbackslash) & 1.0 m & 1.0 m (known) \\
-Link 2 length & \textbackslash(l\_2\textbackslash) & 1.0 m & 1.0 m (known) \\
-Gravity & \textbackslash(g\textbackslash) & 9.81 m/s² & 9.81 m/s² (known) \\
+Link 1 mass & \(m_1\) & 1.0 kg & 1.0 kg (known) \\
+Link 2 mass & \(m_2\) & 2.0 kg & 1.0 kg (50\% error) \\
+Link 1 length & \(l_1\) & 1.0 m & 1.0 m (known) \\
+Link 2 length & \(l_2\) & 1.0 m & 1.0 m (known) \\
+Gravity & \(g\) & 9.81 m/s² & 9.81 m/s² (known) \\
 \end{longtable}
 
-Even though only \textbackslash(m\_2\textbackslash) is wrong, all composite parameters involving \textbackslash(m\_2\textbackslash) are affected:
+Even though only \(m_2\) is wrong, all composite parameters involving \(m_2\) are affected:
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -451,60 +451,60 @@ Composite Parameter & True Value & Initial Estimate \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbackslash(\textbackslash theta\_1 = m\_1 l\_1\^{}2\textbackslash) & 1.0 & 1.0 \\
-\textbackslash(\textbackslash theta\_2 = m\_2 l\_1\^{}2\textbackslash) & 2.0 & 1.0 \\
-\textbackslash(\textbackslash theta\_3 = m\_2 l\_2\^{}2\textbackslash) & 2.0 & 1.0 \\
-\textbackslash(\textbackslash theta\_4 = m\_2 l\_1 l\_2\textbackslash) & 2.0 & 1.0 \\
-\textbackslash(\textbackslash theta\_5 = (m\_1+m\_2)gl\_1\textbackslash) & 29.43 & 19.62 \\
-\textbackslash(\textbackslash theta\_6 = m\_2 g l\_2\textbackslash) & 19.62 & 9.81 \\
+\(\theta_1 = m_1 l_1^2\) & 1.0 & 1.0 \\
+\(\theta_2 = m_2 l_1^2\) & 2.0 & 1.0 \\
+\(\theta_3 = m_2 l_2^2\) & 2.0 & 1.0 \\
+\(\theta_4 = m_2 l_1 l_2\) & 2.0 & 1.0 \\
+\(\theta_5 = (m_1+m_2)gl_1\) & 29.43 & 19.62 \\
+\(\theta_6 = m_2 g l_2\) & 19.62 & 9.81 \\
 \end{longtable}
 
 \subsection{Building the Regressor Matrix}
 
-We need the regressor evaluated at the reference quantities \textbackslash((\textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r)\textbackslash) instead of \textbackslash((\textbackslash dot\{q\}, \textbackslash ddot\{q\})\textbackslash). Define:
+We need the regressor evaluated at the reference quantities \((\dot{q}_r, \ddot{q}_r)\) instead of \((\dot{q}, \ddot{q})\). Define:
 
-\textbackslash{[}
-\textbackslash dot\{q\}\_r = \textbackslash dot\{q\}\_d + \textbackslash Lambda(q\_d - q), \textbackslash qquad \textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d + \textbackslash Lambda(\textbackslash dot\{q\}\_d - \textbackslash dot\{q\})
-\textbackslash{]}
+\[
+                \dot{q}_r = \dot{q}_d + \Lambda(q_d - q), \qquad \ddot{q}_r = \ddot{q}_d + \Lambda(\dot{q}_d - \dot{q})
+            \]
 
-The regressor \textbackslash(Y(q, \textbackslash dot\{q\}, \textbackslash dot\{q\}\_r, \textbackslash ddot\{q\}\_r) \textbackslash in \textbackslash mathbb\{R\}\^{}\{2 \textbackslash times 6\}\textbackslash) is constructed by replacing every occurrence of \textbackslash(\textbackslash ddot\{q\}\textbackslash) with \textbackslash(\textbackslash ddot\{q\}\_r\textbackslash) and every occurrence of \textbackslash(\textbackslash dot\{q\}\textbackslash) in the Coriolis terms with a mix of \textbackslash(\textbackslash dot\{q\}\textbackslash) and \textbackslash(\textbackslash dot\{q\}\_r\textbackslash) as appropriate. Specifically:
+The regressor \(Y(q, \dot{q}, \dot{q}_r, \ddot{q}_r) \in \mathbb{R}^{2 \times 6}\) is constructed by replacing every occurrence of \(\ddot{q}\) with \(\ddot{q}_r\) and every occurrence of \(\dot{q}\) in the Coriolis terms with a mix of \(\dot{q}\) and \(\dot{q}_r\) as appropriate. Specifically:
 
-\textbackslash{[}
-Y\_\{11\} = \textbackslash ddot\{q\}\_\{r1\}
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{12\} = \textbackslash ddot\{q\}\_\{r1\}
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{13\} = \textbackslash ddot\{q\}\_\{r1\} + \textbackslash ddot\{q\}\_\{r2\}
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{14\} = 2\textbackslash cos(q\_2)\textbackslash ddot\{q\}\_\{r1\} + \textbackslash cos(q\_2)\textbackslash ddot\{q\}\_\{r2\} - \textbackslash sin(q\_2)\textbackslash dot\{q\}\_2\textbackslash dot\{q\}\_\{r1\} - \textbackslash sin(q\_2)(\textbackslash dot\{q\}\_1 + \textbackslash dot\{q\}\_2)\textbackslash dot\{q\}\_\{r2\}
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{15\} = \textbackslash sin(q\_1)
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{16\} = \textbackslash sin(q\_1 + q\_2)
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{21\} = 0
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{22\} = 0
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{23\} = \textbackslash ddot\{q\}\_\{r1\} + \textbackslash ddot\{q\}\_\{r2\}
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{24\} = \textbackslash cos(q\_2)\textbackslash ddot\{q\}\_\{r1\} + \textbackslash sin(q\_2)\textbackslash dot\{q\}\_1 \textbackslash dot\{q\}\_\{r1\}
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{25\} = 0
-\textbackslash{]}
-\textbackslash{[}
-Y\_\{26\} = \textbackslash sin(q\_1 + q\_2)
-\textbackslash{]}
+\[
+                Y_{11} = \ddot{q}_{r1}
+            \]
+\[
+                Y_{12} = \ddot{q}_{r1}
+            \]
+\[
+                Y_{13} = \ddot{q}_{r1} + \ddot{q}_{r2}
+            \]
+\[
+                Y_{14} = 2\cos(q_2)\ddot{q}_{r1} + \cos(q_2)\ddot{q}_{r2} - \sin(q_2)\dot{q}_2\dot{q}_{r1} - \sin(q_2)(\dot{q}_1 + \dot{q}_2)\dot{q}_{r2}
+            \]
+\[
+                Y_{15} = \sin(q_1)
+            \]
+\[
+                Y_{16} = \sin(q_1 + q_2)
+            \]
+\[
+                Y_{21} = 0
+            \]
+\[
+                Y_{22} = 0
+            \]
+\[
+                Y_{23} = \ddot{q}_{r1} + \ddot{q}_{r2}
+            \]
+\[
+                Y_{24} = \cos(q_2)\ddot{q}_{r1} + \sin(q_2)\dot{q}_1 \dot{q}_{r1}
+            \]
+\[
+                Y_{25} = 0
+            \]
+\[
+                Y_{26} = \sin(q_1 + q_2)
+            \]
 
 \subsection{Complete Control Algorithm}
 
@@ -602,85 +602,85 @@ end
 
 \textbf{Figure 5:} Top-down view of a differential-drive mobile robot. The robot (blue) follows an actual path (pink) while tracking a reference trajectory (dashed purple). Tracking errors eₓ and eₙ are measured in the body frame. The uncertain parameters r (wheel radius) and b (track width) are indicated.
 
-A differential-drive mobile robot converts wheel angular velocities \textbackslash((\textbackslash omega\_L, \textbackslash omega\_R)\textbackslash) to linear and angular velocity via:
+A differential-drive mobile robot converts wheel angular velocities \((\omega_L, \omega_R)\) to linear and angular velocity via:
 
-\textbackslash{[}
-v = \textbackslash frac\{r\}\{2\}(\textbackslash omega\_R + \textbackslash omega\_L), \textbackslash qquad \textbackslash omega = \textbackslash frac\{r\}\{b\}(\textbackslash omega\_R - \textbackslash omega\_L)
-\textbackslash{]}
+\[
+                v = \frac{r}{2}(\omega_R + \omega_L), \qquad \omega = \frac{r}{b}(\omega_R - \omega_L)
+            \]
 
-where \textbackslash(r\textbackslash) is the wheel radius and \textbackslash(b\textbackslash) is the track width (distance between wheels). The kinematic model in task space is:
+where \(r\) is the wheel radius and \(b\) is the track width (distance between wheels). The kinematic model in task space is:
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} \textbackslash dot\{x\} \textbackslash\textbackslash{} \textbackslash dot\{y\} \textbackslash\textbackslash{} \textbackslash dot\{\textbackslash phi\} \textbackslash end\{bmatrix\}
-= \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash phi \& 0 \textbackslash\textbackslash{} \textbackslash sin\textbackslash phi \& 0 \textbackslash\textbackslash{} 0 \& 1 \textbackslash end\{bmatrix\}
-\textbackslash begin\{bmatrix\} v \textbackslash\textbackslash{} \textbackslash omega \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                \begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{\phi} \end{bmatrix}
+                = \begin{bmatrix} \cos\phi & 0 \\ \sin\phi & 0 \\ 0 & 1 \end{bmatrix}
+                \begin{bmatrix} v \\ \omega \end{bmatrix}
+            \]
 
 Uncertainties arise from:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Wheel radius \textbackslash(r\textbackslash):} Tire pressure variations, wear, and deformation under load change the effective radius.
+  \textbf{Wheel radius \(r\):} Tire pressure variations, wear, and deformation under load change the effective radius.
 \item
-  \textbf{Track width \textbackslash(b\textbackslash):} Manufacturing tolerances and wheel alignment errors affect the effective distance between contact patches.
+  \textbf{Track width \(b\):} Manufacturing tolerances and wheel alignment errors affect the effective distance between contact patches.
 \end{itemize}
 
 \subsection{Linearity in Parameters for the Kinematic Model}
 
-We can write the velocity-level kinematics in a form that is linear in the uncertain parameters. Define the control inputs as the wheel angular velocities \textbackslash(u = {[}\textbackslash omega\_R, \textbackslash omega\_L{]}\^{}T\textbackslash). Then:
+We can write the velocity-level kinematics in a form that is linear in the uncertain parameters. Define the control inputs as the wheel angular velocities \(u = [\omega_R, \omega_L]^T\). Then:
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} v \textbackslash\textbackslash{} \textbackslash omega \textbackslash end\{bmatrix\}
-= \textbackslash begin\{bmatrix\} \textbackslash frac\{1\}\{2\}\textbackslash omega\_R + \textbackslash frac\{1\}\{2\}\textbackslash omega\_L \textbackslash\textbackslash{} \textbackslash frac\{1\}\{b\}(\textbackslash omega\_R - \textbackslash omega\_L) \textbackslash end\{bmatrix\}
-\textbackslash cdot r
-\textbackslash{]}
+\[
+                \begin{bmatrix} v \\ \omega \end{bmatrix}
+                = \begin{bmatrix} \frac{1}{2}\omega_R + \frac{1}{2}\omega_L \\ \frac{1}{b}(\omega_R - \omega_L) \end{bmatrix}
+                \cdot r
+            \]
 
-Define the parameter vector \textbackslash(\textbackslash theta\_m = {[}r,\textbackslash; r/b{]}\^{}T\textbackslash). Then:
+Define the parameter vector \(\theta_m = [r,\; r/b]^T\). Then:
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} v \textbackslash\textbackslash{} \textbackslash omega \textbackslash end\{bmatrix\}
-= \textbackslash underbrace\{\textbackslash begin\{bmatrix\}
-\textbackslash frac\{1\}\{2\}(\textbackslash omega\_R + \textbackslash omega\_L) \& 0 \textbackslash\textbackslash{}
-0 \& \textbackslash omega\_R - \textbackslash omega\_L
-\textbackslash end\{bmatrix\}\}\_\{Y\_m(u)\}
-\textbackslash begin\{bmatrix\} r \textbackslash\textbackslash{} r/b \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                \begin{bmatrix} v \\ \omega \end{bmatrix}
+                = \underbrace{\begin{bmatrix}
+                    \frac{1}{2}(\omega_R + \omega_L) & 0 \\
+                    0 & \omega_R - \omega_L
+                \end{bmatrix}}_{Y_m(u)}
+                \begin{bmatrix} r \\ r/b \end{bmatrix}
+            \]
 
 \subsection{Adaptive Tracking Controller}
 
 For trajectory tracking, we use a Lyapunov-based approach. Define the position error in the body frame:
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} e\_x \textbackslash\textbackslash{} e\_y \textbackslash\textbackslash{} e\_\textbackslash phi \textbackslash end\{bmatrix\}
-= \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash phi \& \textbackslash sin\textbackslash phi \& 0 \textbackslash\textbackslash{} -\textbackslash sin\textbackslash phi \& \textbackslash cos\textbackslash phi \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 1 \textbackslash end\{bmatrix\}
-\textbackslash begin\{bmatrix\} x\_d - x \textbackslash\textbackslash{} y\_d - y \textbackslash\textbackslash{} \textbackslash phi\_d - \textbackslash phi \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                \begin{bmatrix} e_x \\ e_y \\ e_\phi \end{bmatrix}
+                = \begin{bmatrix} \cos\phi & \sin\phi & 0 \\ -\sin\phi & \cos\phi & 0 \\ 0 & 0 & 1 \end{bmatrix}
+                \begin{bmatrix} x_d - x \\ y_d - y \\ \phi_d - \phi \end{bmatrix}
+            \]
 
 The desired velocity commands are computed from a standard tracking law:
 
-\textbackslash{[}
-v\_c = v\_d \textbackslash cos(e\_\textbackslash phi) + k\_1 e\_x
-\textbackslash{]}
-\textbackslash{[}
-\textbackslash omega\_c = \textbackslash omega\_d + v\_d(k\_2 e\_y + k\_3 \textbackslash sin(e\_\textbackslash phi))
-\textbackslash{]}
+\[
+                v_c = v_d \cos(e_\phi) + k_1 e_x
+            \]
+\[
+                \omega_c = \omega_d + v_d(k_2 e_y + k_3 \sin(e_\phi))
+            \]
 
-where \textbackslash(v\_d, \textbackslash omega\_d\textbackslash) are the desired linear and angular velocities along the reference trajectory, and \textbackslash(k\_1, k\_2, k\_3 \textgreater{} 0\textbackslash) are gains.
+where \(v_d, \omega_d\) are the desired linear and angular velocities along the reference trajectory, and \(k_1, k_2, k_3 > 0\) are gains.
 
-With known \textbackslash(r\textbackslash) and \textbackslash(b\textbackslash), we would directly compute the wheel speeds. With unknown parameters, we use adaptive estimation. The actual velocities depend on uncertain \textbackslash(\textbackslash theta\_m\textbackslash):
+With known \(r\) and \(b\), we would directly compute the wheel speeds. With unknown parameters, we use adaptive estimation. The actual velocities depend on uncertain \(\theta_m\):
 
-\textbackslash{[}
-\textbackslash begin\{bmatrix\} v \textbackslash\textbackslash{} \textbackslash omega \textbackslash end\{bmatrix\} = Y\_m(u)\textbackslash,\textbackslash hat\{\textbackslash theta\}\_m + \textbackslash text\{estimation error\}
-\textbackslash{]}
+\[
+                \begin{bmatrix} v \\ \omega \end{bmatrix} = Y_m(u)\,\hat{\theta}_m + \text{estimation error}
+            \]
 
 The parameter update law is:
 
-\textbackslash{[}
-\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\_m = \textbackslash Gamma\_m\textbackslash, Y\_m\^{}T\textbackslash, \textbackslash begin\{bmatrix\} e\_x \textbackslash\textbackslash{} e\_\textbackslash phi \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                \dot{\hat{\theta}}_m = \Gamma_m\, Y_m^T\, \begin{bmatrix} e_x \\ e_\phi \end{bmatrix}
+            \]
 
-where \textbackslash(\textbackslash Gamma\_m \textbackslash succ 0\textbackslash) is the adaptation gain for the mobile robot parameters.
+where \(\Gamma_m \succ 0\) is the adaptation gain for the mobile robot parameters.
 
 \subsection{MATLAB Implementation}
 
@@ -748,76 +748,76 @@ end
 
 The translational dynamics of a quadrotor are:
 
-\textbackslash{[}
-m\textbackslash ddot\{p\} = \textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} -mg \textbackslash end\{bmatrix\} + R\textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} T \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                m\ddot{p} = \begin{bmatrix} 0 \\ 0 \\ -mg \end{bmatrix} + R\begin{bmatrix} 0 \\ 0 \\ T \end{bmatrix}
+            \]
 
-where \textbackslash(m\textbackslash) is the mass, \textbackslash(p = {[}x,y,z{]}\^{}T\textbackslash) is position, \textbackslash(R \textbackslash in SO(3)\textbackslash) is the rotation matrix, and \textbackslash(T\textbackslash) is the total thrust. The rotational dynamics (simplified, Euler angles \textbackslash(\textbackslash phi, \textbackslash theta, \textbackslash psi\textbackslash)) are:
+where \(m\) is the mass, \(p = [x,y,z]^T\) is position, \(R \in SO(3)\) is the rotation matrix, and \(T\) is the total thrust. The rotational dynamics (simplified, Euler angles \(\phi, \theta, \psi\)) are:
 
-\textbackslash{[}
-I\_\{xx\}\textbackslash ddot\{\textbackslash phi\} = \textbackslash tau\_\textbackslash phi, \textbackslash qquad I\_\{yy\}\textbackslash ddot\{\textbackslash theta\} = \textbackslash tau\_\textbackslash theta, \textbackslash qquad I\_\{zz\}\textbackslash ddot\{\textbackslash psi\} = \textbackslash tau\_\textbackslash psi
-\textbackslash{]}
+\[
+                I_{xx}\ddot{\phi} = \tau_\phi, \qquad I_{yy}\ddot{\theta} = \tau_\theta, \qquad I_{zz}\ddot{\psi} = \tau_\psi
+            \]
 
 The unknown parameters are:
 
-\textbackslash{[}
-\textbackslash theta\_d = \textbackslash begin\{bmatrix\} m \textbackslash\textbackslash{} m\textbackslash,g \textbackslash\textbackslash{} I\_\{xx\} \textbackslash\textbackslash{} I\_\{yy\} \textbackslash\textbackslash{} I\_\{zz\} \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    \theta_d = \begin{bmatrix} m \\ m\,g \\ I_{xx} \\ I_{yy} \\ I_{zz} \end{bmatrix}
+                \]
 
 \subsection{Linearity in Parameters}
 
 The translational dynamics can be written as:
 
-\textbackslash{[}
-m\textbackslash ddot\{p\} + \textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} mg \textbackslash end\{bmatrix\} = R\textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} T \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                m\ddot{p} + \begin{bmatrix} 0 \\ 0 \\ mg \end{bmatrix} = R\begin{bmatrix} 0 \\ 0 \\ T \end{bmatrix}
+            \]
 
-Define the position error \textbackslash(e\_p = p\_d - p\textbackslash), sliding variable \textbackslash(s\_p = \textbackslash dot\{e\}\_p + \textbackslash Lambda\_p e\_p\textbackslash), and reference acceleration \textbackslash(\textbackslash ddot\{p\}\_r = \textbackslash ddot\{p\}\_d + \textbackslash Lambda\_p \textbackslash dot\{e\}\_p\textbackslash). The desired thrust vector is:
+Define the position error \(e_p = p_d - p\), sliding variable \(s_p = \dot{e}_p + \Lambda_p e_p\), and reference acceleration \(\ddot{p}_r = \ddot{p}_d + \Lambda_p \dot{e}_p\). The desired thrust vector is:
 
-\textbackslash{[}
-F\_\{\textbackslash mathrm\{des\}\} = \textbackslash hat\{m\}\textbackslash,\textbackslash ddot\{p\}\_r + \textbackslash begin\{bmatrix\} 0 \textbackslash\textbackslash{} 0 \textbackslash\textbackslash{} \textbackslash hat\{m\}\textbackslash hat\{g\} \textbackslash end\{bmatrix\} + K\_\{D,p\}\textbackslash,s\_p
-\textbackslash{]}
+\[
+                F_{\mathrm{des}} = \hat{m}\,\ddot{p}_r + \begin{bmatrix} 0 \\ 0 \\ \hat{m}\hat{g} \end{bmatrix} + K_{D,p}\,s_p
+            \]
 
-This is linear in \textbackslash({[}\textbackslash hat\{m\},\textbackslash; \textbackslash hat\{m\}\textbackslash hat\{g\}{]}\^{}T\textbackslash):
+This is linear in \([\hat{m},\; \hat{m}\hat{g}]^T\):
 
-\textbackslash{[}
-F\_\{\textbackslash mathrm\{des\}\} = Y\_p\textbackslash,\textbackslash hat\{\textbackslash theta\}\_p + K\_\{D,p\}\textbackslash,s\_p
-\textbackslash{]}
+\[
+                F_{\mathrm{des}} = Y_p\,\hat{\theta}_p + K_{D,p}\,s_p
+            \]
 
 where:
 
-\textbackslash{[}
-Y\_p = \textbackslash begin\{bmatrix\}
-\textbackslash ddot\{p\}\_\{r,x\} \& 0 \textbackslash\textbackslash{}
-\textbackslash ddot\{p\}\_\{r,y\} \& 0 \textbackslash\textbackslash{}
-\textbackslash ddot\{p\}\_\{r,z\} \& 1
-\textbackslash end\{bmatrix\}, \textbackslash qquad
-\textbackslash hat\{\textbackslash theta\}\_p = \textbackslash begin\{bmatrix\} \textbackslash hat\{m\} \textbackslash\textbackslash{} \textbackslash hat\{m\}\textbackslash hat\{g\} \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                Y_p = \begin{bmatrix}
+                    \ddot{p}_{r,x} & 0 \\
+                    \ddot{p}_{r,y} & 0 \\
+                    \ddot{p}_{r,z} & 1
+                \end{bmatrix}, \qquad
+                \hat{\theta}_p = \begin{bmatrix} \hat{m} \\ \hat{m}\hat{g} \end{bmatrix}
+            \]
 
-The total thrust magnitude is \textbackslash(T = \textbackslash\textbar F\_\{\textbackslash mathrm\{des\}\}\textbackslash\textbar\textbackslash), and the desired orientation is extracted from \textbackslash(F\_\{\textbackslash mathrm\{des\}\}\textbackslash).
+The total thrust magnitude is \(T = \|F_{\mathrm{des}}\|\), and the desired orientation is extracted from \(F_{\mathrm{des}}\).
 
 \subsection{Attitude Adaptive Control}
 
-For the attitude loop, define the orientation error \textbackslash(e\_a = {[}\textbackslash phi\_d - \textbackslash phi,\textbackslash; \textbackslash theta\_d - \textbackslash theta\_0,\textbackslash; \textbackslash psi\_d - \textbackslash psi{]}\^{}T\textbackslash), the sliding variable \textbackslash(s\_a = \textbackslash dot\{e\}\_a + \textbackslash Lambda\_a e\_a\textbackslash), and the reference angular acceleration \textbackslash(\textbackslash ddot\{\textbackslash eta\}\_r = \textbackslash ddot\{\textbackslash eta\}\_d + \textbackslash Lambda\_a \textbackslash dot\{e\}\_a\textbackslash). The adaptive torque is:
+For the attitude loop, define the orientation error \(e_a = [\phi_d - \phi,\; \theta_d - \theta_0,\; \psi_d - \psi]^T\), the sliding variable \(s_a = \dot{e}_a + \Lambda_a e_a\), and the reference angular acceleration \(\ddot{\eta}_r = \ddot{\eta}_d + \Lambda_a \dot{e}_a\). The adaptive torque is:
 
-\textbackslash{[}
-\textbackslash tau\_a = Y\_a\textbackslash,\textbackslash hat\{\textbackslash theta\}\_a + K\_\{D,a\}\textbackslash,s\_a
-\textbackslash{]}
+\[
+                \tau_a = Y_a\,\hat{\theta}_a + K_{D,a}\,s_a
+            \]
 
 where:
 
-\textbackslash{[}
-Y\_a = \textbackslash mathrm\{diag\}(\textbackslash ddot\{\textbackslash eta\}\_\{r,1\},\textbackslash; \textbackslash ddot\{\textbackslash eta\}\_\{r,2\},\textbackslash; \textbackslash ddot\{\textbackslash eta\}\_\{r,3\}), \textbackslash qquad
-\textbackslash hat\{\textbackslash theta\}\_a = \textbackslash begin\{bmatrix\} \textbackslash hat\{I\}\_\{xx\} \textbackslash\textbackslash{} \textbackslash hat\{I\}\_\{yy\} \textbackslash\textbackslash{} \textbackslash hat\{I\}\_\{zz\} \textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                Y_a = \mathrm{diag}(\ddot{\eta}_{r,1},\; \ddot{\eta}_{r,2},\; \ddot{\eta}_{r,3}), \qquad
+                \hat{\theta}_a = \begin{bmatrix} \hat{I}_{xx} \\ \hat{I}_{yy} \\ \hat{I}_{zz} \end{bmatrix}
+            \]
 
 \subsection{Update Laws}
 
-\textbackslash{[}
-\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\_p = \textbackslash Gamma\_p\^{}\{-1\}\textbackslash,Y\_p\^{}T\textbackslash,s\_p, \textbackslash qquad
-\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\}\_a = \textbackslash Gamma\_a\^{}\{-1\}\textbackslash,Y\_a\^{}T\textbackslash,s\_a
-\textbackslash{]}
+\[
+                \dot{\hat{\theta}}_p = \Gamma_p^{-1}\,Y_p^T\,s_p, \qquad
+                \dot{\hat{\theta}}_a = \Gamma_a^{-1}\,Y_a^T\,s_a
+            \]
 
 \subsection{MATLAB Implementation}
 
@@ -862,9 +862,9 @@ The full implementation, including the ODE function for the quadrotor adaptive c
 \item
   Open \texttt{adaptive\_control\_simulation.m} in MATLAB.
 \item
-  Run Section 1 (2-DOF Manipulator Adaptive Control). The true mass is \textbackslash(m\_2 = 2\textbackslash) kg, but the initial estimate is \textbackslash(\textbackslash hat\{m\}\_2 = 1\textbackslash) kg.
+  Run Section 1 (2-DOF Manipulator Adaptive Control). The true mass is \(m_2 = 2\) kg, but the initial estimate is \(\hat{m}_2 = 1\) kg.
 \item
-  Observe the six subplots of parameter estimates \textbackslash(\textbackslash hat\{\textbackslash theta\}\_i(t)\textbackslash) versus the true values \textbackslash(\textbackslash theta\_i\textbackslash).
+  Observe the six subplots of parameter estimates \(\hat{\theta}_i(t)\) versus the true values \(\theta_i\).
 \item
   Answer: Do all parameters converge to their true values? If not, which ones do not, and why?
 \end{enumerate}
@@ -883,7 +883,7 @@ The full implementation, including the ODE function for the quadrotor adaptive c
   \begin{itemize}
   \tightlist
   \item
-    \textbf{Computed torque} using incorrect parameters (\textbackslash(\textbackslash hat\{m\}\_2 = 1\textbackslash) kg, true \textbackslash(m\_2 = 2\textbackslash) kg).
+    \textbf{Computed torque} using incorrect parameters (\(\hat{m}_2 = 1\) kg, true \(m_2 = 2\) kg).
   \item
     \textbf{Adaptive control} with the same initial parameter estimates.
   \end{itemize}
@@ -909,27 +909,27 @@ The full implementation, including the ODE function for the quadrotor adaptive c
 
 \textbf{Question:} Consider the gravity term for link 2 of the 2-DOF manipulator:
 
-\textbackslash{[}
-G\_2 = m\_2\textbackslash,g\textbackslash,l\_2\textbackslash,\textbackslash sin(q\_1 + q\_2)
-\textbackslash{]}
+\[
+                    G_2 = m_2\,g\,l_2\,\sin(q_1 + q_2)
+                \]
 
-This is the second element of the gravity vector \textbackslash(G(q)\textbackslash). Define a composite parameter \textbackslash(\textbackslash theta\_6 = m\_2 g l\_2\textbackslash). What is the corresponding regressor entry?
+This is the second element of the gravity vector \(G(q)\). Define a composite parameter \(\theta_6 = m_2 g l_2\). What is the corresponding regressor entry?
 
-\textbf{Answer:} The regressor entry for the second row (joint 2 equation) and the column corresponding to \textbackslash(\textbackslash theta\_6\textbackslash) is simply:
+\textbf{Answer:} The regressor entry for the second row (joint 2 equation) and the column corresponding to \(\theta_6\) is simply:
 
-\textbackslash{[}
-Y\_\{2,6\} = \textbackslash sin(q\_1 + q\_2)
-\textbackslash{]}
+\[
+                    Y_{2,6} = \sin(q_1 + q_2)
+                \]
 
-Because \textbackslash(G\_2 = \textbackslash theta\_6 \textbackslash cdot \textbackslash sin(q\_1 + q\_2)\textbackslash). The regressor separates the known kinematic function \textbackslash(\textbackslash sin(q\_1+q\_2)\textbackslash) from the unknown parameter \textbackslash(\textbackslash theta\_6 = m\_2 g l\_2\textbackslash).
+Because \(G_2 = \theta_6 \cdot \sin(q_1 + q_2)\). The regressor separates the known kinematic function \(\sin(q_1+q_2)\) from the unknown parameter \(\theta_6 = m_2 g l_2\).
 
-\textbf{Follow-up:} Does the first row (joint 1 equation) also have a \textbackslash(\textbackslash theta\_6\textbackslash) entry? Yes:
+\textbf{Follow-up:} Does the first row (joint 1 equation) also have a \(\theta_6\) entry? Yes:
 
-\textbackslash{[}
-Y\_\{1,6\} = \textbackslash sin(q\_1 + q\_2)
-\textbackslash{]}
+\[
+                    Y_{1,6} = \sin(q_1 + q_2)
+                \]
 
-because the gravity contribution of link 2 to joint 1 is also \textbackslash(m\_2 g l\_2 \textbackslash sin(q\_1+q\_2)\textbackslash).
+because the gravity contribution of link 2 to joint 1 is also \(m_2 g l_2 \sin(q_1+q_2)\).
 
 \section{Summary and Next Steps}
 
@@ -943,18 +943,18 @@ Property & Computed Torque (Week 1) & MPC (Week 2) & Adaptive Control (Week 3) \
 \bottomrule\noalign{}
 \endlastfoot
 \textbf{Core idea} & Cancel nonlinearities with exact model, reduce to linear error dynamics & Predict future states over horizon, optimise control sequence online & Estimate unknown parameters online while controlling; Lyapunov guarantees stability \\
-\textbf{Model requirement} & Exact knowledge of \textbackslash(M(q), C(q,\textbackslash dot\{q\}), G(q)\textbackslash) & Known (possibly linearised) model for prediction & Known structure (regressor \textbackslash(Y\textbackslash)), unknown parameter values (\textbackslash(\textbackslash theta\textbackslash)) \\
+\textbf{Model requirement} & Exact knowledge of \(M(q), C(q,\dot{q}), G(q)\) & Known (possibly linearised) model for prediction & Known structure (regressor \(Y\)), unknown parameter values (\(\theta\)) \\
 \textbf{Handles uncertainty?} & No --- performance degrades with parameter errors & Partially --- robust MPC variants exist but add conservatism & Yes --- explicitly designed for parametric uncertainty \\
-\textbf{Handles constraints?} & No (must add saturation externally) & Yes --- naturally incorporates state and input constraints & Not directly (parameter projection can enforce bounds on \textbackslash(\textbackslash hat\{\textbackslash theta\}\textbackslash)) \\
+\textbf{Handles constraints?} & No (must add saturation externally) & Yes --- naturally incorporates state and input constraints & Not directly (parameter projection can enforce bounds on \(\hat{\theta}\)) \\
 \textbf{Computation} & Low --- one matrix inversion per step & High --- solves QP at each step & Low --- regressor multiply + parameter ODE integration \\
 \textbf{Stability guarantee} & Exponential (with exact model) & Guaranteed with terminal cost/constraint & Asymptotic via Lyapunov + Barbalat\textquotesingle s lemma \\
 \textbf{Parameter convergence} & N/A (parameters assumed known) & N/A (parameters assumed known) & Only with persistent excitation \\
-\textbf{Key design parameters} & \textbackslash(K\_p, K\_v\textbackslash) (PD gains) & \textbackslash(Q, R, N\textbackslash) (cost weights, horizon) & \textbackslash(\textbackslash Lambda, K\_D, \textbackslash Gamma\textbackslash) (sliding surface, damping, adaptation rate) \\
+\textbf{Key design parameters} & \(K_p, K_v\) (PD gains) & \(Q, R, N\) (cost weights, horizon) & \(\Lambda, K_D, \Gamma\) (sliding surface, damping, adaptation rate) \\
 \textbf{Best suited for} & Well-modelled systems with known parameters & Systems with constraints, preview information, and known models & Systems with unknown or slowly-varying parameters, no constraints \\
 \end{longtable}
 
-\textbf{Looking ahead --- Week 4: Robust Control.} What if the uncertainty is not parametric but includes unmodelled dynamics, disturbances, or unstructured uncertainty? Robust control (e.g., sliding mode control, \textbackslash(H\_\textbackslash infty\textbackslash)) provides guaranteed performance bounds without requiring online estimation. We will see how robust and adaptive approaches can be combined.
+\textbf{Looking ahead --- Week 4: Robust Control.} What if the uncertainty is not parametric but includes unmodelled dynamics, disturbances, or unstructured uncertainty? Robust control (e.g., sliding mode control, \(H_\infty\)) provides guaranteed performance bounds without requiring online estimation. We will see how robust and adaptive approaches can be combined.
 
-M.Sc. Control for Robots --- University of West London --- AY 2025--26
+M.Sc. Control for Robots --- AY 2025--26
 
 Week 3: Adaptive Control • Lecture Notes

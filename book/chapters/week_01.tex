@@ -8,7 +8,7 @@
 
 From Equations of Motion to Computed Torque Control
 
-Control for Robots \textbar{} University of West London\\
+Control for Robots\\
 AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 
 \section{Overview}
@@ -22,7 +22,7 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 \item
   \textbf{Derive} the Euler--Lagrange equations of motion for a 2-DOF robot manipulator
 \item
-  \textbf{Identify} the mass matrix \textbackslash(M(q)\textbackslash), Coriolis matrix \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), and gravity vector \textbackslash(G(q)\textbackslash) and explain their physical roles
+  \textbf{Identify} the mass matrix \(M(q)\), Coriolis matrix \(C(q,\dot{q})\), and gravity vector \(G(q)\) and explain their physical roles
 \item
   \textbf{Design} a computed torque (inverse dynamics) controller and prove its stability using Lyapunov analysis
 \item
@@ -46,7 +46,7 @@ AY 2025--26 \textbar{} 3-Hour Lecture + Activity Session
 \item
   Euler--Lagrange formulation
 \item
-  Properties of the dynamics: \textbackslash(M(q)\textbackslash), \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), \textbackslash(G(q)\textbackslash)
+  Properties of the dynamics: \(M(q)\), \(C(q,\dot{q})\), \(G(q)\)
 \item
   Skew-symmetry property \& its role in control
 \end{itemize}
@@ -127,9 +127,9 @@ Feedforward cancels known dynamics; feedback corrects remaining error. This is t
 
 \subsection{The Euler--Lagrange Equation of Motion}
 
-For an \textbackslash(n\textbackslash)-DOF rigid-body manipulator, the Lagrangian \textbackslash(\textbackslash mathcal\{L\} = T - V\textbackslash) (kinetic minus potential energy) yields the standard form:
+For an \(n\)-DOF rigid-body manipulator, the Lagrangian \(\mathcal{L} = T - V\) (kinetic minus potential energy) yields the standard form:
 
-\textbackslash{[} M(q)\textbackslash,\textbackslash ddot\{q\} \textbackslash;+\textbackslash; C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} \textbackslash;+\textbackslash; G(q) \textbackslash;=\textbackslash; \textbackslash tau \textbackslash{]}
+\[ M(q)\,\ddot{q} \;+\; C(q,\dot{q})\,\dot{q} \;+\; G(q) \;=\; \tau \]
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}
@@ -138,65 +138,65 @@ Symbol & Name & Dimension & Physical Meaning \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbackslash(q\textbackslash) & Joint positions & \textbackslash(n \textbackslash times 1\textbackslash) & Generalised coordinates (angles for revolute joints) \\
-\textbackslash(M(q)\textbackslash) & Mass (inertia) matrix & \textbackslash(n \textbackslash times n\textbackslash) & Relates joint accelerations to required torques; symmetric positive-definite \\
-\textbackslash(C(q,\textbackslash dot\{q\})\textbackslash) & Coriolis \& centrifugal matrix & \textbackslash(n \textbackslash times n\textbackslash) & Velocity-dependent coupling forces between joints \\
-\textbackslash(G(q)\textbackslash) & Gravity vector & \textbackslash(n \textbackslash times 1\textbackslash) & Torques required to hold the arm against gravity \\
-\textbackslash(\textbackslash tau\textbackslash) & Joint torques & \textbackslash(n \textbackslash times 1\textbackslash) & Control inputs (what we design) \\
+\(q\) & Joint positions & \(n \times 1\) & Generalised coordinates (angles for revolute joints) \\
+\(M(q)\) & Mass (inertia) matrix & \(n \times n\) & Relates joint accelerations to required torques; symmetric positive-definite \\
+\(C(q,\dot{q})\) & Coriolis \& centrifugal matrix & \(n \times n\) & Velocity-dependent coupling forces between joints \\
+\(G(q)\) & Gravity vector & \(n \times 1\) & Torques required to hold the arm against gravity \\
+\(\tau\) & Joint torques & \(n \times 1\) & Control inputs (what we design) \\
 \end{longtable}
 
 \subsection{A Concrete Example: 2-DOF Planar Manipulator}
 
-Consider a two-link planar arm with link masses \textbackslash(m\_1, m\_2\textbackslash), link lengths \textbackslash(l\_1, l\_2\textbackslash), and distances to centres of mass \textbackslash(l\_\{c1\}, l\_\{c2\}\textbackslash). For simplicity we take \textbackslash(l\_\{ci\} = l\_i\textbackslash) (point masses at link tips).
+Consider a two-link planar arm with link masses \(m_1, m_2\), link lengths \(l_1, l_2\), and distances to centres of mass \(l_{c1}, l_{c2}\). For simplicity we take \(l_{ci} = l_i\) (point masses at link tips).
 
-\subsubsection{Mass Matrix \textbackslash(M(q)\textbackslash)}
+\paragraph{\texorpdfstring{📐 Mass Matrix \(M(q)\)}{📐 Mass Matrix M(q)}}}
 
-\textbackslash{[}
-M(q) = \textbackslash begin\{bmatrix\}
-m\_1 l\_1\^{}2 + m\_2(l\_1\^{}2 + l\_2\^{}2 + 2l\_1 l\_2 \textbackslash cos q\_2) \& m\_2(l\_2\^{}2 + l\_1 l\_2 \textbackslash cos q\_2) \textbackslash\textbackslash{}
-m\_2(l\_2\^{}2 + l\_1 l\_2 \textbackslash cos q\_2) \& m\_2 l\_2\^{}2
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    M(q) = \begin{bmatrix}
+                    m_1 l_1^2 + m_2(l_1^2 + l_2^2 + 2l_1 l_2 \cos q_2) & m_2(l_2^2 + l_1 l_2 \cos q_2) \\
+                    m_2(l_2^2 + l_1 l_2 \cos q_2) & m_2 l_2^2
+                    \end{bmatrix}
+                    \]
 
-Notice: \textbackslash(M(q)\textbackslash) depends on \textbackslash(q\_2\textbackslash) only (the relative angle), and is always symmetric positive-definite so it is invertible.
+Notice: \(M(q)\) depends on \(q_2\) only (the relative angle), and is always symmetric positive-definite so it is invertible.
 
-\paragraph{🌀 Coriolis \& Centrifugal Matrix \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash)}}
+\paragraph{\texorpdfstring{🌀 Coriolis \& Centrifugal Matrix \(C(q,\dot{q})\)}{🌀 Coriolis \& Centrifugal Matrix C(q,\textbackslash dot\{q\})}}}
 
 Using Christoffel symbols of the first kind:
 
-\textbackslash{[}
-C(q,\textbackslash dot\{q\}) = \textbackslash begin\{bmatrix\}
--m\_2 l\_1 l\_2 \textbackslash sin(q\_2)\textbackslash,\textbackslash dot\{q\}\_2 \& -m\_2 l\_1 l\_2 \textbackslash sin(q\_2)(\textbackslash dot\{q\}\_1 + \textbackslash dot\{q\}\_2) \textbackslash\textbackslash{}
-m\_2 l\_1 l\_2 \textbackslash sin(q\_2)\textbackslash,\textbackslash dot\{q\}\_1 \& 0
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    C(q,\dot{q}) = \begin{bmatrix}
+                    -m_2 l_1 l_2 \sin(q_2)\,\dot{q}_2 & -m_2 l_1 l_2 \sin(q_2)(\dot{q}_1 + \dot{q}_2) \\
+                    m_2 l_1 l_2 \sin(q_2)\,\dot{q}_1 & 0
+                    \end{bmatrix}
+                    \]
 
-\subsubsection{Gravity Vector \textbackslash(G(q)\textbackslash)}
+\paragraph{\texorpdfstring{⬇️ Gravity Vector \(G(q)\)}{⬇️ Gravity Vector G(q)}}}
 
-\textbackslash{[}
-G(q) = \textbackslash begin\{bmatrix\}
-(m\_1 + m\_2)\textbackslash,g\textbackslash,l\_1 \textbackslash cos q\_1 + m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash cos(q\_1 + q\_2) \textbackslash\textbackslash{}
-m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash cos(q\_1 + q\_2)
-\textbackslash end\{bmatrix\}
-\textbackslash{]}
+\[
+                    G(q) = \begin{bmatrix}
+                    (m_1 + m_2)\,g\,l_1 \cos q_1 + m_2\,g\,l_2 \cos(q_1 + q_2) \\
+                    m_2\,g\,l_2 \cos(q_1 + q_2)
+                    \end{bmatrix}
+                    \]
 
 \subsection{Key Properties of the Dynamic Model}
 
 \subsubsection{Property 1: Symmetry \& Positive-Definiteness}
 
-\textbackslash(M(q) = M(q)\^{}T \textgreater{} 0\textbackslash) for all \textbackslash(q\textbackslash). This guarantees the system always has finite inertia and the dynamics are well-posed.
+\(M(q) = M(q)^T > 0\) for all \(q\). This guarantees the system always has finite inertia and the dynamics are well-posed.
 
 \subsubsection{Property 2: Skew-Symmetry}
 
-The matrix \textbackslash(\textbackslash dot\{M\}(q) - 2C(q,\textbackslash dot\{q\})\textbackslash) is skew-symmetric, i.e., \textbackslash(x\^{}T{[}\textbackslash dot\{M\} - 2C{]}x = 0\textbackslash) for all \textbackslash(x\textbackslash). This property is \textbf{essential} for Lyapunov-based stability proofs.
+The matrix \(\dot{M}(q) - 2C(q,\dot{q})\) is skew-symmetric, i.e., \(x^T[\dot{M} - 2C]x = 0\) for all \(x\). This property is \textbf{essential} for Lyapunov-based stability proofs.
 
 \subsubsection{Property 3: Linearity in Parameters}
 
-The dynamics can be written as \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = Y(q,\textbackslash dot\{q\},\textbackslash ddot\{q\})\textbackslash,\textbackslash theta\textbackslash) where \textbackslash(\textbackslash theta\textbackslash) contains the physical parameters. This enables adaptive control.
+The dynamics can be written as \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = Y(q,\dot{q},\ddot{q})\,\theta\) where \(\theta\) contains the physical parameters. This enables adaptive control.
 
 \subsubsection{Think--Pair--Share (5 min)}
 
-\textbf{Question:} If the second link mass \textbackslash(m\_2\textbackslash) doubles (e.g., the robot picks up a heavy payload), which terms in \textbackslash(M(q)\textbackslash), \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash), and \textbackslash(G(q)\textbackslash) are affected? Which are \emph{not} affected?
+\textbf{Question:} If the second link mass \(m_2\) doubles (e.g., the robot picks up a heavy payload), which terms in \(M(q)\), \(C(q,\dot{q})\), and \(G(q)\) are affected? Which are \emph{not} affected?
 
 Discuss with your neighbour for 2 minutes, then we will share answers as a class.
 
@@ -206,19 +206,19 @@ Discuss with your neighbour for 2 minutes, then we will share answers as a class
 
 The simplest approach is a joint-space PD controller:
 
-\textbackslash{[} \textbackslash tau = K\_P\textbackslash,e + K\_D\textbackslash,\textbackslash dot\{e\} \textbackslash{]}
+\[ \tau = K_P\,e + K_D\,\dot{e} \]
 
-where \textbackslash(e = q\_d - q\textbackslash) is the tracking error and \textbackslash(K\_P, K\_D \textbackslash succ 0\textbackslash) are diagonal gain matrices.
+where \(e = q_d - q\) is the tracking error and \(K_P, K_D \succ 0\) are diagonal gain matrices.
 
 This treats the manipulator as if it were a collection of independent linear joints. It ignores nonlinear coupling, Coriolis forces, and gravity entirely.
 
-\textbf{Limitation:} PD control alone cannot guarantee zero steady-state error in the presence of gravity. The arm will droop under its own weight because no term compensates for \textbackslash(G(q)\textbackslash).
+\textbf{Limitation:} PD control alone cannot guarantee zero steady-state error in the presence of gravity. The arm will droop under its own weight because no term compensates for \(G(q)\).
 
 \subsection{Approach 2: PD + Gravity Compensation}
 
-\textbackslash{[} \textbackslash tau = K\_P\textbackslash,e + K\_D\textbackslash,\textbackslash dot\{e\} + G(q) \textbackslash{]}
+\[ \tau = K_P\,e + K_D\,\dot{e} + G(q) \]
 
-Adding the gravity term \textbackslash(G(q)\textbackslash) eliminates the steady-state droop at the desired position. However, during fast motions the Coriolis and inertia coupling terms still cause significant tracking errors.
+Adding the gravity term \(G(q)\) eliminates the steady-state droop at the desired position. However, during fast motions the Coriolis and inertia coupling terms still cause significant tracking errors.
 
 \subsection{Approach 3: Computed Torque Control (Inverse Dynamics)}
 
@@ -226,37 +226,37 @@ The computed torque controller uses the full dynamic model to \textbf{cancel all
 
 \textbf{Computed Torque Control Law}\\
 \strut \\
-\textbackslash{[} \textbackslash tau = M(q)\textbackslash,\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash,\textbackslash dot\{e\} + K\_P\textbackslash,e\textbackslash bigr{]} + C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + G(q) \textbackslash{]}
+\[ \tau = M(q)\,\bigl[\ddot{q}_d + K_D\,\dot{e} + K_P\,e\bigr] + C(q,\dot{q})\,\dot{q} + G(q) \]
 
 \subsubsection{Derivation --- Step by Step}
 
 \textbf{Step 1:} Start from the robot dynamics:
 
-\textbackslash{[} M(q)\textbackslash,\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + G(q) = \textbackslash tau \textbackslash{]}
+\[ M(q)\,\ddot{q} + C(q,\dot{q})\,\dot{q} + G(q) = \tau \]
 
 \textbf{Step 2:} Substitute the control law into the dynamics:
 
-\textbackslash{[} M(q)\textbackslash,\textbackslash ddot\{q\} + \textbackslash cancel\{C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\}\} + \textbackslash cancel\{G(q)\} = M(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e\textbackslash bigr{]} + \textbackslash cancel\{C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\}\} + \textbackslash cancel\{G(q)\} \textbackslash{]}
+\[ M(q)\,\ddot{q} + \cancel{C(q,\dot{q})\,\dot{q}} + \cancel{G(q)} = M(q)\bigl[\ddot{q}_d + K_D\dot{e} + K_P e\bigr] + \cancel{C(q,\dot{q})\,\dot{q}} + \cancel{G(q)} \]
 
-\textbf{Step 3:} Since \textbackslash(M(q)\textbackslash) is invertible, left-multiply both sides by \textbackslash(M\^{}\{-1\}(q)\textbackslash):
+\textbf{Step 3:} Since \(M(q)\) is invertible, left-multiply both sides by \(M^{-1}(q)\):
 
-\textbackslash{[} \textbackslash ddot\{q\} = \textbackslash ddot\{q\}\_d + K\_D\textbackslash,\textbackslash dot\{e\} + K\_P\textbackslash,e \textbackslash{]}
+\[ \ddot{q} = \ddot{q}_d + K_D\,\dot{e} + K_P\,e \]
 
-\textbf{Step 4:} Since \textbackslash(\textbackslash ddot\{e\} = \textbackslash ddot\{q\}\_d - \textbackslash ddot\{q\}\textbackslash), rearrange to get the \textbf{closed-loop error dynamics}:
+\textbf{Step 4:} Since \(\ddot{e} = \ddot{q}_d - \ddot{q}\), rearrange to get the \textbf{closed-loop error dynamics}:
 
-\textbackslash{[} \textbackslash ddot\{e\} + K\_D\textbackslash,\textbackslash dot\{e\} + K\_P\textbackslash,e = 0 \textbackslash{]}
+\[ \ddot{e} + K_D\,\dot{e} + K_P\,e = 0 \]
 
 This is a \textbf{linear, decoupled, second-order ODE} for each joint --- identical to a mass--spring--damper system. With proper gain selection the error converges to zero exponentially!
 
 \subsection{Gain Selection: Placing Closed-Loop Poles}
 
-For each joint, the characteristic equation is \textbackslash(s\^{}2 + k\_d\textbackslash,s + k\_p = 0\textbackslash). Comparing with the standard second-order form \textbackslash(s\^{}2 + 2\textbackslash zeta\textbackslash omega\_n s + \textbackslash omega\_n\^{}2 = 0\textbackslash):
+For each joint, the characteristic equation is \(s^2 + k_d\,s + k_p = 0\). Comparing with the standard second-order form \(s^2 + 2\zeta\omega_n s + \omega_n^2 = 0\):
 
-\textbackslash{[} k\_p = \textbackslash omega\_n\^{}2, \textbackslash qquad k\_d = 2\textbackslash zeta\textbackslash omega\_n \textbackslash{]}
+\[ k_p = \omega_n^2, \qquad k_d = 2\zeta\omega_n \]
 
 \begin{longtable}[]{@{}llllll@{}}
 \toprule\noalign{}
-Design Choice & \textbackslash(\textbackslash zeta\textbackslash) & \textbackslash(\textbackslash omega\_n\textbackslash) & \textbackslash(K\_P\textbackslash) & \textbackslash(K\_D\textbackslash) & Behaviour \\
+Design Choice & \(\zeta\) & \(\omega_n\) & \(K_P\) & \(K_D\) & Behaviour \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -274,42 +274,42 @@ Even though the computed torque controller linearises the system, we can also pr
 
 \textbf{Step 1 --- Choose a Lyapunov candidate:}
 
-\textbackslash{[} V(e, \textbackslash dot\{e\}) = \textbackslash frac\{1\}\{2\}\textbackslash dot\{e\}\^{}T M(q)\textbackslash,\textbackslash dot\{e\} + \textbackslash frac\{1\}\{2\}e\^{}T K\_P\textbackslash,e \textbackslash{]}
+\[ V(e, \dot{e}) = \frac{1}{2}\dot{e}^T M(q)\,\dot{e} + \frac{1}{2}e^T K_P\,e \]
 
-Since \textbackslash(M(q) \textbackslash succ 0\textbackslash) and \textbackslash(K\_P \textbackslash succ 0\textbackslash), we have \textbackslash(V \textgreater{} 0\textbackslash) for all \textbackslash((e, \textbackslash dot\{e\}) \textbackslash ne (0,0)\textbackslash).
+Since \(M(q) \succ 0\) and \(K_P \succ 0\), we have \(V > 0\) for all \((e, \dot{e}) \ne (0,0)\).
 
 \textbf{Step 2 --- Differentiate:}
 
-\textbackslash{[} \textbackslash dot\{V\} = \textbackslash dot\{e\}\^{}T M(q)\textbackslash,\textbackslash ddot\{e\} + \textbackslash frac\{1\}\{2\}\textbackslash dot\{e\}\^{}T \textbackslash dot\{M\}(q)\textbackslash,\textbackslash dot\{e\} + e\^{}T K\_P\textbackslash,\textbackslash dot\{e\} \textbackslash{]}
+\[ \dot{V} = \dot{e}^T M(q)\,\ddot{e} + \frac{1}{2}\dot{e}^T \dot{M}(q)\,\dot{e} + e^T K_P\,\dot{e} \]
 
-\textbf{Step 3 --- Substitute the closed-loop dynamics} \textbackslash(M(q)\textbackslash ddot\{e\} = -C(q,\textbackslash dot\{q\})\textbackslash dot\{e\} - K\_D\textbackslash dot\{e\} - K\_P e\textbackslash):
+\textbf{Step 3 --- Substitute the closed-loop dynamics} \(M(q)\ddot{e} = -C(q,\dot{q})\dot{e} - K_D\dot{e} - K_P e\):
 
-\textbackslash{[} \textbackslash dot\{V\} = \textbackslash dot\{e\}\^{}T\textbackslash bigl{[}-C\textbackslash dot\{e\} - K\_D\textbackslash dot\{e\} - K\_P e\textbackslash bigr{]} + \textbackslash frac\{1\}\{2\}\textbackslash dot\{e\}\^{}T\textbackslash dot\{M\}\textbackslash,\textbackslash dot\{e\} + e\^{}T K\_P\textbackslash dot\{e\} \textbackslash{]}
+\[ \dot{V} = \dot{e}^T\bigl[-C\dot{e} - K_D\dot{e} - K_P e\bigr] + \frac{1}{2}\dot{e}^T\dot{M}\,\dot{e} + e^T K_P\dot{e} \]
 
-\textbf{Step 4 --- Apply the skew-symmetry property} \textbackslash(\textbackslash dot\{e\}\^{}T{[}\textbackslash dot\{M\} - 2C{]}\textbackslash dot\{e\} = 0\textbackslash):
+\textbf{Step 4 --- Apply the skew-symmetry property} \(\dot{e}^T[\dot{M} - 2C]\dot{e} = 0\):
 
-\textbackslash{[} \textbackslash dot\{V\} = -\textbackslash dot\{e\}\^{}T K\_D\textbackslash,\textbackslash dot\{e\} \textbackslash;\textbackslash leq\textbackslash; 0 \textbackslash{]}
+\[ \dot{V} = -\dot{e}^T K_D\,\dot{e} \;\leq\; 0 \]
 
-\textbf{Step 5 --- Invoke LaSalle\textquotesingle s invariance principle:} \textbackslash(\textbackslash dot\{V\} = 0 \textbackslash implies \textbackslash dot\{e\} = 0 \textbackslash implies \textbackslash ddot\{e\} = 0 \textbackslash implies K\_P e = 0 \textbackslash implies e = 0\textbackslash). Therefore the equilibrium \textbackslash((e, \textbackslash dot\{e\}) = (0, 0)\textbackslash) is \textbf{asymptotically stable}. ∎
+\textbf{Step 5 --- Invoke LaSalle\textquotesingle s invariance principle:} \(\dot{V} = 0 \implies \dot{e} = 0 \implies \ddot{e} = 0 \implies K_P e = 0 \implies e = 0\). Therefore the equilibrium \((e, \dot{e}) = (0, 0)\) is \textbf{asymptotically stable}. ∎
 
-\textbf{Key Insight:} The skew-symmetry of \textbackslash(\textbackslash dot\{M\} - 2C\textbackslash) is what makes the cross terms cancel in the Lyapunov derivative. This is the most important structural property in robot control!
+\textbf{Key Insight:} The skew-symmetry of \(\dot{M} - 2C\) is what makes the cross terms cancel in the Lyapunov derivative. This is the most important structural property in robot control!
 
 \subsubsection{Quick Check (2 min)}
 
 \begin{enumerate}
 \tightlist
 \item
-  What happens if \textbackslash(K\_P = 0\textbackslash) in the Lyapunov function? Can we still guarantee that \textbackslash(e \textbackslash to 0\textbackslash)?
+  What happens if \(K_P = 0\) in the Lyapunov function? Can we still guarantee that \(e \to 0\)?
 \item
   In the computed torque law, which term handles gravity? Which handles Coriolis coupling?
 \item
-  If \textbackslash(M(q)\textbackslash) were identity (unit mass everywhere), how would the computed torque law simplify?
+  If \(M(q)\) were identity (unit mass everywhere), how would the computed torque law simplify?
 \end{enumerate}
 
 \section{MATLAB Implementation}
 
 We will now implement the computed torque controller for a 2-DOF manipulator step by step. The robot must track a sinusoidal trajectory:
-\textbackslash(q\_d(t) = \textbackslash begin\{bmatrix\} 0.5\textbackslash sin(t) \textbackslash\textbackslash{} 0.5\textbackslash cos(t) \textbackslash end\{bmatrix\}\textbackslash).
+\(q_d(t) = \begin{bmatrix} 0.5\sin(t) \\ 0.5\cos(t) \end{bmatrix}\).
 
 \subsection{System Parameters}
 
@@ -434,11 +434,11 @@ sgtitle(\textquotesingle Computed Torque Control --- 2-DOF Manipulator\textquote
 \begin{enumerate}
 \tightlist
 \item
-  Set \textbackslash(K\_P = \textbackslash text\{diag\}({[}10, 10{]})\textbackslash) and \textbackslash(K\_D = \textbackslash text\{diag\}({[}5, 5{]})\textbackslash) --- \emph{what happens?}
+  Set \(K_P = \text{diag}([10, 10])\) and \(K_D = \text{diag}([5, 5])\) --- \emph{what happens?}
 \item
-  Set \textbackslash(K\_P = \textbackslash text\{diag\}({[}200, 200{]})\textbackslash) and \textbackslash(K\_D = \textbackslash text\{diag\}({[}5, 5{]})\textbackslash) --- \emph{is there overshoot?}
+  Set \(K_P = \text{diag}([200, 200])\) and \(K_D = \text{diag}([5, 5])\) --- \emph{is there overshoot?}
 \item
-  Set \textbackslash(K\_P = \textbackslash text\{diag\}({[}50, 50{]})\textbackslash) and \textbackslash(K\_D = \textbackslash text\{diag\}({[}50, 50{]})\textbackslash) --- \emph{is the response sluggish?}
+  Set \(K_P = \text{diag}([50, 50])\) and \(K_D = \text{diag}([50, 50])\) --- \emph{is the response sluggish?}
 \end{enumerate}
 
 Record the peak error for each case. We will compare results as a class.
@@ -473,8 +473,8 @@ Controller & Model Knowledge & Steady-State Error & Transient Error & Coupling R
 \bottomrule\noalign{}
 \endlastfoot
 PD Only & None & Non-zero (gravity droop) & Large & Poor \\
-PD + Gravity & \textbackslash(G(q)\textbackslash) & Zero at setpoints & Moderate & Moderate \\
-Computed Torque & \textbackslash(M, C, G\textbackslash) & Zero & Small (tunable) & Excellent ✓ \\
+PD + Gravity & \(G(q)\) & Zero at setpoints & Moderate & Moderate \\
+Computed Torque & \(M, C, G\) & Zero & Small (tunable) & Excellent ✓ \\
 \end{longtable}
 
 \subsubsection{Hands-On Activity 2 (15 min)}
@@ -499,7 +499,7 @@ Computed torque control delivers \textbf{perfect} tracking when the model is exa
 
 \subsubsection{Payload Variation}
 
-The mass \textbackslash(m\_2\textbackslash) changes when the robot picks up or drops objects. The controller may still use the nominal value.
+The mass \(m_2\) changes when the robot picks up or drops objects. The controller may still use the nominal value.
 
 \subsubsection{Friction}
 
@@ -515,25 +515,25 @@ Contact forces, wind loads, or interaction forces when collaborating with humans
 
 \subsection{Mathematical Framework}
 
-Let the true dynamics be governed by \textbackslash((M, C, G)\textbackslash) and the \emph{estimated} (controller) model be \textbackslash((\textbackslash hat\{M\}, \textbackslash hat\{C\}, \textbackslash hat\{G\})\textbackslash). The control law uses the estimated model:
+Let the true dynamics be governed by \((M, C, G)\) and the \emph{estimated} (controller) model be \((\hat{M}, \hat{C}, \hat{G})\). The control law uses the estimated model:
 
-\textbackslash{[} \textbackslash tau = \textbackslash hat\{M\}(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e\textbackslash bigr{]} + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + \textbackslash hat\{G\}(q) \textbackslash{]}
+\[ \tau = \hat{M}(q)\bigl[\ddot{q}_d + K_D\dot{e} + K_P e\bigr] + \hat{C}(q,\dot{q})\dot{q} + \hat{G}(q) \]
 
 Substituting into the true dynamics:
 
-\textbackslash{[} M\textbackslash,\textbackslash ddot\{q\} + C\textbackslash,\textbackslash dot\{q\} + G = \textbackslash hat\{M\}\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e\textbackslash bigr{]} + \textbackslash hat\{C\}\textbackslash,\textbackslash dot\{q\} + \textbackslash hat\{G\} \textbackslash{]}
+\[ M\,\ddot{q} + C\,\dot{q} + G = \hat{M}\bigl[\ddot{q}_d + K_D\dot{e} + K_P e\bigr] + \hat{C}\,\dot{q} + \hat{G} \]
 
-Defining model errors \textbackslash(\textbackslash Delta M = M - \textbackslash hat\{M\}\textbackslash), \textbackslash(\textbackslash Delta C = C - \textbackslash hat\{C\}\textbackslash), \textbackslash(\textbackslash Delta G = G - \textbackslash hat\{G\}\textbackslash), the closed-loop error dynamics become:
+Defining model errors \(\Delta M = M - \hat{M}\), \(\Delta C = C - \hat{C}\), \(\Delta G = G - \hat{G}\), the closed-loop error dynamics become:
 
-\textbackslash{[} M\textbackslash,\textbackslash ddot\{e\} + (C + K\_D\^{}*)\textbackslash,\textbackslash dot\{e\} + K\_P\^{}*\textbackslash,e = \textbackslash underbrace\{\textbackslash Delta M\textbackslash,\textbackslash ddot\{q\}\_d + \textbackslash Delta C\textbackslash,\textbackslash dot\{q\} + \textbackslash Delta G\}\_\{\textbackslash text\{perturbation \} d(t)\} \textbackslash{]}
+\[ M\,\ddot{e} + (C + K_D^*)\,\dot{e} + K_P^*\,e = \underbrace{\Delta M\,\ddot{q}_d + \Delta C\,\dot{q} + \Delta G}_{\text{perturbation } d(t)} \]
 
-The error no longer converges to zero --- it is driven by the perturbation \textbackslash(d(t)\textbackslash).
+The error no longer converges to zero --- it is driven by the perturbation \(d(t)\).
 
 \textbf{Key Result:} With model mismatch, computed torque control guarantees \emph{bounded} errors (the errors stay small if the gains are high and the model errors are small), but not \emph{asymptotic} tracking to zero.
 
 \subsection{Experiment: Payload Mismatch}
 
-We simulate the scenario where the \textbf{true} plant has \textbackslash(m\_2 = 2\textbackslash,\textbackslash text\{kg\}\textbackslash) but the controller still assumes \textbackslash(m\_2 = 1\textbackslash,\textbackslash text\{kg\}\textbackslash).
+We simulate the scenario where the \textbf{true} plant has \(m_2 = 2\,\text{kg}\) but the controller still assumes \(m_2 = 1\,\text{kg}\).
 
 \% ===== Robustness Test: Payload Mismatch =====
 \% True plant parameters (what reality is)
@@ -607,7 +607,7 @@ Disturbance pulse & ≈ 0.10 (at impact) & Returns to ≈ 0 & ISS (input-to-stat
 Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with low gains \\
 \end{longtable}
 
-\textbf{Rule of Thumb:} Higher gains (\textbackslash(K\_P, K\_D\textbackslash)) improve robustness by rejecting perturbations faster, but they also amplify sensor noise and demand higher torques. Controller design is always a trade-off between performance, robustness, and actuator limits.
+\textbf{Rule of Thumb:} Higher gains (\(K_P, K_D\)) improve robustness by rejecting perturbations faster, but they also amplify sensor noise and demand higher torques. Controller design is always a trade-off between performance, robustness, and actuator limits.
 
 \section{Summary and Next Steps}
 
@@ -618,15 +618,15 @@ Payload ×5 + friction & ≈ 0.3 -- 0.5 & Significant & May become unstable with
 \begin{enumerate}
 \tightlist
 \item
-  Start with the nominal computed torque controller (\textbackslash(m\_2 = 1\textbackslash,\textbackslash text\{kg\}\textbackslash) in both plant and controller).
+  Start with the nominal computed torque controller (\(m_2 = 1\,\text{kg}\) in both plant and controller).
 \item
-  Change the \textbf{true} \textbackslash(m\_2\textbackslash) to 1.5, 2.0, 3.0, and 5.0 kg while keeping the controller model at \textbackslash(m\_2 = 1\textbackslash).
+  Change the \textbf{true} \(m_2\) to 1.5, 2.0, 3.0, and 5.0 kg while keeping the controller model at \(m_2 = 1\).
 \item
-  For each case, record the maximum tracking error \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty\textbackslash) from the error plot.
+  For each case, record the maximum tracking error \(\|e\|_\infty\) from the error plot.
 \item
-  Plot \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty\textbackslash) vs payload ratio \textbackslash(m\_\{2,\textbackslash text\{true\}\} / m\_\{2,\textbackslash text\{ctrl\}\}\textbackslash).
+  Plot \(\|e\|_\infty\) vs payload ratio \(m_{2,\text{true}} / m_{2,\text{ctrl}}\).
 \item
-  \textbf{Bonus:} At what payload ratio does the system become unstable? Increase \textbackslash(K\_P\textbackslash) and \textbackslash(K\_D\textbackslash) --- does this extend the stability boundary?
+  \textbf{Bonus:} At what payload ratio does the system become unstable? Increase \(K_P\) and \(K_D\) --- does this extend the stability boundary?
 \end{enumerate}
 
 \textbf{Expected Observation:} Tracking error grows approximately linearly with payload mismatch for small mismatches, but growth accelerates for large mismatches.
@@ -653,19 +653,19 @@ Use the same gains and trajectory for all three. Include a title, legends, and a
 
 \subsubsection{Challenge: Robust Trajectory Tracking}
 
-Design a controller that can track the reference trajectory with \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty \textless{} 0.05\textbackslash,\textbackslash text\{rad\}\textbackslash) under the following \textbf{simultaneous} conditions:
+Design a controller that can track the reference trajectory with \(\|e\|_\infty < 0.05\,\text{rad}\) under the following \textbf{simultaneous} conditions:
 
 \begin{itemize}
 \tightlist
 \item
-  True \textbackslash(m\_2 = 2\textbackslash,\textbackslash text\{kg\}\textbackslash), controller assumes \textbackslash(m\_2 = 1\textbackslash,\textbackslash text\{kg\}\textbackslash)
+  True \(m_2 = 2\,\text{kg}\), controller assumes \(m_2 = 1\,\text{kg}\)
 \item
-  Viscous friction \textbackslash(b = 0.5\textbackslash,\textbackslash text\{N·m·s/rad\}\textbackslash) (not modelled)
+  Viscous friction \(b = 0.5\,\text{N·m·s/rad}\) (not modelled)
 \item
-  An external disturbance of \textbackslash(\textbackslash tau\_d = {[}3; 2{]}\textbackslash,\textbackslash text\{N·m\}\textbackslash) applied from \textbackslash(t = 8\textbackslash) to \textbackslash(t = 8.5\textbackslash,\textbackslash text\{s\}\textbackslash)
+  An external disturbance of \(\tau_d = [3; 2]\,\text{N·m}\) applied from \(t = 8\) to \(t = 8.5\,\text{s}\)
 \end{itemize}
 
-\textbf{Hint:} You may increase gains, add integral action, or add a robust term \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\} = K\_r\textbackslash,\textbackslash text\{sign\}(\textbackslash dot\{e\})\textbackslash).
+\textbf{Hint:} You may increase gains, add integral action, or add a robust term \(\tau_{\text{robust}} = K_r\,\text{sign}(\dot{e})\).
 
 \subsection{End-of-Lecture Quiz}
 
@@ -673,17 +673,17 @@ Design a controller that can track the reference trajectory with \textbackslash(
 
 \begin{enumerate}
 \item
-  \textbf{True or False:} The mass matrix \textbackslash(M(q)\textbackslash) is always diagonal for a 2-DOF manipulator.
+  \textbf{True or False:} The mass matrix \(M(q)\) is always diagonal for a 2-DOF manipulator.
 
   \emph{Think about what the off-diagonal terms represent physically.}
 \item
-  \textbf{Fill in the blank:} The property that \textbackslash(\textbackslash dot\{M\} - 2C\textbackslash) is \_\_\_\_\_\_\_\_\_\_\_ is essential for the Lyapunov stability proof of computed torque control.
+  \textbf{Fill in the blank:} The property that \(\dot{M} - 2C\) is \_\_\_\_\_\_\_\_\_\_\_ is essential for the Lyapunov stability proof of computed torque control.
 \item
   \textbf{Short answer:} Name two practical reasons why computed torque control may not achieve perfect tracking on a real robot.
 \item
-  \textbf{Calculation:} For a desired natural frequency \textbackslash(\textbackslash omega\_n = 15\textbackslash,\textbackslash text\{rad/s\}\textbackslash) and critical damping (\textbackslash(\textbackslash zeta = 1\textbackslash)), compute \textbackslash(K\_P\textbackslash) and \textbackslash(K\_D\textbackslash) per joint.
+  \textbf{Calculation:} For a desired natural frequency \(\omega_n = 15\,\text{rad/s}\) and critical damping (\(\zeta = 1\)), compute \(K_P\) and \(K_D\) per joint.
 \item
-  \textbf{Design question:} If you double all link masses simultaneously, but the controller model remains unchanged, how does the perturbation term \textbackslash(d(t)\textbackslash) scale? Would increasing \textbackslash(K\_P\textbackslash) alone fix the problem? Why or why not?
+  \textbf{Design question:} If you double all link masses simultaneously, but the controller model remains unchanged, how does the perturbation term \(d(t)\) scale? Would increasing \(K_P\) alone fix the problem? Why or why not?
 \end{enumerate}
 
 Click to reveal answers
@@ -691,15 +691,15 @@ Click to reveal answers
 \begin{enumerate}
 \tightlist
 \item
-  \textbf{False.} The off-diagonal terms \textbackslash(M\_\{12\} = M\_\{21\}\textbackslash) capture inertia coupling between joints. They are zero only in special configurations.
+  \textbf{False.} The off-diagonal terms \(M_{12} = M_{21}\) capture inertia coupling between joints. They are zero only in special configurations.
 \item
   \textbf{Skew-symmetric.}
 \item
   Any two of: model parameter uncertainty, unmodelled friction, actuator saturation/dynamics, sensor noise, discretisation effects, joint flexibility.
 \item
-  \textbackslash(K\_P = \textbackslash omega\_n\^{}2 = 225\textbackslash), \textbackslash(K\_D = 2 \textbackslash times 1 \textbackslash times 15 = 30\textbackslash).
+  \(K_P = \omega_n^2 = 225\), \(K_D = 2 \times 1 \times 15 = 30\).
 \item
-  The perturbation scales proportionally with the mass error \textbackslash(\textbackslash Delta M\textbackslash), which doubles. Increasing \textbackslash(K\_P\textbackslash) alone gives faster error correction but does not cancel the feedforward mismatch --- you also need higher \textbackslash(K\_D\textbackslash) to damp the resulting oscillations, or better yet, update the model.
+  The perturbation scales proportionally with the mass error \(\Delta M\), which doubles. Increasing \(K_P\) alone gives faster error correction but does not cancel the feedforward mismatch --- you also need higher \(K_D\) to damp the resulting oscillations, or better yet, update the model.
 \end{enumerate}
 
 \subsection{Week 1 Summary}
@@ -711,11 +711,11 @@ Click to reveal answers
 \item
   ✅ Euler--Lagrange formulation
 \item
-  ✅ Mass matrix \textbackslash(M(q)\textbackslash) --- SPD
+  ✅ Mass matrix \(M(q)\) --- SPD
 \item
-  ✅ Coriolis matrix \textbackslash(C(q,\textbackslash dot\{q\})\textbackslash)
+  ✅ Coriolis matrix \(C(q,\dot{q})\)
 \item
-  ✅ Gravity vector \textbackslash(G(q)\textbackslash)
+  ✅ Gravity vector \(G(q)\)
 \item
   ✅ Skew-symmetry property
 \end{itemize}
@@ -743,7 +743,7 @@ Click to reveal answers
 \item
   ✅ MATLAB ODE45 simulation
 \item
-  ✅ Building \textbackslash(M\textbackslash), \textbackslash(C\textbackslash), \textbackslash(G\textbackslash) in code
+  ✅ Building \(M\), \(C\), \(G\) in code
 \item
   ✅ Tracking \& error plots
 \item
@@ -777,11 +777,11 @@ Equation & Description \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau\textbackslash) & Robot dynamics (Euler--Lagrange) \\
-\textbackslash(\textbackslash tau = M(q){[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e{]} + C\textbackslash dot\{q\} + G\textbackslash) & Computed torque control law \\
-\textbackslash(\textbackslash ddot\{e\} + K\_D\textbackslash dot\{e\} + K\_P e = 0\textbackslash) & Closed-loop error dynamics (perfect model) \\
-\textbackslash(V = \textbackslash tfrac\{1\}\{2\}\textbackslash dot\{e\}\^{}T M \textbackslash dot\{e\} + \textbackslash tfrac\{1\}\{2\}e\^{}T K\_P e\textbackslash) & Lyapunov function \\
-\textbackslash(\textbackslash dot\{V\} = -\textbackslash dot\{e\}\^{}T K\_D \textbackslash dot\{e\} \textbackslash leq 0\textbackslash) & Lyapunov derivative (guarantees stability) \\
+\(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\) & Robot dynamics (Euler--Lagrange) \\
+\(\tau = M(q)[\ddot{q}_d + K_D\dot{e} + K_P e] + C\dot{q} + G\) & Computed torque control law \\
+\(\ddot{e} + K_D\dot{e} + K_P e = 0\) & Closed-loop error dynamics (perfect model) \\
+\(V = \tfrac{1}{2}\dot{e}^T M \dot{e} + \tfrac{1}{2}e^T K_P e\) & Lyapunov function \\
+\(\dot{V} = -\dot{e}^T K_D \dot{e} \leq 0\) & Lyapunov derivative (guarantees stability) \\
 \end{longtable}
 
 \subsection{Next Week: Advanced Control Techniques}
@@ -791,7 +791,7 @@ Equation & Description \\
 \begin{itemize}
 \tightlist
 \item
-  📐 Adaptive control --- automatically estimating \textbackslash(M, C, G\textbackslash) online
+  📐 Adaptive control --- automatically estimating \(M, C, G\) online
 \item
   🛡️ Sliding mode control --- guaranteed robustness despite bounded uncertainties
 \item
@@ -811,14 +811,14 @@ Equation & Description \\
 \item
   Read about sliding mode control fundamentals
 \item
-  Think about: \emph{"If I don\textquotesingle t know \textbackslash(m\_2\textbackslash), how could the controller learn it during operation?"}
+  Think about: \emph{"If I don\textquotesingle t know \(m_2\), how could the controller learn it during operation?"}
 \end{itemize}
 
 \textbf{✅ Skills Achieved Today:} You can now derive manipulator dynamics, design and implement a computed torque controller, prove its stability using Lyapunov theory, and analyse its robustness to model uncertainties --- the foundational skill set for all advanced robot control!
 
 \textbf{Control for Robots}
 
-University of West London \textbar{} Academic Year 2025--26
+Advanced Robotics Programme \textbar{} Academic Year 2025--26
 
 Week 1: Manipulator Dynamics \& Control Design
 

@@ -161,7 +161,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Feedback linearisation via exact model cancellation}
 
-\textbackslash{[}\textbackslash tau = M(q)\textbackslash bigl(\textbackslash ddot\{q\}\_d + K\_d \textbackslash dot\{e\} + K\_p e\textbackslash bigr) + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q)\textbackslash{]}
+\[\tau = M(q)\bigl(\ddot{q}_d + K_d \dot{e} + K_p e\bigr) + C(q,\dot{q})\dot{q} + G(q)\]
 
 \textbf{Strengths:} Exact linearisation yields decoupled error dynamics; straightforward PD tuning after cancellation; excellent tracking when model is accurate.
 
@@ -174,7 +174,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Receding-horizon optimisation with constraint satisfaction}
 
-\textbackslash{[}\textbackslash min\_\{u\_\{0:N-1\}\} \textbackslash sum\_\{k=0\}\^{}\{N-1\}\textbackslash bigl( x\_k\^{}T Q\textbackslash, x\_k + u\_k\^{}T R\textbackslash, u\_k \textbackslash bigr) + x\_N\^{}T P\_f\textbackslash, x\_N \textbackslash quad \textbackslash text\{s.t. \} x \textbackslash in \textbackslash mathcal\{X\},\textbackslash; u \textbackslash in \textbackslash mathcal\{U\}\textbackslash{]}
+\[\min_{u_{0:N-1}} \sum_{k=0}^{N-1}\bigl( x_k^T Q\, x_k + u_k^T R\, u_k \bigr) + x_N^T P_f\, x_N \quad \text{s.t. } x \in \mathcal{X},\; u \in \mathcal{U}\]
 
 \textbf{Strengths:} Systematic constraint handling; preview/anticipation of future reference; flexible multi-objective cost.
 
@@ -187,7 +187,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Online parameter estimation with concurrent control}
 
-\textbackslash{[}\textbackslash tau = Y(q,\textbackslash dot\{q\},\textbackslash dot\{q\}\_r,\textbackslash ddot\{q\}\_r)\textbackslash,\textbackslash hat\{\textbackslash theta\}, \textbackslash qquad \textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = -\textbackslash Gamma Y\^{}T s\textbackslash{]}
+\[\tau = Y(q,\dot{q},\dot{q}_r,\ddot{q}_r)\,\hat{\theta}, \qquad \dot{\hat{\theta}} = -\Gamma Y^T s\]
 
 \textbf{Strengths:} Handles unknown/slowly varying parameters; Lyapunov convergence guarantees; no prior system ID needed.
 
@@ -200,7 +200,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Worst-case performance optimisation over uncertainty sets}
 
-\textbackslash{[}\textbackslash min\_K \textbackslash;\textbackslash\textbar T\_\{zw\}(s)\textbackslash\textbar\_\textbackslash infty = \textbackslash min\_K \textbackslash;\textbackslash sup\_\textbackslash omega \textbackslash bar\{\textbackslash sigma\}\textbackslash bigl(T\_\{zw\}(j\textbackslash omega)\textbackslash bigr) \textless{} \textbackslash gamma\textbackslash{]}
+\[\min_K \;\|T_{zw}(s)\|_\infty = \min_K \;\sup_\omega \bar{\sigma}\bigl(T_{zw}(j\omega)\bigr) < \gamma\]
 
 \textbf{Strengths:} Guaranteed performance despite bounded uncertainty; systematic LMI/Riccati framework; excellent for structured perturbations.
 
@@ -213,7 +213,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Recursive Lyapunov-based design for strict-feedback systems}
 
-\textbackslash{[}V\_i = V\_\{i-1\} + \textbackslash tfrac\{1\}\{2\}z\_i\^{}2, \textbackslash qquad z\_i = x\_i - \textbackslash alpha\_\{i-1\}(x\_1,\textbackslash ldots,x\_\{i-1\})\textbackslash{]}
+\[V_i = V_{i-1} + \tfrac{1}{2}z_i^2, \qquad z_i = x_i - \alpha_{i-1}(x_1,\ldots,x_{i-1})\]
 
 \textbf{Strengths:} Constructive Lyapunov guarantees global asymptotic stability; natural for cascaded structures; smooth control law.
 
@@ -226,7 +226,7 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Variable-structure control with discontinuous switching}
 
-\textbackslash{[}\textbackslash tau = \textbackslash tau\_\{eq\} - K\textbackslash,\textbackslash text\{sign\}(s), \textbackslash qquad s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash{]}
+\[\tau = \tau_{eq} - K\,\text{sign}(s), \qquad s = \dot{e} + \Lambda e\]
 
 \textbf{Strengths:} Invariant to matched disturbances; finite-time convergence to sliding surface; simple structure.
 
@@ -239,9 +239,9 @@ Each card below summarises a controller\textquotesingle s core idea, key equatio
 
 \emph{Pontryagin / iLQR / NMPC on the nonlinear plant; also optimization of the gains of Controllers 1--6}
 
-\textbackslash{[}\textbackslash min\_\{u(\textbackslash cdot)\}\textbackslash{} J = \textbackslash Phi(x(T)) + \textbackslash int\_0\^{}T L(x,u,t)\textbackslash,dt \textbackslash quad\textbackslash text\{s.t. \} \textbackslash dot x = f(x,u)\textbackslash{]}
+\[\min_{u(\cdot)}\ J = \Phi(x(T)) + \int_0^T L(x,u,t)\,dt \quad\text{s.t. } \dot x = f(x,u)\]
 
-\textbf{Strengths:} Operates on the nonlinear model directly (no linearisation); iLQR gives a local feedback policy in addition to the open-loop plan; provides a unified framework to \emph{optimize} the parameters of every other controller (SMC \textbackslash(\textbackslash lambda,\textbackslash phi,\textbackslash eta\textbackslash); adaptive \textbackslash(\textbackslash Gamma,\textbackslash sigma\textbackslash); robust \textbackslash(K\_p,K\_d,\textbackslash rho,\textbackslash Lambda\textbackslash); backstepping \textbackslash(k\_1,\textbackslash ldots,k\_n\textbackslash)).
+\textbf{Strengths:} Operates on the nonlinear model directly (no linearisation); iLQR gives a local feedback policy in addition to the open-loop plan; provides a unified framework to \emph{optimize} the parameters of every other controller (SMC \(\lambda,\phi,\eta\); adaptive \(\Gamma,\sigma\); robust \(K_p,K_d,\rho,\Lambda\); backstepping \(k_1,\ldots,k_n\)).
 
 \textbf{Weaknesses:} Iterative; local (not global) optimum; needs derivatives (finite difference or autodiff); real-time requires warm-starting and fast SQP / iLQR back-ends.
 
@@ -259,14 +259,14 @@ Metric & Definition & Measured By \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{Tracking Accuracy} & How closely the output follows the reference trajectory in the nominal (no uncertainty) case. & RMSE, \textbackslash(\textbackslash\textbar e\textbackslash\textbar\_\textbackslash infty\textbackslash) \\
-\textbf{Parametric Robustness} & Ability to maintain stability and performance when physical parameters deviate ±30\% from nominal. & Stability margin, \textbackslash(M\_s\textbackslash) \\
+\textbf{Tracking Accuracy} & How closely the output follows the reference trajectory in the nominal (no uncertainty) case. & RMSE, \(\|e\|_\infty\) \\
+\textbf{Parametric Robustness} & Ability to maintain stability and performance when physical parameters deviate ±30\% from nominal. & Stability margin, \(M_s\) \\
 \textbf{Disturbance Rejection} & Speed and effectiveness of recovering from external disturbances (wind, payload, terrain). & Recovery time, peak deviation \\
 \textbf{Computational Cost} & Real-time computation per control cycle. Critical for embedded systems. & FLOPS, wall-clock time \\
 \textbf{Tuning Complexity} & Number of design parameters, sensitivity to choices, expertise required. & Parameter count, sensitivity \\
 \textbf{Constraint Handling} & Ability to explicitly enforce hard constraints on states and inputs. & Constraint violation rate \\
 \textbf{Model Dependency} & How sensitive performance is to model accuracy. High = poor model means poor performance. & Degradation under mismatch \\
-\textbf{Control Smoothness} & Continuity of the control signal. Discontinuous signals cause actuator wear. & \textbackslash(\textbackslash\textbar\textbackslash dot\{u\}\textbackslash\textbar\_2\textbackslash), total variation \\
+\textbf{Control Smoothness} & Continuity of the control signal. Discontinuous signals cause actuator wear. & \(\|\dot{u}\|_2\), total variation \\
 \textbf{Stability Guarantees} & Rigour of theoretical stability proof (Lyapunov, global/local, under uncertainty). & Type: asymptotic, ISS, etc. \\
 \end{longtable}
 
@@ -363,7 +363,7 @@ The abstract ratings come alive when grounded in specific robotic platforms. Her
 \hypertarget{dof-planar-manipulator}{%
 \subsubsection{3.5.1: 2-DOF Planar Manipulator}\label{dof-planar-manipulator}}
 
-Dynamics: \textbackslash(M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau\textbackslash). Key challenges: coupling, configuration-dependent inertia, payload uncertainty.
+Dynamics: \(M(q)\ddot{q} + C(q,\dot{q})\dot{q} + G(q) = \tau\). Key challenges: coupling, configuration-dependent inertia, payload uncertainty.
 
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
@@ -386,7 +386,7 @@ Controller & RMSE (nominal) & RMSE (+50\% payload) & Computation & Constraint \\
 \hypertarget{differential-drive-mobile-robot}{%
 \subsubsection{3.5.2: Differential-Drive Mobile Robot}\label{differential-drive-mobile-robot}}
 
-Kinematics: \textbackslash(\textbackslash dot\{x\}=v\textbackslash cos\textbackslash theta,\textbackslash;\textbackslash dot\{y\}=v\textbackslash sin\textbackslash theta,\textbackslash;\textbackslash dot\{\textbackslash theta\}=\textbackslash omega\textbackslash). Key challenges: nonholonomic constraints, obstacle avoidance, velocity limits.
+Kinematics: \(\dot{x}=v\cos\theta,\;\dot{y}=v\sin\theta,\;\dot{\theta}=\omega\). Key challenges: nonholonomic constraints, obstacle avoidance, velocity limits.
 
 \begin{longtable}[]{@{}lllll@{}}
 \toprule\noalign{}
@@ -478,7 +478,7 @@ The professor specifically requested \textbf{"plenty of examples."} This section
 \hypertarget{bmw-mercedes-active-suspension}{%
 \paragraph{BMW / Mercedes Active Suspension}\label{bmw-mercedes-active-suspension}}
 
-\textbf{H-infinity robust control} for active suspension: road surface is an unmeasured disturbance with bounded energy. The controller minimises the \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) norm of the transfer function from road input to passenger acceleration, guaranteeing ride comfort over all road profiles within the uncertainty set.
+\textbf{H-infinity robust control} for active suspension: road surface is an unmeasured disturbance with bounded energy. The controller minimises the \(\mathcal{H}_\infty\) norm of the transfer function from road input to passenger acceleration, guaranteeing ride comfort over all road profiles within the uncertainty set.
 
 \hypertarget{toyota-adaptive-cruise-control}{%
 \paragraph{Toyota Adaptive Cruise Control}\label{toyota-adaptive-cruise-control}}
@@ -531,12 +531,12 @@ The professor specifically requested \textbf{"plenty of examples."} This section
 \hypertarget{boeing-787-autopilot}{%
 \paragraph{Boeing 787 Autopilot}\label{boeing-787-autopilot}}
 
-\textbf{LQR-based} autopilot for cruise flight with gain scheduling across flight envelope (altitude, speed, weight). \textbf{Robust control} for flutter suppression: \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) methods ensure aeroelastic stability across all structural modes.
+\textbf{LQR-based} autopilot for cruise flight with gain scheduling across flight envelope (altitude, speed, weight). \textbf{Robust control} for flutter suppression: \(\mathcal{H}_\infty\) methods ensure aeroelastic stability across all structural modes.
 
 \hypertarget{airbus-a380-fly-by-wire}{%
 \paragraph{Airbus A380 Fly-by-Wire}\label{airbus-a380-fly-by-wire}}
 
-\textbf{H-infinity} robust control for flight control laws: the A380 uses \textbackslash(\textbackslash mu\textbackslash)-synthesis (structured singular value) to guarantee stability over the full flight envelope despite parametric uncertainty in aerodynamic coefficients. Certified by EASA to DO-178C standards.
+\textbf{H-infinity} robust control for flight control laws: the A380 uses \(\mu\)-synthesis (structured singular value) to guarantee stability over the full flight envelope despite parametric uncertainty in aerodynamic coefficients. Certified by EASA to DO-178C standards.
 
 \hypertarget{nasa-ingenuity-mars-helicopter}{%
 \paragraph{NASA Ingenuity Mars Helicopter}\label{nasa-ingenuity-mars-helicopter}}
@@ -769,7 +769,7 @@ The professor specifically requested \textbf{"plenty of examples."} This section
 \hypertarget{iss-canadarm2}{%
 \paragraph{ISS Canadarm2}\label{iss-canadarm2}}
 
-\textbf{Computed Torque Control} in microgravity: the absence of gravity simplifies the dynamics (\textbackslash(G(q)=0\textbackslash)), making CTC highly effective. The known payload (ISS modules, astronauts) allows accurate model-based control for delicate berthing operations.
+\textbf{Computed Torque Control} in microgravity: the absence of gravity simplifies the dynamics (\(G(q)=0\)), making CTC highly effective. The known payload (ISS modules, astronauts) allows accurate model-based control for delicate berthing operations.
 
 \hypertarget{james-webb-space-telescope}{%
 \paragraph{James Webb Space Telescope}\label{james-webb-space-telescope}}
@@ -950,7 +950,7 @@ ROS 2 Week & ROS 2 Topic & How It Supports Control \\
 \textbf{Week 1} & LiDAR Point Cloud & Provides obstacle data for MPC constraints. \\
 \textbf{Week 3} & ROS 2 Fundamentals & Prerequisite: nodes, topics, services, QoS profiles. \\
 \textbf{Week 4} & 2D SLAM & State estimation for controllers. Without localisation, no controller functions. \\
-\textbf{Week 8} & 3D Path Planning & Generates reference trajectories \textbackslash(x\_\{\textbackslash text\{ref\}\}(t)\textbackslash) for controllers to track. \\
+\textbf{Week 8} & 3D Path Planning & Generates reference trajectories \(x_{\text{ref}}(t)\) for controllers to track. \\
 \textbf{Week 10} & Computer Vision & Enables visual servoing and image-based control. \\
 \textbf{Week 12} & System Integration Capstone & Full pipeline: all modules connected into an autonomous mission. \\
 \end{longtable}
@@ -1051,7 +1051,7 @@ For each scenario, select the \textbf{best} controller and justify your choice i
 \hypertarget{scenario-5-geostationary-satellite-station-keeping-fuel-limited}{%
 \subsubsection{Scenario 5: Geostationary Satellite Station-Keeping (Fuel-Limited)}\label{scenario-5-geostationary-satellite-station-keeping-fuel-limited}}
 
-\textbf{Best: Nonlinear Control Optimization / NMPC (Week 8)} --- The Clohessy-Wiltshire relative-motion equations are nearly linear, but the manoeuvre involves thrust-constrained trajectory optimisation over long horizons and the primary objective is minimising fuel \textbackslash(\textbackslash equiv\textbackslash) minimising control effort. NMPC/iLQR directly handles the nonlinear cost-plus-constraint problem and produces the bang-singular-bang fuel-optimal profile, which LQR cannot.
+\textbf{Best: Nonlinear Control Optimization / NMPC (Week 8)} --- The Clohessy-Wiltshire relative-motion equations are nearly linear, but the manoeuvre involves thrust-constrained trajectory optimisation over long horizons and the primary objective is minimising fuel \(\equiv\) minimising control effort. NMPC/iLQR directly handles the nonlinear cost-plus-constraint problem and produces the bang-singular-bang fuel-optimal profile, which LQR cannot.
 
 \hypertarget{activity-2-industry-research-project}{%
 \subsection{Activity 2: Industry Research Project}\label{activity-2-industry-research-project}}
@@ -1366,7 +1366,7 @@ DWA and MPC share the same fundamental structure: at each time step, both (1) pr
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Action space:} DWA samples a discrete grid of \textbackslash((v, \textbackslash omega)\textbackslash) pairs within the dynamic window (admissible velocities reachable in one time step), whereas MPC optimises over a continuous control sequence \textbackslash(u\_\{0:N-1\}\textbackslash) using gradient-based or QP solvers.
+  \textbf{Action space:} DWA samples a discrete grid of \((v, \omega)\) pairs within the dynamic window (admissible velocities reachable in one time step), whereas MPC optimises over a continuous control sequence \(u_{0:N-1}\) using gradient-based or QP solvers.
 \item
   \textbf{Prediction model:} DWA uses a simplified kinematic model (constant-velocity arcs), while MPC can use the full nonlinear dynamic model.
 \item
@@ -1394,7 +1394,7 @@ DWA and MPC share the same fundamental structure: at each time step, both (1) pr
 \item
   \textbf{DWA:} Velocity constraints are enforced by the dynamic window (only admissible velocities are sampled). Obstacle constraints are handled by scoring: trajectories that intersect obstacles receive a very high (penalised) cost or are discarded. This is soft constraint handling --- there is no formal guarantee of feasibility.
 \item
-  \textbf{MPC:} Constraints are encoded as explicit inequality constraints in the optimisation: \textbackslash(x \textbackslash in \textbackslash mathcal\{X\}\textbackslash), \textbackslash(u \textbackslash in \textbackslash mathcal\{U\}\textbackslash), \textbackslash(h(x) \textbackslash geq d\_\{\textbackslash text\{safe\}\}\textbackslash). The solver guarantees that the returned solution satisfies all constraints (if feasible). This is hard constraint handling with formal guarantees.
+  \textbf{MPC:} Constraints are encoded as explicit inequality constraints in the optimisation: \(x \in \mathcal{X}\), \(u \in \mathcal{U}\), \(h(x) \geq d_{\text{safe}}\). The solver guarantees that the returned solution satisfies all constraints (if feasible). This is hard constraint handling with formal guarantees.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
@@ -1404,7 +1404,7 @@ DWA and MPC share the same fundamental structure: at each time step, both (1) pr
 
 Explain how Adaptive Monte Carlo Localisation (AMCL) provides state estimation for the navigation control loop. Draw parallels to the Kalman filter used in LQG (Week 8).
 
-\textbf{(a)} Describe the AMCL algorithm (particle filter) and explain its role in providing state estimates \textbackslash({[}\textbackslash hat\{x\}, \textbackslash hat\{y\}, \textbackslash hat\{\textbackslash theta\}{]}\textbackslash) to the controller. (10 marks)
+\textbf{(a)} Describe the AMCL algorithm (particle filter) and explain its role in providing state estimates \([\hat{x}, \hat{y}, \hat{\theta}]\) to the controller. (10 marks)
 
 \textbf{(b)} Compare AMCL (particle filter) with the Extended Kalman Filter (EKF) used in LQG. Under what conditions would you prefer each? (10 marks)
 
@@ -1415,18 +1415,18 @@ Explain how Adaptive Monte Carlo Localisation (AMCL) provides state estimation f
 
 \textbf{(a) AMCL algorithm:}
 
-AMCL is a particle filter implementation for robot localisation given a known map. It maintains a set of \textbackslash(N\textbackslash) weighted particles \textbackslash(\textbackslash\{(x\_i, y\_i, \textbackslash theta\_i, w\_i)\textbackslash\}\_\{i=1\}\^{}N\textbackslash), each representing a hypothesis of the robot\textquotesingle s pose.
+AMCL is a particle filter implementation for robot localisation given a known map. It maintains a set of \(N\) weighted particles \(\{(x_i, y_i, \theta_i, w_i)\}_{i=1}^N\), each representing a hypothesis of the robot\textquotesingle s pose.
 
 \begin{enumerate}
 \tightlist
 \item
-  \textbf{Prediction:} When the robot moves (odometry \textbackslash(\textbackslash Delta x, \textbackslash Delta y, \textbackslash Delta\textbackslash theta\textbackslash)), each particle is propagated using the motion model with added noise: \textbackslash(x\_i\textquotesingle{} = f(x\_i, u) + \textbackslash epsilon\textbackslash). This is analogous to the Kalman filter prediction step \textbackslash(\textbackslash hat\{x\}\^{}- = A\textbackslash hat\{x\} + Bu\textbackslash).
+  \textbf{Prediction:} When the robot moves (odometry \(\Delta x, \Delta y, \Delta\theta\)), each particle is propagated using the motion model with added noise: \(x_i' = f(x_i, u) + \epsilon\). This is analogous to the Kalman filter prediction step \(\hat{x}^- = A\hat{x} + Bu\).
 \item
-  \textbf{Update:} When a LiDAR scan arrives, each particle\textquotesingle s weight is updated based on how well the scan matches the map from that particle\textquotesingle s pose: \textbackslash(w\_i = p(z \textbar{} x\_i, \textbackslash text\{map\})\textbackslash). This is analogous to the Kalman update with innovation \textbackslash(y - C\textbackslash hat\{x\}\textbackslash).
+  \textbf{Update:} When a LiDAR scan arrives, each particle\textquotesingle s weight is updated based on how well the scan matches the map from that particle\textquotesingle s pose: \(w_i = p(z | x_i, \text{map})\). This is analogous to the Kalman update with innovation \(y - C\hat{x}\).
 \item
-  \textbf{Resampling:} Particles with low weights are replaced by copies of high-weight particles (with noise). This concentrates particles around likely poses. The "adaptive" aspect adjusts \textbackslash(N\textbackslash) based on the spread of particle weights --- fewer particles when confident, more when uncertain.
+  \textbf{Resampling:} Particles with low weights are replaced by copies of high-weight particles (with noise). This concentrates particles around likely poses. The "adaptive" aspect adjusts \(N\) based on the spread of particle weights --- fewer particles when confident, more when uncertain.
 \item
-  \textbf{Output:} The state estimate \textbackslash({[}\textbackslash hat\{x\}, \textbackslash hat\{y\}, \textbackslash hat\{\textbackslash theta\}{]}\textbackslash) is the weighted mean of all particles: \textbackslash(\textbackslash hat\{x\} = \textbackslash sum\_i w\_i x\_i\textbackslash). This estimate is published on \texttt{/amcl\_pose} and consumed by the navigation controller.
+  \textbf{Output:} The state estimate \([\hat{x}, \hat{y}, \hat{\theta}]\) is the weighted mean of all particles: \(\hat{x} = \sum_i w_i x_i\). This estimate is published on \texttt{/amcl\_pose} and consumed by the navigation controller.
 \end{enumerate}
 
 \textbf{(b) AMCL vs EKF comparison:}
@@ -1449,7 +1449,7 @@ Curse of dimensionality & Scales poorly beyond \textasciitilde6D & Scales well t
 
 \textbf{(c) Uncertainty propagation to the controller:}
 
-The AMCL estimate has covariance \textbackslash(\textbackslash Sigma\_\{\textbackslash text\{pose\}\}\textbackslash) derived from the particle spread. When this uncertain estimate is fed to the controller (e.g., MPC tracking a path), the controller acts on \textbackslash(\textbackslash hat\{x\}\textbackslash) rather than the true \textbackslash(x\textbackslash). The tracking error becomes \textbackslash(e = x\_\{\textbackslash text\{ref\}\} - \textbackslash hat\{x\} + (\textbackslash hat\{x\} - x)\textbackslash), where \textbackslash(\textbackslash hat\{x\} - x\textbackslash) is the estimation error. High AMCL uncertainty (e.g., in featureless corridors) directly degrades tracking performance. This motivates the LQG separation principle: design the controller assuming perfect state knowledge, then account for estimation noise through the observer (Kalman filter or particle filter). However, unlike LQG, the separation principle does not hold optimally for nonlinear systems with particle filters, so the combined estimator-controller performance is suboptimal.
+The AMCL estimate has covariance \(\Sigma_{\text{pose}}\) derived from the particle spread. When this uncertain estimate is fed to the controller (e.g., MPC tracking a path), the controller acts on \(\hat{x}\) rather than the true \(x\). The tracking error becomes \(e = x_{\text{ref}} - \hat{x} + (\hat{x} - x)\), where \(\hat{x} - x\) is the estimation error. High AMCL uncertainty (e.g., in featureless corridors) directly degrades tracking performance. This motivates the LQG separation principle: design the controller assuming perfect state knowledge, then account for estimation noise through the observer (Kalman filter or particle filter). However, unlike LQG, the separation principle does not hold optimally for nonlinear systems with particle filters, so the combined estimator-controller performance is suboptimal.
 
 \textbf{Autonomous Systems Corp} --- Senior Autonomy Engineer Technical Challenge
 
