@@ -1,0 +1,126 @@
+%% ============================================================
+%%  Control for Robots — M.Sc. Lecture Book
+%%  Template: kaobook (https://github.com/fmarotta/kaobook)
+%%  Compile with: lualatex main.tex (twice, then biber if citations)
+%% ============================================================
+\documentclass[
+    a4paper,
+    fontsize=10pt,
+    twoside=true,
+    open=any,
+    numbers=noenddot,
+  ]{kaobook}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{fancyvrb}
+
+\graphicspath{{images/}}
+
+\usepackage{kaotheorems}
+\usepackage{kaorefs}
+\usepackage{kaobiblio}
+\addbibresource{main.bib}
+
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+
+% suppress pandoc-specific macros
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\pandocbounded}[1]{#1}
+\providecommand{\passthrough}[1]{\texttt{#1}}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  framesep=6pt,
+  xleftmargin=10pt,
+  xrightmargin=10pt,
+  backgroundcolor=\color[HTML]{F8F8F0},
+  rulecolor=\color[HTML]{BBBBBB},
+  captionpos=b,
+}
+
+\title{\huge Control for Robots}
+\subtitle{A 12-Week M.Sc.\ Lecture Course on Advanced Control for\\Manipulators, Mobile Robots, and Quadrotors}
+\author{Dr.\ Abdul Manan Khan}
+\publishers{Advanced Robotics Programme}
+\date{Academic Year 2025--26}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+\chapter*{Preface}
+This book is the lecture-notes companion to the M.Sc.\ module \emph{Control for Robots}.
+Over twelve weeks it develops a complete toolkit for controlling manipulators, mobile
+robots, and quadrotors --- from classical computed-torque control and model-predictive
+control, through adaptive, robust, backstepping, and sliding-mode control, to a unifying
+framework of nonlinear control optimization that ties every controller to a single
+optimization problem with free parameters. The final four weeks bring the theory into
+ROS\,2: each controller is implemented as a ROS\,2 node, wrapped into navigation
+pipelines, deployed on quadrotor dynamics, and compared head-to-head in the capstone.
+
+Every lecture is supported by a working MATLAB (or in one case, Python) simulation. All
+figures in this book are reproducible from the simulation scripts available in the
+companion repository at
+\url{https://github.com/abdul-mannan-khan/control-for-robots}. A Docker runtime is
+provided so students can reproduce every result without fighting library installation.
+
+\bigskip
+\noindent\textit{Dr.\ Abdul Manan Khan}\\
+\noindent\textit{Advanced Robotics Programme, 2026}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+\setchapterstyle{kao}
+
+\pagelayout{wide}
+\addpart{Control Theory Block}
+\pagelayout{margin}
+
+\input{chapters/week_01}
+\input{chapters/week_02}
+\input{chapters/week_03}
+\input{chapters/week_04}
+\input{chapters/week_05}
+\input{chapters/week_06}
+\input{chapters/week_07}
+\input{chapters/week_08}
+
+\pagelayout{wide}
+\addpart{ROS\,2 Integration Block}
+\pagelayout{margin}
+
+\input{chapters/week_09}
+\input{chapters/week_10}
+\input{chapters/week_11}
+\input{chapters/week_12}
+
+\appendix
+\bookmarksetup{startatroot}
+\backmatter
+
+\chapter*{Colophon}
+This book was typeset using the \texttt{kaobook} document class developed by
+Federico Marotta, which is in turn based on the \texttt{classicthesis} style by
+Andr{\'e} Miede. Lecture content was converted from source HTML via \texttt{pandoc};
+figures were generated from the course's MATLAB and Python simulations.
+
+\end{document}

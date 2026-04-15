@@ -1,0 +1,1332 @@
+% ----- auto-generated from week_09/Week*.html via pandoc -----
+\setchapterimage[6cm]{}
+\setchapterpreamble[u]{\margintoc}
+\chapter{ROS\,2 Control Implementation}
+\labch{week_09}
+
+\section{SkyDynamics Robotics --- Control Engineer Technical Challenge}\label{skydynamics-robotics-control-engineer-technical-challenge}}
+
+Implement PID, LQR, and MPC Controllers from Sensor Bag Data
+
+Position: Control Engineer • Team: Flight Control Systems\\
+Pre-Interview Technical Assessment • Estimated Time: 3 Hours
+
+\subsection{Company Brief: SkyDynamics Robotics}\label{company-brief-skydynamics-robotics}}
+
+\textbf{Scenario:} SkyDynamics Robotics is developing a next-generation autonomous ground robot platform for warehouse logistics. Your team has collected 30 seconds of sensor data (odometry, IMU, and reference trajectory) from a prototype run. As part of this technical challenge, you will implement three control strategies as ROS2 nodes and compare their performance on the recorded data.
+
+\subsubsection{Provided Bag Data}\label{provided-bag-data}}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Topic & Message Type & Rate & Description \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{/odom} & nav\_msgs/Odometry & 50 Hz & Robot odometry (position, orientation, velocity) \\
+\texttt{/imu} & sensor\_msgs/Imu & 200 Hz & Inertial measurement unit data \\
+\texttt{/reference\_trajectory} & geometry\_msgs/PoseStamped & 50 Hz & Desired waypoint trajectory \\
+\end{longtable}
+
+\subsubsection{Deliverables}\label{deliverables}}
+
+\begin{itemize}
+\tightlist
+\item
+  A PID controller ROS2 node with anti-windup and runtime-tunable gains
+\item
+  An LQR controller ROS2 node using scipy Riccati solver with state-space model
+\item
+  An MPC controller ROS2 node with horizon-based trajectory optimisation
+\item
+  A launch file that replays bag data and runs all three controllers simultaneously
+\item
+  A quantitative comparison: rise time, overshoot, steady-state error, and computation time
+\end{itemize}
+
+\subsubsection{Evaluation Criteria}\label{evaluation-criteria}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Code Quality:} Clean ROS2 node structure, proper QoS configuration, parameter declarations
+\item
+  \textbf{Control Theory:} Correct discrete-time implementation, stability analysis, gain tuning rationale
+\item
+  \textbf{Systems Thinking:} Modular architecture, proper topic naming, error handling
+\item
+  \textbf{Communication:} Ability to explain design decisions and trade-offs during the follow-up interview
+\end{itemize}
+
+\subsection{Skills You Will Demonstrate}\label{skills-you-will-demonstrate}}
+
+\begin{itemize}
+\tightlist
+\item
+  Explain the architecture of a ROS2 control node, including publishers, subscribers, timers, and parameter servers, and describe how they map to classical control-loop components.
+\item
+  Implement PID, LQR, and MPC controllers as standalone ROS2 Python nodes that subscribe to odometry and publish velocity commands.
+\item
+  Describe the \texttt{ros2\_control} framework and its layered architecture: hardware interface, controller manager, and controller plugins.
+\item
+  Configure Quality of Service (QoS) policies for control topics, choosing appropriate reliability and deadline settings for real-time performance.
+\item
+  Compare and contrast MATLAB/Simulink and ROS2 implementations of the same control algorithm, identifying trade-offs in prototyping speed, real-time guarantees, and deployment readiness.
+\item
+  Use ROS2 parameters and launch files to switch between controller types and tune gains at runtime without recompilation.
+\item
+  Record, replay, and analyse control performance data using \texttt{rosbag2}, extracting metrics such as rise time, overshoot, and steady-state error.
+\item
+  Design a modular ROS2 control architecture that separates state estimation, controller logic, and actuation into distinct nodes communicating over well-defined topics.
+\end{itemize}
+
+\subsection{Recommended Approach (3-hour session)}\label{recommended-approach-3-hour-session}}
+
+0:00 -- 0:20
+
+\paragraph{Week 8 Exam Recall}\label{week-8-exam-recall}}
+
+Review nonlinear control optimization: Pontryagin\textquotesingle s Minimum Principle, iLQR/DDP, and nonlinear MPC for robotic systems. Discuss how the optimized controller gains from Week 8 (for SMC, adaptive, robust, backstepping, NMPC) translate to real ROS2 nodes. Warm-up Q\&A.
+
+0:20 -- 0:50
+
+\paragraph{Part 1: Why ROS2 for Control Engineers?}\label{part-1-why-ros2-for-control-engineers}}
+
+ROS2 vs ROS1, DDS middleware, ros2\_control framework overview, the control loop in ROS2, industry adoption.
+
+0:50 -- 1:15
+
+\paragraph{Part 2: Implementing PID as a ROS2 Node}\label{part-2-implementing-pid-as-a-ros2-node}}
+
+PID theory recap, full Python node implementation, anti-windup, QoS configuration, runtime parameter tuning.
+
+1:15 -- 1:40
+
+\paragraph{Part 3: Implementing LQR as a ROS2 Node}\label{part-3-implementing-lqr-as-a-ros2-node}}
+
+LQR theory recap, Riccati solver in Python, state-space model from odometry, full working node.
+
+1:40 -- 1:50
+
+\paragraph{Break}\label{break}}
+
+10-minute break.
+
+1:50 -- 2:20
+
+\paragraph{Part 4: Implementing MPC as a ROS2 Node}\label{part-4-implementing-mpc-as-a-ros2-node}}
+
+MPC theory recap, QP formulation, scipy solver, predicted trajectory publishing for RViz, full working node.
+
+2:20 -- 2:40
+
+\paragraph{Part 5: Extending to All 7 Controllers}\label{part-5-extending-to-all-7-controllers}}
+
+Brief implementation guide for Computed Torque, Adaptive, Robust, Backstepping, and SMC as ROS2 nodes. Unified launch file.
+
+2:40 -- 2:55
+
+\paragraph{Part 6: Comparison Lab}\label{part-6-comparison-lab}}
+
+Hands-on activities: implement, compare PID vs LQR vs MPC on TurtleBot3 simulation. Record rosbag data and plot metrics.
+
+2:55 -- 3:00
+
+\paragraph{Wrap-Up \& Quiz}\label{wrap-up-quiz}}
+
+Key takeaways, quick quiz, preview of Week 10 topics.
+
+\subsection{Part 1: Why ROS2 for Control Engineers?}\label{part-1-why-ros2-for-control-engineers-1}}
+
+\subsubsection{1.1 ROS2 vs ROS1 for Real-Time Control}\label{ros2-vs-ros1-for-real-time-control}}
+
+ROS1 was built on a custom TCP/UDP transport layer with a single-master architecture. While revolutionary for robotics research, it lacked deterministic communication, had no built-in lifecycle management, and was unsuitable for safety-critical or real-time control. ROS2 addresses every one of these shortcomings:
+
+\paragraph{DDS Middleware}\label{dds-middleware}}
+
+ROS2 uses the Data Distribution Service (DDS) standard, an industrial-strength publish-subscribe middleware. DDS provides configurable Quality of Service (QoS) policies including \textbf{reliability} (best-effort vs reliable), \textbf{durability}, \textbf{deadline}, and \textbf{liveliness} --- critical for control loops that must meet timing guarantees.
+
+\paragraph{Lifecycle Nodes}\label{lifecycle-nodes}}
+
+Managed lifecycle nodes (unconfigured → inactive → active → finalized) allow orderly startup and shutdown of controller nodes. This prevents the common ROS1 problem of a controller publishing commands before the state estimator is ready.
+
+\paragraph{QoS Policies for Control}\label{qos-policies-for-control}}
+
+For a 50 Hz control loop, set \texttt{deadline=20ms} and \texttt{reliability=BEST\_EFFORT} to ensure the controller always has the freshest data. For parameter updates, use \texttt{reliability=RELIABLE} to guarantee delivery.
+
+\paragraph{Real-Time Executor}\label{real-time-executor}}
+
+ROS2 supports custom executors, including the \texttt{StaticSingleThreadedExecutor} for deterministic callback scheduling. Combined with Linux RT-PREEMPT patches, sub-millisecond jitter is achievable.
+
+\subsubsection{1.2 The ros2\_control Framework}\label{the-ros2_control-framework}}
+
+The \texttt{ros2\_control} framework provides a standardised architecture for robot control. It separates the concerns of hardware abstraction, controller logic, and controller lifecycle management:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Hardware Interface:} Abstracts the physical robot. Provides \texttt{state\_interfaces} (e.g., joint position, velocity) and \texttt{command\_interfaces} (e.g., effort, velocity). Plugins exist for many robots (UR, Franka, TurtleBot3).
+\item
+  \textbf{Controller Manager:} A central node that loads, configures, activates, and deactivates controller plugins at runtime. Manages the real-time control loop (typically 500--1000 Hz).
+\item
+  \textbf{Controller Plugins:} Implement specific control algorithms (e.g., \texttt{joint\_trajectory\_controller}, \texttt{diff\_drive\_controller}, \texttt{pid\_controller}). Custom controllers can be written as plugins.
+\end{itemize}
+
+\subsubsection{1.3 Industry Adoption}\label{industry-adoption}}
+
+Every major robotics company uses ROS2 in production or development: Boston Dynamics (for internal tooling), Open Robotics (reference implementation), Universal Robots (ROS2 driver), NVIDIA Isaac (ROS2 integration), Amazon (warehouse robots), and countless startups. Understanding ROS2 is now a \textbf{mandatory skill} for control engineers working in robotics.
+
+\subsubsection{1.4 The Control Loop in ROS2}\label{the-control-loop-in-ros2}}
+
+A typical ROS2 control loop consists of the following components, mapped to classical control theory concepts:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Timer callback} at fixed rate (e.g., 50 Hz) --- the sampling period \textbackslash(T\_s\textbackslash)
+\item
+  \textbf{Subscriber to \texttt{/odom}} --- state measurement \textbackslash(y\_k\textbackslash) (or \textbackslash(\textbackslash hat\{x\}\_k\textbackslash) from state estimator)
+\item
+  \textbf{Subscriber to \texttt{/reference\_trajectory}} --- reference signal \textbackslash(r\_k\textbackslash)
+\item
+  \textbf{Error computation} inside the callback --- \textbackslash(e\_k = r\_k - y\_k\textbackslash)
+\item
+  \textbf{Controller algorithm} --- computes \textbackslash(u\_k = f(e\_k, e\_\{k-1\}, \textbackslash ldots)\textbackslash)
+\item
+  \textbf{Publisher to \texttt{/cmd\_vel}} --- actuator command \textbackslash(u\_k\textbackslash)
+\end{itemize}
+
+\textbf{Cross-Reference:} The ROS2 robotics course in \texttt{src/ros2\_robotics\_course/week\_11/} contains complete exercise nodes for PID (exercise1\_node.py), LQR (exercise2\_node.py), and MPC (exercise3\_node.py). This week bridges the control theory from Weeks 1--8 with those practical ROS2 implementations. \textbf{New in this version:} an NMPC node (\texttt{w11\_exercises/task\_nmpc\_node.py}) using an iLQR back-end consistent with Week 8 §9 is provided as the nonlinear counterpart to the LQR node.
+
+\subsubsection{1.5 ROS2 Control Architecture Diagram}\label{ros2-control-architecture-diagram}}
+
+\subsection{Part 2: Implementing PID Controller as a ROS2 Node}\label{part-2-implementing-pid-controller-as-a-ros2-node}}
+
+\subsubsection{2.1 Theory Recap}\label{theory-recap}}
+
+The continuous-time PID control law is:
+
+\textbackslash( u(t) = K\_p\textbackslash,e(t) + K\_i \textbackslash int\_0\^{}t e(\textbackslash tau)\textbackslash,d\textbackslash tau + K\_d\textbackslash,\textbackslash dot\{e\}(t) \textbackslash)
+
+For digital implementation at sample rate \textbackslash(T\_s\textbackslash), we use the discrete approximation:
+
+\textbackslash{[}
+u\_k = K\_p\textbackslash,e\_k + K\_i\textbackslash,T\_s \textbackslash sum\_\{j=0\}\^{}\{k\} e\_j + K\_d\textbackslash,\textbackslash frac\{e\_k - e\_\{k-1\}\}\{T\_s\}
+\textbackslash{]}
+
+\textbf{Anti-windup} is essential for any practical PID implementation. When the actuator saturates, the integral term continues to accumulate error, causing large overshoot when the error sign changes. The simplest anti-windup strategy is \emph{conditional integration}: clamp the integral accumulator to a fixed range (e.g., \textbackslash(\textbackslash pm 10\textbackslash)).
+
+\subsubsection{2.2 ROS2 Implementation}\label{ros2-implementation}}
+
+The following is a complete PID controller node for mobile robot position tracking. It subscribes to \texttt{/odom} for current state and publishes \texttt{/cmd\_vel} for velocity commands:
+
+\#!/usr/bin/env python3
+"""PID Controller Node for position tracking.
+Subscribes: /odom (nav\_msgs/Odometry), /reference (geometry\_msgs/PoseStamped)
+Publishes: /cmd\_vel (geometry\_msgs/Twist)
+"""
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+from geometry\_msgs.msg import Twist, PoseStamped
+from nav\_msgs.msg import Odometry
+import numpy as np
+import math
+class PIDControllerNode(Node):
+def \_\_init\_\_(self):
+super().\_\_init\_\_(\textquotesingle pid\_controller\textquotesingle)
+\# Declare parameters (tunable at runtime via ros2 param set)
+self.declare\_parameter(\textquotesingle kp\textquotesingle, 1.0)
+self.declare\_parameter(\textquotesingle ki\textquotesingle, 0.1)
+self.declare\_parameter(\textquotesingle kd\textquotesingle, 0.5)
+self.declare\_parameter(\textquotesingle control\_rate\textquotesingle, 50.0)
+self.declare\_parameter(\textquotesingle max\_linear\_vel\textquotesingle, 1.0)
+self.declare\_parameter(\textquotesingle max\_angular\_vel\textquotesingle, 1.0)
+self.declare\_parameter(\textquotesingle integral\_clamp\textquotesingle, 10.0)
+\# Get parameters
+self.kp = self.get\_parameter(\textquotesingle kp\textquotesingle).value
+self.ki = self.get\_parameter(\textquotesingle ki\textquotesingle).value
+self.kd = self.get\_parameter(\textquotesingle kd\textquotesingle).value
+rate = self.get\_parameter(\textquotesingle control\_rate\textquotesingle).value
+self.max\_lin = self.get\_parameter(\textquotesingle max\_linear\_vel\textquotesingle).value
+self.max\_ang = self.get\_parameter(\textquotesingle max\_angular\_vel\textquotesingle).value
+self.int\_clamp = self.get\_parameter(\textquotesingle integral\_clamp\textquotesingle).value
+\# State variables
+self.error\_integral = np.zeros(2)
+self.prev\_error = np.zeros(2)
+self.current\_pose = None
+self.current\_yaw = 0.0
+self.reference = np.array({[}2.0, 1.0{]}) \# default target {[}x, y{]}
+\# QoS for control: best-effort for low latency
+control\_qos = QoSProfile(
+reliability=ReliabilityPolicy.BEST\_EFFORT,
+history=HistoryPolicy.KEEP\_LAST,
+depth=1
+)
+\# Publishers and subscribers
+self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
+self.odom\_sub = self.create\_subscription(
+Odometry, \textquotesingle/odom\textquotesingle, self.odom\_callback, control\_qos)
+self.ref\_sub = self.create\_subscription(
+PoseStamped, \textquotesingle/reference\textquotesingle, self.ref\_callback, 10)
+\# Control timer
+self.dt = 1.0 / rate
+self.timer = self.create\_timer(self.dt, self.control\_loop)
+self.get\_logger().info(
+f\textquotesingle PID Controller initialized: Kp=\{self.kp\}, Ki=\{self.ki\}, \textquotesingle{}
+f\textquotesingle Kd=\{self.kd\}, rate=\{rate\}Hz\textquotesingle)
+def quaternion\_to\_yaw(self, q):
+"""Extract yaw angle from quaternion."""
+siny\_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+cosy\_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+return math.atan2(siny\_cosp, cosy\_cosp)
+def ref\_callback(self, msg):
+"""Update reference position from incoming message."""
+self.reference = np.array({[}
+msg.pose.position.x, msg.pose.position.y{]})
+def odom\_callback(self, msg):
+"""Update current pose from odometry."""
+self.current\_pose = np.array({[}
+msg.pose.pose.position.x,
+msg.pose.pose.position.y{]})
+self.current\_yaw = self.quaternion\_to\_yaw(
+msg.pose.pose.orientation)
+def control\_loop(self):
+"""Timer callback: compute PID output and publish cmd\_vel."""
+if self.current\_pose is None:
+return
+\# Compute error
+error = self.reference - self.current\_pose
+\# Integral with anti-windup (clamping)
+self.error\_integral += error * self.dt
+self.error\_integral = np.clip(
+self.error\_integral, -self.int\_clamp, self.int\_clamp)
+\# Derivative (backward difference)
+error\_derivative = (error - self.prev\_error) / self.dt
+\# PID output
+control = (self.kp * error
++ self.ki * self.error\_integral
++ self.kd * error\_derivative)
+\# Transform to robot frame (body-frame velocities)
+cos\_yaw = math.cos(self.current\_yaw)
+sin\_yaw = math.sin(self.current\_yaw)
+v\_x = cos\_yaw * control{[}0{]} + sin\_yaw * control{[}1{]}
+omega = -sin\_yaw * control{[}0{]} + cos\_yaw * control{[}1{]}
+\# Publish command with saturation
+cmd = Twist()
+cmd.linear.x = float(np.clip(v\_x, -self.max\_lin, self.max\_lin))
+cmd.angular.z = float(np.clip(omega, -self.max\_ang, self.max\_ang))
+self.cmd\_pub.publish(cmd)
+\# Update previous error
+self.prev\_error = error.copy()
+def main(args=None):
+rclpy.init(args=args)
+node = PIDControllerNode()
+try:
+rclpy.spin(node)
+except KeyboardInterrupt:
+pass
+finally:
+node.destroy\_node()
+rclpy.shutdown()
+if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
+main()
+
+\subsubsection{2.3 Real-Time Considerations}\label{real-time-considerations}}
+
+\paragraph{QoS for Control Topics}\label{qos-for-control-topics}}
+
+Use \texttt{BEST\_EFFORT} reliability on \texttt{/odom} subscription to minimise latency --- in control, a late measurement is worse than a dropped one. Use \texttt{KEEP\_LAST} with depth 1 so the controller always processes the most recent data.
+
+\paragraph{Timer vs Subscriber-Driven}\label{timer-vs-subscriber-driven}}
+
+The timer-based approach guarantees a fixed control rate regardless of sensor rate. Alternatively, compute control in the \texttt{odom\_callback} directly for event-driven control, but beware of variable \textbackslash(\textbackslash Delta t\textbackslash).
+
+\paragraph{Runtime Parameter Tuning}\label{runtime-parameter-tuning}}
+
+Use \texttt{ros2\ param\ set\ /pid\_controller\ kp\ 2.0} to adjust gains without restarting the node. Add a \texttt{ParameterEventHandler} callback to update gains dynamically.
+
+\textbf{Common Pitfall:} Forgetting to initialise \texttt{prev\_error} causes a large derivative spike on the first control step. Always set \texttt{prev\_error\ =\ error} (not zero) at the start, or skip the derivative term on the first iteration.
+
+\subsection{Part 3: Implementing LQR Controller as a ROS2 Node}\label{part-3-implementing-lqr-controller-as-a-ros2-node}}
+
+\subsubsection{3.1 Theory Recap}\label{theory-recap-1}}
+
+The Linear Quadratic Regulator minimises the infinite-horizon cost:
+
+\textbackslash{[}
+J = \textbackslash int\_0\^{}\{\textbackslash infty\} \textbackslash bigl(x\^{}T Q\textbackslash,x + u\^{}T R\textbackslash,u\textbackslash bigr)\textbackslash,dt
+\textbackslash{]}
+
+The optimal control law is \textbackslash(u = -Kx\textbackslash), where \textbackslash(K = R\^{}\{-1\}B\^{}T P\textbackslash) and \textbackslash(P\textbackslash) solves the CARE derived in the exam recall above.
+
+For discrete-time implementation:
+
+\textbackslash{[}
+K = (R + B\_d\^{}T P B\_d)\^{}\{-1\} B\_d\^{}T P A\_d
+\textbackslash{]}
+
+where \textbackslash(P\textbackslash) solves the Discrete Algebraic Riccati Equation (DARE):
+
+\textbackslash{[}
+P = A\_d\^{}T P A\_d - A\_d\^{}T P B\_d (R + B\_d\^{}T P B\_d)\^{}\{-1\} B\_d\^{}T P A\_d + Q
+\textbackslash{]}
+
+In Python, we use \texttt{scipy.linalg.solve\_continuous\_are} (for CARE) or \texttt{scipy.linalg.solve\_discrete\_are} (for DARE).
+
+\subsubsection{3.2 ROS2 Implementation}\label{ros2-implementation-1}}
+
+\#!/usr/bin/env python3
+"""LQR Controller Node for state-space position/velocity tracking.
+Subscribes: /odom (nav\_msgs/Odometry), /reference (geometry\_msgs/PoseStamped)
+Publishes: /cmd\_vel (geometry\_msgs/Twist), /lqr\_gain (std\_msgs/Float64MultiArray)
+State vector: {[}x, y, theta, v\_x, omega{]}
+"""
+import rclpy
+from rclpy.node import Node
+from geometry\_msgs.msg import Twist, PoseStamped
+from nav\_msgs.msg import Odometry
+from std\_msgs.msg import Float64MultiArray
+import numpy as np
+import math
+try:
+from scipy.linalg import solve\_continuous\_are, solve\_discrete\_are
+HAS\_SCIPY = True
+except ImportError:
+HAS\_SCIPY = False
+class LQRControllerNode(Node):
+def \_\_init\_\_(self):
+super().\_\_init\_\_(\textquotesingle lqr\_controller\textquotesingle)
+\# Parameters
+self.declare\_parameter(\textquotesingle Q\_diag\textquotesingle, {[}10.0, 10.0, 5.0, 1.0, 1.0{]})
+self.declare\_parameter(\textquotesingle R\_diag\textquotesingle, {[}1.0, 1.0{]})
+self.declare\_parameter(\textquotesingle control\_rate\textquotesingle, 50.0)
+self.declare\_parameter(\textquotesingle max\_linear\_vel\textquotesingle, 1.0)
+self.declare\_parameter(\textquotesingle max\_angular\_vel\textquotesingle, 1.5)
+self.declare\_parameter(\textquotesingle dt\textquotesingle, 0.02)
+Q\_diag = self.get\_parameter(\textquotesingle Q\_diag\textquotesingle).value
+R\_diag = self.get\_parameter(\textquotesingle R\_diag\textquotesingle).value
+rate = self.get\_parameter(\textquotesingle control\_rate\textquotesingle).value
+self.max\_lin = self.get\_parameter(\textquotesingle max\_linear\_vel\textquotesingle).value
+self.max\_ang = self.get\_parameter(\textquotesingle max\_angular\_vel\textquotesingle).value
+self.dt = self.get\_parameter(\textquotesingle dt\textquotesingle).value
+self.n\_states = 5 \# {[}x, y, theta, v\_x, omega{]}
+self.n\_inputs = 2 \# {[}linear\_accel, angular\_accel{]}
+self.Q = np.diag(Q\_diag)
+self.R = np.diag(R\_diag)
+\# Compute LQR gain at operating point (linearised unicycle)
+self.K = self.\_compute\_lqr\_gain()
+\# State and reference
+self.state = np.zeros(self.n\_states)
+self.ref\_state = np.zeros(self.n\_states)
+self.prev\_pos = None
+self.prev\_yaw = None
+self.prev\_time = None
+\# ROS2 interfaces
+self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
+self.gain\_pub = self.create\_publisher(
+Float64MultiArray, \textquotesingle/lqr\_gain\textquotesingle, 10)
+self.odom\_sub = self.create\_subscription(
+Odometry, \textquotesingle/odom\textquotesingle, self.odom\_callback, 10)
+self.ref\_sub = self.create\_subscription(
+PoseStamped, \textquotesingle/reference\textquotesingle, self.ref\_callback, 10)
+\# Control timer
+self.timer = self.create\_timer(1.0 / rate, self.control\_loop)
+self.get\_logger().info(
+f\textquotesingle LQR Controller started (scipy=\{HAS\_SCIPY\})\textquotesingle)
+self.get\_logger().info(f\textquotesingle Gain K:\textbackslash n\{self.K\}\textquotesingle)
+def \_compute\_lqr\_gain(self):
+"""Compute LQR gain by linearising about v0, omega0 = 0."""
+if not HAS\_SCIPY:
+self.get\_logger().warn(
+\textquotesingle scipy not available; using zero gain\textquotesingle)
+return np.zeros((self.n\_inputs, self.n\_states))
+\# Linearised unicycle model about (v0=0, omega0=0, theta0=0)
+\# dx = v*cos(theta) -\textgreater{} linearised: dx = v
+\# dy = v*sin(theta) -\textgreater{} linearised: dy = v*theta
+\# dtheta = omega
+\# dv = u1 (linear accel)
+\# domega = u2 (angular accel)
+v0 = 0.5 \# nominal forward speed
+A\_c = np.array({[}
+{[}0, 0, 0, 1, 0{]}, \# dx/dt \textasciitilde{} v
+{[}0, 0, v0, 0, 0{]}, \# dy/dt \textasciitilde{} v0*theta
+{[}0, 0, 0, 0, 1{]}, \# dtheta/dt = omega
+{[}0, 0, 0, 0, 0{]}, \# dv/dt = u1
+{[}0, 0, 0, 0, 0{]}, \# domega/dt = u2
+{]})
+B\_c = np.array({[}
+{[}0, 0{]},
+{[}0, 0{]},
+{[}0, 0{]},
+{[}1, 0{]},
+{[}0, 1{]},
+{]})
+\# Solve CARE
+P = solve\_continuous\_are(A\_c, B\_c, self.Q, self.R)
+K = np.linalg.inv(self.R) @ B\_c.T @ P
+return K
+def quaternion\_to\_yaw(self, q):
+siny = 2.0 * (q.w * q.z + q.x * q.y)
+cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+return math.atan2(siny, cosy)
+def ref\_callback(self, msg):
+self.ref\_state{[}0{]} = msg.pose.position.x
+self.ref\_state{[}1{]} = msg.pose.position.y
+self.ref\_state{[}2{]} = self.quaternion\_to\_yaw(msg.pose.orientation)
+def odom\_callback(self, msg):
+"""Extract full state {[}x, y, theta, v\_x, omega{]} from odom."""
+x = msg.pose.pose.position.x
+y = msg.pose.pose.position.y
+yaw = self.quaternion\_to\_yaw(msg.pose.pose.orientation)
+vx = msg.twist.twist.linear.x
+omega = msg.twist.twist.angular.z
+self.state = np.array({[}x, y, yaw, vx, omega{]})
+def control\_loop(self):
+"""Compute u = -K @ (state - ref\_state) and publish."""
+error\_state = self.state - self.ref\_state
+\# Wrap angle error to {[}-pi, pi{]}
+error\_state{[}2{]} = math.atan2(
+math.sin(error\_state{[}2{]}), math.cos(error\_state{[}2{]}))
+u = -self.K @ error\_state
+cmd = Twist()
+cmd.linear.x = float(np.clip(u{[}0{]}, -self.max\_lin, self.max\_lin))
+cmd.angular.z = float(np.clip(u{[}1{]}, -self.max\_ang, self.max\_ang))
+self.cmd\_pub.publish(cmd)
+\# Publish gain for monitoring
+gain\_msg = Float64MultiArray()
+gain\_msg.data = self.K.flatten().tolist()
+self.gain\_pub.publish(gain\_msg)
+def main(args=None):
+rclpy.init(args=args)
+node = LQRControllerNode()
+try:
+rclpy.spin(node)
+except KeyboardInterrupt:
+pass
+finally:
+node.destroy\_node()
+rclpy.shutdown()
+if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
+main()
+
+\subsubsection{3.3 PID vs LQR Comparison}\label{pid-vs-lqr-comparison}}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Aspect & PID & LQR \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Tuning Parameters & 3 gains (\textbackslash(K\_p, K\_i, K\_d\textbackslash)) per axis, often heuristic & Weight matrices \textbackslash(Q, R\textbackslash) --- principled, physically interpretable \\
+Stability Guarantees & No formal guarantee; depends on tuning and plant & Guaranteed stability if \textbackslash((A,B)\textbackslash) controllable and \textbackslash(Q \textbackslash succeq 0, R \textbackslash succ 0\textbackslash) \\
+Model Requirement & None (model-free) & Requires state-space model \textbackslash((A, B)\textbackslash) \\
+MIMO Systems & Separate SISO loops; cross-coupling ignored & Naturally handles multi-input multi-output systems \\
+Robustness & Sensitive to parameter changes; no formal margins & At least 60° phase margin, infinite gain margin \\
+Computational Cost & Negligible (3 multiplications per axis) & One matrix multiply per step (Riccati solved offline) \\
+ROS2 Node Complexity & \textasciitilde60 lines & \textasciitilde100 lines (includes scipy dependency) \\
+\end{longtable}
+
+\subsection{Part 4: Implementing MPC Controller as a ROS2 Node}\label{part-4-implementing-mpc-controller-as-a-ros2-node}}
+
+\subsubsection{4.1 Theory Recap}\label{theory-recap-2}}
+
+Model Predictive Control (MPC) solves an optimisation problem at each time step, computing the optimal control sequence over a prediction horizon \textbackslash(N\textbackslash):
+
+\textbackslash( J = \textbackslash sum\_\{k=0\}\^{}\{N-1\}\textbackslash bigl{[}x\_k\^{}T Q\textbackslash,x\_k + u\_k\^{}T R\textbackslash,u\_k\textbackslash bigr{]} + x\_N\^{}T P\_f\textbackslash,x\_N \textbackslash)
+
+subject to system dynamics \textbackslash(x\_\{k+1\} = A\_d\textbackslash,x\_k + B\_d\textbackslash,u\_k\textbackslash) and constraints:
+
+\textbackslash{[}
+u\_\{\textbackslash min\} \textbackslash leq u\_k \textbackslash leq u\_\{\textbackslash max\}, \textbackslash qquad x\_\{\textbackslash min\} \textbackslash leq x\_k \textbackslash leq x\_\{\textbackslash max\}
+\textbackslash{]}
+
+The key MPC principle is \textbf{receding horizon}: solve the optimisation, apply only the first control input \textbackslash(u\_0\^{}*\textbackslash), then re-solve at the next time step with updated state.
+
+For unconstrained linear MPC, the solution is equivalent to time-varying LQR. For constrained problems, we must solve a Quadratic Program (QP) at each step using \texttt{scipy.optimize.minimize} or a dedicated QP solver like \texttt{cvxpy}.
+
+\subsubsection{4.2 ROS2 Implementation}\label{ros2-implementation-2}}
+
+\#!/usr/bin/env python3
+"""MPC Controller Node with predicted trajectory visualisation.
+Subscribes: /odom (nav\_msgs/Odometry), /reference (geometry\_msgs/PoseStamped)
+Publishes: /cmd\_vel (geometry\_msgs/Twist),
+/predicted\_trajectory (nav\_msgs/Path),
+/mpc\_cost (std\_msgs/Float64)
+State: {[}x, y, vx, vy{]} Input: {[}ax, ay{]}
+"""
+import rclpy
+from rclpy.node import Node
+from geometry\_msgs.msg import Twist, PoseStamped
+from nav\_msgs.msg import Odometry, Path
+from std\_msgs.msg import Float64
+import numpy as np
+import math
+import time as pytime
+try:
+from scipy.optimize import minimize
+HAS\_SCIPY = True
+except ImportError:
+HAS\_SCIPY = False
+class MPCControllerNode(Node):
+def \_\_init\_\_(self):
+super().\_\_init\_\_(\textquotesingle mpc\_controller\textquotesingle)
+\# Parameters
+self.declare\_parameter(\textquotesingle horizon\_N\textquotesingle, 10)
+self.declare\_parameter(\textquotesingle dt\textquotesingle, 0.1)
+self.declare\_parameter(\textquotesingle Q\_diag\textquotesingle, {[}10.0, 10.0, 1.0, 1.0{]})
+self.declare\_parameter(\textquotesingle R\_diag\textquotesingle, {[}0.1, 0.1{]})
+self.declare\_parameter(\textquotesingle Qf\_multiplier\textquotesingle, 10.0)
+self.declare\_parameter(\textquotesingle u\_min\textquotesingle, -2.0)
+self.declare\_parameter(\textquotesingle u\_max\textquotesingle, 2.0)
+self.declare\_parameter(\textquotesingle max\_linear\_vel\textquotesingle, 1.0)
+self.declare\_parameter(\textquotesingle control\_rate\textquotesingle, 20.0)
+self.N = self.get\_parameter(\textquotesingle horizon\_N\textquotesingle).value
+self.dt = self.get\_parameter(\textquotesingle dt\textquotesingle).value
+Q\_diag = self.get\_parameter(\textquotesingle Q\_diag\textquotesingle).value
+R\_diag = self.get\_parameter(\textquotesingle R\_diag\textquotesingle).value
+Qf\_mult = self.get\_parameter(\textquotesingle Qf\_multiplier\textquotesingle).value
+self.u\_min = self.get\_parameter(\textquotesingle u\_min\textquotesingle).value
+self.u\_max = self.get\_parameter(\textquotesingle u\_max\textquotesingle).value
+self.max\_lin = self.get\_parameter(\textquotesingle max\_linear\_vel\textquotesingle).value
+rate = self.get\_parameter(\textquotesingle control\_rate\textquotesingle).value
+self.n\_states = 4 \# {[}x, y, vx, vy{]}
+self.n\_inputs = 2 \# {[}ax, ay{]}
+self.Q = np.diag(Q\_diag)
+self.R = np.diag(R\_diag)
+self.Qf = Qf\_mult * self.Q \# terminal cost
+\# Discrete double-integrator model
+\# x\_\{k+1\} = A\_d * x\_k + B\_d * u\_k
+self.A\_d = np.array({[}
+{[}1, 0, self.dt, 0 {]},
+{[}0, 1, 0, self.dt{]},
+{[}0, 0, 1, 0 {]},
+{[}0, 0, 0, 1 {]},
+{]})
+self.B\_d = np.array({[}
+{[}0.5*self.dt**2, 0 {]},
+{[}0, 0.5*self.dt**2 {]},
+{[}self.dt, 0 {]},
+{[}0, self.dt {]},
+{]})
+\# State and reference
+self.state = np.zeros(self.n\_states)
+self.ref\_state = np.zeros(self.n\_states)
+self.prev\_pos = None
+self.prev\_time = None
+\# ROS2 interfaces
+self.cmd\_pub = self.create\_publisher(Twist, \textquotesingle/cmd\_vel\textquotesingle, 10)
+self.path\_pub = self.create\_publisher(
+Path, \textquotesingle/predicted\_trajectory\textquotesingle, 10)
+self.cost\_pub = self.create\_publisher(Float64, \textquotesingle/mpc\_cost\textquotesingle, 10)
+self.odom\_sub = self.create\_subscription(
+Odometry, \textquotesingle/odom\textquotesingle, self.odom\_callback, 10)
+self.ref\_sub = self.create\_subscription(
+PoseStamped, \textquotesingle/reference\textquotesingle, self.ref\_callback, 10)
+\# Control timer
+self.timer = self.create\_timer(1.0 / rate, self.control\_loop)
+self.get\_logger().info(
+f\textquotesingle MPC Controller: N=\{self.N\}, dt=\{self.dt\}, \textquotesingle{}
+f\textquotesingle rate=\{rate\}Hz, scipy=\{HAS\_SCIPY\}\textquotesingle)
+def ref\_callback(self, msg):
+self.ref\_state{[}0{]} = msg.pose.position.x
+self.ref\_state{[}1{]} = msg.pose.position.y
+def odom\_callback(self, msg):
+pos = np.array({[}msg.pose.pose.position.x,
+msg.pose.pose.position.y{]})
+vx = msg.twist.twist.linear.x
+yaw\_q = msg.pose.pose.orientation
+siny = 2.0 * (yaw\_q.w * yaw\_q.z + yaw\_q.x * yaw\_q.y)
+cosy = 1.0 - 2.0 * (yaw\_q.y**2 + yaw\_q.z**2)
+yaw = math.atan2(siny, cosy)
+self.state = np.array({[}
+pos{[}0{]}, pos{[}1{]},
+vx * math.cos(yaw), vx * math.sin(yaw){]})
+def dynamics(self, x, u):
+"""Discrete dynamics: x\_\{k+1\} = A\_d x\_k + B\_d u\_k."""
+return self.A\_d @ x + self.B\_d @ u
+def mpc\_cost\_fn(self, u\_flat):
+"""Cost function for scipy.optimize.minimize."""
+U = u\_flat.reshape(self.N, self.n\_inputs)
+x = self.state.copy()
+cost = 0.0
+for k in range(self.N):
+e = x - self.ref\_state
+cost += e @ self.Q @ e + U{[}k{]} @ self.R @ U{[}k{]}
+x = self.dynamics(x, U{[}k{]})
+\# Terminal cost
+e\_f = x - self.ref\_state
+cost += e\_f @ self.Qf @ e\_f
+return cost
+def solve\_mpc(self):
+"""Solve the MPC optimisation problem."""
+if not HAS\_SCIPY:
+return np.zeros(self.n\_inputs), 0.0, {[}{]}
+u0 = np.zeros(self.N * self.n\_inputs)
+bounds = {[}(self.u\_min, self.u\_max){]} * (self.N * self.n\_inputs)
+result = minimize(
+self.mpc\_cost\_fn, u0,
+method=\textquotesingle SLSQP\textquotesingle, bounds=bounds,
+options=\{\textquotesingle maxiter\textquotesingle: 50, \textquotesingle ftol\textquotesingle: 1e-6\})
+U\_opt = result.x.reshape(self.N, self.n\_inputs)
+\# Compute predicted trajectory for visualisation
+predicted = {[}{]}
+x = self.state.copy()
+for k in range(self.N):
+x = self.dynamics(x, U\_opt{[}k{]})
+predicted.append(x{[}:2{]}.copy())
+return U\_opt{[}0{]}, result.fun, predicted
+def control\_loop(self):
+"""Timer callback: solve MPC and publish."""
+t\_start = pytime.monotonic()
+u\_opt, cost, predicted = self.solve\_mpc()
+solve\_time = (pytime.monotonic() - t\_start) * 1000
+\# Publish velocity command
+cmd = Twist()
+\# Convert acceleration to velocity increment
+vx\_cmd = self.state{[}2{]} + u\_opt{[}0{]} * self.dt
+vy\_cmd = self.state{[}3{]} + u\_opt{[}1{]} * self.dt
+speed = math.sqrt(vx\_cmd**2 + vy\_cmd**2)
+heading = math.atan2(vy\_cmd, vx\_cmd)
+cmd.linear.x = float(np.clip(speed, -self.max\_lin, self.max\_lin))
+cmd.angular.z = float(np.clip(heading, -math.pi, math.pi))
+self.cmd\_pub.publish(cmd)
+\# Publish cost
+cost\_msg = Float64()
+cost\_msg.data = cost
+self.cost\_pub.publish(cost\_msg)
+\# Publish predicted trajectory for RViz
+if predicted:
+path\_msg = Path()
+path\_msg.header.stamp = self.get\_clock().now().to\_msg()
+path\_msg.header.frame\_id = \textquotesingle odom\textquotesingle{}
+for pt in predicted:
+pose = PoseStamped()
+pose.header = path\_msg.header
+pose.pose.position.x = float(pt{[}0{]})
+pose.pose.position.y = float(pt{[}1{]})
+path\_msg.poses.append(pose)
+self.path\_pub.publish(path\_msg)
+self.get\_logger().debug(
+f\textquotesingle MPC solved in \{solve\_time:.1f\}ms, cost=\{cost:.3f\}\textquotesingle)
+def main(args=None):
+rclpy.init(args=args)
+node = MPCControllerNode()
+try:
+rclpy.spin(node)
+except KeyboardInterrupt:
+pass
+finally:
+node.destroy\_node()
+rclpy.shutdown()
+if \_\_name\_\_ == \textquotesingle\_\_main\_\_\textquotesingle:
+main()
+
+\subsubsection{4.3 MPC Node Internal Loop}\label{mpc-node-internal-loop}}
+
+\subsubsection{4.4 Discussion: Computation Time vs Horizon Length}\label{discussion-computation-time-vs-horizon-length}}
+
+The MPC solver\textquotesingle s computation time grows with the prediction horizon \textbackslash(N\textbackslash). For a 4-state, 2-input system using \texttt{scipy.optimize.minimize} with SLSQP:
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Horizon \textbackslash(N\textbackslash) & Decision Variables & Typical Solve Time & Max Control Rate \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+5 & 10 & \textasciitilde0.5 ms & \textasciitilde2000 Hz \\
+10 & 20 & \textasciitilde2 ms & \textasciitilde500 Hz \\
+20 & 40 & \textasciitilde8 ms & \textasciitilde125 Hz \\
+50 & 100 & \textasciitilde50 ms & \textasciitilde20 Hz \\
+\end{longtable}
+
+\textbf{Real-Time Warning:} For production use, replace \texttt{scipy.optimize.minimize} with a dedicated QP solver such as \textbf{OSQP} or \textbf{qpOASES}, which offer 10--100x speed improvements. The \texttt{cvxpy} library with OSQP backend is recommended for rapid prototyping with near-production performance.
+
+\subsection{Part 4b: NMPC via iLQR as a ROS2 Node --- Week 8 Integration}\label{part-4b-nmpc-via-ilqr-as-a-ros2-node-week-8-integration}}
+
+The MPC node in Part 4 solves a linearized quadratic program at each step --- the classical linear MPC. Week 8 extended this to \textbf{nonlinear MPC (NMPC)} using an \textbf{iLQR} (iterative LQR) back-end that handles the full nonlinear robot dynamics with a Gauss-Newton Riccati backward pass.
+
+\textbf{Why NMPC here?} The unicycle mobile robot is nonlinear (trig in the kinematics, nonholonomic constraint). Linear MPC requires a fresh linearisation per step and still misses large-angle manoeuvres. iLQR operates directly on the nonlinear model and gives a local feedback policy as well as an open-loop plan --- exactly matching the Week 8 §9 derivation.
+
+\subsubsection{4b.1 NMPC Node Structure}\label{b.1-nmpc-node-structure}}
+
+The provided file \texttt{w11\_exercises/task\_nmpc\_node.py} is a minimal NMPC node for the unicycle:
+
+\begin{itemize}
+\tightlist
+\item
+  Subscribes to \texttt{/odom} (current pose).
+\item
+  Every 100 ms (10 Hz), rolls out a short nominal trajectory using the current warm-start control sequence.
+\item
+  Runs \textbf{3--5 iLQR iterations} with line search on \textbackslash(\textbackslash alpha\textbackslash).
+\item
+  Publishes only the first optimal control \textbackslash(u\_0\^{}\textbackslash star = {[}v\^{}\textbackslash star, \textbackslash omega\^{}\textbackslash star{]}\textbackslash) as a \texttt{geometry\_msgs/Twist} on \texttt{/cmd\_vel}.
+\item
+  Shifts the solution for the next sample (warm-start).
+\end{itemize}
+
+\subsubsection{4b.2 Running the NMPC Node}\label{b.2-running-the-nmpc-node}}
+
+cd /home/it-services/auto\_control\_ws
+source /opt/ros/jazzy/setup.bash
+colcon build -\/-packages-select week\_11\_control\_systems
+source install/setup.bash
+\# Launch TurtleBot3 sim (Gazebo or Webots), then:
+ros2 run week\_11\_control\_systems task\_nmpc\_node
+\# Observe /cmd\_vel at 10 Hz; iLQR convergence logged to stderr
+
+\subsubsection{4b.3 Mapping to Week 8 §9 Derivation}\label{b.3-mapping-to-week-8-9-derivation}}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Week 8 §9 symbol & Python variable in \texttt{task\_nmpc\_node.py} & Meaning \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbackslash(N\textbackslash) & \texttt{self.N\ =\ 15} & prediction horizon (steps) \\
+\textbackslash(\textbackslash Delta t\textbackslash) & \texttt{self.dt\ =\ 0.1} & sample / prediction step (s) \\
+\textbackslash(\textbackslash bar u\_k\textbackslash) & \texttt{self.U\_warm{[}k,:{]}} & warm-start control sequence \\
+\textbackslash(A\_k, B\_k\textbackslash) & \texttt{A,\ B} in \texttt{linearize()} & finite-difference Jacobians \\
+\textbackslash(Q\_\{uu\}, Q\_\{ux\}, Q\_u\textbackslash) & \texttt{Quu,\ Qux,\ Qu} & Q-function blocks \\
+\textbackslash(k\_k, K\_k\textbackslash) & \texttt{k\_ff{[}k{]},\ K\_fb{[}k{]}} & feedforward + feedback \\
+\textbackslash(\textbackslash alpha\textbackslash) & \texttt{alpha} in line-search loop & step size \\
+\textbackslash(\textbackslash mu\textbackslash) & \texttt{self.mu} & LM regularisation \\
+\end{longtable}
+
+\textbf{Real-time note:} For the 3-state unicycle with N=15 horizon, one iLQR iteration takes \textasciitilde2--5 ms in pure Python. With warm-starting, 2--3 iterations per sample suffice --- the 100 ms control period leaves ample margin. Higher-dimensional plants (e.g., the 12-state drone) need CasADi/acados for real-time operation.
+
+\subsubsection{4b.4 Simulation results}\label{b.4-simulation-results}}
+
+An offline closed-loop simulation of the node\textquotesingle s iLQR logic is provided in \texttt{week\_09/sims/nmpc\_unicycle\_sim.py}. It starts the unicycle off the reference circle at \textbackslash((0.5, -0.2, 0)\textbackslash), runs 200 control samples (20 s at 10 Hz), and produces three figures. Final metrics on the last verification run:
+
+Final position error: \textbf{1.7 mm}.~
+Final heading error: \textbf{0.013 rad} (0.8°).~
+Mean \textbackslash(\textbar v\textbar\textbackslash): \textbf{0.331 m/s} (reference \textbackslash(v\_\{ref\} = 0.3\textbackslash) m/s).~
+Mean \textbackslash(\textbar\textbackslash omega\textbar\textbackslash): \textbf{0.379 rad/s}.
+
+\includegraphics[width=0.85\textwidth]{images/week_09/nmpc_unicycle_trajectory.png}
+
+Figure 4b.1 --- Closed-loop XY trajectory. Green circle = start; red triangle = end; black dashed = reference; blue = NMPC-controlled path. The iLQR policy converges from the off-circle start onto the 1 m reference circle within \textasciitilde2 s and tracks with sub-cm steady-state error.
+
+\includegraphics[width=0.85\textwidth]{images/week_09/nmpc_unicycle_commands.png}
+
+Figure 4b.2 --- Control commands \textbackslash(v(t), \textbackslash omega(t)\textbackslash). The iLQR saturates briefly at the \textbackslash(\textbackslash pm\textbackslash)1.5 m/s and \textbackslash(\textbackslash pm\textbackslash)2.0 rad/s clamps during the transient, then settles to the reference feedforward \textbackslash(v\_r = 0.3\textbackslash) m/s, \textbackslash(\textbackslash omega\_r = 0.3\textbackslash) rad/s.
+
+\includegraphics[width=0.85\textwidth]{images/week_09/nmpc_unicycle_errors.png}
+
+Figure 4b.3 --- Position error \textbackslash(\textbackslash\textbar e\_p\textbackslash\textbar\textbackslash) and heading error \textbackslash(\textbar e\_\textbackslash theta\textbar\textbackslash) vs time. Exponential decay with a long-tail artefact as the circle phase aligns --- characteristic of tracking problems where the heading must continually rotate at \textbackslash(v\_\{ref\}/r\textbackslash) rad/s.
+
+To regenerate: \texttt{python3\ week\_09/sims/nmpc\_unicycle\_sim.py} --- plots land in \texttt{week\_09/sims/figures/}. This is the non-ROS counterpart of the Week 8 lab structure (compare \texttt{week\_08/sims/sim\_nmpc.m}).
+
+\subsection{Part 5: Extending to All 7 Controllers as ROS2 Nodes}\label{part-5-extending-to-all-7-controllers-as-ros2-nodes}}
+
+Weeks 1--8 covered seven advanced control techniques in MATLAB. Each can be implemented as a ROS2 node. Below is a brief guide for the remaining controllers not yet shown (Computed Torque, Adaptive, Robust, Backstepping, SMC):
+
+\subsubsection{5.1 Implementation Guides}\label{implementation-guides}}
+
+\paragraph{Computed Torque Control (Week 1)}\label{computed-torque-control-week-1}}
+
+\textbf{Key idea:} Cancel nonlinearities with \textbackslash(\textbackslash tau = M(q){[}\textbackslash ddot\{q\}\_d + K\_d\textbackslash dot\{e\} + K\_pe{]} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q)\textbackslash).
+
+\textbf{ROS2 approach:} Requires joint-level access via \texttt{ros2\_control}\textquotesingle s \texttt{joint\_trajectory\_controller}. Create a model computation node that subscribes to \texttt{/joint\_states} and publishes \texttt{/effort\_controller/commands}. The dynamics model \textbackslash(M(q), C(q,\textbackslash dot\{q\}), G(q)\textbackslash) can come from URDF+KDL or a precomputed lookup table.
+
+\paragraph{Adaptive Control (Week 4)}\label{adaptive-control-week-4}}
+
+\textbf{Key idea:} Update unknown parameters online: \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = -\textbackslash Gamma Y\^{}T s\textbackslash).
+
+\textbf{ROS2 approach:} The adaptation law runs inside the timer callback alongside the control law. Store \textbackslash(\textbackslash hat\{\textbackslash theta\}\textbackslash) as internal node state. Publish estimated parameters on a diagnostic topic for monitoring. Key: the adaptation gain \textbackslash(\textbackslash Gamma\textbackslash) becomes a ROS2 parameter for tuning.
+
+\paragraph{Robust Control / H-infinity (Week 5)}\label{robust-control-h-infinity-week-5}}
+
+\textbf{Key idea:} Add robust compensator \textbackslash(\textbackslash tau\_r = -\textbackslash rho \textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar{} + \textbackslash epsilon\}\textbackslash) to the computed torque law.
+
+\textbf{ROS2 approach:} Similar to computed torque but with an additional robust term. The uncertainty bound \textbackslash(\textbackslash rho\textbackslash) and boundary layer \textbackslash(\textbackslash epsilon\textbackslash) become ROS2 parameters. The core computation is identical; only the control law changes.
+
+\paragraph{Backstepping Control (Week 6)}\label{backstepping-control-week-6}}
+
+\textbf{Key idea:} Cascaded virtual control design for strict-feedback systems.
+
+\textbf{ROS2 approach:} Implement as two cascaded nodes: an \emph{outer loop} node (position → desired velocity) and an \emph{inner loop} node (velocity → actuator command). The outer loop publishes to a \texttt{/desired\_velocity} topic that the inner loop subscribes to. This mirrors the cascaded Lyapunov design.
+
+\paragraph{Sliding Mode Control (Week 7)}\label{sliding-mode-control-week-7}}
+
+\textbf{Key idea:} Drive state to sliding surface \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash), then apply discontinuous control \textbackslash(u = u\_\{eq\} - \textbackslash eta\textbackslash,\textbackslash text\{sgn\}(s)\textbackslash).
+
+\textbf{ROS2 approach:} Compute the sliding surface from the error and its derivative. Replace \texttt{sgn(s)} with a saturation function \textbackslash(\textbackslash text\{sat\}(s/\textbackslash phi)\textbackslash) (boundary layer) to avoid chattering. The boundary layer width \textbackslash(\textbackslash phi\textbackslash) and reaching gain \textbackslash(\textbackslash eta\textbackslash) become ROS2 parameters.
+
+\subsubsection{5.2 Controller Complexity Comparison}\label{controller-complexity-comparison}}
+
+\begin{longtable}[]{@{}llllll@{}}
+\toprule\noalign{}
+Controller & Week & Model Required? & Online Computation & ROS2 Lines (est.) & Dependencies \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PID & 9 & No & 3 multiplies + sum & \textasciitilde60 & numpy \\
+Computed Torque & 1 & Full dynamics & Matrix inversion + multiply & \textasciitilde120 & numpy, KDL \\
+MPC & 3 & Linear/linearised & QP solve each step & \textasciitilde130 & scipy / cvxpy \\
+Adaptive & 4 & Structured (regressor) & Parameter update + control & \textasciitilde100 & numpy \\
+Robust / H-inf & 5 & Full + uncertainty bound & Computed torque + robust term & \textasciitilde110 & numpy, KDL \\
+Backstepping & 6 & Strict-feedback form & Cascaded Lyapunov computation & \textasciitilde140 (2 nodes) & numpy \\
+SMC & 7 & Partial (bounds) & Surface + switching law & \textasciitilde90 & numpy \\
+LQR & 8 & Linear state-space & 1 matrix multiply & \textasciitilde100 & numpy, scipy \\
+\end{longtable}
+
+\subsubsection{5.3 Unified Launch File}\label{unified-launch-file}}
+
+The following launch file allows switching between controllers using a command-line argument:
+
+Launch File: controller\_selector.launch.py
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.substitutions import LaunchConfiguration
+from launch\_ros.actions import Node
+def launch\_controller(context):
+controller\_type = LaunchConfiguration(\textquotesingle controller\textquotesingle).perform(context)
+controller\_map = \{
+\textquotesingle pid\textquotesingle: \textquotesingle pid\_controller\_node\textquotesingle,
+\textquotesingle lqr\textquotesingle: \textquotesingle lqr\_controller\_node\textquotesingle,
+\textquotesingle mpc\textquotesingle: \textquotesingle mpc\_controller\_node\textquotesingle,
+\textquotesingle smc\textquotesingle: \textquotesingle smc\_controller\_node\textquotesingle,
+\textquotesingle adaptive\textquotesingle: \textquotesingle adaptive\_controller\_node\textquotesingle,
+\textquotesingle backstepping\textquotesingle: \textquotesingle backstepping\_controller\_node\textquotesingle,
+\textquotesingle computed\_torque\textquotesingle: \textquotesingle computed\_torque\_node\textquotesingle,
+\}
+node\_name = controller\_map.get(controller\_type, \textquotesingle pid\_controller\_node\textquotesingle)
+return {[}
+Node(
+package=\textquotesingle control\_nodes\textquotesingle,
+executable=node\_name,
+name=\textquotesingle active\_controller\textquotesingle,
+output=\textquotesingle screen\textquotesingle,
+parameters={[}\{
+\textquotesingle control\_rate\textquotesingle: 50.0,
+\textquotesingle max\_linear\_vel\textquotesingle: 1.0,
+\textquotesingle max\_angular\_vel\textquotesingle: 1.5,
+\}{]},
+remappings={[}
+(\textquotesingle/odom\textquotesingle, \textquotesingle/robot/odom\textquotesingle),
+(\textquotesingle/cmd\_vel\textquotesingle, \textquotesingle/robot/cmd\_vel\textquotesingle),
+{]},
+)
+{]}
+def generate\_launch\_description():
+return LaunchDescription({[}
+DeclareLaunchArgument(
+\textquotesingle controller\textquotesingle, default\_value=\textquotesingle pid\textquotesingle,
+description=\textquotesingle Controller type: pid, lqr, mpc, smc, \textquotesingle{}
+\textquotesingle adaptive, backstepping, computed\_torque\textquotesingle),
+OpaqueFunction(function=launch\_controller),
+{]})
+\# Usage:
+\# ros2 launch control\_nodes controller\_selector.launch.py controller:=lqr
+\# ros2 launch control\_nodes controller\_selector.launch.py controller:=mpc
+
+\subsection{Part 6: ROS2 Lab Exercises}\label{part-6-ros2-lab-exercises}}
+
+This section references the lab exercises from \texttt{src/ros2\_robotics\_course/week\_11/}, which provide hands-on practice with the control algorithms discussed in this lecture. The exercises are divided into two categories: \textbf{MATLAB-style analysis tasks} (in \texttt{lab\_exercises/}) and \textbf{ROS2 node exercises} (in \texttt{w11\_exercises/}).
+
+\subsubsection{6.1 Lab Analysis Tasks (Python/MATLAB-style)}\label{lab-analysis-tasks-pythonmatlab-style}}
+
+\paragraph{Lab 1: PID Controller Design and Tuning}\label{lab-1-pid-controller-design-and-tuning}}
+
+\textbf{File:} \texttt{task1\_pid\_analysis.py}
+
+Students implement PID step response analysis for a second-order plant \textbackslash(G(s) = \textbackslash omega\_n\^{}2 / (s\^{}2 + 2\textbackslash zeta\textbackslash omega\_n s + \textbackslash omega\_n\^{}2)\textbackslash). They compare P-only, PI, and PID controllers, implement Ziegler-Nichols tuning, analyse frequency response, and add anti-windup with derivative filtering.
+
+\paragraph{Lab 2: State-Space System Models}\label{lab-2-state-space-system-models}}
+
+\textbf{File:} \texttt{task2\_state\_space.py}
+
+Students build state-space models from physical systems (mass-spring-damper, DC motor, linearised quadrotor). They check controllability and observability matrices, simulate open-loop responses, and convert between transfer function and state-space representations.
+
+\paragraph{Lab 3: Pole Placement Design}\label{lab-3-pole-placement-design}}
+
+\textbf{File:} \texttt{task3\_pole\_placement.py}
+
+Students apply Ackermann\textquotesingle s formula and \texttt{scipy.signal.place\_poles} to assign closed-loop eigenvalues. They design controllers meeting transient specifications (settling time, overshoot) and explore stability regions in the complex plane.
+
+\paragraph{Lab 4: LQR Optimal Control}\label{lab-4-lqr-optimal-control}}
+
+\textbf{File:} \texttt{task4\_lqr.py}
+
+Students solve the continuous algebraic Riccati equation using \texttt{scipy.linalg.solve\_continuous\_are}, design LQR controllers with different \textbackslash(Q/R\textbackslash) weight ratios, and apply LQR to quadrotor hover stabilisation. They verify the optimal cost \textbackslash(J\^{}* = x\_0\^{}T P x\_0\textbackslash) and compare with pole placement.
+
+\paragraph{Lab 5: LQG Stochastic Control}\label{lab-5-lqg-stochastic-control}}
+
+\textbf{File:} \texttt{task5\_mpc\_basics.py} (MPC formulation section)
+
+Students formulate the MPC optimisation problem for a double integrator, implement receding-horizon control, and compare unconstrained MPC (which recovers LQR) with constrained MPC. They observe how the prediction horizon \textbackslash(N\textbackslash) affects tracking performance and stability.
+
+\paragraph{Lab 6: MPC Formulation}\label{lab-6-mpc-formulation}}
+
+\textbf{File:} \texttt{task6\_mpc\_drone.py}
+
+Students apply MPC to quadrotor trajectory tracking, handling thrust and angle constraints. They track time-varying references (circular and figure-8 trajectories) and evaluate real-time feasibility by measuring solver computation time at each step.
+
+\paragraph{Lab 7: Advanced Control Comparison}\label{lab-7-advanced-control-comparison}}
+
+\textbf{File:} \texttt{task7\_full\_comparison.py}
+
+Students compare PID, LQR, and MPC on identical quadrotor tasks: hover stabilisation, sinusoidal tracking, constrained operation, and disturbance rejection. They compute performance metrics (RMSE, maximum error, total control effort, computation time) and produce a comprehensive comparison table.
+
+\subsubsection{6.2 ROS2 Applied Exercises}\label{ros2-applied-exercises}}
+
+\paragraph{Exercise 1: PID Controller Node}\label{exercise-1-pid-controller-node}}
+
+\textbf{File:} \texttt{w11\_exercises/exercise1\_node.py}
+
+Students implement a 3-axis PID position controller node. The node subscribes to \texttt{/odom} (Odometry) and \texttt{/reference\_trajectory} (PoseStamped), computes PID control with anti-windup for each axis, and publishes \texttt{/cmd\_thrust\_attitude} (Wrench) and \texttt{/tracking\_error} (Vector3). Students must complete the \texttt{PIDController.compute()} method with proportional, integral (with clamping), and derivative terms.
+
+\paragraph{Exercise 2: LQR Controller Implementation}\label{exercise-2-lqr-controller-implementation}}
+
+\textbf{File:} \texttt{w11\_exercises/exercise2\_node.py}
+
+Students implement an LQR controller node for a linearised double-integrator model (6 states: position and velocity in 3D). They must linearise the dynamics about hover, discretise using Euler method (\textbackslash(A\_d = I + A\_c \textbackslash Delta t\textbackslash)), solve the DARE using \texttt{scipy.linalg.solve\_discrete\_are}, and compute the optimal gain \textbackslash(K\textbackslash). The node publishes the gain matrix on \texttt{/lqr\_gain} for monitoring.
+
+\paragraph{Exercise 3: MPC-Based Trajectory Tracking}\label{exercise-3-mpc-based-trajectory-tracking}}
+
+\textbf{File:} \texttt{w11\_exercises/exercise3\_node.py}
+
+Students implement an MPC controller node with configurable prediction horizon \textbackslash(N\textbackslash), cost weights \textbackslash(Q\textbackslash) and \textbackslash(R\textbackslash), and input constraints. They must implement the discrete dynamics function, the MPC cost function (summing stage and terminal costs over the horizon), and call \texttt{scipy.optimize.minimize} to solve the constrained optimisation. The node publishes the predicted trajectory on \texttt{/predicted\_trajectory} (Path) and the MPC cost on \texttt{/mpc\_cost} (Float64) for RViz visualisation.
+
+\textbf{Getting Started:} Launch the exercise nodes with their corresponding launch files in \texttt{w11\_exercises/launch/}. For example:\\
+\texttt{ros2\ launch\ week\_11\_control\_systems\ exercise1.launch.py}\strut \\
+Configuration parameters are in \texttt{w11\_exercises/config/params.yaml}.
+
+\subsection{Hands-On Activities}\label{hands-on-activities}}
+
+\subsubsection{Activity 1: PID on TurtleBot3 Simulation}\label{activity-1-pid-on-turtlebot3-simulation}}
+
+\textbf{Objective:} Implement PID position control and evaluate tracking performance.
+
+\begin{enumerate}
+\tightlist
+\item
+  Launch TurtleBot3 in Gazebo: \texttt{ros2\ launch\ turtlebot3\_gazebo\ turtlebot3\_world.launch.py}
+\item
+  Run the PID controller node from Section 4 (or Exercise 1).
+\item
+  Set a target position: \texttt{ros2\ topic\ pub\ /reference\ geometry\_msgs/PoseStamped\ "\{pose:\ \{position:\ \{x:\ 3.0,\ y:\ 2.0\}\}\}"\ -\/-once}
+\item
+  Record a rosbag: \texttt{ros2\ bag\ record\ /odom\ /cmd\_vel\ /reference\ -o\ pid\_test}
+\item
+  Plot the tracking error (\textbackslash(e\_x, e\_y\textbackslash) vs time) and the control effort (\textbackslash(v\_x, \textbackslash omega\_z\textbackslash) vs time).
+\item
+  Experiment with different \textbackslash(K\_p, K\_i, K\_d\textbackslash) values using \texttt{ros2\ param\ set}.
+\end{enumerate}
+
+\textbf{Deliverable:} A plot showing position tracking error for at least 3 different gain settings, with RMSE values annotated.
+
+\subsubsection{Activity 2: LQR with Different Q/R Matrices}\label{activity-2-lqr-with-different-qr-matrices}}
+
+\textbf{Objective:} Compare LQR performance under different cost weightings.
+
+\begin{enumerate}
+\tightlist
+\item
+  Run the LQR controller node from Section 5 (or Exercise 2).
+\item
+  Test with three \textbackslash(Q/R\textbackslash) configurations:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Conservative:} \textbackslash(Q = \textbackslash text\{diag\}(1,1,1,1,1)\textbackslash), \textbackslash(R = \textbackslash text\{diag\}(10,10)\textbackslash) --- penalise control effort
+  \item
+    \textbf{Balanced:} \textbackslash(Q = \textbackslash text\{diag\}(10,10,5,1,1)\textbackslash), \textbackslash(R = \textbackslash text\{diag\}(1,1)\textbackslash)
+  \item
+    \textbf{Aggressive:} \textbackslash(Q = \textbackslash text\{diag\}(100,100,50,10,10)\textbackslash), \textbackslash(R = \textbackslash text\{diag\}(0.1,0.1)\textbackslash) --- penalise state error
+  \end{itemize}
+\item
+  For each, record rosbag data and compute: rise time, settling time, overshoot, steady-state error, total control effort \textbackslash(\textbackslash int u\^{}T R\textbackslash,u\textbackslash,dt\textbackslash).
+\item
+  Compare the step response with PID from Activity 1.
+\end{enumerate}
+
+\textbf{Deliverable:} A comparison table of performance metrics for all 3 LQR configurations and the best PID result.
+
+\subsubsection{Activity 3: MPC Horizon Study}\label{activity-3-mpc-horizon-study}}
+
+\textbf{Objective:} Investigate the trade-off between prediction horizon and computation time.
+
+\begin{enumerate}
+\tightlist
+\item
+  Run the MPC controller node from Section 6 (or Exercise 3).
+\item
+  Test with three horizon lengths: \textbackslash(N = 10\textbackslash), \textbackslash(N = 20\textbackslash), \textbackslash(N = 50\textbackslash).
+\item
+  For each horizon, measure:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Average solve time per step (subscribe to a timing diagnostic topic or use \texttt{ros2\ topic\ echo\ /mpc\_cost})
+  \item
+    Tracking RMSE on a circular reference trajectory
+  \item
+    Whether the control rate deadline (50 ms for 20 Hz) is consistently met
+  \end{itemize}
+\item
+  Compare the best MPC result with PID and LQR from Activities 1 and 2.
+\item
+  Visualise the predicted trajectory in RViz by subscribing to \texttt{/predicted\_trajectory}.
+\end{enumerate}
+
+\textbf{Deliverable:} A three-panel figure showing (a) tracking performance, (b) control effort, and (c) computation time for each \textbackslash(N\textbackslash), with comparison to PID and LQR overlaid.
+
+\paragraph{Quick Quiz: ROS2 Control Implementation}\label{quick-quiz-ros2-control-implementation}}
+
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{Q1:} In a ROS2 PID controller node, why should you use \texttt{BEST\_EFFORT} QoS for the \texttt{/odom} subscription rather than \texttt{RELIABLE}?\\
+  \emph{A:} In real-time control, latency matters more than guaranteed delivery. \texttt{BEST\_EFFORT} avoids the overhead of acknowledgement and retransmission, ensuring the controller always processes the most recent sensor data rather than waiting for old messages to be retransmitted.
+\item
+  \textbf{Q2:} What is the key advantage of computing the LQR gain matrix \textbackslash(K\textbackslash) once at initialisation rather than re-solving the Riccati equation at every control step?\\
+  \emph{A:} For a time-invariant system, \textbackslash(K\textbackslash) does not change, so solving CARE/DARE once at startup saves significant computation. The online cost is reduced to a single matrix-vector multiplication \textbackslash(u = -Kx\textbackslash), which is O(n\^{}2) instead of the O(n\^{}3) Riccati solve.
+\item
+  \textbf{Q3:} In the MPC node, why do we publish the predicted trajectory on a separate topic?\\
+  \emph{A:} The predicted trajectory (a \texttt{nav\_msgs/Path} message) allows visualisation in RViz to debug the MPC\textquotesingle s lookahead behaviour. It also enables logging and post-hoc analysis of how the predictions evolve over time, which is invaluable for tuning horizon length and cost weights.
+\item
+  \textbf{Q4:} Explain the receding-horizon principle in one sentence. Why does MPC re-solve at every step instead of applying the full optimal sequence?\\
+  \emph{A:} MPC applies only the first control input and re-solves because the actual state will deviate from the predicted trajectory due to model mismatch, disturbances, and discretisation errors; re-solving provides feedback and robustness.
+\item
+  \textbf{Q5:} A student\textquotesingle s PID node works in simulation but exhibits violent oscillations on a real robot. Name two likely causes related to the ROS2 implementation (not the gains).\\
+  \emph{A:} (1) Variable or excessive latency in the \texttt{/odom} topic causing stale state estimates, leading to instability at the chosen gains. (2) The \texttt{dt} used in the discrete PID formula is assumed constant but the actual callback interval varies, causing incorrect derivative and integral computation. Using timestamps from the message header (not wall-clock time) and the timer-based approach helps.
+\end{enumerate}
+
+\subsection{Summary}\label{summary}}
+
+\subsubsection{Key Takeaways}\label{key-takeaways}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ROS2 is the bridge from theory to deployment.} The control algorithms you designed in MATLAB during Weeks 1--8 (PID, Computed Torque, MPC, Adaptive, Robust, Backstepping, SMC, LQR/LQG) can all be implemented as ROS2 nodes using Python and standard libraries (NumPy, SciPy).
+\item
+  \textbf{The ROS2 control node pattern is consistent:} Declare parameters → subscribe to state → subscribe to reference → compute control law in timer callback → publish command. This pattern applies to every controller type.
+\item
+  \textbf{Real-time considerations are paramount.} QoS policies, timer-based control loops, and careful management of computational budget (especially for MPC) are what separate a working simulation from a deployable system.
+\item
+  \textbf{MATLAB vs ROS2 is not either/or:} Use MATLAB/Simulink for rapid prototyping and analysis (transfer functions, root locus, Bode plots). Use ROS2 for integration testing, hardware deployment, and multi-node systems. Many teams generate C code from Simulink and wrap it in a ROS2 node.
+\item
+  \textbf{The \texttt{ros2\_control} framework} provides a production-grade architecture for hardware abstraction and controller lifecycle management. For research, custom nodes (as shown today) offer more flexibility.
+\item
+  \textbf{rosbag2 is your best friend for analysis.} Record \texttt{/odom}, \texttt{/cmd\_vel}, and \texttt{/reference} during experiments. Replay and analyse offline to compute performance metrics without re-running experiments.
+\end{itemize}
+
+\subsubsection{MATLAB vs ROS2: When to Use Which}\label{matlab-vs-ros2-when-to-use-which}}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Aspect & MATLAB/Simulink & ROS2 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Prototyping speed & Very fast (built-in toolboxes) & Moderate (manual implementation) \\
+Analysis tools & Bode, root locus, Nyquist built-in & matplotlib, custom scripts \\
+Hardware integration & Limited (Simulink Real-Time) & Excellent (drivers for all major robots) \\
+Multi-robot systems & Difficult & Native support (namespaces, DDS) \\
+Real-time performance & Simulink Coder generates RT code & RT-PREEMPT + custom executor \\
+Cost & Expensive licence & Free and open source \\
+Industry standard & Automotive, aerospace & Robotics, drones, warehouse automation \\
+\end{longtable}
+
+\textbf{Looking Ahead --- Week 10:} We will extend these ROS2 controller nodes to work with Gazebo simulation of a multi-DOF robot arm. We will implement computed torque and adaptive control at the joint level, using the \texttt{ros2\_control} effort interface and URDF-derived dynamics models.
+
+\subsection{Running the ROS2 Demo}\label{running-the-ros2-demo}}
+
+\subsubsection{Build and Source}\label{build-and-source}}
+
+cd \textasciitilde/auto\_control\_ws
+colcon build -\/-packages-select week\_11\_control\_systems
+source install/setup.bash
+
+\subsubsection{Launch the Demo}\label{launch-the-demo}}
+
+ros2 launch week\_11\_control\_systems demo.launch.py
+
+This command replays the recorded bag data at 2x speed, starts three solution nodes (PID, LQR, MPC), and opens RViz2 with a preconfigured layout.
+
+\subsubsection{ROS2 Topics}\label{ros2-topics}}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Topic & Type & Source & Description \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{/odom} & nav\_msgs/Odometry & Bag & Robot odometry at 50 Hz \\
+\texttt{/imu} & sensor\_msgs/Imu & Bag & IMU data at 200 Hz \\
+\texttt{/reference\_trajectory} & geometry\_msgs/PoseStamped & Bag & Desired trajectory at 50 Hz \\
+\texttt{/cmd\_vel} & geometry\_msgs/Twist & Nodes & Controller velocity commands \\
+\end{longtable}
+
+\subsubsection{Expected RViz2 Output}\label{expected-rviz2-output}}
+
+RViz2 will display the robot\textquotesingle s odometry path (white), the reference trajectory (green), and the controller command markers. You should see the robot following the reference trajectory with the three controllers producing slightly different tracking behaviour.
+
+\subsubsection{Troubleshooting}\label{troubleshooting}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{RViz2 crashes on launch:} The launch file filters \texttt{snap} paths from \texttt{LD\_LIBRARY\_PATH} automatically. If RViz2 still crashes, try: \texttt{export\ LD\_LIBRARY\_PATH=\$(echo\ \$LD\_LIBRARY\_PATH\ \textbar{}\ tr\ \textquotesingle{}:\textquotesingle{}\ \textquotesingle{}\textbackslash{}n\textquotesingle{}\ \textbar{}\ grep\ -v\ snap\ \textbar{}\ tr\ \textquotesingle{}\textbackslash{}n\textquotesingle{}\ \textquotesingle{}:\textquotesingle{})}
+\item
+  \textbf{No data visible:} Ensure the bag file exists at \texttt{w11\_exercises/bag\_data/synthetic\_control/}. Re-run \texttt{colcon\ build} if needed.
+\item
+  \textbf{QoS mismatch warnings:} The bag uses default QoS. If your subscriber uses \texttt{BEST\_EFFORT}, switch to \texttt{RELIABLE} or use \texttt{-\/-qos-profile-overrides-path}.
+\end{itemize}
+
+\subsection{Appendix: Review Material --- LQR/LQG Optimal Control}\label{appendix-review-material-lqrlqg-optimal-control}}
+
+\paragraph{Question 1 --- Derivation of the Continuous Algebraic Riccati Equation (25 marks)}\label{question-1-derivation-of-the-continuous-algebraic-riccati-equation-25-marks}}
+
+Consider a linear time-invariant system:
+
+\textbackslash{[}
+\textbackslash dot\{x\} = Ax + Bu, \textbackslash qquad x(0) = x\_0
+\textbackslash{]}
+
+with the infinite-horizon quadratic cost:
+
+\textbackslash{[}
+J = \textbackslash int\_0\^{}\{\textbackslash infty\} \textbackslash bigl(x\^{}T Q\textbackslash,x + u\^{}T R\textbackslash,u\textbackslash bigr)\textbackslash,dt
+\textbackslash{]}
+
+where \textbackslash(Q \textbackslash succeq 0\textbackslash) and \textbackslash(R \textbackslash succ 0\textbackslash).
+
+\textbf{(a)} Starting from the Hamilton--Jacobi--Bellman (HJB) equation with value function \textbackslash(V(x) = x\^{}T P\textbackslash,x\textbackslash), derive the continuous algebraic Riccati equation (CARE). Show every step of the derivation. (15 marks)
+
+\textbf{(b)} Explain how the weighting matrices \textbackslash(Q\textbackslash) and \textbackslash(R\textbackslash) affect the closed-loop pole locations. In particular, describe what happens as \textbackslash(R \textbackslash to 0\textbackslash) and as \textbackslash(Q \textbackslash to 0\textbackslash). (10 marks)
+
+\paragraph{Model Answer (a) --- CARE Derivation}\label{model-answer-a-care-derivation}}
+
+\textbf{Step 1:} Assume the optimal value function takes the quadratic form \textbackslash(V\^{}*(x) = x\^{}T P\textbackslash,x\textbackslash) where \textbackslash(P = P\^{}T \textbackslash succ 0\textbackslash). The HJB equation for the infinite-horizon problem is:
+
+\textbackslash{[}
+0 = \textbackslash min\_\{u\}\textbackslash Bigl\textbackslash\{x\^{}T Q\textbackslash,x + u\^{}T R\textbackslash,u + \textbackslash frac\{\textbackslash partial V\^{}*\}\{\textbackslash partial x\}\^{}T(Ax + Bu)\textbackslash Bigr\textbackslash\}
+\textbackslash{]}
+
+\textbf{Step 2:} Compute the gradient: \textbackslash(\textbackslash frac\{\textbackslash partial V\^{}*\}\{\textbackslash partial x\} = 2Px\textbackslash). Substituting:
+
+\textbackslash{[}
+0 = \textbackslash min\_\{u\}\textbackslash bigl\textbackslash\{x\^{}T Q\textbackslash,x + u\^{}T R\textbackslash,u + 2x\^{}T P(Ax + Bu)\textbackslash bigr\textbackslash\}
+\textbackslash{]}
+
+\textbf{Step 3:} Minimise with respect to \textbackslash(u\textbackslash). Taking the derivative and setting to zero:
+
+\textbackslash{[}
+\textbackslash frac\{\textbackslash partial\}\{\textbackslash partial u\}\textbackslash bigl{[}u\^{}T R\textbackslash,u + 2x\^{}T P B\textbackslash,u\textbackslash bigr{]} = 2R\textbackslash,u + 2B\^{}T P\textbackslash,x = 0
+\textbackslash{]}
+\textbackslash{[}
+\textbackslash implies u\^{}* = -R\^{}\{-1\}B\^{}T P\textbackslash,x
+\textbackslash{]}
+
+\textbf{Step 4:} Substitute \textbackslash(u\^{}*\textbackslash) back into the HJB equation:
+
+\textbackslash{[}
+0 = x\^{}T Q\textbackslash,x + x\^{}T P B R\^{}\{-1\} R\textbackslash, R\^{}\{-1\} B\^{}T P\textbackslash,x - 2x\^{}T P B R\^{}\{-1\} B\^{}T P\textbackslash,x + 2x\^{}T P A\textbackslash,x
+\textbackslash{]}
+\textbackslash{[}
+0 = x\^{}T\textbackslash!\textbackslash bigl{[}Q + PA + A\^{}T P - PBR\^{}\{-1\}B\^{}T P\textbackslash bigr{]}x
+\textbackslash{]}
+
+\textbf{Step 5:} Since this must hold for all \textbackslash(x\textbackslash), we obtain the \textbf{CARE}:
+
+\textbackslash{[}
+\textbackslash boxed\{A\^{}T P + PA - PBR\^{}\{-1\}B\^{}T P + Q = 0\}
+\textbackslash{]}
+
+The optimal state-feedback gain is \textbackslash(K = R\^{}\{-1\}B\^{}T P\textbackslash), yielding \textbackslash(u\^{}* = -Kx\textbackslash).
+
+\paragraph{Model Answer (b) --- Effect of Q and R on Closed-Loop Poles}\label{model-answer-b-effect-of-q-and-r-on-closed-loop-poles}}
+
+The closed-loop system is \textbackslash(\textbackslash dot\{x\} = (A - BK)x\textbackslash), where \textbackslash(K = R\^{}\{-1\}B\^{}T P\textbackslash). The poles are the eigenvalues of \textbackslash(A\_\{cl\} = A - BK\textbackslash).
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{As \textbackslash(R \textbackslash to 0\textbackslash):} The control cost vanishes, so the controller uses arbitrarily large inputs. The gain \textbackslash(K\textbackslash) grows without bound, and the closed-loop poles move far into the left-half plane (very fast response). In the limit, the LQR poles approach the transmission zeros of the system or recede to infinity along Butterworth patterns.
+\item
+  \textbf{As \textbackslash(Q \textbackslash to 0\textbackslash):} The state penalty vanishes, so there is no incentive to drive the state to zero. The gain \textbackslash(K \textbackslash to 0\textbackslash), and the closed-loop poles approach the open-loop poles of the plant. The system behaves almost as if there is no feedback.
+\item
+  \textbf{Increasing \textbackslash(Q/R\textbackslash) ratio:} Moves poles further into the LHP (faster, more aggressive control, higher bandwidth). Decreasing \textbackslash(Q/R\textbackslash) moves poles closer to the imaginary axis (slower, more conservative, less control effort).
+\end{itemize}
+
+A key property of LQR is that all closed-loop poles are guaranteed to lie in the open left-half plane (stability) and the system has at least 60° phase margin and infinite gain margin (robustness).
+
+\paragraph{Question 2 --- The Separation Principle in LQG (25 marks)}\label{question-2-the-separation-principle-in-lqg-25-marks}}
+
+Consider a stochastic LTI system with process noise \textbackslash(w\textbackslash) and measurement noise \textbackslash(v\textbackslash):
+
+\textbackslash{[}
+\textbackslash dot\{x\} = Ax + Bu + w, \textbackslash qquad y = Cx + v
+\textbackslash{]}
+
+where \textbackslash(w \textbackslash sim \textbackslash mathcal\{N\}(0, W)\textbackslash) and \textbackslash(v \textbackslash sim \textbackslash mathcal\{N\}(0, V)\textbackslash).
+
+\textbf{(a)} State the \emph{separation principle} (also called the \emph{certainty-equivalence principle}) for LQG control. Explain why it allows the state estimator (Kalman filter) and the state-feedback controller (LQR) to be designed independently. (15 marks)
+
+\textbf{(b)} Discuss scenarios where you would use LQG instead of LQR. What are the practical limitations of LQG? (10 marks)
+
+\paragraph{Model Answer (a) --- The Separation Principle}\label{model-answer-a-the-separation-principle}}
+
+\textbf{Statement:} For a linear system with Gaussian noise and a quadratic cost, the optimal controller consists of two independent components:
+
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{Kalman filter (state estimator):} Computes the optimal state estimate \textbackslash(\textbackslash hat\{x\}\textbackslash) using the system model and noisy measurements:
+  \textbackslash{[}
+  \textbackslash dot\{\textbackslash hat\{x\}\} = A\textbackslash hat\{x\} + Bu + L(y - C\textbackslash hat\{x\}), \textbackslash qquad L = \textbackslash Sigma C\^{}T V\^{}\{-1\}
+  \textbackslash{]}
+  where \textbackslash(\textbackslash Sigma\textbackslash) solves the \emph{filter} algebraic Riccati equation: \textbackslash(A\textbackslash Sigma + \textbackslash Sigma A\^{}T - \textbackslash Sigma C\^{}T V\^{}\{-1\} C\textbackslash Sigma + W = 0\textbackslash).
+\item
+  \textbf{LQR gain:} Computes the optimal feedback \textbackslash(u = -K\textbackslash hat\{x\}\textbackslash), where \textbackslash(K = R\^{}\{-1\}B\^{}T P\textbackslash) and \textbackslash(P\textbackslash) solves the standard CARE.
+\end{enumerate}
+
+\textbf{Why independent design works:} The estimation error \textbackslash(\textbackslash tilde\{x\} = x - \textbackslash hat\{x\}\textbackslash) evolves as \textbackslash(\textbackslash dot\{\textbackslash tilde\{x\}\} = (A - LC)\textbackslash tilde\{x\} + w - Lv\textbackslash), which is independent of the control input \textbackslash(u\textbackslash). The closed-loop eigenvalues are the union of the LQR poles (eigenvalues of \textbackslash(A - BK\textbackslash)) and the Kalman filter poles (eigenvalues of \textbackslash(A - LC\textbackslash)). Since these sets are decoupled, each component can be designed without knowledge of the other.
+
+\paragraph{Model Answer (b) --- When to Use LQG over LQR}\label{model-answer-b-when-to-use-lqg-over-lqr}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Noisy measurements:} When sensor data is corrupted by significant noise (e.g., IMU drift, lidar noise), LQR alone would amplify noise through the feedback gain. The Kalman filter in LQG provides optimal noise filtering.
+\item
+  \textbf{Incomplete state measurement:} When not all states are directly measurable (e.g., velocity must be estimated from position), the Kalman filter reconstructs unmeasured states.
+\item
+  \textbf{Process disturbances:} When the system is subject to stochastic disturbances (wind gusts, ground vibration), LQG accounts for these statistically through the process noise covariance \textbackslash(W\textbackslash).
+\end{itemize}
+
+\textbf{Practical limitations of LQG:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{No guaranteed robustness margins:} Unlike LQR, LQG does \emph{not} have guaranteed gain/phase margins. The Loop Transfer Recovery (LTR) technique can partially restore robustness.
+\item
+  \textbf{Model accuracy:} Performance degrades significantly if the system model or noise covariances \textbackslash(W, V\textbackslash) are inaccurate.
+\item
+  \textbf{Linearity assumption:} LQG is optimal only for linear systems with Gaussian noise. For nonlinear systems, Extended Kalman Filters (EKF) or Unscented Kalman Filters (UKF) are needed, but optimality guarantees are lost.
+\item
+  \textbf{Computational cost:} Requires solving two Riccati equations and running the Kalman filter in real time, though this is typically manageable for modern hardware.
+\end{itemize}
+
+\textbf{SkyDynamics Robotics} --- Control Engineer Technical Challenge
+
+Pre-Interview Assessment • Flight Control Systems Team
+
+Confidential --- Do not distribute without authorization

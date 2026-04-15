@@ -1,0 +1,1045 @@
+% ----- auto-generated from week_05/Week*.html via pandoc -----
+\setchapterimage[6cm]{}
+\setchapterpreamble[u]{\margintoc}
+\chapter{Robust Control}
+\labch{week_05}
+
+\section{Week 5: Robust Control}\label{week-5-robust-control}}
+
+Control for Robots --- M.Sc. Robotics \& Autonomous Systems
+
+University of West London • AY 2025--26 • 3-Hour Session
+
+\subsection{Section 0 --- Week 4 Recall: Adaptive Control --- Exam Practice (20 min)}\label{section-0-week-4-recall-adaptive-control-exam-practice-20-min}}
+
+\paragraph{Question 1 --- Lyapunov Stability Proof for Adaptive Control}\label{question-1-lyapunov-stability-proof-for-adaptive-control}}
+
+Consider a 2-DOF manipulator whose dynamics are
+
+\textbackslash{[}
+M(q)\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\} + G(q) = \textbackslash tau
+\textbackslash{]}
+
+The dynamics are \textbf{linear in parameters}:
+
+\textbackslash{[}
+M(q)\textbackslash ddot\{q\}\_r + C(q,\textbackslash dot\{q\})\textbackslash dot\{q\}\_r + G(q) = Y(q,\textbackslash dot\{q\},\textbackslash dot\{q\}\_r,\textbackslash ddot\{q\}\_r)\textbackslash,\textbackslash theta
+\textbackslash{]}
+
+where \textbackslash(\textbackslash dot\{q\}\_r = \textbackslash dot\{q\}\_d - \textbackslash Lambda e\textbackslash), \textbackslash(\textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d - \textbackslash Lambda \textbackslash dot\{e\}\textbackslash), and \textbackslash(e = q - q\_d\textbackslash).
+
+The adaptive control law is
+
+\textbackslash{[}
+\textbackslash tau = Y(q,\textbackslash dot\{q\},\textbackslash dot\{q\}\_r,\textbackslash ddot\{q\}\_r)\textbackslash,\textbackslash hat\{\textbackslash theta\} - K\_D\textbackslash,s
+\textbackslash{]}
+
+where \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e = \textbackslash dot\{q\} - \textbackslash dot\{q\}\_r\textbackslash). The parameter update law is
+
+\textbackslash{[}
+\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = -\textbackslash Gamma\^{}\{-1\}\textbackslash,Y\^{}T s
+\textbackslash{]}
+
+\textbf{Task:} Using the Lyapunov candidate
+
+\textbackslash{[}
+V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M(q)\textbackslash,s + \textbackslash tfrac\{1\}\{2\}\textbackslash,\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash tilde\{\textbackslash theta\}, \textbackslash qquad \textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}
+\textbackslash{]}
+
+derive \textbackslash(\textbackslash dot\{V\}\textbackslash) step by step and show that \textbackslash(\textbackslash dot\{V\} = -s\^{}T K\_D\textbackslash,s \textbackslash le 0\textbackslash). Explain why this guarantees bounded parameter estimates.
+
+\paragraph{Solution Outline}\label{solution-outline}}
+
+\textbf{Step 1.} Differentiate \textbackslash(V\textbackslash):
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T M(q)\textbackslash,\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T \textbackslash dot\{M\}(q)\textbackslash,s + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
+\textbackslash{]}
+
+\textbf{Step 2.} Find the closed-loop error dynamics. Substitute the control law into the manipulator equation:
+
+\textbackslash{[}
+M(q)\textbackslash dot\{s\} + C(q,\textbackslash dot\{q\})\textbackslash,s = Y\textbackslash,\textbackslash tilde\{\textbackslash theta\} - K\_D\textbackslash,s
+\textbackslash{]}
+
+This follows because \textbackslash(M\textbackslash ddot\{q\} + C\textbackslash dot\{q\} + G = \textbackslash tau\textbackslash) and \textbackslash(M\textbackslash ddot\{q\}\_r + C\textbackslash dot\{q\}\_r + G = Y\textbackslash theta\textbackslash), so subtracting gives \textbackslash(M\textbackslash dot\{s\} + Cs = Y\textbackslash theta - \textbackslash tau = Y\textbackslash theta - Y\textbackslash hat\{\textbackslash theta\} + K\_D s = Y\textbackslash tilde\{\textbackslash theta\} - K\_D s\textbackslash). Wait --- note the sign: \textbackslash(\textbackslash tau = Y\textbackslash hat\{\textbackslash theta\} - K\_D s\textbackslash), so \textbackslash(Y\textbackslash theta - \textbackslash tau = Y\textbackslash theta - Y\textbackslash hat\{\textbackslash theta\} + K\_D s = Y\textbackslash tilde\{\textbackslash theta\} + K\_D s\textbackslash). Hence:
+
+\textbackslash{[}
+M(q)\textbackslash dot\{s\} = -C(q,\textbackslash dot\{q\})\textbackslash,s + Y\textbackslash,\textbackslash tilde\{\textbackslash theta\} - K\_D\textbackslash,s
+\textbackslash{]}
+
+\textbf{Step 3.} Substitute into \textbackslash(\textbackslash dot\{V\}\textbackslash):
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T\textbackslash!\textbackslash bigl{[}-C s + Y\textbackslash tilde\{\textbackslash theta\} - K\_D s\textbackslash bigr{]} + \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T \textbackslash dot\{M\}\textbackslash,s + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
+\textbackslash{]}
+\textbackslash{[}
+= s\^{}T\textbackslash!\textbackslash bigl{[}\textbackslash tfrac\{1\}\{2\}(\textbackslash dot\{M\} - 2C)\textbackslash bigr{]}s + s\^{}T Y\textbackslash,\textbackslash tilde\{\textbackslash theta\} - s\^{}T K\_D\textbackslash,s + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
+\textbackslash{]}
+
+\textbf{Step 4.} Use the skew-symmetry property \textbackslash(\textbackslash dot\{M\} - 2C\textbackslash) is skew-symmetric, so \textbackslash(s\^{}T(\textbackslash dot\{M\}-2C)s = 0\textbackslash):
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T Y\textbackslash,\textbackslash tilde\{\textbackslash theta\} - s\^{}T K\_D\textbackslash,s + \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\}
+\textbackslash{]}
+
+\textbf{Step 5.} Note \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = -\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash) (since \textbackslash(\textbackslash theta\textbackslash) is constant). Therefore:
+
+\textbackslash{[}
+\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma\textbackslash,\textbackslash Gamma\^{}\{-1\} Y\^{}T s = \textbackslash tilde\{\textbackslash theta\}\^{}T Y\^{}T s = (Y\textbackslash tilde\{\textbackslash theta\})\^{}T s = s\^{}T Y\textbackslash tilde\{\textbackslash theta\}
+\textbackslash{]}
+
+Wait --- this would give \textbackslash(+2s\^{}T Y\textbackslash tilde\{\textbackslash theta\}\textbackslash), which is incorrect. Let us be careful with the sign convention. We have \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = -\textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash), and \textbackslash(\textbackslash tilde\{\textbackslash theta\} = \textbackslash theta - \textbackslash hat\{\textbackslash theta\}\textbackslash), so \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = -\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash).
+
+Then \textbackslash(\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma \textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = \textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma \textbackslash Gamma\^{}\{-1\} Y\^{}T s = \textbackslash tilde\{\textbackslash theta\}\^{}T Y\^{}T s\textbackslash). And from Step 4 we also have \textbackslash(+s\^{}T Y\textbackslash tilde\{\textbackslash theta\}\textbackslash). So we get \textbackslash(2 s\^{}T Y\textbackslash tilde\{\textbackslash theta\}\textbackslash).
+
+The resolution: the standard adaptive law uses \textbackslash(\textbackslash dot\{\textbackslash hat\{\textbackslash theta\}\} = \textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash) (positive sign). Then \textbackslash(\textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = -\textbackslash Gamma\^{}\{-1\} Y\^{}T s\textbackslash), giving \textbackslash(\textbackslash tilde\{\textbackslash theta\}\^{}T \textbackslash Gamma \textbackslash dot\{\textbackslash tilde\{\textbackslash theta\}\} = -s\^{}T Y\textbackslash tilde\{\textbackslash theta\}\textbackslash), and the cross terms cancel:
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T Y\textbackslash tilde\{\textbackslash theta\} - s\^{}T K\_D s - s\^{}T Y\textbackslash tilde\{\textbackslash theta\} = -s\^{}T K\_D s \textbackslash le 0
+\textbackslash{]}
+
+\textbf{Step 6.} Conclusion: Since \textbackslash(V \textbackslash ge 0\textbackslash) and \textbackslash(\textbackslash dot\{V\} \textbackslash le 0\textbackslash), the function \textbackslash(V(t)\textbackslash) is non-increasing. Because \textbackslash(V\textbackslash) includes \textbackslash(\textbackslash tfrac\{1\}\{2\}\textbackslash tilde\{\textbackslash theta\}\^{}T\textbackslash Gamma\textbackslash tilde\{\textbackslash theta\}\textbackslash), boundedness of \textbackslash(V\textbackslash) implies boundedness of \textbackslash(\textbackslash tilde\{\textbackslash theta\}\textbackslash) and hence \textbackslash(\textbackslash hat\{\textbackslash theta\}\textbackslash). By Barbalat\textquotesingle s lemma, \textbackslash(s \textbackslash to 0\textbackslash) as \textbackslash(t \textbackslash to \textbackslash infty\textbackslash).
+
+\paragraph{Question 2 --- Regressor and Parameter Vector for Gravity Terms}\label{question-2-regressor-and-parameter-vector-for-gravity-terms}}
+
+For the same 2-DOF manipulator, the gravity vector is
+
+\textbackslash{[}
+G(q) = \textbackslash begin\{bmatrix\} (m\_1+m\_2)\textbackslash,g\textbackslash,l\_1\textbackslash cos q\_1 + m\_2\textbackslash,g\textbackslash,l\_2\textbackslash cos(q\_1+q\_2) \textbackslash\textbackslash{} m\_2\textbackslash,g\textbackslash,l\_2\textbackslash cos(q\_1+q\_2) \textbackslash end\{bmatrix\}
+\textbackslash{]}
+
+Write the regressor matrix \textbackslash(Y\_G\textbackslash) and parameter vector \textbackslash(\textbackslash theta\_G\textbackslash) such that \textbackslash(G(q) = Y\_G(q)\textbackslash,\textbackslash theta\_G\textbackslash). Identify what each element of \textbackslash(\textbackslash theta\_G\textbackslash) represents physically.
+
+\paragraph{Solution}\label{solution}}
+
+We seek a factorisation \textbackslash(G(q) = Y\_G(q)\textbackslash,\textbackslash theta\_G\textbackslash). Observe that the gravity terms depend on two independent parameter groups:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbackslash(\textbackslash theta\_\{G,1\} = (m\_1 + m\_2)\textbackslash,g\textbackslash,l\_1\textbackslash) --- gravitational torque parameter for link 1 (total mass times gravity times link-1 length)
+\item
+  \textbackslash(\textbackslash theta\_\{G,2\} = m\_2\textbackslash,g\textbackslash,l\_2\textbackslash) --- gravitational torque parameter for link 2 (link-2 mass times gravity times link-2 length)
+\end{itemize}
+
+Then:
+
+\textbackslash{[}
+G(q) = \textbackslash underbrace\{\textbackslash begin\{bmatrix\} \textbackslash cos q\_1 \& \textbackslash cos(q\_1+q\_2) \textbackslash\textbackslash{} 0 \& \textbackslash cos(q\_1+q\_2) \textbackslash end\{bmatrix\}\}\_\{Y\_G(q)\} \textbackslash underbrace\{\textbackslash begin\{bmatrix\} (m\_1+m\_2)\textbackslash,g\textbackslash,l\_1 \textbackslash\textbackslash{} m\_2\textbackslash,g\textbackslash,l\_2 \textbackslash end\{bmatrix\}\}\_\{\textbackslash theta\_G\}
+\textbackslash{]}
+
+\textbf{Physical meaning:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbackslash(\textbackslash theta\_\{G,1\} = (m\_1+m\_2)gl\_1\textbackslash): the maximum gravitational torque that link 1 must support (both link masses hanging at full link-1 lever arm).
+\item
+  \textbackslash(\textbackslash theta\_\{G,2\} = m\_2 g l\_2\textbackslash): the maximum gravitational torque due to link 2 alone (link-2 mass at full link-2 lever arm).
+\end{itemize}
+
+\textbf{Time Limit:} 20 minutes to complete both questions. Work individually first, then discuss with your neighbour.
+
+\subsection{Section 1 --- Learning Outcomes}\label{section-1-learning-outcomes}}
+
+\begin{itemize}
+\tightlist
+\item
+  Understand robust control philosophy: guarantee performance despite \textbf{bounded} uncertainties without estimating them
+\item
+  Derive a robust control law for a manipulator subject to bounded disturbances
+\item
+  Understand \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) control concepts and their application to robotics
+\item
+  Apply robust PD+ control with known disturbance bounds
+\item
+  Implement robust control for three systems: manipulator, mobile robot, drone
+\item
+  Compare robust control vs adaptive control vs computed torque control
+\end{itemize}
+
+\subsection{Section 2 --- Session Roadmap (3 Hours)}\label{section-2-session-roadmap-3-hours}}
+
+0:00 -- 0:20
+
+\paragraph{Previous Week Exam Practice}\label{previous-week-exam-practice}}
+
+Adaptive control recall: Lyapunov proof and regressor identification.
+
+0:20 -- 1:00
+
+\paragraph{Part 1 --- Robust Control Theory}\label{part-1-robust-control-theory}}
+
+Philosophy, problem setup, robust term design, Lyapunov proof, \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) concepts.
+
+1:00 -- 1:20
+
+\paragraph{Part 2 --- Robust Control for Manipulator}\label{part-2-robust-control-for-manipulator}}
+
+Full derivation for 2-DOF arm, uncertainty bounds, MATLAB implementation.
+
+1:20 -- 1:30
+
+\paragraph{Break}\label{break}}
+
+10-minute break.
+
+1:30 -- 2:00
+
+\paragraph{Part 3 --- Robust Control for Mobile Robot}\label{part-3-robust-control-for-mobile-robot}}
+
+Wheel slip, terrain disturbances, robust unicycle tracking.
+
+2:00 -- 2:30
+
+\paragraph{Part 4 --- Robust Control for Drone}\label{part-4-robust-control-for-drone}}
+
+Wind disturbance rejection, robust position and attitude control.
+
+2:30 -- 3:00
+
+\paragraph{Part 5 --- MATLAB \& Activities}\label{part-5-matlab-activities}}
+
+Hands-on simulation, comparison exercises, quick quiz.
+
+\subsection{Section 3 --- Part 1: Robust Control Theory}\label{section-3-part-1-robust-control-theory}}
+
+\subsubsection{3.1 Why Robust Control?}\label{why-robust-control}}
+
+In Weeks 1--3 we developed increasingly sophisticated controllers:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Computed Torque (Week 1):} requires exact model --- any mismatch degrades performance.
+\item
+  \textbf{MPC (Week 2):} optimises over a prediction horizon using a model --- sensitive to model error.
+\item
+  \textbf{Adaptive Control (Week 3):} estimates unknown parameters online --- but requires linearity in parameters and persistent excitation.
+\end{itemize}
+
+\textbf{Robust control} takes a different philosophy:
+
+\textbf{Core Idea:} Instead of estimating the uncertainty, assume it is \emph{bounded} and design a controller that guarantees performance for \emph{all} disturbances within that bound. No online estimation, no model identification --- just guaranteed worst-case performance.
+
+\textbf{Figure 1:} Robust control block diagram showing the nominal plant with additive uncertainty block Δ and disturbance d(t). The robust controller compensates for all bounded uncertainties without estimating them.
+
+\paragraph{When to Use Robust Control}\label{when-to-use-robust-control}}
+
+\begin{itemize}
+\tightlist
+\item
+  Uncertainty bound is known (e.g., wind ≤ 10 N)
+\item
+  Parameters change too fast for adaptation
+\item
+  Safety-critical: need guaranteed bounds on tracking error
+\item
+  Simple implementation desired (no online estimation)
+\end{itemize}
+
+\paragraph{When NOT to Use Robust Control}\label{when-not-to-use-robust-control}}
+
+\begin{itemize}
+\tightlist
+\item
+  Uncertainty bound is unknown or very conservative
+\item
+  Performance must improve over time (use adaptive)
+\item
+  Large parametric uncertainty (robust term becomes too large)
+\item
+  Tight energy constraints (robust terms use more control effort)
+\end{itemize}
+
+\subsubsection{3.2 Problem Setup}\label{problem-setup}}
+
+Consider the general manipulator dynamics with a \textbf{bounded disturbance}:
+
+\textbackslash{[}
+M(q)\textbackslash,\textbackslash ddot\{q\} + C(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + G(q) = \textbackslash tau + d(t), \textbackslash qquad \textbackslash\textbar d(t)\textbackslash\textbar{} \textbackslash le d\_\{\textbackslash max\}
+\textbackslash{]}
+
+Here \textbackslash(d(t) \textbackslash in \textbackslash mathbb\{R\}\^{}n\textbackslash) represents \emph{all} unmodelled effects: external forces, friction, payload changes, model mismatch, sensor noise coupling, etc. The only assumption is a known upper bound \textbackslash(d\_\{\textbackslash max\}\textbackslash).
+
+Additionally, suppose we have an \textbf{imperfect model}: estimates \textbackslash(\textbackslash hat\{M\}(q)\textbackslash), \textbackslash(\textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash), \textbackslash(\textbackslash hat\{G\}(q)\textbackslash) with bounded errors:
+
+\textbackslash{[}
+\textbackslash Delta M = M - \textbackslash hat\{M\}, \textbackslash quad \textbackslash Delta C = C - \textbackslash hat\{C\}, \textbackslash quad \textbackslash Delta G = G - \textbackslash hat\{G\}
+\textbackslash{]}
+
+Then the total uncertainty is:
+
+\textbackslash{[}
+\textbackslash eta(t) = \textbackslash Delta M\textbackslash,\textbackslash ddot\{q\} + \textbackslash Delta C\textbackslash,\textbackslash dot\{q\} + \textbackslash Delta G + d(t)
+\textbackslash{]}
+
+If we can bound \textbackslash(\textbackslash\textbar\textbackslash eta(t)\textbackslash\textbar{} \textbackslash le \textbackslash rho(q,\textbackslash dot\{q\},t)\textbackslash) for a known function \textbackslash(\textbackslash rho\textbackslash), we can design a robust controller.
+
+\textbf{Figure 2:} Three types of uncertainty: (a) parametric -\/- parameters lie in known intervals; (b) unstructured/additive -\/- frequency-dependent uncertainty envelope around the nominal response; (c) matched disturbance -\/- bounded signal entering at the plant input.
+
+\subsubsection{3.3 Robust Computed Torque + Robust Term}\label{robust-computed-torque-robust-term}}
+
+The control law has two components:
+
+\textbackslash{[}
+\textbackslash tau = \textbackslash underbrace\{\textbackslash hat\{M\}(q)\textbackslash bigl{[}\textbackslash ddot\{q\}\_d + K\_D\textbackslash,\textbackslash dot\{e\} + K\_P\textbackslash,e\textbackslash bigr{]} + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\} + \textbackslash hat\{G\}(q)\}\_\{\textbackslash text\{nominal computed torque\}\} + \textbackslash underbrace\{\textbackslash tau\_\{\textbackslash text\{robust\}\}\}\_\{\textbackslash text\{robust term\}\}
+\textbackslash{]}
+
+where \textbackslash(e = q\_d - q\textbackslash) is the tracking error.
+
+\paragraph{Closed-Loop Error Dynamics}\label{closed-loop-error-dynamics}}
+
+Substituting into the manipulator equation:
+
+\textbackslash{[}
+M\textbackslash ddot\{q\} + C\textbackslash dot\{q\} + G = \textbackslash hat\{M\}(\textbackslash ddot\{q\}\_d + K\_D\textbackslash dot\{e\} + K\_P e) + \textbackslash hat\{C\}\textbackslash dot\{q\} + \textbackslash hat\{G\} + \textbackslash tau\_\{\textbackslash text\{robust\}\} + d
+\textbackslash{]}
+
+Rearranging with \textbackslash(\textbackslash ddot\{e\} = \textbackslash ddot\{q\}\_d - \textbackslash ddot\{q\}\textbackslash):
+
+\textbackslash{[}
+M\textbackslash ddot\{e\} + (C + \textbackslash hat\{M\}K\_D)\textbackslash dot\{e\} + \textbackslash hat\{M\}K\_P e = \textbackslash underbrace\{\textbackslash Delta M\textbackslash ddot\{q\} + \textbackslash Delta C\textbackslash dot\{q\} + \textbackslash Delta G + d(t)\}\_\{\textbackslash eta(t)\} - \textbackslash tau\_\{\textbackslash text\{robust\}\}
+\textbackslash{]}
+
+\subsubsection{3.4 Robust Term Design}\label{robust-term-design}}
+
+Define the \textbf{sliding variable} (same as in adaptive control):
+
+\textbackslash{[}
+s = \textbackslash dot\{e\} + \textbackslash Lambda\textbackslash,e
+\textbackslash{]}
+
+where \textbackslash(\textbackslash Lambda \textbackslash succ 0\textbackslash) is a positive-definite gain matrix. Then the robust controller is:
+
+\textbackslash{[}
+\textbackslash tau = \textbackslash hat\{M\}(q)\textbackslash,\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\}\_r + \textbackslash hat\{G\}(q) - K\_D\textbackslash,s + \textbackslash tau\_\{\textbackslash text\{robust\}\}
+\textbackslash{]}
+
+where \textbackslash(\textbackslash dot\{q\}\_r = \textbackslash dot\{q\}\_d - \textbackslash Lambda e\textbackslash), \textbackslash(\textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash dot\{e\}\textbackslash) (the reference velocity and acceleration).
+
+The \textbf{robust term} is designed as:
+
+\textbackslash{[}
+\textbackslash tau\_\{\textbackslash text\{robust\}\} = \textbackslash begin\{cases\} -\textbackslash rho(t)\textbackslash,\textbackslash dfrac\{s\}\{\textbackslash\textbar s\textbackslash\textbar\} \& \textbackslash text\{if \} \textbackslash\textbar s\textbackslash\textbar{} \textbackslash ge \textbackslash epsilon \textbackslash\textbackslash{} -\textbackslash dfrac\{\textbackslash rho(t)\}\{\textbackslash epsilon\}\textbackslash,s \& \textbackslash text\{if \} \textbackslash\textbar s\textbackslash\textbar{} \textless{} \textbackslash epsilon \textbackslash end\{cases\}
+\textbackslash{]}
+
+where \textbackslash(\textbackslash rho(t) \textbackslash ge \textbackslash\textbar\textbackslash eta(t)\textbackslash\textbar\textbackslash) is the uncertainty bound and \textbackslash(\textbackslash epsilon \textgreater{} 0\textbackslash) is a small boundary-layer thickness to avoid chattering. The first case is the \textbf{discontinuous} (sliding-mode-like) form; the second is a \textbf{continuous approximation} inside a boundary layer.
+
+\textbf{Chattering Problem:} The pure discontinuous form \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\} = -\textbackslash rho\textbackslash,s/\textbackslash\textbar s\textbackslash\textbar\textbackslash) causes high-frequency switching (chattering) in actuators. The boundary layer \textbackslash(\textbackslash epsilon\textbackslash) trades off robustness for smoothness. Smaller \textbackslash(\textbackslash epsilon\textbackslash) = more robust but more chattering.
+
+\subsubsection{3.5 Lyapunov Stability Proof}\label{lyapunov-stability-proof}}
+
+\paragraph{Theorem: Robust Tracking with Bounded Error}\label{theorem-robust-tracking-with-bounded-error}}
+
+Consider the Lyapunov candidate:
+
+\textbackslash{[}
+V = \textbackslash tfrac\{1\}\{2\}\textbackslash,s\^{}T M(q)\textbackslash,s
+\textbackslash{]}
+
+\textbf{Step 1.} Differentiate:
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T M\textbackslash dot\{s\} + \textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s
+\textbackslash{]}
+
+\textbf{Step 2.} The closed-loop error dynamics give:
+
+\textbackslash{[}
+M\textbackslash dot\{s\} = -Cs + \textbackslash eta(t) - K\_D s + \textbackslash tau\_\{\textbackslash text\{robust\}\}
+\textbackslash{]}
+
+Substituting:
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T(-Cs + \textbackslash eta - K\_D s + \textbackslash tau\_\{\textbackslash text\{robust\}\}) + \textbackslash tfrac\{1\}\{2\}s\^{}T\textbackslash dot\{M\}s
+\textbackslash{]}
+\textbackslash{[}
+= \textbackslash tfrac\{1\}\{2\}s\^{}T(\textbackslash dot\{M\}-2C)s + s\^{}T\textbackslash eta - s\^{}T K\_D s + s\^{}T\textbackslash tau\_\{\textbackslash text\{robust\}\}
+\textbackslash{]}
+
+\textbf{Step 3.} By skew-symmetry, \textbackslash(s\^{}T(\textbackslash dot\{M\}-2C)s = 0\textbackslash):
+
+\textbackslash{[}
+\textbackslash dot\{V\} = s\^{}T\textbackslash eta - s\^{}T K\_D s + s\^{}T\textbackslash tau\_\{\textbackslash text\{robust\}\}
+\textbackslash{]}
+
+\textbf{Step 4.} For the discontinuous case (\textbackslash(\textbackslash\textbar s\textbackslash\textbar{} \textbackslash ge \textbackslash epsilon\textbackslash)), \textbackslash(\textbackslash tau\_\{\textbackslash text\{robust\}\} = -\textbackslash rho\textbackslash,s/\textbackslash\textbar s\textbackslash\textbar\textbackslash):
+
+\textbackslash{[}
+s\^{}T\textbackslash tau\_\{\textbackslash text\{robust\}\} = -\textbackslash rho\textbackslash,\textbackslash frac\{s\^{}Ts\}\{\textbackslash\textbar s\textbackslash\textbar\} = -\textbackslash rho\textbackslash,\textbackslash\textbar s\textbackslash\textbar{}
+\textbackslash{]}
+
+And \textbackslash(s\^{}T\textbackslash eta \textbackslash le \textbackslash\textbar s\textbackslash\textbar\textbackslash,\textbackslash\textbar\textbackslash eta\textbackslash\textbar{} \textbackslash le \textbackslash\textbar s\textbackslash\textbar\textbackslash,\textbackslash rho\textbackslash) by Cauchy--Schwarz and the bound \textbackslash(\textbackslash\textbar\textbackslash eta\textbackslash\textbar{} \textbackslash le \textbackslash rho\textbackslash). Therefore:
+
+\textbackslash{[}
+\textbackslash dot\{V\} \textbackslash le \textbackslash\textbar s\textbackslash\textbar\textbackslash rho - s\^{}T K\_D s - \textbackslash rho\textbackslash\textbar s\textbackslash\textbar{} = -s\^{}T K\_D s \textbackslash le 0
+\textbackslash{]}
+
+\textbf{Step 5.} For the boundary-layer case (\textbackslash(\textbackslash\textbar s\textbackslash\textbar{} \textless{} \textbackslash epsilon\textbackslash)), the tracking error is already within the boundary layer. The ultimate bound on \textbackslash(\textbackslash\textbar s\textbackslash\textbar\textbackslash) is \textbackslash(\textbackslash epsilon\textbackslash), which translates to a bounded tracking error.
+
+\textbf{Result:} With the robust term, the sliding variable \textbackslash(s\textbackslash) converges to the boundary layer \textbackslash(\textbackslash\textbar s\textbackslash\textbar{} \textbackslash le \textbackslash epsilon\textbackslash), guaranteeing that tracking error is ultimately bounded. With \textbackslash(s = \textbackslash dot\{e\}+\textbackslash Lambda e \textbackslash to 0\textbackslash), we get \textbackslash(e \textbackslash to 0\textbackslash) exponentially inside the boundary layer.
+
+\textbf{Figure 4:} Robust stability comparison. Left: nominal system without disturbance -\/- the trajectory converges asymptotically to the origin along Lyapunov contours. Right: robust system with bounded disturbance -\/- the trajectory converges to a bounded ball of radius ε (the ultimate bound), which depends on the boundary layer thickness and gains.
+
+\subsubsection{3.6 \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) Control Concepts}\label{mathcalh_infty-control-concepts}}
+
+\textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) (H-infinity) control is the \textbf{frequency-domain} counterpart to the Lyapunov-based robust control above. The key idea:
+
+\textbf{Goal:} Design a controller \textbackslash(K\textbackslash) that minimises the worst-case gain from disturbance \textbackslash(w\textbackslash) to performance output \textbackslash(z\textbackslash):
+\textbackslash{[}
+\textbackslash min\_K \textbackslash;\textbackslash\textbar T\_\{zw\}(s)\textbackslash\textbar\_\textbackslash infty = \textbackslash min\_K \textbackslash;\textbackslash sup\_\textbackslash omega \textbackslash;\textbackslash bar\{\textbackslash sigma\}\textbackslash!\textbackslash bigl(T\_\{zw\}(j\textbackslash omega)\textbackslash bigr)
+\textbackslash{]}
+where \textbackslash(\textbackslash bar\{\textbackslash sigma\}\textbackslash) is the maximum singular value.
+
+\paragraph{Standard Plant Formulation}\label{standard-plant-formulation}}
+
+The generalised plant \textbackslash(P\textbackslash) connects disturbance \textbackslash(w\textbackslash), control \textbackslash(u\textbackslash), performance output \textbackslash(z\textbackslash), and measurement \textbackslash(y\textbackslash):
+
+\textbackslash{[}
+\textbackslash begin\{bmatrix\} z \textbackslash\textbackslash{} y \textbackslash end\{bmatrix\} = \textbackslash begin\{bmatrix\} P\_\{11\} \& P\_\{12\} \textbackslash\textbackslash{} P\_\{21\} \& P\_\{22\} \textbackslash end\{bmatrix\} \textbackslash begin\{bmatrix\} w \textbackslash\textbackslash{} u \textbackslash end\{bmatrix\}
+\textbackslash{]}
+
+The closed-loop transfer function from \textbackslash(w\textbackslash) to \textbackslash(z\textbackslash) is:
+
+\textbackslash{[}
+T\_\{zw\} = P\_\{11\} + P\_\{12\}\textbackslash,K\textbackslash,(I - P\_\{22\}\textbackslash,K)\^{}\{-1\}\textbackslash,P\_\{21\}
+\textbackslash{]}
+
+\textbf{Figure 8:} H-infinity standard plant configuration. Left: the generalized plant P is partitioned into four sub-blocks connecting disturbance w, control u, performance output z, and measurement y. The controller K closes the loop from y to u. Right: the closed-loop objective is to minimize the H-infinity norm \textbar\textbar T\_wz\textbar\textbar∞, which represents the worst-case gain from disturbance to performance across all frequencies.
+
+\paragraph{Riccati-Based Solution (for Linear Systems)}\label{riccati-based-solution-for-linear-systems}}
+
+For a linear system \textbackslash(\textbackslash dot\{x\} = Ax + B\_1 w + B\_2 u\textbackslash), \textbackslash(z = C\_1 x + D\_\{12\} u\textbackslash), \textbackslash(y = C\_2 x + D\_\{21\}w\textbackslash), the \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) controller exists if and only if two Algebraic Riccati Equations (AREs) have stabilising solutions \textbackslash(X \textbackslash ge 0\textbackslash) and \textbackslash(Y \textbackslash ge 0\textbackslash):
+
+\textbackslash{[}
+A\^{}TX + XA + C\_1\^{}TC\_1 + X\textbackslash!\textbackslash left(\textbackslash gamma\^{}\{-2\}B\_1B\_1\^{}T - B\_2B\_2\^{}T\textbackslash right)\textbackslash!X = 0
+\textbackslash{]}
+\textbackslash{[}
+AY + YA\^{}T + B\_1B\_1\^{}T + Y\textbackslash!\textbackslash left(\textbackslash gamma\^{}\{-2\}C\_1\^{}TC\_1 - C\_2\^{}TC\_2\textbackslash right)\textbackslash!Y = 0
+\textbackslash{]}
+
+and \textbackslash(\textbackslash rho(XY) \textless{} \textbackslash gamma\^{}2\textbackslash), where \textbackslash(\textbackslash gamma\textbackslash) is the desired attenuation level.
+
+\paragraph{Practical Interpretation for Robotics}\label{practical-interpretation-for-robotics}}
+
+For nonlinear robotic systems, pure \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) is often applied via:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Linearisation + \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash):} linearise at operating points, design \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash) controllers, use gain scheduling.
+\item
+  \textbf{Nonlinear \textbackslash(\textbackslash mathcal\{H\}\_\textbackslash infty\textbackslash):} use Hamilton--Jacobi--Isaacs (HJI) equations (computationally expensive).
+\item
+  \textbf{Practical approach:} use the Lyapunov-based robust controller (Section 3.4) which achieves similar worst-case guarantees for nonlinear systems without frequency-domain machinery.
+\end{itemize}
+
+\paragraph{Think -- Pair -- Share}\label{think-pair-share}}
+
+\textbf{Question:} What is the fundamental difference between adaptive control and robust control? When would you prefer one over the other?
+
+\textbf{Discussion points:}
+
+\begin{itemize}
+\tightlist
+\item
+  Adaptive: estimates parameters → performance improves over time, but needs PE and structure (linearity in parameters).
+\item
+  Robust: assumes bounded uncertainty → guaranteed worst-case performance, but conservative (over-designs for typical case).
+\item
+  If the uncertainty is structured and slowly varying → adaptive. If it is fast/unknown structure but bounded → robust.
+\item
+  Can be combined: \textbf{robust-adaptive control} uses adaptation with a robust modification for unstructured uncertainty.
+\end{itemize}
+
+\subsection{Section 4 --- Part 2: Robust Control for 2-DOF Manipulator}\label{section-4-part-2-robust-control-for-2-dof-manipulator}}
+
+\subsubsection{4.1 System Description}\label{system-description}}
+
+Consider the 2-DOF planar manipulator from previous weeks:
+
+\textbackslash{[}
+M(q) = \textbackslash begin\{bmatrix\} (m\_1+m\_2)l\_1\^{}2 + m\_2 l\_2\^{}2 + 2m\_2 l\_1 l\_2 \textbackslash cos q\_2 \& m\_2 l\_2\^{}2 + m\_2 l\_1 l\_2 \textbackslash cos q\_2 \textbackslash\textbackslash{} m\_2 l\_2\^{}2 + m\_2 l\_1 l\_2 \textbackslash cos q\_2 \& m\_2 l\_2\^{}2 \textbackslash end\{bmatrix\}
+\textbackslash{]}
+\textbackslash{[}
+C(q,\textbackslash dot\{q\}) = \textbackslash begin\{bmatrix\} -m\_2 l\_1 l\_2 \textbackslash dot\{q\}\_2 \textbackslash sin q\_2 \& -m\_2 l\_1 l\_2(\textbackslash dot\{q\}\_1+\textbackslash dot\{q\}\_2)\textbackslash sin q\_2 \textbackslash\textbackslash{} m\_2 l\_1 l\_2 \textbackslash dot\{q\}\_1 \textbackslash sin q\_2 \& 0 \textbackslash end\{bmatrix\}
+\textbackslash{]}
+\textbackslash{[}
+G(q) = \textbackslash begin\{bmatrix\} (m\_1+m\_2)g l\_1 \textbackslash cos q\_1 + m\_2 g l\_2 \textbackslash cos(q\_1+q\_2) \textbackslash\textbackslash{} m\_2 g l\_2 \textbackslash cos(q\_1+q\_2) \textbackslash end\{bmatrix\}
+\textbackslash{]}
+
+\textbf{Figure 3:} 2-DOF planar manipulator showing nominal configuration (left, blue) versus perturbed configuration (right, red) with uncertain masses Δm₁, Δm₂ and external disturbance d(t). Dashed outlines indicate the uncertain mass envelopes.
+
+\subsubsection{4.2 Uncertainty Model}\label{uncertainty-model}}
+
+Suppose we have nominal parameters \textbackslash(\textbackslash hat\{m\}\_1, \textbackslash hat\{m\}\_2, \textbackslash hat\{l\}\_1, \textbackslash hat\{l\}\_2\textbackslash) with known error bounds:
+
+\textbackslash{[}
+\textbar m\_i - \textbackslash hat\{m\}\_i\textbar{} \textbackslash le \textbackslash delta\_\{m\_i\}, \textbackslash quad \textbar l\_i - \textbackslash hat\{l\}\_i\textbar{} \textbackslash le \textbackslash delta\_\{l\_i\}
+\textbackslash{]}
+
+Plus an external disturbance \textbackslash(d(t)\textbackslash) with \textbackslash(\textbackslash\textbar d(t)\textbackslash\textbar{} \textbackslash le d\_\{\textbackslash max\}\textbackslash).
+
+The total uncertainty bound can be computed as:
+
+\textbackslash{[}
+\textbackslash rho(q,\textbackslash dot\{q\},\textbackslash ddot\{q\}\_r) = \textbackslash\textbar\textbackslash Delta M\textbackslash\textbar\_F \textbackslash\textbar\textbackslash ddot\{q\}\_r\textbackslash\textbar{} + \textbackslash\textbar\textbackslash Delta C\textbackslash\textbar\_F \textbackslash\textbar\textbackslash dot\{q\}\textbackslash\textbar{} + \textbackslash\textbar\textbackslash Delta G\textbackslash\textbar{} + d\_\{\textbackslash max\}
+\textbackslash{]}
+
+In practice, we often use a \textbf{constant upper bound} \textbackslash(\textbackslash rho\_0\textbackslash) that covers the worst case over the workspace.
+
+\subsubsection{4.3 Robust Controller}\label{robust-controller}}
+
+Define \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash), \textbackslash(\textbackslash dot\{q\}\_r = \textbackslash dot\{q\}\_d - \textbackslash Lambda e\textbackslash), \textbackslash(\textbackslash ddot\{q\}\_r = \textbackslash ddot\{q\}\_d - \textbackslash Lambda\textbackslash dot\{e\}\textbackslash). The control law is:
+
+\textbackslash{[}
+\textbackslash tau = \textbackslash hat\{M\}(q)\textbackslash,\textbackslash ddot\{q\}\_r + \textbackslash hat\{C\}(q,\textbackslash dot\{q\})\textbackslash,\textbackslash dot\{q\}\_r + \textbackslash hat\{G\}(q) - K\_D\textbackslash,s - \textbackslash rho\_0\textbackslash,\textbackslash frac\{s\}\{\textbackslash\textbar s\textbackslash\textbar{} + \textbackslash epsilon\}
+\textbackslash{]}
+
+Note: we use \textbackslash(\textbackslash\textbar s\textbackslash\textbar{} + \textbackslash epsilon\textbackslash) in the denominator (instead of switching) for a smooth approximation that avoids chattering entirely.
+
+\subsubsection{4.4 Guaranteed Tracking Error Bound}\label{guaranteed-tracking-error-bound}}
+
+From the Lyapunov analysis, the ultimate bound on the sliding variable is:
+
+\textbackslash{[}
+\textbackslash\textbar s\textbackslash\textbar\_\{\textbackslash text\{ult\}\} \textbackslash le \textbackslash frac\{\textbackslash rho\_0\textbackslash,\textbackslash epsilon\}\{\textbackslash lambda\_\{\textbackslash min\}(K\_D)\}
+\textbackslash{]}
+
+Since \textbackslash(s = \textbackslash dot\{e\} + \textbackslash Lambda e\textbackslash), the position tracking error is ultimately bounded by:
+
+\textbackslash{[}
+\textbackslash\textbar e\textbackslash\textbar\_\{\textbackslash text\{ult\}\} \textbackslash le \textbackslash frac\{\textbackslash rho\_0\textbackslash,\textbackslash epsilon\}\{\textbackslash lambda\_\{\textbackslash min\}(K\_D)\textbackslash,\textbackslash lambda\_\{\textbackslash min\}(\textbackslash Lambda)\}
+\textbackslash{]}
+
+\textbf{Design Rule:} To achieve a desired tracking accuracy \textbackslash(\textbackslash\textbar e\textbackslash\textbar{} \textbackslash le e\_\{\textbackslash max\}\textbackslash), choose
+\textbackslash(K\_D\textbackslash) and \textbackslash(\textbackslash Lambda\textbackslash) large enough and \textbackslash(\textbackslash epsilon\textbackslash) small enough such that \textbackslash(\textbackslash rho\_0\textbackslash,\textbackslash epsilon / (\textbackslash lambda\_\{\textbackslash min\}(K\_D)\textbackslash,\textbackslash lambda\_\{\textbackslash min\}(\textbackslash Lambda)) \textbackslash le e\_\{\textbackslash max\}\textbackslash).
+
+\subsubsection{4.5 MATLAB Implementation}\label{matlab-implementation}}
+
+\%\% Robust Computed Torque Control for 2-DOF Manipulator
+\% Parameters
+m1 = 2.0; m2 = 1.5; l1 = 1.0; l2 = 0.8; g = 9.81;
+\% Nominal (imperfect) model
+m1\_hat = 1.8; m2\_hat = 1.3; l1\_hat = 1.0; l2\_hat = 0.8;
+\% Controller gains
+Kp = diag({[}100, 100{]}); Kd = diag({[}40, 40{]});
+Lambda = diag({[}10, 10{]});
+rho0 = 15.0; \% uncertainty bound
+epsilon = 0.01; \% boundary layer
+\% Desired trajectory: sinusoidal
+qd = @(t) {[}sin(t); 0.5*cos(t){]};
+qd\_d = @(t) {[}cos(t); -0.5*sin(t){]};
+qd\_dd= @(t) {[}-sin(t); -0.5*cos(t){]};
+\% Disturbance
+d\_max = 5.0;
+dist = @(t) d\_max * {[}sin(3*t); cos(2*t){]};
+\% ODE: state = {[}q1; q2; dq1; dq2{]}
+odefun = @(t, x) manipulator\_robust\_ode(t, x, ...
+m1, m2, l1, l2, g, ...
+m1\_hat, m2\_hat, l1\_hat, l2\_hat, ...
+Kp, Kd, Lambda, rho0, epsilon, ...
+qd, qd\_d, qd\_dd, dist);
+{[}t, X{]} = ode45(odefun, {[}0 10{]}, {[}0.5; -0.3; 0; 0{]});
+\% Plot tracking errors
+e1 = arrayfun(@(i) qd(t(i)), 1:length(t), \textquotesingle Un\textquotesingle, 0);
+e1 = cell2mat(e1\textquotesingle)\textquotesingle{} - X(:,1:2)\textquotesingle;
+figure; plot(t, e1\textquotesingle); legend(\textquotesingle e\_1\textquotesingle,\textquotesingle e\_2\textquotesingle);
+xlabel(\textquotesingle Time {[}s{]}\textquotesingle); ylabel(\textquotesingle Error {[}rad{]}\textquotesingle);
+title(\textquotesingle Robust Control: Tracking Error\textquotesingle);
+
+function dx = manipulator\_robust\_ode(t, x, ...
+m1, m2, l1, l2, g, ...
+m1\_hat, m2\_hat, l1\_hat, l2\_hat, ...
+Kp, Kd, Lambda, rho0, epsilon, ...
+qd\_fun, qd\_d\_fun, qd\_dd\_fun, dist\_fun)
+q = x(1:2); dq = x(3:4);
+q1 = q(1); q2 = q(2);
+\% TRUE dynamics matrices
+M = {[}(m1+m2)*l1\^{}2+m2*l2\^{}2+2*m2*l1*l2*cos(q2), m2*l2\^{}2+m2*l1*l2*cos(q2);
+m2*l2\^{}2+m2*l1*l2*cos(q2), m2*l2\^{}2{]};
+C = {[}-m2*l1*l2*dq(2)*sin(q2), -m2*l1*l2*(dq(1)+dq(2))*sin(q2);
+m2*l1*l2*dq(1)*sin(q2), 0{]};
+G\_vec = {[}(m1+m2)*g*l1*cos(q1)+m2*g*l2*cos(q1+q2);
+m2*g*l2*cos(q1+q2){]};
+\% NOMINAL (hat) dynamics matrices
+Mh = {[}(m1\_hat+m2\_hat)*l1\_hat\^{}2+m2\_hat*l2\_hat\^{}2+2*m2\_hat*l1\_hat*l2\_hat*cos(q2), ...
+m2\_hat*l2\_hat\^{}2+m2\_hat*l1\_hat*l2\_hat*cos(q2);
+m2\_hat*l2\_hat\^{}2+m2\_hat*l1\_hat*l2\_hat*cos(q2), m2\_hat*l2\_hat\^{}2{]};
+Ch = {[}-m2\_hat*l1\_hat*l2\_hat*dq(2)*sin(q2), ...
+-m2\_hat*l1\_hat*l2\_hat*(dq(1)+dq(2))*sin(q2);
+m2\_hat*l1\_hat*l2\_hat*dq(1)*sin(q2), 0{]};
+Gh = {[}(m1\_hat+m2\_hat)*g*l1\_hat*cos(q1)+m2\_hat*g*l2\_hat*cos(q1+q2);
+m2\_hat*g*l2\_hat*cos(q1+q2){]};
+\% Desired trajectory
+qd = qd\_fun(t);
+qd\_d = qd\_d\_fun(t);
+qd\_dd = qd\_dd\_fun(t);
+\% Errors
+e = q - qd;
+ed = dq - qd\_d;
+\% Sliding variable
+s = ed + Lambda * e;
+\% Reference velocity/acceleration
+dqr = qd\_d - Lambda * e;
+ddqr = qd\_dd - Lambda * ed;
+\% Robust term (smooth approximation)
+s\_norm = norm(s);
+tau\_robust = -rho0 * s / (s\_norm + epsilon);
+\% Control law
+tau = Mh * ddqr + Ch * dqr + Gh - Kd * s + tau\_robust;
+\% Disturbance
+d = dist\_fun(t);
+\% True dynamics: M*ddq + C*dq + G = tau + d
+ddq = M \textbackslash{} (tau + d - C*dq - G\_vec);
+dx = {[}dq; ddq{]};
+end
+
+\subsection{Section 5 --- Part 3: Robust Control for Mobile Robot}\label{section-5-part-3-robust-control-for-mobile-robot}}
+
+\subsubsection{5.1 Sources of Disturbance}\label{sources-of-disturbance}}
+
+A differential-drive mobile robot (unicycle model) faces several real-world disturbances:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Wheel slip:} terrain changes cause unpredictable velocity loss or gain.
+\item
+  \textbf{Uneven terrain:} slopes and bumps inject forces into the kinematic model.
+\item
+  \textbf{Wind:} for outdoor robots, crosswind affects heading.
+\item
+  \textbf{Payload shifts:} centre of mass changes alter dynamics.
+\end{itemize}
+
+\textbf{Figure 5:} Top-down view of a differential-drive mobile robot. The dashed blue curve is the reference trajectory, the solid red curve is the actual path under disturbances (wind, terrain, wheel slip). The green tube represents the guaranteed tracking error bound \textbar\textbar e\textbar\textbar{} ≤ ε provided by the robust controller.
+
+\subsubsection{5.2 Disturbed Unicycle Model}\label{disturbed-unicycle-model}}
+
+The kinematic unicycle model with additive disturbance:
+
+\textbackslash{[}
+\textbackslash begin\{cases\}
+\textbackslash dot\{x\} = v\textbackslash cos\textbackslash theta + d\_x(t) \textbackslash\textbackslash{}
+\textbackslash dot\{y\} = v\textbackslash sin\textbackslash theta + d\_y(t) \textbackslash\textbackslash{}
+\textbackslash dot\{\textbackslash theta\} = \textbackslash omega + d\_\textbackslash theta(t)
+\textbackslash end\{cases\}
+\textbackslash{]}
+
+where \textbackslash(v\textbackslash) is linear velocity, \textbackslash(\textbackslash omega\textbackslash) is angular velocity, and \textbackslash(d\_x, d\_y, d\_\textbackslash theta\textbackslash) are bounded disturbances with \textbackslash(\textbackslash\textbar{[}d\_x, d\_y, d\_\textbackslash theta{]}\^{}T\textbackslash\textbar{} \textbackslash le d\_\{\textbackslash max\}\textbackslash).
+
+\subsubsection{5.3 Robust Tracking Controller}\label{robust-tracking-controller}}
+
+Given a reference trajectory \textbackslash((x\_r(t), y\_r(t), \textbackslash theta\_r(t))\textbackslash), define the tracking error in the \textbf{body frame}:
+
+\textbackslash{[}
+\textbackslash begin\{bmatrix\} e\_x \textbackslash\textbackslash{} e\_y \textbackslash\textbackslash{} e\_\textbackslash theta \textbackslash end\{bmatrix\}
+= \textbackslash begin\{bmatrix\} \textbackslash cos\textbackslash theta \& \textbackslash sin\textbackslash theta \& 0 \textbackslash\textbackslash{} -\textbackslash sin\textbackslash theta \& \textbackslash cos\textbackslash theta \& 0 \textbackslash\textbackslash{} 0 \& 0 \& 1 \textbackslash end\{bmatrix\}
+\textbackslash begin\{bmatrix\} x\_r - x \textbackslash\textbackslash{} y\_r - y \textbackslash\textbackslash{} \textbackslash theta\_r - \textbackslash theta \textbackslash end\{bmatrix\}
+\textbackslash{]}
+
+The error dynamics (without disturbance) satisfy:
+
+\textbackslash{[}
+\textbackslash begin\{cases\}
+\textbackslash dot\{e\}\_x = \textbackslash omega\textbackslash,e\_y - v + v\_r\textbackslash cos e\_\textbackslash theta \textbackslash\textbackslash{}
+\textbackslash dot\{e\}\_y = -\textbackslash omega\textbackslash,e\_x + v\_r\textbackslash sin e\_\textbackslash theta \textbackslash\textbackslash{}
+\textbackslash dot\{e\}\_\textbackslash theta = \textbackslash omega\_r - \textbackslash omega
+\textbackslash end\{cases\}
+\textbackslash{]}
+
+The \textbf{nominal tracking controller} (without robustness) is:
+
+\textbackslash{[}
+v = v\_r\textbackslash cos e\_\textbackslash theta + k\_1\textbackslash,e\_x, \textbackslash qquad \textbackslash omega = \textbackslash omega\_r + v\_r\textbackslash,(k\_2\textbackslash,e\_y + k\_3\textbackslash sin e\_\textbackslash theta)
+\textbackslash{]}
+
+The \textbf{robust augmentation} adds terms to reject disturbances:
+
+\textbackslash{[}
+v = v\_r\textbackslash cos e\_\textbackslash theta + k\_1\textbackslash,e\_x + \textbackslash rho\_v\textbackslash,\textbackslash frac\{e\_x\}\{\textbar e\_x\textbar+\textbackslash epsilon\_v\}
+\textbackslash{]}
+\textbackslash{[}
+\textbackslash omega = \textbackslash omega\_r + v\_r(k\_2\textbackslash,e\_y + k\_3\textbackslash sin e\_\textbackslash theta) + \textbackslash rho\_\textbackslash omega\textbackslash,\textbackslash frac\{e\_\textbackslash theta\}\{\textbar e\_\textbackslash theta\textbar+\textbackslash epsilon\_\textbackslash omega\}
+\textbackslash{]}
+
+where \textbackslash(\textbackslash rho\_v\textbackslash) and \textbackslash(\textbackslash rho\_\textbackslash omega\textbackslash) are bounds on the linear and angular disturbances, respectively.
+
+\subsubsection{5.4 Stability Analysis}\label{stability-analysis}}
+
+Consider the Lyapunov function:
+
+\textbackslash{[}
+V = \textbackslash tfrac\{1\}\{2\}(e\_x\^{}2 + e\_y\^{}2) + \textbackslash frac\{1-\textbackslash cos e\_\textbackslash theta\}\{k\_2\}
+\textbackslash{]}
+
+Without going through every step (see the manipulator proof for the pattern), the robust terms ensure that the disturbance contribution to \textbackslash(\textbackslash dot\{V\}\textbackslash) is cancelled by the robust term, leaving \textbackslash(\textbackslash dot\{V\} \textbackslash le -k\_1 e\_x\^{}2 - k\_3 v\_r \textbackslash sin\^{}2 e\_\textbackslash theta / k\_2 \textbackslash le 0\textbackslash) outside the boundary layers.
+
+\subsubsection{5.5 MATLAB Implementation}\label{matlab-implementation-1}}
+
+\%\% Robust Tracking Control for Unicycle Mobile Robot
+\% Reference: circular trajectory
+R = 2; omega\_ref = 0.5;
+xr = @(t) R*cos(omega\_ref*t);
+yr = @(t) R*sin(omega\_ref*t);
+dxr = @(t) -R*omega\_ref*sin(omega\_ref*t);
+dyr = @(t) R*omega\_ref*cos(omega\_ref*t);
+thr = @(t) omega\_ref*t + pi/2;
+vr = @(t) R*omega\_ref;
+wr = @(t) omega\_ref;
+\% Disturbance (wheel slip + terrain)
+d\_mob = @(t) 0.3*{[}sin(5*t); cos(3*t); 0.2*sin(7*t){]};
+\% Controller gains
+k1 = 5; k2 = 3; k3 = 5;
+rho\_v = 0.5; rho\_w = 0.3;
+eps\_v = 0.01; eps\_w = 0.01;
+odefun\_mob = @(t, x) mobile\_robust\_ode(t, x, ...
+xr, yr, thr, vr, wr, k1, k2, k3, ...
+rho\_v, rho\_w, eps\_v, eps\_w, d\_mob);
+{[}t\_m, X\_m{]} = ode45(odefun\_mob, {[}0 20{]}, {[}3; 0; 0{]});
+\% Plot trajectory
+figure; hold on;
+tt = linspace(0,20,500);
+plot(arrayfun(xr,tt), arrayfun(yr,tt), \textquotesingle b-\/-\textquotesingle, \textquotesingle LineWidth\textquotesingle, 2);
+plot(X\_m(:,1), X\_m(:,2), \textquotesingle r\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5);
+legend(\textquotesingle Reference\textquotesingle,\textquotesingle Robust\textquotesingle); xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle);
+title(\textquotesingle Mobile Robot: Robust Tracking\textquotesingle);
+
+function dx = mobile\_robust\_ode(t, x, ...
+xr\_fun, yr\_fun, thr\_fun, vr\_fun, wr\_fun, ...
+k1, k2, k3, rho\_v, rho\_w, eps\_v, eps\_w, dist\_fun)
+px = x(1); py = x(2); th = x(3);
+\% Reference
+xr\_val = xr\_fun(t); yr\_val = yr\_fun(t);
+thr\_val = thr\_fun(t); vr\_val = vr\_fun(t); wr\_val = wr\_fun(t);
+\% Body-frame error
+dx\_err = xr\_val - px;
+dy\_err = yr\_val - py;
+ex = cos(th)*dx\_err + sin(th)*dy\_err;
+ey = -sin(th)*dx\_err + cos(th)*dy\_err;
+eth = thr\_val - th;
+eth = atan2(sin(eth), cos(eth)); \% wrap to {[}-pi, pi{]}
+\% Nominal controller
+v\_nom = vr\_val*cos(eth) + k1*ex;
+w\_nom = wr\_val + vr\_val*(k2*ey + k3*sin(eth));
+\% Robust augmentation
+v = v\_nom + rho\_v * ex / (abs(ex) + eps\_v);
+w = w\_nom + rho\_w * eth / (abs(eth) + eps\_w);
+\% Disturbance
+d = dist\_fun(t);
+\% Disturbed kinematics
+dx = {[}v*cos(th) + d(1);
+v*sin(th) + d(2);
+w + d(3){]};
+end
+
+\subsection{Section 6 --- Part 4: Robust Control for Quadrotor Drone}\label{section-6-part-4-robust-control-for-quadrotor-drone}}
+
+\subsubsection{6.1 Wind Disturbance Model}\label{wind-disturbance-model}}
+
+A quadrotor operating outdoors experiences wind disturbances on all axes:
+
+\textbackslash{[}
+m\textbackslash ddot\{p\} = \textbackslash begin\{bmatrix\} 0\textbackslash\textbackslash0\textbackslash\textbackslash-mg \textbackslash end\{bmatrix\} + R(\textbackslash Phi)\textbackslash begin\{bmatrix\} 0\textbackslash\textbackslash0\textbackslash\textbackslash T \textbackslash end\{bmatrix\} + f\_\{\textbackslash text\{wind\}\}(t)
+\textbackslash{]}
+
+where \textbackslash(p = {[}x,y,z{]}\^{}T\textbackslash) is position, \textbackslash(T\textbackslash) is total thrust, \textbackslash(R(\textbackslash Phi)\textbackslash) is the rotation matrix from body to world, and \textbackslash(f\_\{\textbackslash text\{wind\}\} \textbackslash in \textbackslash mathbb\{R\}\^{}3\textbackslash) with \textbackslash(\textbackslash\textbar f\_\{\textbackslash text\{wind\}\}\textbackslash\textbar{} \textbackslash le f\_\{\textbackslash max\}\textbackslash).
+
+\textbf{Figure 6:} Quadrotor schematic with four rotors generating thrust vectors T₁-\/-T₄. Wind disturbance forces f\_wind and torque disturbances τ\_wind act on the body. Uncertainties include mass (m ± Δm) and moment of inertia. The body frame axes (x\_b, y\_b, z\_b) are shown at the centre of mass.
+
+Attitude dynamics with disturbance torques:
+
+\textbackslash{[}
+J\textbackslash dot\{\textbackslash omega\}\_b = -\textbackslash omega\_b \textbackslash times J\textbackslash omega\_b + \textbackslash tau\_b + \textbackslash tau\_\{\textbackslash text\{wind\}\}(t), \textbackslash qquad \textbackslash\textbar\textbackslash tau\_\{\textbackslash text\{wind\}\}\textbackslash\textbar{} \textbackslash le \textbackslash tau\_\{\textbackslash max\}
+\textbackslash{]}
+
+\subsubsection{6.2 Simplified Model for Control Design}\label{simplified-model-for-control-design}}
+
+Using the standard near-hover approximation with Euler angles \textbackslash((\textbackslash phi,\textbackslash theta,\textbackslash psi)\textbackslash):
+
+\textbackslash{[}
+m\textbackslash ddot\{x\} \textbackslash approx T(\textbackslash cos\textbackslash psi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash phi + \textbackslash sin\textbackslash psi\textbackslash sin\textbackslash phi) + f\_\{\textbackslash text\{wind\},x\}
+\textbackslash{]}
+\textbackslash{[}
+m\textbackslash ddot\{y\} \textbackslash approx T(\textbackslash sin\textbackslash psi\textbackslash sin\textbackslash theta\textbackslash cos\textbackslash phi - \textbackslash cos\textbackslash psi\textbackslash sin\textbackslash phi) + f\_\{\textbackslash text\{wind\},y\}
+\textbackslash{]}
+\textbackslash{[}
+m\textbackslash ddot\{z\} = T\textbackslash cos\textbackslash theta\textbackslash cos\textbackslash phi - mg + f\_\{\textbackslash text\{wind\},z\}
+\textbackslash{]}
+
+For small angles, this simplifies to the double-integrator-like model per axis:
+
+\textbackslash{[}
+m\textbackslash ddot\{z\} \textbackslash approx T - mg + f\_z, \textbackslash qquad
+m\textbackslash ddot\{x\} \textbackslash approx T\textbackslash theta\_\{\textbackslash text\{cmd\}\} + f\_x, \textbackslash qquad
+m\textbackslash ddot\{y\} \textbackslash approx -T\textbackslash phi\_\{\textbackslash text\{cmd\}\} + f\_y
+\textbackslash{]}
+
+\subsubsection{6.3 Robust Position Controller}\label{robust-position-controller}}
+
+For each translational axis (showing \textbackslash(z\textbackslash) as example), define \textbackslash(e\_z = z\_d - z\textbackslash), \textbackslash(s\_z = \textbackslash dot\{e\}\_z + \textbackslash lambda\_z e\_z\textbackslash):
+
+\textbackslash{[}
+T = m\textbackslash bigl(\textbackslash ddot\{z\}\_d + \textbackslash lambda\_z\textbackslash dot\{e\}\_z + k\_\{D,z\}\textbackslash,s\_z\textbackslash bigr) + mg + \textbackslash rho\_z\textbackslash,\textbackslash frac\{s\_z\}\{\textbar s\_z\textbar{} + \textbackslash epsilon\_z\}
+\textbackslash{]}
+
+Similarly for \textbackslash(x\textbackslash) and \textbackslash(y\textbackslash), the outer loop computes desired angles \textbackslash(\textbackslash theta\_d\textbackslash) and \textbackslash(\textbackslash phi\_d\textbackslash) which are tracked by an inner attitude controller.
+
+\subsubsection{6.4 Robust Attitude Controller}\label{robust-attitude-controller}}
+
+For each Euler angle (showing roll \textbackslash(\textbackslash phi\textbackslash)):
+
+\textbackslash{[}
+e\_\textbackslash phi = \textbackslash phi\_d - \textbackslash phi, \textbackslash quad s\_\textbackslash phi = \textbackslash dot\{e\}\_\textbackslash phi + \textbackslash lambda\_\textbackslash phi e\_\textbackslash phi
+\textbackslash{]}
+\textbackslash{[}
+\textbackslash tau\_\textbackslash phi = I\_\{xx\}\textbackslash bigl(\textbackslash ddot\{\textbackslash phi\}\_d + \textbackslash lambda\_\textbackslash phi\textbackslash dot\{e\}\_\textbackslash phi + k\_\{D,\textbackslash phi\}\textbackslash,s\_\textbackslash phi\textbackslash bigr) + \textbackslash rho\_\textbackslash phi\textbackslash,\textbackslash frac\{s\_\textbackslash phi\}\{\textbar s\_\textbackslash phi\textbar+\textbackslash epsilon\_\textbackslash phi\}
+\textbackslash{]}
+
+\subsubsection{6.5 MATLAB Implementation}\label{matlab-implementation-2}}
+
+\%\% Robust Control for Quadrotor with Wind Disturbance
+\% Drone parameters
+m\_d = 1.5; g = 9.81; Ixx = 0.03; Iyy = 0.03; Izz = 0.05;
+\% Gains: position
+kd\_z = 15; lam\_z = 5; rho\_z = 8; eps\_z = 0.01;
+kd\_x = 10; lam\_x = 4; rho\_x = 5; eps\_x = 0.01;
+kd\_y = 10; lam\_y = 4; rho\_y = 5; eps\_y = 0.01;
+\% Gains: attitude
+kd\_phi = 20; lam\_phi = 8; rho\_phi = 1; eps\_phi = 0.005;
+kd\_th = 20; lam\_th = 8; rho\_th = 1; eps\_th = 0.005;
+kd\_psi = 10; lam\_psi = 5; rho\_psi = 0.5; eps\_psi= 0.005;
+\% Desired trajectory
+pd = @(t) {[}2*sin(0.3*t); 2*cos(0.3*t); 1+0.5*sin(0.2*t){]};
+dpd = @(t) {[}0.6*cos(0.3*t); -0.6*sin(0.3*t); 0.1*cos(0.2*t){]};
+ddpd= @(t) {[}-0.18*sin(0.3*t); -0.18*cos(0.3*t); -0.02*sin(0.2*t){]};
+\% Wind disturbance
+f\_wind = @(t) {[}3*sin(2*t+1); 2*cos(1.5*t); 1.5*sin(t){]};
+tau\_wind = @(t) {[}0.3*sin(4*t); 0.2*cos(3*t); 0.1*sin(2*t){]};
+\% state = {[}x y z dx dy dz phi theta psi dphi dtheta dpsi{]}
+x0 = {[}0;0;0; 0;0;0; 0;0;0; 0;0;0{]};
+odefun\_drone = @(t,x) drone\_robust\_ode(t, x, m\_d, g, ...
+Ixx, Iyy, Izz, ...
+kd\_z, lam\_z, rho\_z, eps\_z, ...
+kd\_x, lam\_x, rho\_x, eps\_x, ...
+kd\_y, lam\_y, rho\_y, eps\_y, ...
+kd\_phi, lam\_phi, rho\_phi, eps\_phi, ...
+kd\_th, lam\_th, rho\_th, eps\_th, ...
+kd\_psi, lam\_psi, rho\_psi, eps\_psi, ...
+pd, dpd, ddpd, f\_wind, tau\_wind);
+{[}t\_d, X\_d{]} = ode45(odefun\_drone, {[}0 20{]}, x0);
+figure;
+plot3(X\_d(:,1), X\_d(:,2), X\_d(:,3), \textquotesingle r\textquotesingle, \textquotesingle LineWidth\textquotesingle, 1.5); hold on;
+tt = linspace(0,20,500);
+ref = cell2mat(arrayfun(pd, tt, \textquotesingle Un\textquotesingle, 0));
+plot3(ref(1,:), ref(2,:), ref(3,:), \textquotesingle b-\/-\textquotesingle, \textquotesingle LineWidth\textquotesingle, 2);
+legend(\textquotesingle Robust\textquotesingle,\textquotesingle Reference\textquotesingle); xlabel(\textquotesingle x\textquotesingle); ylabel(\textquotesingle y\textquotesingle); zlabel(\textquotesingle z\textquotesingle);
+title(\textquotesingle Quadrotor: Robust Tracking under Wind\textquotesingle); grid on;
+
+function dx = drone\_robust\_ode(t, x, m, g, ...
+Ixx, Iyy, Izz, ...
+kd\_z, lam\_z, rho\_z, eps\_z, ...
+kd\_x, lam\_x, rho\_x, eps\_x, ...
+kd\_y, lam\_y, rho\_y, eps\_y, ...
+kd\_phi, lam\_phi, rho\_phi, eps\_phi, ...
+kd\_th, lam\_th, rho\_th, eps\_th, ...
+kd\_psi, lam\_psi, rho\_psi, eps\_psi, ...
+pd\_fun, dpd\_fun, ddpd\_fun, f\_wind\_fun, tau\_wind\_fun)
+pos = x(1:3); vel = x(4:6);
+phi = x(7); theta = x(8); psi = x(9);
+omega = x(10:12); \% dphi, dtheta, dpsi
+\% Desired
+p\_d = pd\_fun(t); dp\_d = dpd\_fun(t); ddp\_d = ddpd\_fun(t);
+psi\_d = 0; dpsi\_d = 0; ddpsi\_d = 0;
+\% Position errors
+ep = p\_d - pos;
+dep = dp\_d - vel;
+\% -\/-\/- Z-axis (altitude) robust controller -\/-\/-
+sz = dep(3) + lam\_z*ep(3);
+T = m*(ddp\_d(3) + lam\_z*dep(3) + kd\_z*sz) + m*g ...
++ rho\_z*sz/(abs(sz)+eps\_z);
+T = max(T, 0.1); \% thrust must be positive
+\% -\/-\/- X-axis robust controller -\textgreater{} desired theta -\/-\/-
+sx = dep(1) + lam\_x*ep(1);
+ax\_cmd = ddp\_d(1) + lam\_x*dep(1) + kd\_x*sx + rho\_x*sx/(abs(sx)+eps\_x);
+theta\_d = m*ax\_cmd / T;
+theta\_d = max(min(theta\_d, 0.5), -0.5); \% saturate
+\% -\/-\/- Y-axis robust controller -\textgreater{} desired phi -\/-\/-
+sy = dep(2) + lam\_y*ep(2);
+ay\_cmd = ddp\_d(2) + lam\_y*dep(2) + kd\_y*sy + rho\_y*sy/(abs(sy)+eps\_y);
+phi\_d = -m*ay\_cmd / T;
+phi\_d = max(min(phi\_d, 0.5), -0.5);
+\% -\/-\/- Attitude robust controllers -\/-\/-
+\% Roll
+e\_phi = phi\_d - phi;
+de\_phi = 0 - omega(1); \% dphi\_d approx 0
+s\_phi = de\_phi + lam\_phi*e\_phi;
+tau\_phi = Ixx*(lam\_phi*de\_phi + kd\_phi*s\_phi) ...
++ rho\_phi*s\_phi/(abs(s\_phi)+eps\_phi);
+\% Pitch
+e\_th = theta\_d - theta;
+de\_th = 0 - omega(2);
+s\_th = de\_th + lam\_th*e\_th;
+tau\_th = Iyy*(lam\_th*de\_th + kd\_th*s\_th) ...
++ rho\_th*s\_th/(abs(s\_th)+eps\_th);
+\% Yaw
+e\_psi = psi\_d - psi;
+de\_psi = dpsi\_d - omega(3);
+s\_psi = de\_psi + lam\_psi*e\_psi;
+tau\_psi = Izz*(lam\_psi*de\_psi + kd\_psi*s\_psi) ...
++ rho\_psi*s\_psi/(abs(s\_psi)+eps\_psi);
+\% Wind
+fw = f\_wind\_fun(t);
+tw = tau\_wind\_fun(t);
+\% Translational dynamics
+\% Rotation matrix (ZYX convention)
+R = {[}cos(psi)*cos(theta), cos(psi)*sin(theta)*sin(phi)-sin(psi)*cos(phi), ...
+cos(psi)*sin(theta)*cos(phi)+sin(psi)*sin(phi);
+sin(psi)*cos(theta), sin(psi)*sin(theta)*sin(phi)+cos(psi)*cos(phi), ...
+sin(psi)*sin(theta)*cos(phi)-cos(psi)*sin(phi);
+-sin(theta), cos(theta)*sin(phi), cos(theta)*cos(phi){]};
+thrust\_body = {[}0; 0; T{]};
+accel = {[}0;0;-g{]} + R*thrust\_body/m + fw/m;
+\% Rotational dynamics (simplified Euler)
+domega = {[}( tau\_phi + tw(1) - (Izz-Iyy)*omega(2)*omega(3) ) / Ixx;
+( tau\_th + tw(2) - (Ixx-Izz)*omega(1)*omega(3) ) / Iyy;
+( tau\_psi + tw(3) - (Iyy-Ixx)*omega(1)*omega(2) ) / Izz{]};
+dx = {[}vel; accel; omega; domega{]};
+end
+
+\subsection{Section 7 --- MATLAB Activities}\label{section-7-matlab-activities}}
+
+\subsubsection{Activity 1: Robust vs Non-Robust Manipulator (10 min)}\label{activity-1-robust-vs-non-robust-manipulator-10-min}}
+
+\paragraph{Instructions}\label{instructions}}
+
+\begin{enumerate}
+\tightlist
+\item
+  Open \texttt{robust\_control\_simulation.m} (provided with this lecture).
+\item
+  Run Part 1 (Manipulator). The script simulates both:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Robust controller} with \textbackslash(d(t) = 5\textbackslash sin(3t)\textbackslash) disturbance and \textbackslash(\textbackslash rho\_0 = 15\textbackslash).
+  \item
+    \textbf{Computed torque only} (no robust term, i.e., \textbackslash(\textbackslash rho\_0 = 0\textbackslash)).
+  \end{itemize}
+\item
+  Record the maximum tracking error for each controller in the table below.
+\end{enumerate}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Controller & Max \textbar e\textsubscript{1}\textbar{} (rad) & Max \textbar e\textsubscript{2}\textbar{} (rad) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Computed Torque (no robust) & ~ & ~ \\
+Robust CT (\textbackslash(\textbackslash rho\_0 = 15\textbackslash)) & ~ & ~ \\
+\end{longtable}
+
+\textbf{Question:} What happens if you increase \textbackslash(\textbackslash rho\_0\textbackslash) to 50? Does tracking improve? What is the trade-off?
+
+\subsubsection{Activity 2: Robust vs Adaptive --- All Three Systems (15 min)}\label{activity-2-robust-vs-adaptive-all-three-systems-15-min}}
+
+\paragraph{Instructions}\label{instructions-1}}
+
+\begin{enumerate}
+\tightlist
+\item
+  Run Parts 1, 2, and 3 of the MATLAB script. Each produces comparison plots.
+\item
+  The script injects \textbf{random disturbances} (bounded uniform noise).
+\item
+  For each system, note:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Which controller has smaller steady-state error?
+  \item
+    Which controller recovers faster from disturbance spikes?
+  \item
+    Which uses more control effort?
+  \end{itemize}
+\end{enumerate}
+
+\textbf{Discussion:} Robust control provides guaranteed bounds but is conservative. Adaptive control can achieve zero steady-state error for parametric uncertainty but may struggle with fast-varying disturbances. Which is better for a warehouse robot? A surgical robot? An outdoor drone?
+
+\subsubsection{Quick Quiz}\label{quick-quiz}}
+
+\paragraph{Quiz: Uncertainty Bounds and Controller Design}\label{quiz-uncertainty-bounds-and-controller-design}}
+
+\begin{enumerate}
+\tightlist
+\item
+  If the disturbance bound \textbackslash(d\_\{\textbackslash max\}\textbackslash) doubles, what must change in the controller to maintain the same tracking accuracy?
+\item
+  What is the boundary layer parameter \textbackslash(\textbackslash epsilon\textbackslash)? What happens if \textbackslash(\textbackslash epsilon \textbackslash to 0\textbackslash)?
+\item
+  In the Lyapunov proof, which property of the manipulator dynamics makes the \textbackslash(s\^{}T(\textbackslash dot\{M\}-2C)s\textbackslash) term vanish?
+\item
+  True or False: Robust control can reject disturbances larger than \textbackslash(\textbackslash rho\_0\textbackslash).
+\end{enumerate}
+
+\paragraph{Answers}\label{answers}}
+
+\begin{enumerate}
+\tightlist
+\item
+  \textbackslash(\textbackslash rho\_0\textbackslash) must at least double (or increase \textbackslash(K\_D\textbackslash), or decrease \textbackslash(\textbackslash epsilon\textbackslash)).
+\item
+  \textbackslash(\textbackslash epsilon\textbackslash) is the boundary layer thickness. As \textbackslash(\textbackslash epsilon \textbackslash to 0\textbackslash), the controller becomes discontinuous (pure sliding mode), giving perfect rejection but causing chattering.
+\item
+  The \textbf{skew-symmetry} property: \textbackslash(\textbackslash dot\{M\}(q) - 2C(q,\textbackslash dot\{q\})\textbackslash) is skew-symmetric for manipulators with the Christoffel-symbol-based \textbackslash(C\textbackslash) matrix.
+\item
+  \textbf{False.} If \textbackslash(\textbackslash\textbar d\textbackslash\textbar{} \textgreater{} \textbackslash rho\_0\textbackslash), the Lyapunov proof fails and tracking is not guaranteed. The bound must be correctly estimated.
+\end{enumerate}
+
+\subsection{Section 8 --- Summary: Comparison of All Four Controllers}\label{section-8-summary-comparison-of-all-four-controllers}}
+
+\begin{longtable}[]{@{}lllll@{}}
+\toprule\noalign{}
+Property & Week 1: Computed Torque & Week 2: MPC & Week 3: Adaptive & Week 4: Robust \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Core Idea} & Cancel nonlinearities with exact model & Optimise control over prediction horizon & Estimate unknown parameters online & Guarantee performance despite bounded uncertainty \\
+\textbf{Model Requirement} & Exact model needed & Prediction model needed & Structure known (linear in parameters) & Approximate model + uncertainty bound \\
+\textbf{Handles Disturbances?} & No (degrades gracefully) & Partially (via constraints) & Parametric only (structured) & Yes (any bounded disturbance) \\
+\textbf{Online Computation} & Low (matrix multiply) & High (optimisation at each step) & Medium (parameter update) & Low (matrix multiply + norm) \\
+\textbf{Stability Guarantee} & Asymptotic (exact model) & Depends on horizon/model & Asymptotic (with PE) & Uniformly ultimately bounded \\
+\textbf{Tracking Error} & Zero (ideal), grows with model error & Optimised (model-dependent) & Converges to zero & Bounded by \textbackslash(\textbackslash rho\textbackslash epsilon/(K\_D\textbackslash Lambda)\textbackslash) \\
+\textbf{Control Effort} & Moderate & Optimised (can constrain) & Moderate & Higher (robust term adds effort) \\
+\textbf{Performance Over Time} & Constant & Constant & Improves (learns parameters) & Constant (no learning) \\
+\textbf{Conservatism} & None (exact cancellation) & Low (optimised) & Low (estimates true values) & High (designs for worst case) \\
+\textbf{Implementation Complexity} & Low & High & Medium & Low \\
+\textbf{Best For} & Well-modelled systems & Constrained systems, optimal performance & Unknown but slowly-varying parameters & Safety-critical, bounded unknown disturbances \\
+\end{longtable}
+
+\textbf{Figure 7:} Time-response comparison. Blue: nominal controller tracks perfectly without disturbance. Red: nominal controller with disturbance shows large oscillations and tracking degradation. Green: robust controller with disturbance maintains bounded tracking error within the guaranteed envelope ε.
+
+\textbf{Key Takeaway:} No single controller is best for all scenarios. In practice, these approaches are often \textbf{combined}:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Robust-Adaptive:} adaptive estimation with a robust modification for unstructured uncertainty.
+\item
+  \textbf{Robust MPC:} MPC with tube/min-max formulations for bounded disturbances.
+\item
+  \textbf{Computed Torque + Robust:} nominal model cancellation with a robust term for residual error (this week\textquotesingle s approach).
+\end{itemize}
+
+Control for Robots --- Week 4: Robust Control
+
+M.Sc. Robotics \& Autonomous Systems • University of West London • AY 2025--26
